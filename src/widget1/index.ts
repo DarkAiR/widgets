@@ -4,7 +4,7 @@
 // import "bootstrap";
 
 import * as d3 from "d3";
-import "./styles.less";
+import styles from "./styles.less";
 var html = require("./index.html");
 
 export class Widget1 {
@@ -58,10 +58,10 @@ export class Widget1 {
 
         y.domain([0, d3.max(bins, function(d) { return d.length; })]);
 
-        var bar = svg.selectAll(".bar")
+        var bar = svg.selectAll(styles.bar)
             .data(bins)
             .enter().append("g")
-            .attr("class", "bar")
+            .attr("class", styles.bar)
             .attr("transform", function(d) { return "translate(" + x(d.x0) + "," + y(d.length) + ")"; });
 
         bar.append("rect")

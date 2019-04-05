@@ -48,9 +48,17 @@ module.exports = {
         }, {
             test: /\.(less|css)$/,
             use: [{
-                loader: 'css-loader',
+                loader: 'style-loader'
+            }, {
+                // css-loader + создание .d.ts для нормального импорта стилей в код
+                loader: 'typings-for-css-modules-loader',
                 options: {
-                    sourceMap: true
+                    sourceMap: true,
+                    modules: true,
+                    importLoaders: 1,
+                    exportOnlyLocals: true,
+                    localIdentName: '[name]-[local]-[hash:base64:5]',
+                    namedExport: true
                 }
             }, {
                 loader: 'less-loader',
