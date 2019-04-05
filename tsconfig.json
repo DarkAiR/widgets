@@ -12,9 +12,12 @@
     "experimentalDecorators": true,
     "allowSyntheticDefaultImports": true,
     "allowJs": false,
-    // "typeRoots": [
-    //   "node_modules/@types"
-    // ],
+    "types": [
+      "node"      // for require
+    ],
+    "typeRoots": [
+      "node_modules/@types"
+    ],
     // "lib": [
     //   "es2017",
     //   "dom"

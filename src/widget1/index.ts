@@ -5,9 +5,13 @@
 
 import * as d3 from "d3";
 import "./styles.less";
+var html = require("./index.html");
 
 export class Widget1 {
     run() {
+        console.log('HTML: ', html);
+
+
         var parseDate = d3.timeParse("%m/%d/%Y %H:%M:%S %p"),
             formatCount = d3.format(",.0f");
 
