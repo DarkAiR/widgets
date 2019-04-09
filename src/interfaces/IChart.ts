@@ -1,15 +1,15 @@
 /**
  * Interface for chart
  */
-export class Chart {
-    constructor() {}
-    destructor() {}
-    init(element, assign) {}
-    render() {}
-    clear() {}
-    setData(data) {}
-    getDomain(axis) {}
-    getWidth() {}
-    getHeight() {}
-    getIndicators() {}
+import {Config} from "../models/config";
+
+export interface IChart {
+    init(config: Config): IChart;
+    render(): void;
+    clear(): IChart;
+    setData(data: Object): IChart;
+    // getDomain(axis);
+    // getWidth();
+    // getHeight();
+    // getIndicators();
 }

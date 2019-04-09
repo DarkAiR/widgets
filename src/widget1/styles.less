@@ -8,3 +8,409 @@
     font: 10px sans-serif;
   }
 }
+
+/*
+@import '~@angular/material/theming';
+@import "./../../sass/styles";
+
+$leftPanel: 312px;
+$primary: map-get($candy-app-theme, primary);
+
+.charts {
+
+  position: absolute;
+  width: 100%;
+  height: 100%;
+
+  &__left {
+    z-index: 100;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    width: $leftPanel;
+    background-color: white;
+  }
+
+  &__left-container {
+    height: calc(100% - 48px);
+    overflow: auto;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  &__item {
+    position: relative;
+    margin: 12px 0 -4px 0;
+    width: $leftPanel - 48px;
+
+    &:first-child {
+      margin-top: 20px;
+    }
+
+    mat-form-field {
+      width: 100%;
+      margin-right: 8px;
+      margin-left: 8px;
+
+      &:first-child {
+        margin-left: 0;
+      }
+      &:last-child {
+        margin-right: 0;
+      }
+    }
+
+    mat-datepicker-toggle {
+      font-size: 20px;
+      color: map_get($mat-gray, 700);
+    }
+
+    &--subheader {
+      color: mat-color($primary);
+      margin: 20px 0 0 0;
+      padding: 0;
+    }
+
+    &--right {
+      text-align: right;
+      margin: 0;
+
+      [mat-icon-button] {
+        margin-right: -12px;
+      }
+
+    }
+
+    &--remove {
+      position: absolute;
+      right: -12px;
+      top: -8px;
+    }
+
+    &--x2 {
+      display: flex;
+
+      mat-form-field {
+        width: calc(50% - 8px);
+      }
+
+    }
+
+    &--x3 {
+      display: flex;
+
+      mat-form-field {
+        width: calc(33% - 8px);
+      }
+    }
+
+  }
+
+  &__item-color {
+
+    display: inline-block;
+    margin: 0 4px -1px 0;
+    width: 12px;
+    height: 12px;
+    border-radius: 16px;
+    background-color: map_get($mat-teal, 400);
+
+    &--teal-400 {
+      background-color: map_get($mat-teal, 400);
+    }
+    &--red-400 {
+      background-color: map_get($mat-red, 400);
+    }
+    &--deep-purple-600 {
+      background-color: map_get($mat-deep-purple, 600);
+    }
+    &--green-400 {
+      background-color: map_get($mat-green, 400);
+    }
+    &--blue-600 {
+      background-color: map_get($mat-blue, 600);
+    }
+
+  }
+
+  &__ctrl {
+    position: absolute;
+    bottom: 20px;
+    right: 20px;
+  }
+
+  &__ctrl-top {
+    position: absolute;
+    top: 0;
+    left: 0;
+  }
+
+  &__ctrl-left {
+    width: 100%;
+    background-color: map_get($mat-indigo, 500);
+    text-align: right;
+    padding: 4px 0;
+
+    .mdi {
+      color: white;
+    }
+
+    button {
+      margin: 0 -4px;
+
+      &:last-child {
+        margin-right: 4px;
+      }
+
+    }
+
+  }
+
+  &__container {
+    display: flex;
+    width: calc(100% - #{$leftPanel});
+    height: 100%;
+    margin-left: #{$leftPanel};
+
+    &--fill {
+      width: 100%;
+      margin-left: 0;
+    }
+
+  }
+
+  &__title {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 72px;
+
+    .mat-title {
+      margin: 0;
+      line-height: 1;
+    }
+
+    .mat-subheader {
+      color: map_get($mat-grey, 500);
+      padding: 0;
+      margin-top: 2px;
+    }
+
+    &--up {
+      position: absolute;
+      z-index: 10;
+      top: 16px;
+      right: 50%;
+
+      .mat-title {
+        margin-left: 50%;
+        margin-right: -50%;
+        background-color: white;
+        border-radius: 24px;
+        padding: 8px 24px;
+      }
+
+    }
+
+  }
+
+  &__chart {
+    width: 100%;
+    height: calc(100% - #{72px + 48px});
+
+    &--tall {
+      height: calc(100% - 72px);
+    }
+
+  }
+
+  &__edit-container {
+    position: relative;
+    width: 500px;
+    flex-shrink: 0;
+    background-color: white;
+    border-left: 1px solid map_get($mat-gray, 300);
+    overflow: auto;
+  }
+
+  &__edit {
+    overflow: auto;
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+  }
+
+  &__edit-ctrl {
+    display: flex;
+    padding: 16px;
+
+  }
+
+  &__question {
+    width: 100%;
+    margin-top: -2px;
+
+    &-text {
+      margin-right: 4px;
+    }
+  }
+
+  &__views-container {
+    width: 100%;
+    height: 100%;
+  }
+
+  &__views {
+    display: flex;
+    width: 100%;
+    height: calc(100% - 56px);
+
+    &--full {
+      height: 100%;
+    }
+
+  }
+
+  &__view {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+  }
+
+  &__domain {
+    display: flex;
+    justify-content: space-between;
+    //width: calc(100% - 144px);
+    //padding: 0 72px;
+  }
+
+  &__tick {
+    width: 100%;
+    text-align: center;
+
+    &--link {
+      cursor: pointer;
+
+      &:hover {
+        .charts__link {
+          text-decoration: underline;
+        }
+      }
+
+    }
+  }
+
+  &__tick-sub-title {
+    margin-top: -4px;
+  }
+
+  &__svg {
+  }
+
+  &__map {
+    width: 100%;
+    height: 100%;
+  }
+
+  &__hint {
+    position: fixed;
+    z-index: 10;
+    background-color: white;
+    padding: 10px;
+    max-width: 340px;
+
+    div {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    @include mat-elevation(2);
+  }
+
+  &__legend {
+    display: flex;
+    margin-top: -2px;
+    padding-left: 56px;
+  }
+
+  &__legend-group {
+    border-left: 1px solid map_get($mat-gray, 300);
+    padding: 0 32px;
+
+    &:first-child {
+      padding-left: 0;
+      border-left: none;
+    }
+
+  }
+
+  &__r {
+    display: inline-block;
+    margin-right: 4px;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+  }
+
+  &__l {
+    display: inline-block;
+    margin-right: 4px;
+    width: 12px;
+    height: 1px;
+    vertical-align: middle;
+  }
+
+  &__interactive {
+    cursor: pointer;
+  }
+
+  &__transparent-layer {
+    position: absolute;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 15;
+    background-color: rgba(0, 0, 0, .2);
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+  }
+
+  &__edit-card {
+
+  }
+
+  &__mini-btn {
+    font-size: 14px;
+    min-width: 24px !important;
+    width: 24px !important;
+    height: 24px !important;
+
+    &--selected {
+      background-color: map_get($mat-gray, 600) !important;
+      color: white;
+    }
+
+  }
+
+  &__totalizer {
+    border-bottom: 1px solid map_get($mat-grey, 400);
+    padding: 12px 16px;
+    width: 100%;
+
+    text-transform: none !important;
+    text-align: left;
+    font-weight: normal;
+  }
+
+}
+ */
