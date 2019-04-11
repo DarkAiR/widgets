@@ -67,6 +67,33 @@ module.exports = {
                 }
             }]
         }, {
+            test: /\.(scss|sass)$/,
+            use: [{
+                loader: 'style-loader'
+            }, {
+                // css-loader + создание .d.ts для нормального импорта стилей в код
+                loader: 'typings-for-css-modules-loader',
+                options: {
+                    sourceMap: true,
+                    modules: true,
+                    importLoaders: 1,
+                    exportOnlyLocals: true,
+                    localIdentName: '[name]-[local]-[hash:base64:5]',
+                    namedExport: true,
+                    camelCase: true
+                }
+            }, {
+                loader: 'sass-loader',
+                options: {
+                    sourceMap: true,
+                }
+            }]
+        }, {
+            test: /\.ttf$/,
+            use: {
+                loader: 'ttf-loader',
+            }
+        }, {
             test: /\.(html)$/,
             use: {
                 loader: 'html-loader',

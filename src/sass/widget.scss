@@ -1,0 +1,36 @@
+@import '~@angular/material/theming';
+
+.widget {
+
+  margin: 12px;
+
+  position: relative;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+
+  &__title {
+    text-align: center;
+    padding: 16px 0;
+
+    .mat-title {
+      margin: 0;
+      line-height: 1;
+    }
+
+    .mat-subheader {
+      color: map_get($mat-grey, 500);
+      padding: 0;
+      margin-top: 2px;
+    }
+
+  }
+
+  &__content {
+    position: absolute;
+    top: 64px;
+    width: 100%;
+    height: calc(100% - 64px);
+  }
+
+}

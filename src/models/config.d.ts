@@ -1,12 +1,8 @@
-export declare type Paddings = {
-    top: number;
-    right: number;
-    bottom: number;
-    left: number;
-};
+import { Paddings } from "./types";
 export declare class Config {
     element: HTMLElement;
     showAxisX: boolean;
     showAxisY: boolean;
+    padding: Paddings;
     margin: Paddings;
 }

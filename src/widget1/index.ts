@@ -1,8 +1,9 @@
-import * as d3 from "d3";
-import styles from "./styles.less";
+// import * as d3 from "d3";
 import {DiagramChartData, DiagramChart} from "../models/diagram-chart";
 import {Config} from "../models/config";
 var html = require("./index.html");
+// import styles from "./styles.scss";
+var styles = require("./styles.scss");
 
 export class Widget1 {
     chart: DiagramChart;
@@ -22,7 +23,7 @@ export class Widget1 {
 
         this.chart = new DiagramChart();
         this.chart
-            .init(config)
+            .init(config, styles)
             .setData(data)
             .render();
         return;
