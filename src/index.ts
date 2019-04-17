@@ -1,5 +1,4 @@
-export * from './widget1';
+export * from './chartBar';
 export * from './widget2';
-export * from './chart';
 export * from './models/config';
-export * from './models/diagram-chart';
+export * from './render/diagram-chart';

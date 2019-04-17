@@ -1,4 +1,4 @@
-import {Widget1} from '../../lib/widget1';
+import {ChartBar} from '../../lib/chartBar';
 
 const config = {
     element: document.getElementById('widget'),
@@ -12,5 +12,5 @@ const config = {
     }
 }
 
-const html = (new Widget1()).run(config);
+const html = new ChartBar().run(config);
 document.getElementById('widget').innerHTML = html;

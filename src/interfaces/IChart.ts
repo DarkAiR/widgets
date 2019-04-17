@@ -8,8 +8,4 @@ export interface IChart {
     render(): void;
     clear(): IChart;
     setData(data: Object): IChart;
-    // getDomain(axis);
-    // getWidth();
-    // getHeight();
-    // getIndicators();
 }

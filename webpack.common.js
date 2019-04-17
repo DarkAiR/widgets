@@ -5,9 +5,8 @@ module.exports = {
     target: 'web',     // compile with or without webpackJsonp
     entry: {
         "ui-abc": path.resolve(__dirname, 'src', 'index.ts'),
-        widget1: path.resolve(__dirname, 'src', 'widget1/index.ts'),
+        chartBar: path.resolve(__dirname, 'src', 'chartBar/index.ts'),
         widget2: path.resolve(__dirname, 'src', 'widget2/index.ts'),
-        //mychart: path.resolve(__dirname, 'src', 'chart/index.ts')
     },
     output: {
         path: path.resolve(__dirname, 'lib'),
@@ -108,7 +107,7 @@ module.exports = {
         extensions: ['.ts', '.js'],
         alias: {
             "ui-abc$": path.resolve(__dirname, "lib/ui-abc.js"),
-            "widget1": path.resolve(__dirname, "lib/widget1.js")
+            "chartBar": path.resolve(__dirname, "lib/chartBar.js")
         }
     },
     plugins: [
