@@ -1,6 +1,6 @@
 import * as moment from 'moment';
-import { IChart } from '../interfaces/IChart';
-import { Config } from '../models/config';
+import { IRender } from '../interfaces';
+import { WidgetConfig } from '../models/widgetConfig';
 import { Moment } from "moment";
 import StartOf = moment.unitOfTime.StartOf;
 import { ChartType } from "../models/types";
@@ -47,7 +47,7 @@ export declare type DiagramChartData = {
 /**
  * Чарт для диаграм
  */
-export declare class DiagramChart implements IChart {
+export declare class DiagramChart implements IRender {
     private config;
     private styles;
     private svg;
@@ -66,10 +66,10 @@ export declare class DiagramChart implements IChart {
     private cellWidth;
     private padding;
     private margin;
-    init(config: Config, styles: any): IChart;
+    init(config: WidgetConfig, styles: any): IRender;
     render(): void;
-    clear(): IChart;
-    setData(data: DiagramChartData): IChart;
+    clear(): IRender;
+    setData(data: DiagramChartData): IRender;
     private createDomain;
     static daysBetween(startDate: any, endDate: any): number;
     static addEventListeners(nodes: any, data?: any): void;

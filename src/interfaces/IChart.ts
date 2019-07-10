@@ -1,11 +1,5 @@
-/**
- * Interface for chart
- */
-import {Config} from "../models/config";
+import {DiagramChartData, WidgetConfig} from "..";
 
 export interface IChart {
-    init(config: Config, styles): IChart;
-    render(): void;
-    clear(): IChart;
-    setData(data: Object): IChart;
+    run(config: WidgetConfig, data: DiagramChartData): void;
 }

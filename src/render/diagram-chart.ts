@@ -1,8 +1,8 @@
 import * as d3 from 'd3';
 import * as moment from 'moment';
 import * as _ from 'lodash';
-import {IChart} from '../interfaces/IChart';
-import {Config} from '../models/config';
+import {IRender} from '../interfaces';
+import {WidgetConfig} from '../models/widgetConfig';
 import {Moment} from "moment";
 import StartOf = moment.unitOfTime.StartOf;
 import {ChartType, Paddings} from "../models/types";
@@ -53,8 +53,8 @@ export type DiagramChartData = {
 /**
  * Чарт для диаграм
  */
-export class DiagramChart implements IChart {
-    private config: Config = new Config();
+export class DiagramChart implements IRender {
+    private config: WidgetConfig = new WidgetConfig();
     private styles = null;
     private svg = null;
     private base = null;
@@ -87,12 +87,12 @@ export class DiagramChart implements IChart {
         right: 0
     };
 
-    init(config: Config, styles): IChart {
+    init(config: WidgetConfig, styles): IRender {
         this.config = config;
         this.styles = styles;
         this.padding = this.config.padding;
         this.margin = this.config.margin;
-        this.svg = d3.select(config.element);
+        this.svg = d3.select(config.element).append('svg').attr('width', '100%').attr('height', '100%');
         return this;
     }
 
@@ -301,12 +301,12 @@ export class DiagramChart implements IChart {
         }
     }
 
-    clear(): IChart {
+    clear(): IRender {
         this.svg.select('*').remove();
         return this;
     }
 
-    setData(data: DiagramChartData): IChart {
+    setData(data: DiagramChartData): IRender {
         this.data = _.clone(data);
         return this;
     }
