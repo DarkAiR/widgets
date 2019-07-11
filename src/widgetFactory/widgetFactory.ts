@@ -1,6 +1,8 @@
 import {WidgetConfig} from "../models/widgetConfig";
-import {ChartBar, DataProvider, DiagramChartData} from "..";
+import {DataProvider, DiagramChartData} from "..";
+import {ChartBar} from "../chartBar";
 import {AverageNumberChart} from "../averageNumberChart";
+import {IChart} from "../interfaces";
 
 export class WidgetFactory {
     dataProvider: DataProvider = new DataProvider();
