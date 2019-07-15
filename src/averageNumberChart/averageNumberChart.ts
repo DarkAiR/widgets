@@ -1,17 +1,27 @@
-import {DiagramChartData, WidgetConfig} from "..";
-import {IChart} from "../interfaces";
-const styles = require("./../css/s.css");
+import {IChart, IChartData} from "../interfaces";
+import {AverageNumberConfig} from "./averageNumberConfig";
+import s from "../styles/_all.less";
+// import st from "./averageNumberChart.less";
 
 export class AverageNumberChart implements IChart {
-    run(config: WidgetConfig, data: DiagramChartData): void {
-        const str = 'You see the AverageNumberChart' + `
-<div class="${styles['alert']} ${styles['alert-warn']}">
-    <div class="${styles['icon']} ${styles['close']}"><i class="${styles['mdi']} ${styles['mdi-close']}"></i></div>
-    <div class="${styles['alert-body']}">
-        <h4>Title</h4>
-        <div>Body content</div>
-    </div>
-</div>
+    run(config: AverageNumberConfig, data: IChartData): void {
+        const str = `
+            <div class='${s["widget"]}'>
+                <div class='${s["row"]}'>
+                    <div class='${s["col"]} ${s["col-100"]} ${s["color-yellow"]}'>
+                        ${data.title}
+                    </div>
+                </div>
+                
+                <div class='${s["row"]}'>
+                    <div class='${s["col"]} ${s["s-w-12-24"]}  ${s["text-left"]}'>
+                        hello
+                    </div>
+                    <div class='${s["col"]} ${s["s-w-12-24"]}  ${s["text-right"]}'>
+                        world
+                    </div>
+                </div>
+            </div>
         `;
         config.element.innerHTML = str;
     }

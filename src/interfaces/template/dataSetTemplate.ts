@@ -7,8 +7,8 @@ export interface DataSetTemplate {
     dataSource2: SingleDataSource | AggregationDataSource | null;   // второй источник данных используется для STATIC и REPORT представления
     viewType: ViewType;                     // тип виджета (должен совпадать со значением в WidgetTemplate)
     chartType: ChartType;                   // тип отрисовки данных из данного источника
-    from: string | null;                    // дата начала выборки
-    to: string | null;                      // дата окончания выборки
+    from: string | null;                    // дата начала выборки 'YYYY-mm-dd'
+    to: string | null;                      // дата окончания выборки 'YYYY-mm-dd'
     years: Array<number> | null;            // фильтр по годам
     days: Array<number> | null;             // фильтр по дням месяца
     months: Array<number> | null;           // фильтр по месяцам

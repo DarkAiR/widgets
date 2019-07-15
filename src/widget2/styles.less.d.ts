@@ -1,2 +1,6 @@
-export const widget2: string;
-export const hello: string;
+export interface IStylesLess {
+  'widget2': string;
+  'hello': string;
+}
+
+export const locals: IStylesLess;

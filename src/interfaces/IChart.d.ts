@@ -1,4 +1,5 @@
-import { DiagramChartData, WidgetConfig } from "..";
+import { WidgetConfig } from "..";
+import { IChartData } from ".";
 export interface IChart {
-    run(config: WidgetConfig, data: DiagramChartData): void;
+    run(config: WidgetConfig, data: IChartData): void;
 }

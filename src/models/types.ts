@@ -5,7 +5,7 @@ export type Paddings = {
     left: number;
 }
 
-export type ViewType = 'STATIC' | 'DYNAMIC' |' DISTRIBUTION' | 'PROFILE' | 'REPORT';
+export type ViewType = 'STATIC' | 'DYNAMIC' | 'DISTRIBUTION' | 'PROFILE' | 'REPORT';
 export type ChartType = 'LINE' | 'HISTOGRAM' | 'SCATTER';
 export type Frequency = 'MONTH' | 'WEEK' | 'DAY' | 'HOUR';
 export type Operation = 'SUM' | 'AVG' | 'MIN' | 'MAX';

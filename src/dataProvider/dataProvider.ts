@@ -1,22 +1,25 @@
 import {WidgetConfig} from "..";
-import {WidgetTemplate} from "../interfaces";
-import {get as _get} from 'lodash';
-// import {HRDate} from "../../../svc_analytics/front/src/app/hr-date";
-// import * as moment from "../../../svc_analytics/front/src/app/charts/charts.component";
-// import {Resource} from "../../../svc_analytics/front/src/app/resource";
+import {DataSetTemplate, SingleDataSource, WidgetTemplate} from "../interfaces";
+import {get as _get, forEach as _forEach} from 'lodash';
+import {IGqlRequest} from "./IGqlRequest";
+import {IChartData} from "../interfaces/IChartData";
+import * as stringifyObject from 'stringify-object';
 
 const axios = require('axios');
 
 export class DataProvider {
+    private get gqlLink(): string {
+        return 'http://34.83.209.150:8080/graphql';
+    }
+
     private get templatesLink(): string {
         return 'http://34.83.209.150:8080/api/v1/templates';
     }
 
-    getData(config: WidgetConfig) {
-        this.getTemplate(config.templateId).then((template: WidgetTemplate) => {
-            console.log(template);
-            this.parseTemplate(template);
-        });
+    async getData(config: WidgetConfig): Promise<IChartData> {
+        const template: WidgetTemplate = await this.getTemplate(config.templateId);
+        console.log('Load template', template);
+        return await this.parseTemplate(template);
     }
 
     private async getTemplate(templateId: string): Promise<WidgetTemplate> {
@@ -28,11 +31,28 @@ export class DataProvider {
         }
     }
 
-    private parseTemplate(template: WidgetTemplate): void {
-/*            if (!template) {
-                return this;
-            }
+    private async parseTemplate(template: WidgetTemplate): Promise<IChartData | null> {
+        if (_get(template, 'dataSets', null) === null  ||  !template.dataSets.length) {
+            return null;
+        }
+        const data: IChartData = {
+            title: template.title,
+            from: template.dataSets[0].from,
+            to: template.dataSets[0].from,
+            frequency: template.dataSets[0].frequency,
+            preFrequency: template.dataSets[0].preFrequency,
+            data: []
+        };
 
+        // Асинхронно загружаем все данные
+        const promises = template.dataSets.map(async (item) => {
+            data.data.push(await this.loadData(item));
+        });
+        await Promise.all(promises);
+
+        console.log('Load template data', data.data);
+        return data;
+/*
             this.selectedTemplate = template;
             this.period           = HRDate.getPeriod(_.get(template, 'dataSets[0].from'), _.get(template, 'dataSets[0].to'));
             this.selectedDate     = moment(_.get(template, 'dataSets[0].from'));
@@ -121,5 +141,63 @@ export class DataProvider {
 
             return this.inflate();
 */
+    }
+
+    /**
+     * Загрузка данных для шаблона
+     */
+    private async loadData(dataSet: DataSetTemplate): Promise<Array<Object>> {
+        return await axios.post(this.gqlLink, this.serializeGQL(dataSet))
+            .then(
+                (response) => {
+                    let data = response.data;
+                    // todo hot fix
+                    if (dataSet.viewType === 'DISTRIBUTION') {
+                        data = _get(data, 'frequencyValues');
+                    }
+                    return _get(data, 'data.getSingleTimeSeries', []);
+                },
+                (error) => {
+                    throw error;
+                }
+            );
+    }
+
+    private serializeGQL(dataSet: DataSetTemplate): IGqlRequest | null {
+        // Пока только SINGLE
+        if (dataSet.dataSource1.type !== 'SINGLE') {
+            return null;
+        }
+
+        const dataSource1 = <SingleDataSource>dataSet.dataSource1;
+        let dimensionsJson: string = '{}';
+        if (dataSet.viewType === 'DYNAMIC' || dataSet.viewType === 'DISTRIBUTION' || dataSet.viewType === 'PROFILE') {
+            dimensionsJson = stringifyObject(dataSource1.dimensions, {
+                indent: ' ',
+                singleQuotes: false
+            }).replace(/\n/g, '');
+        }
+
+        return {
+            operationName: null,
+            variables: {},
+            query: `
+{getSingleTimeSeries(dataSet: {
+    from: "${dataSet.from}"
+    to: "${dataSet.to}"
+    frequency: ${dataSet.frequency}
+    preFrequency: ${dataSet.preFrequency}
+    operation: ${dataSet.operation}
+    dataSource1: {
+        type      : SINGLE,
+        name      : "${dataSource1.name}",
+        dimensions: ${dimensionsJson}
+    }
+}){
+    orgUnits { name }
+    value
+    localDateTime
+}}`
+        };
     }
 }

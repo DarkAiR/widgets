@@ -1,8 +1,8 @@
 import {WidgetConfig} from "../models/widgetConfig";
-import {DataProvider, DiagramChartData} from "..";
+import {DataProvider} from "..";
 import {ChartBar} from "../chartBar";
 import {AverageNumberChart} from "../averageNumberChart";
-import {IChart} from "../interfaces";
+import {IChartData} from "../interfaces";
 
 export class WidgetFactory {
     dataProvider: DataProvider = new DataProvider();
@@ -41,7 +41,8 @@ export class WidgetFactory {
     }
 
     private averageNumberChart(config: WidgetConfig): void {
-        const data = this.dataProvider.getData(config);
-        new AverageNumberChart().run(config, <DiagramChartData>{});
+        this.dataProvider.getData(config).then((data: IChartData) => {
+            new AverageNumberChart().run(config, data);
+        })
     }
 }

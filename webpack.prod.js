@@ -1,7 +1,7 @@
 const merge = require('webpack-merge');
 
 module.exports = (env) => {
-    const common = require('./webpack.common.js')({sourceMap: false});
+    const common = require('./webpack.common.js')();
 
     return merge(common, {
         mode: 'production'
