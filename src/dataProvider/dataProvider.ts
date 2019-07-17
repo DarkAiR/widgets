@@ -1,4 +1,4 @@
-import {WidgetConfig} from "..";
+import {WidgetConfig} from "../models/widgetConfig";
 import {DataSetTemplate, SingleDataSource, WidgetTemplate} from "../interfaces";
 import {get as _get, forEach as _forEach} from 'lodash';
 import {IGqlRequest} from "./IGqlRequest";

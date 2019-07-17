@@ -1,3 +1,2 @@
-import {AverageNumberChart} from "./averageNumberChart";
-
-export {AverageNumberChart};
+export * from "./averageNumberChart";
+export * from "./averageNumberConfig";

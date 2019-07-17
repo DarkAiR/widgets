@@ -1,3 +1,1 @@
-import {WidgetFactory} from "./widgetFactory";
-
-export {WidgetFactory};
+export * from "./widgetFactory";

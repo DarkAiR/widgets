@@ -1,4 +1,4 @@
-import {WidgetConfig} from "..";
+import {WidgetConfig} from "../models/widgetConfig";
 import {IChartData} from ".";
 
 export interface IChart {
