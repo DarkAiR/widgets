@@ -1,13 +1,12 @@
-import {Paddings, WidgetType} from "./types";
+import {Paddings} from "./types";
 
 /**
  * Конфиг для работы фабрики виджетов
  */
 export class WidgetConfig {
-    type: WidgetType;                       // Тип виджета
     templateId: string;                     // ID шаблона
-
     element: HTMLElement = null;            // Контейнер для виджета
+
     showAxisX: boolean = false;
     showAxisY: boolean = false;
     padding: Paddings = {

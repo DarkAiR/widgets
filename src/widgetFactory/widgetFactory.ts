@@ -1,5 +1,5 @@
 import {WidgetConfig} from "../models/widgetConfig";
-import {DataProvider} from "..";
+import {AverageNumberConfig, DataProvider, SolidGaugeChart, SolidGaugeConfig} from "..";
 import {ChartBar} from "../chartBar";
 import {AverageNumberChart} from "../averageNumberChart";
 import {IChartData} from "../interfaces";
@@ -8,30 +8,27 @@ export class WidgetFactory {
     dataProvider: DataProvider = new DataProvider();
 
     run(config: WidgetConfig): void {
-        if (!config.type) {
-            console.error('Required field "type" is not specified');
+        if (!config.element) {
+            console.error('Required field "element" is not specified');
             return;
         }
         if (!config.templateId) {
             console.error('Required field "templateId" is not specified');
             return;
         }
-        switch (config.type) {
-            case "chartBar":
-                this.chartBar(config);
-                break;
-            case "averageNumber":
-                this.averageNumberChart(config);
-                break;
-            case "averageSpline":
-                console.error('Not supported');
-                break;
-            case "solidGauge":
-                console.error('Not supported');
-                break;
-            case "indicatorsTable":
-                console.error('Not supported');
-                break;
+
+        if (config instanceof AverageNumberConfig) {
+            // Средние показатели за прошлый и позапрошлый интервал
+            this.averageNumberChart(config);
+        } else
+        if (config instanceof SolidGaugeConfig) {
+            // Индикатор в виде полукруга
+            this.solidGaugeChart(config);
+        } else {
+            console.error('Not supported');
+//            'chartBar' |                // Столбцовая диаграмма
+//            'spline' |                  // Сплайн
+//            'indicatorsTable';          // Таблица разных индикаторов
         }
     }
 
@@ -40,9 +37,15 @@ export class WidgetFactory {
         new ChartBar().run(config, data2);
     }
 
-    private averageNumberChart(config: WidgetConfig): void {
+    private averageNumberChart(config: AverageNumberConfig): void {
         this.dataProvider.getData(config).then((data: IChartData) => {
             new AverageNumberChart().run(config, data);
+        })
+    }
+
+    private solidGaugeChart(config: SolidGaugeConfig): void {
+        this.dataProvider.getData(config).then((data: IChartData) => {
+            new SolidGaugeChart().run(config, data);
         })
     }
 }

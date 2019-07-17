@@ -53,8 +53,8 @@ export type DiagramChartData = {
 /**
  * Чарт для диаграм
  */
-export class DiagramChart implements IRender {
-    private config: WidgetConfig = new WidgetConfig();
+export class DiagramChart /* implements IRender */ {
+/*    private config: WidgetConfig = new WidgetConfig();
     private styles = null;
     private svg = null;
     private base = null;
@@ -333,5 +333,5 @@ export class DiagramChart implements IRender {
                 }
             })
         );
-    };
+    };*/
 }

@@ -13,7 +13,7 @@ export class ChartBar {
     }
 
     private init(config: WidgetConfig, data) {
-        config.margin.top = 8;
+/*        config.margin.top = 8;
         config.margin.right = 32;
         config.margin.bottom = 8;
         config.margin.left = 8;
@@ -28,7 +28,7 @@ export class ChartBar {
             this.resizeObserve(config.element, ({width, height}) => {
                 this.chart.render();
             });
-        }
+        } */
     }
 
     private resizeObserve(element, callback: Function) {
