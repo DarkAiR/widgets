@@ -17,7 +17,7 @@ module.exports = (env) => {
     return {
         target: 'web',     // compile with or without webpackJsonp
             entry: {
-                "ui-abc": path.resolve(__dirname, 'src', 'index.ts'),
+                "abc-charts": path.resolve(__dirname, 'src', 'index.ts'),
                 widgetFactory: path.resolve(__dirname, 'src', 'widgetFactory/index.ts'),
                 chartBar: path.resolve(__dirname, 'src', 'chartBar/index.ts'),
                 averageNumberChart: path.resolve(__dirname, 'src', 'averageNumberChart/index.ts'),
@@ -26,7 +26,7 @@ module.exports = (env) => {
             output: {
                 path: path.resolve(__dirname, 'lib'),
                 filename: '[name].js',
-                library: 'ui-abc',
+                library: 'abc-charts',
                 libraryTarget: 'umd',
                 umdNamedDefine: true,
                 publicPath: '/',
@@ -111,12 +111,12 @@ module.exports = (env) => {
                 // modules: [__dirname, 'src'],
                 extensions: ['.ts', '.js'],
                 alias: {
-                    "ui-abc$": path.resolve(__dirname, "lib/ui-abc.js")
+                    "abc-charts$": path.resolve(__dirname, "lib/abc-charts.js")
                 }
             },
             plugins: [
                 // new TypescriptDeclarationPlugin({
-                //     out: '../ui-abc.d.ts'
+                //     out: '../abc-charts.d.ts'
                 // })
             ]
         }
