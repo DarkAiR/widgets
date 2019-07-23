@@ -2,7 +2,7 @@
   "compileOnSave": false,
   "compilerOptions": {
     "importHelpers": true,
-//    "outDir": "./lib/",
+    // "outDir": "lib",
     "sourceMap": true,
     "declaration": true,
     "module": "es6",

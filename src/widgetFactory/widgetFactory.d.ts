@@ -3,7 +3,20 @@ import { DataProvider } from "..";
 export declare class WidgetFactory {
     dataProvider: DataProvider;
     run(config: WidgetConfig): void;
-    private chartBar;
+    /**
+     * Средние показатели за прошлый и позапрошлый интервал
+     */
     private averageNumberChart;
+    /**
+     * Индикатор в виде полукруга
+     */
     private solidGaugeChart;
+    /**
+     * Сплайн
+     */
+    private splineChart;
+    /**
+     * Таблица разных индикаторов
+     */
+    private indicatorsTableChart;
 }

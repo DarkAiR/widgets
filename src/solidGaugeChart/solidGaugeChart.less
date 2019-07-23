@@ -1,6 +1,50 @@
-//@import (reference) '~goodt-framework-css/src/_params.less';
-//@import (reference) '../styles/theme.less';
-//
-.qwe {
-    background: red;
+@import (reference) '~goodt-framework-css/src/_params.less';
+@import (reference) '../styles/theme.less';
+
+.widget {
+    position: relative;
+    left: 50%;
+}
+.chart {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+
+    .lineGrey,
+    .lineYellow {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        left: 0;
+        top: 0;
+        border-width: 16px;
+        border-style: solid;
+        box-sizing: border-box;
+        border-top-left-radius: 50% 100%;
+        border-top-right-radius: 50% 100%;
+        border-bottom: none;
+        transform-origin: bottom;
+    }
+    .lineGrey {
+        border-color: rgba(0,0,0,0.15);
+        z-index: 1;
+    }
+    .lineYellow {
+        border-color: #E4B01E;
+        z-index: 2;
+    }
+    .value {
+        &.minValue {
+            background: #fff;
+        }
+        &.maxValue {
+            background: #fff;
+        }
+    }
+}
+
+.info {
+    width: 100%;
+    height: 100%;
 }

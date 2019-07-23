@@ -1,6 +1,5 @@
 import {WidgetConfig} from "./../models/widgetConfig";
 
-export class SolidGaugeConfig extends WidgetConfig {
+export class IndicatorsTableConfig extends WidgetConfig {
     title: string = '';
-    icon: string = '';
 }

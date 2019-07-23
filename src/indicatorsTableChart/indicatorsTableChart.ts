@@ -1,17 +1,16 @@
 import s from "../styles/_all.less";
-import w from "./solidGaugeChart.less";
+import w from "./indicatorsTableChart.less";
 
 import {IChart, IChartData} from "../interfaces";
-import {SolidGaugeConfig} from "./solidGaugeConfig";
+import {IndicatorsTableConfig} from "./indicatorsTableConfig";
 import {get as _get} from "lodash";
+import {Chart} from "../models/Chart";
 
-export class SolidGaugeChart implements IChart {
-    run(config: SolidGaugeConfig, data: IChartData): void {
+export class IndicatorsTableChart extends Chart implements IChart {
+    run(config: IndicatorsTableConfig, data: IChartData): void {
         const str = `
             <div class='${s["widget"]}'>
-                <div class="${w.qwe}">test</div>
-                TITLE: ${config.title}<br/>
-                ICON: ${config.icon}
+                Indicators table
             </div>
         `;
         config.element.innerHTML = str;
