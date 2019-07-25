@@ -10,7 +10,7 @@ module.exports = (env) => {
         localIdentName:   process.env.NODE_ENV === 'dev'
             ? '[name]-[local]'
             : '[hash:base64:5]',
-        namedExport: true,
+        namedExport: false,     // Disable transform to CamelCase from dashed-style
     };
 
     process.noDeprecation = true;
@@ -20,12 +20,10 @@ module.exports = (env) => {
         entry: {
             "abc-charts": path.resolve(__dirname, 'src', 'index.ts'),
             widgetFactory: path.resolve(__dirname, 'src', 'widgetFactory/index.ts'),
-            // chartBar: path.resolve(__dirname, 'src', 'chartBar/index.ts'),
             averageNumberChart: path.resolve(__dirname, 'src', 'averageNumberChart/index.ts'),
             splineChart: path.resolve(__dirname, 'src', 'splineChart/index.ts'),
             solidGaugeChart: path.resolve(__dirname, 'src', 'solidGaugeChart/index.ts'),
             indicatorsTableChart: path.resolve(__dirname, 'src', 'indicatorsTableChart/index.ts'),
-            // widget2: path.resolve(__dirname, 'src', 'widget2/index.ts'),
         },
         output: {
             path: path.resolve(__dirname, 'lib'),
@@ -69,6 +67,7 @@ module.exports = (env) => {
                     // css-loader + создание .d.ts для нормального импорта стилей в код
                     loader: 'typings-for-css-modules-loader',
                     options: Object.assign(stylesOptions, {
+                        // url: false,
                         silent: true
                     })
                 }, {
@@ -76,31 +75,48 @@ module.exports = (env) => {
                 }, {
                     loader: 'less-loader',
                     options: {
+                        // relativeUrls: false,
                         sourceMap: process.env.NODE_ENV === 'dev',
                         strictImports: false        // Отключаем контроль строгих Import
                     }
                 }]
             }, {
-                test: /\.(scss|sass)$/,
-                use: [{
-                    loader: 'style-loader'
-                }, {
-                    // css-loader + создание .d.ts для нормального импорта стилей в код
-                    loader: 'typings-for-css-modules-loader',
-                    options: Object.assign(stylesOptions, {
-                        camelCase: true
-                    })
-                }, {
-                    loader: 'sass-loader',
-                    options: {
-                        sourceMap: process.env.NODE_ENV === 'dev',
-                    }
-                }]
+                // test: /\.(scss|sass)$/,
+                // use: [{
+                //     loader: 'style-loader'
+                // }, {
+                //     // css-loader + создание .d.ts для нормального импорта стилей в код
+                //     loader: 'typings-for-css-modules-loader',
+                //     options: Object.assign(stylesOptions, {
+                //         camelCase: true
+                //     })
+                // }, {
+                //     loader: 'sass-loader',
+                //     options: {
+                //         sourceMap: process.env.NODE_ENV === 'dev',
+                //     }
+                // }]
             }, {
-                test: /\.ttf$/,
+                // Для загрузки svg для иконок
+                test: /\.svg/,
                 use: {
-                    loader: 'ttf-loader',
+                    loader: 'svg-url-loader',
+                    options: {}
                 }
+            }, {
+                //     test: /\.ttf$/,
+                //     use: {
+                //         loader: 'ttf-loader',
+                //     }
+            }, {
+                // test: /\.(svg|eot|ttf|woff|woff2)$/,
+                // use: {
+                //     loader: 'url-loader',
+                //     options: {
+                //         limit: 8192,
+                //         outputPath: 'fonts/'
+                //     }
+                // }
             }, {
                 test: /\.(html)$/,
                 use: {

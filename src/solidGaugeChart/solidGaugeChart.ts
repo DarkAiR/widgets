@@ -1,5 +1,5 @@
 import s from "../styles/_all.less";
-import w, {minValue} from "./solidGaugeChart.less";
+import w from "./solidGaugeChart.less";
 
 import {IChart, IChartData} from "../interfaces";
 import {SolidGaugeConfig} from "./solidGaugeConfig";
@@ -14,21 +14,21 @@ export class SolidGaugeChart extends Chart implements IChart {
         const maxValue = _get(data, 'data[0][1].value', 0);
 
         const str = `
-            <div class='${s["widget"]} ${w.widget}'>
-                <div class="${w.chart}">
-                    <div class="${w.lineGrey}"></div>
-                    <div class="${w.lineYellow}"></div>
-                    <div class="${w.value} ${w.minValue}">0</div>
-                    <div class="${w.value} ${w.maxValue}">${maxValue}</div>                
+            <div class='${s["widget"]} ${w['widget']}'>
+                <div class="${w['chart']}">
+                    <div class="${w['lineGrey']}"></div>
+                    <div class="${w['lineYellow']}"></div>
+                    <div class="${w['value']} ${w['minValue']}">0</div>
+                    <div class="${w['value']} ${w['maxValue']}">${maxValue}</div>                
                 </div>
-                <div class="${w.info}">
+                <div class="${w['info']}">
                     INFO                
                 </div>
             </div>
         `;
         config.element.innerHTML = str;
 
-        const lineYellow: HTMLElement = _first(config.element.getElementsByClassName(w.lineYellow));
+        const lineYellow: HTMLElement = _first(config.element.getElementsByClassName(w['lineYellow']));
         const deg = 180 * (1 - currValue / maxValue);
         lineYellow.style.transform = `rotate(-${deg}deg)`;
 

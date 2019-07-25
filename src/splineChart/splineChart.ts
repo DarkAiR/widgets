@@ -9,7 +9,21 @@ import {Chart} from "../models/Chart";
 
 export class SplineChart extends Chart implements IChart {
     run(config: SplineConfig, data: IChartData): void {
-      const myChart = echarts.init(config.element);
+        const str = `
+            <div class='${s["widget"]}  ${w['widget']}'>
+                <div class='${w['row']}'>
+                    <div class="${w['title']}">
+                        ${data.title}
+                    </div>
+                </div>
+                <div class='${w['row']} ${w['chart']}'>
+                </div>
+            </div>
+        `;
+        config.element.innerHTML = str;
+
+        const el = config.element.getElementsByClassName(w['chart'])[0];
+        const myChart = echarts.init(el);
         const option = {
             grid: {
                 top: '10px',
@@ -39,13 +53,5 @@ export class SplineChart extends Chart implements IChart {
         this.resize(config.element, (width, height) => {
             myChart.resize();
         });
-        return;
-
-        const str = `
-            <div class='${s["widget"]}'>
-                SPLINE
-            </div>
-        `;
-        config.element.innerHTML = str;
     }
 }

@@ -1,5 +1,9 @@
-export const title: string;
-export const curr: string;
-export const num: string;
-export const text: string;
-export const prev: string;
+export interface IAverageNumberChartLess {
+  'title': string;
+  'curr': string;
+  'num': string;
+  'text': string;
+  'prev': string;
+}
+
+export const locals: IAverageNumberChartLess;

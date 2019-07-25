@@ -12,25 +12,24 @@ export class AverageNumberChart extends Chart implements IChart {
             <div class='${s["widget"]}'>
                 <div class='${s["row"]}'>
                     <div class='${s["col"]} ${s["col-100"]}'>
-                        <div class="${w.title}">
+                        <div class="${w['title']}">
                             ${data.title}
                         </div>
                     </div>
                 </div>
-                
                 <div class='${s["row"]}'>
-                    <div class='${w.curr} ${w.num}  ${s["col"]} ${s["s-w-12-24"]} ${s["col-vmid"]}'>
+                    <div class='${w['curr']} ${w['num']}  ${s["col"]} ${s["s-w-12-24"]} ${s["col-vmid"]}'>
                         ${_get(data, 'data[0][0].value', 0)}
                     </div>
-                    <div class='${w.prev} ${w.num}  ${s["col"]} ${s["s-w-12-24"]} ${s["col-vmid"]}'>
+                    <div class='${w['prev']} ${w['num']}  ${s["col"]} ${s["s-w-12-24"]} ${s["col-vmid"]}'>
                         ${_get(data, 'data[0][1].value', 0)}
                     </div>
                 </div>
                 <div class='${s["row"]}'>
-                    <div class='${w.curr} ${w.text}  ${s["col"]} ${s["s-w-12-24"]}'>
+                    <div class='${w['curr']} ${w['text']}  ${s["col"]} ${s["s-w-12-24"]}'>
                         Текущие
                     </div>
-                    <div class='${w.prev} ${w.text}  ${s["col"]} ${s["s-w-12-24"]}'>
+                    <div class='${w['prev']} ${w['text']}  ${s["col"]} ${s["s-w-12-24"]}'>
                         Предыдущие
                     </div>
                 </div>
