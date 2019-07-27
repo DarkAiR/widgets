@@ -1,0 +1,18 @@
+{
+  "name": "abc-charts",
+  "version": "0.2.3",
+  "license": "MIT",
+  "description": "UI based on D3js for using in 'ABC consulting' projects",
+  "keywords": [],
+  "author": "Dmitry DarkAiR Romanov <darkair@list.ru>",
+  "private": false,
+
+  "main": "abc-charts.js",
+  "types": "index.d.js",
+  "files": ["/"],
+
+  "devDependencies": {
+  },
+  "dependencies": {
+  }
+}
