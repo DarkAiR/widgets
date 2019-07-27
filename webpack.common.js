@@ -31,7 +31,7 @@ module.exports = (env) => {
             library: 'abc-charts',
             libraryTarget: 'umd',
             umdNamedDefine: true,
-            publicPath: '/',
+            publicPath: '/',                // Путь относительно которого загружаются ресурсы из бандла
        },
         optimization: {
             // runtimeChunk: true,         // exclude webpackBootstrap

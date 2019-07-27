@@ -1,6 +1,6 @@
 {
   "name": "abc-charts",
-  "version": "0.2.3",
+  "version": "0.2.4",
   "license": "MIT",
   "description": "UI based on D3js for using in 'ABC consulting' projects",
   "keywords": [],

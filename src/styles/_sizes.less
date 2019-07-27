@@ -1,0 +1,7 @@
+each(range(4, 48, 4), {
+  .size-@{value} {
+    &:before {
+      font-size: unit(@value, px);
+    }
+  }
+});

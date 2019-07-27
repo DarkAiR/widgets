@@ -1,5 +1,6 @@
 export interface I_allLess {
   'widget': string;
+  'color-blue': string;
   'h1': string;
   'h2': string;
   'h3': string;
@@ -332,6 +333,18 @@ export interface I_allLess {
   's-col-22-24': string;
   's-col-23-24': string;
   's-col-24-24': string;
+  'size-4': string;
+  'size-8': string;
+  'size-12': string;
+  'size-16': string;
+  'size-20': string;
+  'size-24': string;
+  'size-28': string;
+  'size-32': string;
+  'size-36': string;
+  'size-40': string;
+  'size-44': string;
+  'size-48': string;
   'alert': string;
   'close': string;
   'alert-body': string;

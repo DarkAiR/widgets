@@ -2,7 +2,7 @@
   "compileOnSave": false,
   "compilerOptions": {
     "importHelpers": true,
-    // "outDir": "lib",
+    "outDir": "lib",
     "sourceMap": true,
     "declaration": true,
     "module": "es6",
@@ -17,7 +17,7 @@
     ],
     "typeRoots": [
       "node_modules/@types"
-    ],
+    ]
     // "lib": [
     //   "es2017",
     //   "dom"
@@ -32,11 +32,11 @@
 //    "sourceRoot": "./"
   },
   "include": [
-    "src",
-    "src/**/*"
+    "src"
   ],
   "exclude": [
     "node_modules",
-    "**/*.spec.ts"
+    "**/*.spec.ts",
+    "lib"
   ]
 }
