@@ -4,8 +4,9 @@ import echarts from "echarts";
 
 import {IChart, IChartData} from "../interfaces";
 import {SplineConfig} from "./splineConfig";
-import {get as _get} from "lodash";
+import {get as _get, keys as _keys, map as _map, forEach as _forEach} from "lodash";
 import {Chart} from "../models/Chart";
+import {SingleTimeSeriesValue} from "../interfaces/template/singleTimeSeriesValue";
 
 export class SplineChart extends Chart implements IChart {
     run(config: SplineConfig, data: IChartData): void {
@@ -22,6 +23,39 @@ export class SplineChart extends Chart implements IChart {
         `;
         config.element.innerHTML = str;
 
+        const valuesArr: Array<Array<number>> = [];
+        _forEach(data.data, (dataValue, idx) => {
+            _forEach(dataValue.values, (v: SingleTimeSeriesValue) => {
+                if (valuesArr[v.localDateTime] === undefined) {
+                    valuesArr[v.localDateTime] = [];
+                }
+                valuesArr[v.localDateTime][idx] = v.value;
+            });
+        });
+        // Конвертируем из строковых дат в дни месяца
+        const axisData = _map(_keys(valuesArr), v => new Date(v).getDate());
+        console.log('  axisData', axisData);
+        console.log('  valuesArr', valuesArr);
+
+        const series: Array<Object> = [];
+        for (let idx = 0; idx < data.data.length; idx++) {
+            const arr: Array<number> = [];
+            // Вот такой странный обход массива, т.к. это по факту объект
+            for (let v in valuesArr) {
+                arr.push(valuesArr[v][idx]);
+            };
+            series.push({
+                data: arr,
+                type: 'line',
+                smooth: true,
+                smoothMonotone: 'x',
+                lineStyle: {
+                    color: _get(data.data[idx], 'style.color', '#E4B01E')
+                }
+            });
+        }
+        console.log('  series', series);
+
         const el = config.element.getElementsByClassName(w['chart'])[0];
         const myChart = echarts.init(el);
         const option = {
@@ -29,24 +63,17 @@ export class SplineChart extends Chart implements IChart {
                 top: '10px',
                 right: '10px',
                 bottom: '20px',
-                left: '30px'
+                left: '50px'
             },
             xAxis: {
                 type: 'category',
-                data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+                boundaryGap: false,
+                data: axisData
             },
             yAxis: {
                 type: 'value'
             },
-            series: [{
-                data: [10, 90, 20, 50, 80, 133, 132],
-                type: 'line',
-                smooth: true,
-                smoothMonotone: 'x',
-                lineStyle: {
-                    color: '#E4B01E'
-                }
-            }]
+            series: series
         };
         myChart.setOption(option);
 

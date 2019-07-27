@@ -9,5 +9,3 @@ export interface SingleTimeSeriesValue {
     value: number,
     localDateTime: string;
 }
-
-export type SingleTimeSeries = Array<SingleTimeSeriesValue>;

@@ -4,6 +4,7 @@ import {get as _get, forEach as _forEach} from 'lodash';
 import {IGqlRequest} from "./IGqlRequest";
 import {IChartData} from "../interfaces/IChartData";
 import * as stringifyObject from 'stringify-object';
+import {SingleTimeSeriesValue} from "../interfaces/template/singleTimeSeriesValue";
 
 const axios = require('axios');
 
@@ -44,11 +45,20 @@ export class DataProvider {
             data: []
         };
 
-        // Асинхронно загружаем все данные
-        const promises = template.dataSets.map(async (item) => {
-            data.data.push(await this.loadData(item));
-        });
-        await Promise.all(promises);
+        switch (template.viewType) {
+            case "DYNAMIC":
+                // Асинхронно загружаем все данные
+                const promises = template.dataSets.map(async (item) => {
+                    data.data.push({
+                        style: {
+                            color: item.style.color
+                        },
+                        values: await this.loadData(item)
+                    });
+                });
+                await Promise.all(promises);
+                break;
+        }
 
         console.log('Load template data', data.data);
         return data;
@@ -146,7 +156,7 @@ export class DataProvider {
     /**
      * Загрузка данных для шаблона
      */
-    private async loadData(dataSet: DataSetTemplate): Promise<Array<Object>> {
+    private async loadData(dataSet: DataSetTemplate): Promise<Array<SingleTimeSeriesValue>> {
         return await axios.post(this.gqlLink, this.serializeGQL(dataSet))
             .then(
                 (response) => {
@@ -171,11 +181,18 @@ export class DataProvider {
 
         const dataSource1 = <SingleDataSource>dataSet.dataSource1;
         let dimensionsJson: string = '{}';
-        if (dataSet.viewType === 'DYNAMIC' || dataSet.viewType === 'DISTRIBUTION' || dataSet.viewType === 'PROFILE') {
-            dimensionsJson = stringifyObject(dataSource1.dimensions, {
-                indent: ' ',
-                singleQuotes: false
-            }).replace(/\n/g, '');
+        switch (dataSet.viewType) {
+            case 'DYNAMIC':
+            case 'DISTRIBUTION':
+            case 'PROFILE':
+                dimensionsJson = stringifyObject(dataSource1.dimensions, {
+                    indent: ' ',
+                    singleQuotes: false
+                }).replace(/\n/g, '');
+                break;
+            case "REPORT":
+            case "STATIC":
+                break;
         }
 
         return {
