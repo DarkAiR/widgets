@@ -1,7 +1,7 @@
 {
   "scripts": {
-    "dev": "SET \"NODE_ENV=dev\"  &&  node src/font/generateFont.js  &&  webpack --config webpack.dev.js",
-    "build": "SET \"NODE_ENV=prod\"  &&  node node src/font/generateFont.js  &&  webpack --config webpack.prod.js",
+    "dev": "SET \"NODE_ENV=dev\"  &&  node src/font/generateFont.js  &&  webpack --config webpack.dev.js  &&  copy package-lib.json lib\\package.json ",
+    "build": "SET \"NODE_ENV=prod\"  &&  node node src/font/generateFont.js  &&  webpack --config webpack.prod.js  &&  copy package-lib.json lib\\package.json ",
     "postversion": "copy package-lib.json lib\\package.json /Y && npm publish lib",
     "lint": "echo \"No lint\" && exit 1"
   },
