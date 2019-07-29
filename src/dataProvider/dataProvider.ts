@@ -48,13 +48,14 @@ export class DataProvider {
         switch (template.viewType) {
             case "DYNAMIC":
                 // Асинхронно загружаем все данные
-                const promises = template.dataSets.map(async (item) => {
-                    data.data.push({
+                const promises = template.dataSets.map(async (item, idx) => {
+                    // Сохраняем порядок dataSet
+                    data.data[idx] = {
                         style: {
                             color: item.style.color
                         },
                         values: await this.loadData(item)
-                    });
+                    };
                 });
                 await Promise.all(promises);
                 break;

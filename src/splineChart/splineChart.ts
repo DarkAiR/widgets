@@ -7,6 +7,7 @@ import {SplineConfig} from "./splineConfig";
 import {get as _get, keys as _keys, map as _map, forEach as _forEach} from "lodash";
 import {Chart} from "../models/Chart";
 import {SingleTimeSeriesValue} from "../interfaces/template/singleTimeSeriesValue";
+import {TimeSeriesHelper} from "../helpers/TimeSeries.helper";
 
 export class SplineChart extends Chart implements IChart {
     run(config: SplineConfig, data: IChartData): void {
@@ -23,42 +24,32 @@ export class SplineChart extends Chart implements IChart {
         `;
         config.element.innerHTML = str;
 
-        const valuesArr: Array<Array<number>> = [];
-        _forEach(data.data, (dataValue, idx) => {
-            _forEach(dataValue.values, (v: SingleTimeSeriesValue) => {
-                if (valuesArr[v.localDateTime] === undefined) {
-                    valuesArr[v.localDateTime] = [];
-                }
-                valuesArr[v.localDateTime][idx] = v.value;
-            });
-        });
+        const timeSeriesData = TimeSeriesHelper.convertTimeSeriesToData(data.data);
+
         // Конвертируем из строковых дат в дни месяца
-        const axisData = _map(_keys(valuesArr), v => new Date(v).getDate());
-        console.log('  axisData', axisData);
-        console.log('  valuesArr', valuesArr);
+        const axisData = _map(timeSeriesData.dates, v => new Date(v).getDate());
 
         const series: Array<Object> = [];
         for (let idx = 0; idx < data.data.length; idx++) {
-            const arr: Array<number> = [];
-            // Вот такой странный обход массива, т.к. это по факту объект
-            for (let v in valuesArr) {
-                arr.push(valuesArr[v][idx]);
-            };
             series.push({
-                data: arr,
+                data: timeSeriesData.values[idx],
                 type: 'line',
                 smooth: true,
                 smoothMonotone: 'x',
                 lineStyle: {
-                    color: _get(data.data[idx], 'style.color', '#E4B01E')
+                    color: _get(data.data[idx], 'style.color', '#E4B01E'),
+                    width: 2,
                 },
                 symbol: 'circle',
+                symbolSize: 8,
                 itemStyle: {
-                    color: _get(data.data[idx], 'style.color', '#E4B01E')
+                    color: _get(data.data[idx], 'style.color', '#E4B01E'),
+                    borderColor: '#fff',
+                    borderWidth: 2
+
                 },
             });
         }
-        console.log('  series', series);
 
         const el = config.element.getElementsByClassName(w['chart'])[0];
         const myChart = echarts.init(el);
@@ -103,6 +94,13 @@ export class SplineChart extends Chart implements IChart {
                         type: 'solid'
                     }
                 },
+            },
+            tooltip: {
+                axisPointer: {
+                    show: true,
+                    type: 'line',
+                },
+                formatter: '{c0}'
             },
             series: series
         };

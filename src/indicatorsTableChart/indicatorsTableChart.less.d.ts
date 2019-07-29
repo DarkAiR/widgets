@@ -1,5 +1,12 @@
 export interface IIndicatorsTableChartLess {
-
+  'cont': string;
+  'block': string;
+  'inner-block': string;
+  'title': string;
+  'series1': string;
+  'series2': string;
+  'percents': string;
+  'icons': string;
 }
 
 export const locals: IIndicatorsTableChartLess;
