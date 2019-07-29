@@ -15,14 +15,18 @@ export class SolidGaugeChart extends Chart implements IChart {
 
         const str = `
             <div class='${s["widget"]} ${w['widget']}'>
-                <div class="${w['chart']}">
-                    <div class="${w['lineGrey']}"></div>
-                    <div class="${w['lineYellow']}"></div>
-                    <div class="${w['value']} ${w['minValue']}">0</div>
-                    <div class="${w['value']} ${w['maxValue']}">${maxValue}</div>                
-                </div>
                 <div class="${w['info']}">
-                    INFO                
+                    <div class="${w['current-value']}">378</div>
+                    <div class="${w['title']}">План/Факт топливо, тыс. л</div>
+                </div>
+                <div class="${w['chart']}">
+                    <span class="icon-gas-station ${w['icon-gas-station']} ${s['size-20']} ${s['color-yellow']}"></span>
+                    <svg width="336" height="176" viewBox="0 0 336 176" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M328 168C328 79.6344 256.366 8 168 8C79.6344 8 8 79.6344 8 168" stroke="black" stroke-opacity="0.15" stroke-width="16" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M8 168C8 79.6344 79.6226 8 167.973 8C204.91 8 238.922 20.52 266 41.5484" stroke="#E4B01E" stroke-width="16" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    <div class="${w['value']} ${w['minValue']}">0</div>
+                    <div class="${w['value']} ${w['maxValue']}">450</div>
                 </div>
             </div>
         `;

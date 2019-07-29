@@ -7,6 +7,9 @@ export interface ISolidGaugeChartLess {
   'minValue': string;
   'maxValue': string;
   'info': string;
+  'current-value': string;
+  'title': string;
+  'icon-gas-station': string;
 }
 
 export const locals: ISolidGaugeChartLess;
