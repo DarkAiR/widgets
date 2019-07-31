@@ -10,26 +10,39 @@ export class SolidGaugeChart extends Chart implements IChart {
     private static X_TO_Y_RATION= 2;
 
     run(config: SolidGaugeConfig, data: IChartData): void {
-        const currValue = _get(data, 'data[0][0].value', 0);
-        const maxValue = _get(data, 'data[0][1].value', 0);
+        // const currValue = _get(data, 'data[0][0].value', 0);
+        // const maxValue = _get(data, 'data[0][1].value', 0);
 
+        const maxValue = 450;
+        const currValue = 50;
+        const percent = currValue / maxValue * 100;
+        const magicLengthOfSvgPath = 503.3096923828125;
+        const percentToLength = magicLengthOfSvgPath * (percent / 100);
+        const sdo = magicLengthOfSvgPath - percentToLength;
         const str = `
             <div class='${s["widget"]} ${w['widget']}'>
                 <div class="${w['info']}">
-                    <div class="${w['current-value']}">378</div>
+                    <div class="${w['current-value']}">${currValue}</div>
                     <div class="${w['title']}">План/Факт топливо, тыс. л</div>
                 </div>
                 <div class="${w['chart']}">
                     <span class="icon-gas-station ${w['icon-gas-station']} ${s['size-20']} ${s['color-yellow']}"></span>
                     <svg width="336" height="176" viewBox="0 0 336 176" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M328 168C328 79.6344 256.366 8 168 8C79.6344 8 8 79.6344 8 168" stroke="black" stroke-opacity="0.15" stroke-width="16" stroke-linecap="round" stroke-linejoin="round"/>
-                        <path d="M8 168C8 79.6344 79.6226 8 167.973 8C204.91 8 238.922 20.52 266 41.5484" stroke="#E4B01E" stroke-width="16" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M8 168 C8 80 80 8 168 8 C168 4 328 18 328 168" 
+                            stroke="black" stroke-opacity="0.15" stroke-width="16"
+                            stroke-linecap="round" stroke-linejoin="round" />
+                        <path d="M8 168 C8 80 80 8 168 8 C168 4 328 18 328 168" 
+                            stroke="#E4B01E" stroke-width="16"
+                            stroke-linecap="round" stroke-linejoin="round"
+                            stroke-dasharray=${magicLengthOfSvgPath} stroke-dashoffset=${sdo} />
                     </svg>
+
                     <div class="${w['value']} ${w['minValue']}">0</div>
-                    <div class="${w['value']} ${w['maxValue']}">450</div>
+                    <div class="${w['value']} ${w['maxValue']}">${maxValue}</div>
                 </div>
             </div>
         `;
+
         config.element.innerHTML = str;
 
         const lineYellow: HTMLElement = _first(config.element.getElementsByClassName(w['lineYellow']));
