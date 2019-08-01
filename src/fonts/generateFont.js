@@ -14,7 +14,6 @@ function removeDirSync(path) {
             unlinkSync(curPath);
         }
     });
-
     rmdirSync(path);
 }
 
@@ -22,10 +21,10 @@ async function buildCSSFromSVG(svgList) {
     return new Promise(resolve => {
         webfontsGenerator(
             {
-                cssTemplate: 'src/font/css.hbs',
+                cssTemplate: 'src/fonts/css.hbs',
                 files: svgList,
                 fontName: 'iconfont',
-                dest: 'lib/fonts',
+                dest: 'lib/fonts/iconfont',
                 order: ['eot', 'woff', 'ttf', 'svg'],
                 types: ['eot', 'woff', 'ttf', 'svg'],
                 html: true,
@@ -46,9 +45,9 @@ async function buildCSSFromSVG(svgList) {
 async function build() {
     removeDirSync('lib/fonts');
 
-    const svgList = readdirSync('src/font/mdi_font')
+    const svgList = readdirSync('src/fonts/mdi_font')
         .sort()
-        .map(file => `src/font/mdi_font/${file}`);
+        .map(file => `src/fonts/mdi_font/${file}`);
 
     // make fonts
     await buildCSSFromSVG(svgList);

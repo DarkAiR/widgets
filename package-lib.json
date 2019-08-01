@@ -1,9 +1,9 @@
 {
   "name": "abc-charts",
-  "version": "0.2.4",
+  "version": "0.2.6",
   "license": "MIT",
-  "description": "UI based on D3js for using in 'ABC consulting' projects",
-  "keywords": [],
+  "description": "Widget render for using in 'ABC consulting' projects",
+  "keywords": ["abc", "widget", "charts"],
   "author": "Dmitry DarkAiR Romanov <darkair@list.ru>",
   "private": false,
 
@@ -14,5 +14,6 @@
   "devDependencies": {
   },
   "dependencies": {
+    "goodt-framework-css": "^1.0.5"
   }
 }

@@ -67,9 +67,11 @@ module.exports = (env) => {
                     // css-loader + создание .d.ts для нормального импорта стилей в код
                     loader: 'typings-for-css-modules-loader',
                     options: Object.assign(stylesOptions, {
-                        // url: false,
+                        // url: false,         // Не преобразовывать url из css, чтобы можно было грузить шрифты из пакетов
                         silent: true
                     })
+                // }, {
+                //     loader: path.resolve('webpack/filename-corrector.js'),
                 }, {
                     loader: 'uglifycss-loader',
                 }, {
@@ -109,14 +111,13 @@ module.exports = (env) => {
                 //         loader: 'ttf-loader',
                 //     }
             }, {
-                // test: /\.(svg|eot|ttf|woff|woff2)$/,
-                // use: {
-                //     loader: 'url-loader',
-                //     options: {
-                //         limit: 8192,
-                //         outputPath: 'fonts/'
-                //     }
-                // }
+                test: /\.(woff|woff2|eot|ttf|otf)$/,
+                use: [{
+                    loader: 'file-loader',
+                    options: {
+                        outputPath: 'fonts/pt_root_ui'
+                    }
+                }]
             }, {
                 test: /\.(html)$/,
                 use: {
@@ -127,7 +128,15 @@ module.exports = (env) => {
                 }
             }]
         },
+        resolveLoader: {
+            modules: [
+                path.join(__dirname, 'node_modules')
+            ]
+        },
         resolve: {
+            modules: [
+                path.join(__dirname, 'node_modules')
+            ],
             // modules: [__dirname, 'src'],
             extensions: ['.ts', '.js'],
             alias: {

@@ -1,9 +1,10 @@
 {
   "scripts": {
-    "dev": "SET \"NODE_ENV=dev\"  &&  node src/font/generateFont.js  &&  webpack --config webpack.dev.js  &&  copy package-lib.json lib\\package.json ",
-    "build": "SET \"NODE_ENV=prod\"  &&  node node src/font/generateFont.js  &&  webpack --config webpack.prod.js  &&  copy package-lib.json lib\\package.json ",
+    "dev": "SET \\\"NODE_ENV=dev\\\"  &&  npm run _prepareStyles  &&  webpack --display-error-details --config webpack.dev.js",
+    "build": "SET \\\"NODE_ENV=prod\\\"  &&  npm run _prepareStyles  &&  webpack --config webpack.prod.js",
     "postversion": "copy package-lib.json lib\\package.json /Y && npm publish lib",
-    "lint": "echo \"No lint\" && exit 1"
+    "lint": "echo \"No lint\" && exit 1",
+    "_prepareStyles": "node src/fonts/generateFont.js  &&  copy README.md lib /Y  &&  copy package-lib.json lib\\package.json /Y  &&  copy src\\styles\\_styles.css lib\\styles.css /Y"
   },
   "name": "abc-charts",
   "license": "MIT",
@@ -16,6 +17,7 @@
     "mini-css-extract-plugin": "^0.8.0",
     "node-sass": "^4.12.0",
     "resize-observer-polyfill": "^1.5.1",
+    "resolve-url-loader": "^3.1.0",
     "sass-loader": "^7.1.0",
     "webfonts-generator": "^0.4.0",
     "webpack": "^4.38.0",
