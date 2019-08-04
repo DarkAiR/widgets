@@ -2,6 +2,9 @@ export interface IIndicatorsTableChartLess {
   'cont': string;
   'block': string;
   'inner-block': string;
+  'normal': string;
+  'warning': string;
+  'error': string;
   'title': string;
   'series1': string;
   'series2': string;

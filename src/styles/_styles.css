@@ -1,30 +1,28 @@
 /** DON'T pack this file in bundle anywhere */
 @import "fonts/iconfont/iconfont.css";
 
-/*@import "~goodt-framework-css/fonts/regular/PT Root UI_Regular.css";*/
+@font-face {
+    font-family: 'PTRootUIWebRegular';
+    src: url('~goodt-framework-css/fonts/regular/PT Root UI_Regular.eot');
+    src:
+            url('~goodt-framework-css/fonts/regular/PT Root UI_Regular.eot?#iefix') format('embedded-opentype'),
+            url('~goodt-framework-css/fonts/regular/PT Root UI_Regular.woff2') format('woff2'),
+            url('~goodt-framework-css/fonts/regular/PT Root UI_Regular.woff') format('woff'),
+            url('~goodt-framework-css/fonts/regular/PT Root UI_Regular.ttf') format('truetype'),
+            url('~goodt-framework-css/fonts/regular/PT Root UI_Regular.svg#PTRootUIWeb-Regular') format('svg');
+    font-weight: normal;
+    font-style: normal;
+}
 
-/*@font-face {*/
-/*    font-family: 'PTRootUIWebRegular';*/
-/*    src: url('fonts/pt_root_ui/PT Root UI_Regular.eot');*/
-    /*src:*/
-    /*        url('fonts/pt_root_ui/PT Root UI_Regular.eot?#iefix') format('embedded-opentype'),*/
-    /*        url('fonts/pt_root_ui/PT Root UI_Regular.woff2') format('woff2'),*/
-    /*        url('fonts/pt_root_ui/PT Root UI_Regular.woff') format('woff'),*/
-    /*        url('fonts/pt_root_ui/PT Root UI_Regular.ttf') format('truetype'),*/
-    /*        url('fonts/pt_root_ui/PT Root UI_Regular.svg#PTRootUIWeb-Regular') format('svg');*/
-/*    font-weight: normal;*/
-/*    font-style: normal;*/
-/*}*/
-
-/*@font-face {*/
-/*    font-family: 'PTRootUIWebBold';*/
-/*    src: url('fonts/pt_root_ui/PT Root UI_Bold.eot');*/
-/*    src:*/
-/*            url('fonts/pt_root_ui/PT Root UI_Bold.eot?#iefix') format('embedded-opentype'),*/
-/*            url('fonts/pt_root_ui/PT Root UI_Bold.woff2') format('woff2'),*/
-/*            url('fonts/pt_root_ui/PT Root UI_Bold.woff') format('woff'),*/
-/*            url('fonts/pt_root_ui/PT Root UI_Bold.ttf') format('truetype'),*/
-/*            url('fonts/pt_root_ui/PT Root UI_Bold.svg#PTRootUIWeb-Bold') format('svg');*/
-/*    font-weight: normal;*/
-/*    font-style: normal;*/
-/*}*/
+@font-face {
+    font-family: 'PTRootUIWebBold';
+    src: url('~goodt-framework-css/fonts/bold/PT Root UI_Bold.eot');
+    src:
+            url('~goodt-framework-css/fonts/bold/PT Root UI_Bold.eot?#iefix') format('embedded-opentype'),
+            url('~goodt-framework-css/fonts/bold/PT Root UI_Bold.woff2') format('woff2'),
+            url('~goodt-framework-css/fonts/bold/PT Root UI_Bold.woff') format('woff'),
+            url('~goodt-framework-css/fonts/bold/PT Root UI_Bold.ttf') format('truetype'),
+            url('~goodt-framework-css/fonts/bold/PT Root UI_Bold.svg#PTRootUIWeb-Bold') format('svg');
+    font-weight: normal;
+    font-style: normal;
+}
