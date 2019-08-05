@@ -10,28 +10,28 @@ export class SolidGaugeChart extends Chart implements IChart {
     private static X_TO_Y_RATION= 2;
 
     run(config: SolidGaugeConfig, data: IChartData): void {
-        // const currValue = _get(data, 'data[0][0].value', 0);
-        // const maxValue = _get(data, 'data[0][1].value', 0);
+        const currValue = _get(data, 'data[0].values[0].value', 0);
+        const maxValue = _get(data, 'data[0].values[1].value', 0);
 
-        const maxValue = 450;
-        const currValue = 50;
+        // const maxValue = 450;
+        // const currValue = 50;
         const percent = currValue / maxValue * 100;
         const magicLengthOfSvgPath = 503.3096923828125;
         const percentToLength = magicLengthOfSvgPath * (percent / 100);
-        const sdo = magicLengthOfSvgPath - percentToLength;
+        const sdo = magicLengthOfSvgPath - percentToLength > 0 ? magicLengthOfSvgPath - percentToLength : 0;
         const str = `
             <div class='${s["widget"]} ${w['widget']}'>
                 <div class="${w['info']}">
                     <div class="${w['current-value']}">${currValue}</div>
-                    <div class="${w['title']}">План/Факт топливо, тыс. л</div>
+                    <div class="${w['title']}">${data.title}</div>
                 </div>
                 <div class="${w['chart']}">
-                    <span class="icon-gas-station ${w['icon-gas-station']} ${s['size-20']} ${s['color-yellow']}"></span>
+                    <span class="${config.icon} ${w['icon']} ${s['size-20']} ${s['color-yellow']}"></span>
                     <svg width="336" height="176" viewBox="0 0 336 176" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M8 168 C8 80 80 8 168 8 C168 4 328 18 328 168" 
+                        <path d="M8 168C8.00001 79.6344 79.6345 7.99998 168 7.99999C256.366 7.99999 328 79.6344 328 168" 
                             stroke="black" stroke-opacity="0.15" stroke-width="16"
                             stroke-linecap="round" stroke-linejoin="round" />
-                        <path d="M8 168 C8 80 80 8 168 8 C168 4 328 18 328 168" 
+                        <path d="M8 168C8.00001 79.6344 79.6345 7.99998 168 7.99999C256.366 7.99999 328 79.6344 328 168" 
                             stroke="#E4B01E" stroke-width="16"
                             stroke-linecap="round" stroke-linejoin="round"
                             stroke-dasharray=${magicLengthOfSvgPath} stroke-dashoffset=${sdo} />
