@@ -35,6 +35,15 @@
         }
     }
 }
+.normal {
+    nope: nope;
+}
+.warning {
+    color: @color-yellow;
+}
+.error {
+    color: @color-red;
+}
 .title {
     text-align: center;
     white-space: nowrap;
@@ -53,4 +62,8 @@
 }
 .icons {
     white-space: nowrap;
+}
+[class^='icon-'],
+[class*=' icon-'] {
+    margin-right: 4px;
 }

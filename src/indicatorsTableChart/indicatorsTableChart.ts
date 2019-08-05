@@ -9,6 +9,8 @@ import * as hammer from 'hammerjs';
 import {Chart} from "../models/Chart";
 import {TimeSeriesHelper} from "../helpers/TimeSeries.helper";
 
+type MetricsStatus = 'normal' | 'warning' | 'error';
+
 export class IndicatorsTableChart extends Chart implements IChart {
     run(config: IndicatorsTableConfig, data: IChartData): void {
         const mc = hammer(config.element);
@@ -44,53 +46,82 @@ export class IndicatorsTableChart extends Chart implements IChart {
 
         moment.locale('ru');
 
+        // DataSets:
+        // 1,2 value + %
+        // 3,4 value + %
+        // 5 +/- %
+        // 6 bit fields
+
         let widgetHtml = '';
         const dataSet1 = _get(data.data, '0', null);
         const dataSet2 = _get(data.data, '1', null);
         const dataSet3 = _get(data.data, '2', null);
+        const dataSet4 = _get(data.data, '3', null);
+        const dataSet5 = _get(data.data, '4', null);
+        const dataSet6 = _get(data.data, '5', null);
 
         const timeSeriesData = TimeSeriesHelper.convertTimeSeriesToData(data.data);
 
         for (let idx in timeSeriesData.dates) {
+            let status: MetricsStatus = 'normal';
+            let blockHtml = `
+                <div class="${w['series1']}">`;
+            if (dataSet1 !== null && dataSet2 !== null) {
+                // объем проданного топлива за день, литры
+                // выполнение плана по проданному топливу за день, в %
+                const percents = 100 + (dataSet2.values[idx].value - 15);
+                blockHtml += `${dataSet1.values[idx].value} тыс.л (${percents}%)`;
+                status = this.getMetricsStatus(status, percents);
+            }
+            blockHtml += `
+                </div>
+                <div class="${w['series2']}">`;
+            if (dataSet3 !== null && dataSet4 !== null) {
+                // выручка с НТУ за день
+                // выполнение плана по выручке с НТУ за день, в %
+                const percents = 100 + (dataSet4.values[idx].value - 10);
+                blockHtml += `${dataSet3.values[idx].value} тыс.₽ (${percents}%)`;
+                status = this.getMetricsStatus(status, percents);
+            }
+            blockHtml += `
+                </div>
+                <div class="${w['percents']}">`;
+            if (dataSet5 !== null) {
+                // отклонение трафика от прогноза трафика, в %
+                const percents = dataSet5.values[idx].value - 10;
+                status = this.getMetricsStatus(status, 100 + percents);
+
+                // Получаем локальный статус только для этого индикатора и красим его отдельно
+                const localStatus: MetricsStatus = percents >= 0 ? 'normal' : 'error';
+
+                blockHtml += `<span class="${w[localStatus]}">${percents > 0 ? '+' : ''}${percents}%</span>`;
+            }
+            blockHtml += `
+                </div>
+                <div class="${w['icons']}">`;
+            if (this.checkBit(dataSet6.values[idx].value, 0)) {
+                blockHtml += `<span class="icon-clock-alert-outline ${s['size-20']} ${s['color-yellow']}"></span>`;
+            }
+            if (this.checkBit(dataSet6.values[idx].value, 1)) {
+                blockHtml += `<span class="icon-run-fast ${s['size-20']} ${s['color-blue']}"></span>`;
+            }
+            if (this.checkBit(dataSet6.values[idx].value, 2)) {
+                blockHtml += `<span class="icon-account-plus ${s['size-20']} ${s['color-green']}"></span>`;
+            }
+            if (this.checkBit(dataSet6.values[idx].value, 3)) {
+                blockHtml += `<span class="icon-account-remove ${s['size-20']} ${s['color-red']}"></span>`;
+            }
+            blockHtml += `
+                </div>`;
+
             widgetHtml += `
                 <div class="${w['block']}">
                     <div class="${w['inner-block']}">
-                        <div class="${w['title']}">${moment(timeSeriesData.dates[idx]).format('D MMMM')}</div>
-                        <div class="${w['series1']}">`;
-            if (dataSet1 !== null) {
-                const rnd = Math.ceil(Math.random()*30 + 70);
-                widgetHtml += `${dataSet1.values[idx].value} тыс.л (${rnd}%)`;
-            }
-            widgetHtml += `
-                        </div>
-                        <div class="${w['series2']}">`;
-            if (dataSet2 !== null) {
-                const rnd = Math.ceil(Math.random()*50 + 75);
-                widgetHtml += `${dataSet2.values[idx].value} тыс.₽ (${rnd}%)`;
-            }
-            widgetHtml += `
-                        </div>
-                        <div class="${w['percents']}">`;
-            if (dataSet3 !== null) {
-                const rnd = Math.random();
-                if (rnd < 0.33) {
-                    widgetHtml += `-`;
-                } else if (rnd < 0.66) {
-                    widgetHtml += `<span class="${s['color-green']}">+${dataSet3.values[idx].value}%</span>`;
-                } else {
-                    widgetHtml += `<span class="${s['color-red']}">-${dataSet3.values[idx].value}%</span>`;
-                }
-            }
-            widgetHtml += `
-                        </div>
-                        <div class="${w['icons']}">
-                            <span class="icon-clock-alert-outline ${s['size-20']} ${s['color-yellow']}"></span>
-                            <span class="icon-run-fast ${s['size-20']} ${s['color-blue']}"></span>
-                            <span class="icon-account-plus ${s['size-20']} ${s['color-green']}"></span>
-                            <span class="icon-account-remove ${s['size-20']} ${s['color-red']}"></span>
-                        </div>
+                        <div class="${w['title']} ${w[status]}">${moment(timeSeriesData.dates[idx]).format('D MMMM')}</div>
+                        ${blockHtml}
                     </div>
-                </div>`;
+                </div>
+            `;
         }
 
         const str = `
@@ -101,5 +132,35 @@ export class IndicatorsTableChart extends Chart implements IChart {
             </div>
         `;
         config.element.innerHTML = str;
+    }
+
+    /**
+     * Устанавливает общий статус исходя из процентов
+     * @param status предыдущий статус
+     * @param percents значение в процентах
+     */
+    private getMetricsStatus(status: MetricsStatus, percents: number): MetricsStatus {
+        // пороги индикации для показателей
+        const tmpStatus = percents < 80
+            ? 'error'
+            : (percents < 90
+                ? 'warning'
+                : 'normal'
+            );
+        console.log('getMetricsStatus', percents, tmpStatus);
+        if (tmpStatus === 'error') {
+            return 'error';
+        }
+        if (tmpStatus === 'warning' && status !== 'error') {
+            return 'warning';
+        }
+        if (tmpStatus === 'normal' && status === 'normal') {
+            return 'normal';
+        }
+        return status;
+    }
+
+    private checkBit(v: number, bitPos: number): boolean {
+        return (v & (2 ** bitPos)) !== 0;
     }
 }
