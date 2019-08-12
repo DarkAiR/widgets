@@ -7,6 +7,6 @@ export type Paddings = {
 
 export type ViewType = 'STATIC' | 'DYNAMIC' | 'DISTRIBUTION' | 'PROFILE' | 'REPORT';
 export type ChartType = 'LINE' | 'HISTOGRAM' | 'SCATTER';
-export type Frequency = 'MONTH' | 'WEEK' | 'DAY' | 'HOUR';
-export type Operation = 'SUM' | 'AVG' | 'MIN' | 'MAX';
+export type Frequency = 'YEAR' | 'MONTH' | 'WEEK' | 'DAY' | 'HOUR';
+export type Operation = 'SUM' | 'AVG' | 'MIN' | 'MAX' | 'DIVIDE';
 export type DataSourceType = 'SINGLE' | 'AGGREGATION';

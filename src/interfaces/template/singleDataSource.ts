@@ -13,4 +13,6 @@ export interface SingleDataSource {
        name: string;
        values: Array<string>;
     }>;
+
+    metric: string;                     // метрика которую надо расчитать
 }

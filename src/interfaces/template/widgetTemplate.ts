@@ -7,6 +7,10 @@ export interface WidgetTemplate {
     viewType: ViewType;                     // Тип виджета
     dataSets: Array<DataSetTemplate>;       // набор данных, каждый item описывает один набор данных, для одного графика/отчета
                                             // каждый item - это json DataSetTemplate
+    style?: {
+        background: string;
+        title: string;
+    };
     _links: {
         self: {
             href: string;
