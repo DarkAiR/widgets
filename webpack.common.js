@@ -100,24 +100,24 @@ module.exports = (env) => {
                 // }]
             }, {
                 // Для загрузки svg для иконок
-                test: /\.svg/,
-                use: {
-                    loader: 'svg-url-loader',
-                    options: {}
-                }
+                // test: /\.svg/,
+                // use: {
+                //     loader: 'svg-url-loader',
+                //     options: {}
+                // }
             }, {
                 //     test: /\.ttf$/,
                 //     use: {
                 //         loader: 'ttf-loader',
                 //     }
             }, {
-                test: /\.(woff|woff2|eot|ttf|otf)$/,
-                use: [{
-                    loader: 'file-loader',
-                    options: {
-                        outputPath: 'fonts/pt_root_ui'
-                    }
-                }]
+                // test: /\.(woff|woff2|eot|ttf|otf)$/,
+                // use: [{
+                //     loader: 'file-loader',
+                //     options: {
+                //         outputPath: 'fonts/pt_root_ui'
+                //     }
+                // }]
             }, {
                 test: /\.(html)$/,
                 use: {

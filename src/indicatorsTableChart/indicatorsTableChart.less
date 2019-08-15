@@ -36,7 +36,9 @@
     }
 }
 .normal {
-    nope: nope;
+    &.green {
+        color: @color-green;
+    }
 }
 .warning {
     color: @color-yellow;
@@ -50,6 +52,11 @@
     border-bottom: 1px solid @color-grey-lighter;
     margin-bottom: 6px;
     padding-bottom: 2px;
+
+    &.warning,
+    &.error {
+        font-weight: bold;
+    }
 }
 .series1 {
     white-space: nowrap;

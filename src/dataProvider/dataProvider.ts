@@ -3,8 +3,9 @@ import {DataSetTemplate, SingleDataSource, WidgetTemplate} from "../interfaces";
 import {get as _get, forEach as _forEach} from 'lodash';
 import {IGqlRequest} from "./IGqlRequest";
 import {IChartData} from "../interfaces/IChartData";
-import * as stringifyObject from 'stringify-object';
 import {SingleTimeSeriesValue} from "../interfaces/template/singleTimeSeriesValue";
+import {SingleDataSourceSerializer} from "./dataSourceSerializers/singleDataSourceSerializer";
+import {AggregationDataSourceSerializer} from "./dataSourceSerializers/aggregationDataSourceSerializer";
 
 const axios = require('axios');
 
@@ -51,11 +52,12 @@ export class DataProvider {
                 const promises = template.dataSets.map(async (item, idx) => {
                     // Сохраняем порядок dataSet
                     data.data[idx] = {
-                        style: {
-                            color: item.style.color
-                        },
                         values: await this.loadData(item)
                     };
+                    const style = _get(item, 'style');
+                    if (style) {
+                        Object.assign(data.data[idx], style);
+                    }
                 });
                 await Promise.all(promises);
                 break;
@@ -175,24 +177,13 @@ export class DataProvider {
     }
 
     private serializeGQL(dataSet: DataSetTemplate): IGqlRequest | null {
-        // Пока только SINGLE
-        if (dataSet.dataSource1.type !== 'SINGLE') {
-            return null;
-        }
-
-        const dataSource1 = <SingleDataSource>dataSet.dataSource1;
-        let dimensionsJson: string = '{}';
-        switch (dataSet.viewType) {
-            case 'DYNAMIC':
-            case 'DISTRIBUTION':
-            case 'PROFILE':
-                dimensionsJson = stringifyObject(dataSource1.dimensions, {
-                    indent: ' ',
-                    singleQuotes: false
-                }).replace(/\n/g, '');
+        let dataSource = '{}';
+        switch (dataSet.dataSource1.type) {
+            case "SINGLE":
+                dataSource = (new SingleDataSourceSerializer()).serialize(dataSet);
                 break;
-            case "REPORT":
-            case "STATIC":
+            case "AGGREGATION":
+                dataSource = (new AggregationDataSourceSerializer()).serialize(dataSet);
                 break;
         }
 
@@ -206,11 +197,7 @@ export class DataProvider {
     frequency: ${dataSet.frequency}
     preFrequency: ${dataSet.preFrequency}
     operation: ${dataSet.operation}
-    dataSource1: {
-        type      : SINGLE,
-        name      : "${dataSource1.name}",
-        dimensions: ${dimensionsJson}
-    }
+    dataSource1: ${dataSource}
 }){
     orgUnits { name }
     value

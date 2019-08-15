@@ -22,7 +22,7 @@ export interface IChartValue {
     values: Array<SingleTimeSeriesValue>;       // Набор данных
 
     // блок для стилей графика под конкретный источник данных
-    style: {
+    style?: {
         color: string;                          // Цвет графика
     }
 };
