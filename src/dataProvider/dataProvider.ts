@@ -37,8 +37,12 @@ export class DataProvider {
         if (_get(template, 'dataSets', null) === null  ||  !template.dataSets.length) {
             return null;
         }
+        let title = _get(template, 'style.title', '');
+        if (!title) {
+            title = template.title;
+        }
         const data: IChartData = {
-            title: template.title,
+            title: title,
             from: template.dataSets[0].from,
             to: template.dataSets[0].from,
             frequency: template.dataSets[0].frequency,
