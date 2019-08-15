@@ -45,29 +45,29 @@ export class SolidGaugeChart extends Chart implements IChart {
 
         config.element.innerHTML = str;
 
-        const lineYellow: HTMLElement = _first(config.element.getElementsByClassName(w['lineYellow']));
-        const deg = 180 * (1 - currValue / maxValue);
-        lineYellow.style.transform = `rotate(-${deg}deg)`;
+        // const lineYellow: HTMLElement = _first(config.element.getElementsByClassName(w['lineYellow']));
+        // const deg = 180 * (1 - currValue / maxValue);
+        // lineYellow.style.transform = `rotate(-${deg}deg)`;
 
         this.resize(config.element, (width, height) => {
-            console.log(width, height);
-            let newW = 0;
-            let newH = 0;
-            if (width / height > SolidGaugeChart.X_TO_Y_RATION) {
-                // Calculate by H
-                newW = height * SolidGaugeChart.X_TO_Y_RATION;
-                newH = height;
-            } else {
-                // Calculate by W
-                newW = width;
-                newH = width / SolidGaugeChart.X_TO_Y_RATION;
-            }
-            const innerElement: HTMLElement = _first(config.element.getElementsByClassName(s["widget"]));
-            if (innerElement) {
-                innerElement.style.width = newW + 'px';
-                innerElement.style.height = newH + 'px';
-                innerElement.style.marginLeft = -newW / 2 + 'px';
-            }
+            // console.log(width, height);
+            // let newW = 0;
+            // let newH = 0;
+            // if (width / height > SolidGaugeChart.X_TO_Y_RATION) {
+            //     // Calculate by H
+            //     newW = height * SolidGaugeChart.X_TO_Y_RATION;
+            //     newH = height;
+            // } else {
+            //     // Calculate by W
+            //     newW = width;
+            //     newH = width / SolidGaugeChart.X_TO_Y_RATION;
+            // }
+            // const innerElement: HTMLElement = _first(config.element.getElementsByClassName(s["widget"]));
+            // if (innerElement) {
+            //     innerElement.style.width = newW + 'px';
+            //     innerElement.style.height = newH + 'px';
+            //     innerElement.style.marginLeft = -newW / 2 + 'px';
+            // }
         });
     }
 }

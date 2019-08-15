@@ -3,6 +3,7 @@ export interface IIndicatorsTableChartLess {
   'block': string;
   'inner-block': string;
   'normal': string;
+  'green': string;
   'warning': string;
   'error': string;
   'title': string;

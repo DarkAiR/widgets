@@ -1,7 +1,7 @@
 {
   "scripts": {
-    "dev": "SET \\\"NODE_ENV=dev\\\"  &&  npm run _prepareStyles  &&  webpack --display-error-details --config webpack.dev.js",
-    "build": "SET \\\"NODE_ENV=prod\\\"  &&  npm run _prepareStyles  &&  webpack --config webpack.prod.js",
+    "dev": "SET \"NODE_ENV=dev\"  &&  npm run _prepareStyles  &&  webpack --display-error-details --config webpack.dev.js",
+    "build": "SET \"NODE_ENV=prod\"  &&  npm run _prepareStyles  &&  webpack --config webpack.prod.js",
     "postversion": "copy package-lib.json lib\\package.json /Y && npm publish lib",
     "lint": "echo \"No lint\" && exit 1",
     "_prepareStyles": "node src/fonts/generateFont.js  &&  copy README.md lib /Y  &&  copy package-lib.json lib\\package.json /Y  &&  copy src\\styles\\_styles.css lib\\styles.css /Y"

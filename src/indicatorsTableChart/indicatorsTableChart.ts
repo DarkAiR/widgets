@@ -89,27 +89,43 @@ export class IndicatorsTableChart extends Chart implements IChart {
             if (dataSet5 !== null) {
                 // отклонение трафика от прогноза трафика, в %
                 const percents = dataSet5.values[idx].value - 10;
-                status = this.getMetricsStatus(status, 100 + percents);
 
                 // Получаем локальный статус только для этого индикатора и красим его отдельно
                 const localStatus: MetricsStatus = percents >= 0 ? 'normal' : 'error';
+                if (localStatus === 'error') {
+                    status = 'error';
+                }
+                const className = localStatus !== 'normal'
+                    ? w[localStatus]
+                    : w[localStatus] + (percents === 0 ? '' : ' ' + w['green']);
 
-                blockHtml += `<span class="${w[localStatus]}">${percents > 0 ? '+' : ''}${percents}%</span>`;
+                const percentsStr = percents > 0
+                    ? `+${percents}%`
+                    : (percents === 0
+                        ? '-'
+                        : `${percents}%`
+                    );
+                blockHtml += `
+                    <span class="${className}">
+                        ${percentsStr}
+                    </span>`;
             }
-            blockHtml += `
-                </div>
-                <div class="${w['icons']}">`;
-            if (this.checkBit(dataSet6.values[idx].value, 0)) {
-                blockHtml += `<span class="icon-clock-alert-outline ${s['size-20']} ${s['color-yellow']}"></span>`;
-            }
-            if (this.checkBit(dataSet6.values[idx].value, 1)) {
-                blockHtml += `<span class="icon-run-fast ${s['size-20']} ${s['color-blue']}"></span>`;
-            }
-            if (this.checkBit(dataSet6.values[idx].value, 2)) {
-                blockHtml += `<span class="icon-account-plus ${s['size-20']} ${s['color-green']}"></span>`;
-            }
-            if (this.checkBit(dataSet6.values[idx].value, 3)) {
-                blockHtml += `<span class="icon-account-remove ${s['size-20']} ${s['color-red']}"></span>`;
+            if (dataSet6 !== null) {
+                blockHtml += `
+                    </div>
+                    <div class="${w['icons']}">`;
+                if (this.checkBit(dataSet6.values[idx].value, 0)) {
+                    blockHtml += `<span class="icon-clock-alert-outline ${s['size-20']} ${s['color-yellow']}"></span>`;
+                }
+                if (this.checkBit(dataSet6.values[idx].value, 1)) {
+                    blockHtml += `<span class="icon-run-fast ${s['size-20']} ${s['color-blue']}"></span>`;
+                }
+                if (this.checkBit(dataSet6.values[idx].value, 2)) {
+                    blockHtml += `<span class="icon-account-plus ${s['size-20']} ${s['color-green']}"></span>`;
+                }
+                if (this.checkBit(dataSet6.values[idx].value, 3)) {
+                    blockHtml += `<span class="icon-account-remove ${s['size-20']} ${s['color-red']}"></span>`;
+                }
             }
             blockHtml += `
                 </div>`;
@@ -147,7 +163,7 @@ export class IndicatorsTableChart extends Chart implements IChart {
                 ? 'warning'
                 : 'normal'
             );
-        console.log('getMetricsStatus', percents, tmpStatus);
+        // console.log('getMetricsStatus', percents, tmpStatus);
         if (tmpStatus === 'error') {
             return 'error';
         }
