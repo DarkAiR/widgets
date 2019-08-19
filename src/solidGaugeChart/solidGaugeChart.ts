@@ -8,8 +8,8 @@ import {Chart} from "../models/Chart";
 
 export class SolidGaugeChart extends Chart implements IChart {
     run(config: SolidGaugeConfig, data: IChartData): void {
-        const currValue = _get(data, 'data[0].values[0].value', 0);
-        const maxValue = _get(data, 'data[0].values[1].value', 0);
+        const maxValue = _get(data, 'data[1].values[0].value', 0);
+        const currValue = _get(data, 'data[1].values[1].value', 0);
 
         const percent = currValue / maxValue * 100;
         const magicLengthOfSvgPath = 503.3096923828125;

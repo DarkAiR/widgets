@@ -23,6 +23,7 @@ export class SingleDataSourceSerializer implements ISerializer{
         return `{
             type: ${dataSource1.type},
             name: "${dataSource1.name}",
+            metric: "${dataSource1.metric}",
             dimensions: ${dimensionsJson}
         }`;
     }
