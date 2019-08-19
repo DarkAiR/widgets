@@ -3,7 +3,7 @@ import {AggregationDataSource, DataSetTemplate} from "../../interfaces";
 import * as stringifyObject from 'stringify-object';
 
 export class AggregationDataSourceSerializer implements ISerializer{
-        serialize(dataSet: DataSetTemplate): string {
+    serialize(dataSet: DataSetTemplate): string {
         const dataSource1 = <AggregationDataSource>dataSet.dataSource1;
 
         const firstDataSource = stringifyObject(dataSource1.firstDataSource, {
