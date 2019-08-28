@@ -1,6 +1,6 @@
 import {DataSetTemplate} from './dataSetTemplate';
 import {ViewType, WidgetType} from "../../models/types";
-import {WidgetTemplateSettings} from "./WidgetTemplateSettings";
+import {WidgetTemplateSettings} from "./widgetTemplateSettings";
 
 export interface WidgetTemplate {
     id: string | null;                      // ID шаблона (может быть null)
