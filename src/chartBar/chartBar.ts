@@ -1,17 +1,18 @@
 import {DiagramChartData, DiagramChart} from "../render/diagram-chart";
 var styles = require("./styles.scss");
 import ResizeObserver from 'resize-observer-polyfill';
-import {IRender, IWidgetConfig} from "../interfaces";
+import {IRender} from "../interfaces";
+import {WidgetConfig} from "../models/widgetConfig";
 
 export class ChartBar {
     chart: IRender;
 
-    run(config: IWidgetConfig, data: DiagramChartData): string {
+    run(config: WidgetConfig, data: DiagramChartData): string {
         this.init(config, data);
         return '';
     }
 
-    private init(config: IWidgetConfig, data) {
+    private init(config: WidgetConfig, data) {
 /*        config.margin.top = 8;
         config.margin.right = 32;
         config.margin.bottom = 8;

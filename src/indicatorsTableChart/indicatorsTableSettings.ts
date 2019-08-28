@@ -1,3 +1,5 @@
-export class IndicatorsTableConfig {
-    title: string = '';
+import {ISettings} from "../interfaces";
+
+export interface IndicatorsTableSettings extends ISettings {
+    title: string;
 }

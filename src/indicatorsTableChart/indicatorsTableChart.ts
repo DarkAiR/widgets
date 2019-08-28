@@ -2,17 +2,21 @@ import s from "../styles/_all.less";
 import w from "./indicatorsTableChart.less";
 
 import {IChart, IChartData} from "../interfaces";
-import {IndicatorsTableConfig} from "./indicatorsTableConfig";
+import {IndicatorsTableSettings} from "./indicatorsTableSettings";
 import {get as _get, head as _head, forEach as _forEach} from "lodash";
 import * as moment from 'moment';
 import * as hammer from 'hammerjs';
 import {Chart} from "../models/Chart";
 import {TimeSeriesHelper} from "../helpers/TimeSeries.helper";
+import {WidgetConfig} from "../models/widgetConfig";
 
 type MetricsStatus = 'normal' | 'warning' | 'error';
 
 export class IndicatorsTableChart extends Chart implements IChart {
-    run(config: IndicatorsTableConfig, data: IChartData): void {
+    run(config: WidgetConfig, data: IChartData): void {
+        const settings = <IndicatorsTableSettings>data.settings;
+        console.log('IndicatorsTableConfig settings: ', settings);
+
         const mc = hammer(config.element);
 
         let startOffs = 0;

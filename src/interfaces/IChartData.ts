@@ -1,5 +1,6 @@
 import {Frequency} from "../models/types";
 import {SingleTimeSeriesValue} from "./template/singleTimeSeriesValue";
+import {ISettings} from "./ISettings";
 
 export interface IChartValue {
     // dataSource1: SingleDataSource | AggregationDataSource;          // описание источника данных для dataSet'a.
@@ -33,6 +34,7 @@ export interface IChartData {
     to: string;                             // дата окончания выборки 'YYYY-mm-dd'
     frequency: Frequency;                   // частота конечной аггрегации
     preFrequency: Frequency;                // частота выборки для которой выполняется операция, указанная в operation
+    settings: ISettings;                     // Настройки виджета
 
     data: Array<IChartValue>;
 }

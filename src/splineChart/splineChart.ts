@@ -3,14 +3,17 @@ import w from "./splineChart.less";
 import echarts from "echarts";
 
 import {IChart, IChartData} from "../interfaces";
-import {SplineConfig} from "./splineConfig";
+import {SplineSettings} from "./splineSettings";
 import {get as _get, keys as _keys, map as _map, forEach as _forEach} from "lodash";
 import {Chart} from "../models/Chart";
-import {SingleTimeSeriesValue} from "../interfaces/template/singleTimeSeriesValue";
 import {TimeSeriesHelper} from "../helpers/TimeSeries.helper";
+import {WidgetConfig} from "../models/widgetConfig";
 
 export class SplineChart extends Chart implements IChart {
-    run(config: SplineConfig, data: IChartData): void {
+    run(config: WidgetConfig, data: IChartData): void {
+        const settings = <SplineSettings>data.settings;
+        console.log('SplineChats settings: ', settings);
+
         const str = `
             <div class='${s["widget"]}  ${w['widget']}'>
                 <div class='${w['row']}'>
@@ -29,7 +32,7 @@ export class SplineChart extends Chart implements IChart {
         // Конвертируем из строковых дат в дни месяца
         const axisData = _map(timeSeriesData.dates, v => new Date(v).getDate());
 
-        const series: Array<Object> = [];
+        const series: Object[] = [];
         for (let idx = 0; idx < data.data.length; idx++) {
             series.push({
                 data: timeSeriesData.values[idx],
@@ -37,13 +40,13 @@ export class SplineChart extends Chart implements IChart {
                 smooth: true,
                 smoothMonotone: 'x',
                 lineStyle: {
-                    color: _get(data.data[idx], 'settings.color', '#E4B01E'),
+                    color: _get(data.data[idx].settings, 'color', '#E4B01E'),
                     width: 2,
                 },
                 symbol: 'circle',
                 symbolSize: 8,
                 itemStyle: {
-                    color: _get(data.data[idx], 'settings.color', '#E4B01E'),
+                    color: _get(data.data[idx].settings, 'color', '#E4B01E'),
                     borderColor: '#fff',
                     borderWidth: 2
 

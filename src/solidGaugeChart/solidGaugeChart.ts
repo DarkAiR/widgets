@@ -2,12 +2,16 @@ import s from "../styles/_all.less";
 import w from "./solidGaugeChart.less";
 
 import {IChart, IChartData} from "../interfaces";
-import {SolidGaugeConfig} from "./solidGaugeConfig";
+import {SolidGaugeSettings} from "./solidGaugeSettings";
 import {get as _get, first as _first} from "lodash";
 import {Chart} from "../models/Chart";
+import {WidgetConfig} from "../models/widgetConfig";
 
 export class SolidGaugeChart extends Chart implements IChart {
-    run(config: SolidGaugeConfig, data: IChartData): void {
+    run(config: WidgetConfig, data: IChartData): void {
+        const settings = <SolidGaugeSettings>data.settings;
+        console.log('SolidGaugeChart settings: ', settings);
+
         const maxValue = _get(data, 'data[1].values[0].value', 0);
         const currValue = _get(data, 'data[1].values[1].value', 0);
 
@@ -22,7 +26,7 @@ export class SolidGaugeChart extends Chart implements IChart {
                     <div class="${w['title']}">${data.title}</div>
                 </div>
                 <div class="${w['chart']}">
-                    <span class="${config.icon} ${w['icon']} ${s['size-24']} ${s['color-yellow']}"></span>
+                    <span class="${settings.icon} ${w['icon']} ${s['size-24']} ${s['color-yellow']}"></span>
                     <svg width="100%" height="100%" viewBox="0 0 336 176" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M8 168C8.00001 79.6344 79.6345 7.99998 168 7.99999C256.366 7.99999 328 79.6344 328 168" 
                             stroke="black" stroke-opacity="0.15" stroke-width="16"

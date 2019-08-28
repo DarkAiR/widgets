@@ -2,12 +2,16 @@ import s from "../styles/_all.less";
 import w from "./averageNumberChart.less";
 
 import {IChart, IChartData} from "../interfaces";
-import {AverageNumberConfig} from "./averageNumberConfig";
+import {AverageNumberSettings} from "./averageNumberSettings";
 import {get as _get} from "lodash";
 import {Chart} from "../models/Chart";
+import {WidgetConfig} from "../models/widgetConfig";
 
 export class AverageNumberChart extends Chart implements IChart {
-    run(config: AverageNumberConfig, data: IChartData): void {
+    run(config: WidgetConfig, data: IChartData): void {
+        const settings = <AverageNumberSettings>data.settings;
+        console.log('AverageNumberChart settings: ', settings);
+
         const str = `
             <div class='${s["widget"]}'>
                 <div class='${s["row"]}'>

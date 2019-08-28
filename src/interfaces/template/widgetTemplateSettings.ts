@@ -1,4 +1,4 @@
 export interface WidgetTemplateSettings {
-    background: string;
     title: string;
+    [propName: string]: any;
 }

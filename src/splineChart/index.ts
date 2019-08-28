@@ -1,2 +1,2 @@
 export * from "./splineChart";
-export * from "./splineConfig";
+export * from "./splineSettings";

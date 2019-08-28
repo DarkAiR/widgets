@@ -1,2 +1,4 @@
-export class AverageNumberConfig {
+import {ISettings} from "../interfaces";
+
+export interface AverageNumberSettings extends ISettings {
 }

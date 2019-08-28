@@ -1,5 +1,6 @@
-import {IChartData, IWidgetConfig} from ".";
+import {IChartData} from ".";
+import {WidgetConfig} from "../models/widgetConfig";
 
 export interface IChart {
-    run(config: IWidgetConfig, data: IChartData): void;
+    run(config: WidgetConfig, data: IChartData): void;
 }

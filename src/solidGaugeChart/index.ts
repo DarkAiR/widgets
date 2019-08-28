@@ -1,2 +1,2 @@
 export * from "./solidGaugeChart";
-export * from "./solidGaugeConfig";
+export * from "./solidGaugeSettings";

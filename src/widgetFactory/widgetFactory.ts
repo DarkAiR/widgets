@@ -1,20 +1,21 @@
-import {IChartData, IWidgetConfig} from "../interfaces";
+import {IChartData, WidgetTemplate} from "../interfaces";
 import {
     DataProvider,
-    AverageNumberConfig,
+    AverageNumberSettings,
     AverageNumberChart,
     SolidGaugeChart,
-    SolidGaugeConfig,
+    SolidGaugeSettings,
     SplineChart,
-    SplineConfig,
+    SplineSettings,
     IndicatorsTableChart,
-    IndicatorsTableConfig
+    IndicatorsTableSettings
 } from "..";
+import {WidgetConfig} from "../models/widgetConfig";
 
 export class WidgetFactory {
     dataProvider: DataProvider = new DataProvider();
 
-    run(config: IWidgetConfig): void {
+    run(config: WidgetConfig): void {
         if (!config.element) {
             console.error('Required field "element" is not specified');
             return;
@@ -24,59 +25,34 @@ export class WidgetFactory {
             return;
         }
 
-        if (config instanceof AverageNumberConfig) {
-            // Средние показатели за прошлый и позапрошлый интервал
-            this.averageNumberChart(config);
-        } else
-        if (config instanceof SolidGaugeConfig) {
-            // Индикатор в виде полукруга
-            this.solidGaugeChart(config);
-        } else
-        if (config instanceof SplineConfig) {
-            // Сплайн
-            this.splineChart(config);
-        } else
-        if (config instanceof IndicatorsTableConfig) {
-            // Таблица разных индикаторов
-            this.indicatorsTableChart(config);
-        } else {
-            console.error('Not supported');
-        }
-    }
+        this.dataProvider.getTemplate(config.templateId).then((template: WidgetTemplate) => {
+            this.dataProvider.parseTemplate(template).then((data: IChartData) => {
+                switch (template.widgetType) {
+                    // Сплайн
+                    case "SPLINE":
+                        new SplineChart().run(config, data);
+                        break;
 
-    /**
-     * Средние показатели за прошлый и позапрошлый интервал
-     */
-    private averageNumberChart(config: AverageNumberConfig): void {
-        this.dataProvider.getData(config).then((data: IChartData) => {
-            new AverageNumberChart().run(config, data);
-        });
-    }
+                    // Средние показатели за прошлый и позапрошлый интервал
+                    case "AVERAGE_NUMBER":
+                        new AverageNumberChart().run(config, data);
+                        break;
 
-    /**
-     * Индикатор в виде полукруга
-     */
-    private solidGaugeChart(config: SolidGaugeConfig): void {
-        this.dataProvider.getData(config).then((data: IChartData) => {
-            new SolidGaugeChart().run(config, data);
-        });
-    }
+                    // Индикатор в виде полукруга
+                    case "SOLID_GAUGE":
+                        new SolidGaugeChart().run(config, data);
+                        break;
 
-    /**
-     * Сплайн
-     */
-    private splineChart(config: SplineConfig): void {
-        this.dataProvider.getData(config).then((data: IChartData) => {
-            new SplineChart().run(config, data);
-        });
-    }
+                    // Таблица разных индикаторов
+                    case "INDICATORS_TABLE":
+                        new IndicatorsTableChart().run(config, data);
+                        break;
 
-    /**
-     * Таблица разных индикаторов
-     */
-    private indicatorsTableChart(config: IndicatorsTableConfig): void {
-        this.dataProvider.getData(config).then((data: IChartData) => {
-            new IndicatorsTableChart().run(config, data);
+                    default:
+                        console.error('Not supported');
+                        break;
+                }
+            });
         });
     }
 }

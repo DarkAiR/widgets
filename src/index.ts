@@ -5,3 +5,4 @@ export * from './solidGaugeChart';
 export * from './splineChart';
 export * from './indicatorsTableChart';
 export * from './render/diagram-chart';
+export * from './models/widgetConfig';

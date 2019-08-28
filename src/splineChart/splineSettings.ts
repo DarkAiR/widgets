@@ -1,3 +1,5 @@
-export class SplineConfig {
-    title: string = '';
+import {ISettings} from "../interfaces";
+
+export interface SplineSettings extends ISettings {
+    title: string;
 }

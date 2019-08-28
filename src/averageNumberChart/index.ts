@@ -1,2 +1,2 @@
 export * from "./averageNumberChart";
-export * from "./averageNumberConfig";
+export * from "./averageNumberSettings";

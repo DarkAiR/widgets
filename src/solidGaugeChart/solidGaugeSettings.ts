@@ -1,4 +1,6 @@
-export class SolidGaugeConfig {
-    title: string = '';
-    icon: string = '';
+import {ISettings} from "../interfaces";
+
+export interface SolidGaugeSettings extends ISettings {
+    title: string;
+    icon: string;
 }
