@@ -1,8 +1,6 @@
-import {WidgetConfig} from "../models/widgetConfig";
-import {DataSetTemplate, SingleDataSource, WidgetTemplate} from "../interfaces";
+import {DataSetTemplate, IChartData, IWidgetConfig, WidgetTemplate} from "../interfaces";
 import {get as _get, forEach as _forEach} from 'lodash';
 import {IGqlRequest} from "./IGqlRequest";
-import {IChartData} from "../interfaces/IChartData";
 import {SingleTimeSeriesValue} from "../interfaces/template/singleTimeSeriesValue";
 import {SingleDataSourceSerializer} from "./dataSourceSerializers/singleDataSourceSerializer";
 import {AggregationDataSourceSerializer} from "./dataSourceSerializers/aggregationDataSourceSerializer";
@@ -18,7 +16,7 @@ export class DataProvider {
         return 'http://34.83.209.150:8080/api/v1/templates';
     }
 
-    async getData(config: WidgetConfig): Promise<IChartData> {
+    async getData(config: IWidgetConfig): Promise<IChartData> {
         const template: WidgetTemplate = await this.getTemplate(config.templateId);
         console.log('Load template', template);
         return await this.parseTemplate(template);
@@ -37,7 +35,7 @@ export class DataProvider {
         if (_get(template, 'dataSets', null) === null  ||  !template.dataSets.length) {
             return null;
         }
-        let title = _get(template, 'style.title', '');
+        let title = _get(template, 'settings.title', '');
         if (!title) {
             title = template.title;
         }
@@ -58,9 +56,9 @@ export class DataProvider {
                     data.data[idx] = {
                         values: await this.loadData(item)
                     };
-                    const style = _get(item, 'style');
-                    if (style) {
-                        Object.assign(data.data[idx], style);
+                    const settings = _get(item, 'settings');
+                    if (settings) {
+                        Object.assign(data.data[idx], settings);
                     }
                 });
                 await Promise.all(promises);

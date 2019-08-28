@@ -1,24 +1,9 @@
-import {Paddings} from "./types";
+import {Paddings} from "../models/types";
 
 /**
  * Конфиг для работы фабрики виджетов
  */
-export class WidgetConfig {
+export interface IWidgetConfig {
     templateId: string;                     // ID шаблона
-    element: HTMLElement = null;            // Контейнер для виджета
-
-    showAxisX: boolean = false;
-    showAxisY: boolean = false;
-    padding: Paddings = {
-        top: 0,
-        right: 0,
-        bottom: 0,
-        left: 0
-    };
-    margin: Paddings = {
-        top: 0,
-        right: 0,
-        bottom: 0,
-        left: 0
-    }
+    element: HTMLElement;                   // Контейнер для виджета
 }

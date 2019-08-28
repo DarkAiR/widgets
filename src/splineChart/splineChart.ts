@@ -37,13 +37,13 @@ export class SplineChart extends Chart implements IChart {
                 smooth: true,
                 smoothMonotone: 'x',
                 lineStyle: {
-                    color: _get(data.data[idx], 'style.color', '#E4B01E'),
+                    color: _get(data.data[idx], 'settings.color', '#E4B01E'),
                     width: 2,
                 },
                 symbol: 'circle',
                 symbolSize: 8,
                 itemStyle: {
-                    color: _get(data.data[idx], 'style.color', '#E4B01E'),
+                    color: _get(data.data[idx], 'settings.color', '#E4B01E'),
                     borderColor: '#fff',
                     borderWidth: 2
 

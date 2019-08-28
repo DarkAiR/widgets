@@ -2,7 +2,6 @@ import * as d3 from 'd3';
 import * as moment from 'moment';
 import * as _ from 'lodash';
 import {IRender} from '../interfaces';
-import {WidgetConfig} from '../models/widgetConfig';
 import {Moment} from "moment";
 import StartOf = moment.unitOfTime.StartOf;
 import {ChartType, Paddings} from "../models/types";

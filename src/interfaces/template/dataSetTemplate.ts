@@ -11,11 +11,11 @@ export interface DataSetTemplate {
     to: string | null;                      // дата окончания выборки 'YYYY-mm-dd'
     period?: string,                        // период запроса данных, при указании имеет приоритет перед from/to
                                             // возможно задавать в формате startDate/period, period/endDate, period, period/period
-    years?: Array<number> | null;           // фильтр по годам
-    days?: Array<number> | null;            // фильтр по дням месяца
-    months?: Array<number> | null;          // фильтр по месяцам
-    hours?: Array<number> | null;           // фильтр по часам
-    weekdays?: Array<number> | null;        // фильтр по дням недели
+    years?: number[] | null;                // фильтр по годам
+    days?: number[] | null;                 // фильтр по дням месяца
+    months?: number[] | null;               // фильтр по месяцам
+    hours?: number[] | null;                // фильтр по часам
+    weekdays?: number[] | null;             // фильтр по дням недели
     frequency: Frequency;                   // частота конечной аггрегации
     preFrequency: Frequency;                // частота выборки для которой выполняется операция, указанная в operation
     operation: Operation;                   // операция, которую необходимо выполнить при агрегации из preFrequency во frequency
@@ -23,9 +23,8 @@ export interface DataSetTemplate {
     numberOfBeans?: number;                 // количество столбцов (используется только для DISTRIBUTION)
     method?: string | null;
 
-    // блок для стилей графика под конкретный источник данных
-    style?: {
+    // Настройки конкретных источников данных
+    settings?: {
         color: string;                      // Цвет графика
-        background: string;                 // Not used
     }
 }

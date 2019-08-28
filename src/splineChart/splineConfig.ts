@@ -1,5 +1,7 @@
-import {WidgetConfig} from "./../models/widgetConfig";
+import {IWidgetConfig} from "../interfaces";
 
-export class SplineConfig extends WidgetConfig {
+export class SplineConfig implements IWidgetConfig {
+    templateId: string;                     // ID шаблона
+    element: HTMLElement = null;            // Контейнер для виджета
     title: string = '';
 }
