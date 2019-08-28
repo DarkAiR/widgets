@@ -4,10 +4,10 @@ import {IChartValue} from "../interfaces";
 
 export class TimeSeriesHelper {
     static convertTimeSeriesToData(data: Array<IChartValue>): {
-        dates: Array<string>,
-        values: Array<Array<number>>
+        dates: string[],
+        values: Array<number[]>
     } {
-        const valuesArr: Array<Array<number>> = [];
+        const valuesArr: Array<number[]> = [];
         _forEach(data, (dataValue, idx) => {
             _forEach(dataValue.values, (v: SingleTimeSeriesValue) => {
                 if (valuesArr[v.localDateTime] === undefined) {
@@ -17,9 +17,9 @@ export class TimeSeriesHelper {
             });
         });
 
-        const result: Array<Array<number>> = [];
+        const result: Array<number[]> = [];
         for (let idx = 0; idx < data.length; idx++) {
-            const arr: Array<number> = [];
+            const arr: number[] = [];
             // Вот такой странный обход массива, т.к. это по факту объект
             for (let v in valuesArr) {
                 arr.push(valuesArr[v][idx]);
