@@ -12,8 +12,8 @@ export class SolidGaugeChart extends Chart implements IChart {
         const settings = <SolidGaugeSettings>data.settings;
         console.log('SolidGaugeChart settings: ', settings);
 
-        const maxValue = _get(data, 'data[1].values[0].value', 0);
-        const currValue = _get(data, 'data[1].values[1].value', 0);
+        const maxValue = _get(data, 'data[1][0].value', 0);
+        const currValue = _get(data, 'data[1][1].value', 0);
 
         const percent = currValue / maxValue * 100;
         const magicLengthOfSvgPath = 503.3096923828125;
@@ -23,7 +23,7 @@ export class SolidGaugeChart extends Chart implements IChart {
             <div class='${s["widget"]} ${w['widget']}'>
                 <div class="${w['info']}">
                     <div class="${w['current-value']}">${currValue}</div>
-                    <div class="${w['title']}">${data.title}</div>
+                    <div class="${w['title']}">${settings.title}</div>
                 </div>
                 <div class="${w['chart']}">
                     <span class="${settings.icon} ${w['icon']} ${s['size-24']} ${s['color-yellow']}"></span>

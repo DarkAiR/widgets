@@ -1,14 +1,10 @@
 import {IChartData, WidgetTemplate} from "../interfaces";
 import {
     DataProvider,
-    AverageNumberSettings,
     AverageNumberChart,
     SolidGaugeChart,
-    SolidGaugeSettings,
     SplineChart,
-    SplineSettings,
     IndicatorsTableChart,
-    IndicatorsTableSettings
 } from "..";
 import {WidgetConfig} from "../models/widgetConfig";
 

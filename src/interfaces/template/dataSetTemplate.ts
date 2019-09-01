@@ -1,6 +1,7 @@
 import {ViewType, ChartType, Frequency, Operation} from './../../models/types';
 import {SingleDataSource} from "./singleDataSource";
 import {AggregationDataSource} from "./aggregationDataSource";
+import {DataSetSettings} from "./dataSetSettings";
 
 export interface DataSetTemplate {
     dataSource1: SingleDataSource | AggregationDataSource;          // описание источника данных для dataSet'a.
@@ -23,8 +24,5 @@ export interface DataSetTemplate {
     numberOfBeans?: number;                 // количество столбцов (используется только для DISTRIBUTION)
     method?: string | null;
 
-    // Настройки конкретных источников данных
-    settings?: {
-        color: string;                      // Цвет графика
-    }
+    settings?: DataSetSettings;             // Настройки конкретных источников данных
 }

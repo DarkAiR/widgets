@@ -1,15 +1,14 @@
 import {forEach as _forEach, keys as _keys, map as _map} from "lodash";
 import {SingleTimeSeriesValue} from "../interfaces/template/singleTimeSeriesValue";
-import {IChartValue} from "../interfaces";
 
 export class TimeSeriesHelper {
-    static convertTimeSeriesToData(data: Array<IChartValue>): {
+    static convertTimeSeriesToData(data: Array<SingleTimeSeriesValue[]>): {
         dates: string[],
         values: Array<number[]>
     } {
         const valuesArr: Array<number[]> = [];
-        _forEach(data, (dataValue, idx) => {
-            _forEach(dataValue.values, (v: SingleTimeSeriesValue) => {
+        _forEach(data, (dataValues: SingleTimeSeriesValue[], idx) => {
+            _forEach(dataValues, (v: SingleTimeSeriesValue) => {
                 if (valuesArr[v.localDateTime] === undefined) {
                     valuesArr[v.localDateTime] = [];
                 }

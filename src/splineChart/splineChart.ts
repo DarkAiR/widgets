@@ -18,7 +18,7 @@ export class SplineChart extends Chart implements IChart {
             <div class='${s["widget"]}  ${w['widget']}'>
                 <div class='${w['row']}'>
                     <div class="${w['title']}">
-                        ${data.title}
+                        ${settings.title}
                     </div>
                 </div>
                 <div class='${w['row']} ${w['chart']}'>
@@ -40,13 +40,13 @@ export class SplineChart extends Chart implements IChart {
                 smooth: true,
                 smoothMonotone: 'x',
                 lineStyle: {
-                    color: _get(data.data[idx].settings, 'color', '#E4B01E'),
+                    color: _get(data.dataSets[idx].settings, 'color', '#E4B01E'),
                     width: 2,
                 },
                 symbol: 'circle',
                 symbolSize: 8,
                 itemStyle: {
-                    color: _get(data.data[idx].settings, 'color', '#E4B01E'),
+                    color: _get(data.dataSets[idx].settings, 'color', '#E4B01E'),
                     borderColor: '#fff',
                     borderWidth: 2
 

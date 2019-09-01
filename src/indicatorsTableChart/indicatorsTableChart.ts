@@ -73,8 +73,8 @@ export class IndicatorsTableChart extends Chart implements IChart {
             if (dataSet1 !== null && dataSet2 !== null) {
                 // объем проданного топлива за день, литры
                 // выполнение плана по проданному топливу за день, в %
-                const percents = 100 + (dataSet2.values[idx].value - 15);
-                blockHtml += `${dataSet1.values[idx].value} тыс.л (${percents}%)`;
+                const percents = 100 + (dataSet2[idx].value - 15);
+                blockHtml += `${dataSet1[idx].value} тыс.л (${percents}%)`;
                 status = this.getMetricsStatus(status, percents);
             }
             blockHtml += `
@@ -83,8 +83,8 @@ export class IndicatorsTableChart extends Chart implements IChart {
             if (dataSet3 !== null && dataSet4 !== null) {
                 // выручка с НТУ за день
                 // выполнение плана по выручке с НТУ за день, в %
-                const percents = 100 + (dataSet4.values[idx].value - 10);
-                blockHtml += `${dataSet3.values[idx].value} тыс.₽ (${percents}%)`;
+                const percents = 100 + (dataSet4[idx].value - 10);
+                blockHtml += `${dataSet3[idx].value} тыс.₽ (${percents}%)`;
                 status = this.getMetricsStatus(status, percents);
             }
             blockHtml += `
@@ -92,7 +92,7 @@ export class IndicatorsTableChart extends Chart implements IChart {
                 <div class="${w['percents']}">`;
             if (dataSet5 !== null) {
                 // отклонение трафика от прогноза трафика, в %
-                const percents = dataSet5.values[idx].value - 10;
+                const percents = dataSet5[idx].value - 10;
 
                 // Получаем локальный статус только для этого индикатора и красим его отдельно
                 const localStatus: MetricsStatus = percents >= 0 ? 'normal' : 'error';
@@ -118,16 +118,16 @@ export class IndicatorsTableChart extends Chart implements IChart {
                 blockHtml += `
                     </div>
                     <div class="${w['icons']}">`;
-                if (this.checkBit(dataSet6.values[idx].value, 0)) {
+                if (this.checkBit(dataSet6[idx].value, 0)) {
                     blockHtml += `<span class="icon-clock-alert-outline ${s['size-20']} ${s['color-yellow']}"></span>`;
                 }
-                if (this.checkBit(dataSet6.values[idx].value, 1)) {
+                if (this.checkBit(dataSet6[idx].value, 1)) {
                     blockHtml += `<span class="icon-run-fast ${s['size-20']} ${s['color-blue']}"></span>`;
                 }
-                if (this.checkBit(dataSet6.values[idx].value, 2)) {
+                if (this.checkBit(dataSet6[idx].value, 2)) {
                     blockHtml += `<span class="icon-account-plus ${s['size-20']} ${s['color-green']}"></span>`;
                 }
-                if (this.checkBit(dataSet6.values[idx].value, 3)) {
+                if (this.checkBit(dataSet6[idx].value, 3)) {
                     blockHtml += `<span class="icon-account-remove ${s['size-20']} ${s['color-red']}"></span>`;
                 }
             }

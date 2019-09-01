@@ -3,6 +3,8 @@ export * from "./IChartData";
 export * from "./IRender";
 export * from "./ISettings";
 export * from "./template/widgetTemplate";
+export * from "./template/widgetTemplateSettings";
 export * from "./template/dataSetTemplate";
+export * from "./template/dataSetSettings";
 export * from "./template/singleDataSource";
 export * from "./template/aggregationDataSource";

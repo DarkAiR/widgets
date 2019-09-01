@@ -1,10 +1,10 @@
-import {DataSetTemplate, IChartData, WidgetTemplate} from "../interfaces";
+import {DataSetTemplate, IChartData, WidgetTemplate, WidgetTemplateSettings} from "../interfaces";
 import {get as _get, forEach as _forEach} from 'lodash';
 import {IGqlRequest} from "./IGqlRequest";
 import {SingleTimeSeriesValue} from "../interfaces/template/singleTimeSeriesValue";
 import {SingleDataSourceSerializer} from "./dataSourceSerializers/singleDataSourceSerializer";
 import {AggregationDataSourceSerializer} from "./dataSourceSerializers/aggregationDataSourceSerializer";
-import {WidgetConfig} from "../models/widgetConfig";
+import {ViewType, WidgetType} from "../models/types";
 
 const axios = require('axios');
 
@@ -37,29 +37,28 @@ export class DataProvider {
         if (_get(template, 'dataSets', null) === null  ||  !template.dataSets.length) {
             return null;
         }
-        let title = _get(template, 'settings.title', '');
-        if (!title) {
-            title = template.title;
-        }
         const data: IChartData = {
-            title: title,
             from: template.dataSets[0].from,
             to: template.dataSets[0].from,
             frequency: template.dataSets[0].frequency,
             preFrequency: template.dataSets[0].preFrequency,
-            settings: _get(template, 'settings', {}),
-            data: []
+            dataSets: template.dataSets,
+            data: [],
+            settings: _get(template, 'settings', {})
         };
+        // Заполняем обязательные поля, если они пустые или их нет
+        const title = _get(template, 'settings.title', '') || template.title;
+        if (!_get(data.settings, 'title')) {
+            data.settings.title = title;
+        }
+
 
         switch (template.viewType) {
             case "DYNAMIC":
                 // Асинхронно загружаем все данные
                 const promises = template.dataSets.map(async (item, idx) => {
                     // Сохраняем порядок dataSet
-                    data.data[idx] = {
-                        values: await this.loadData(item)
-                    };
-                    Object.assign(data.data[idx], _get(item, 'settings', {}));
+                    data.data[idx] = await this.loadData(item);
                 });
                 await Promise.all(promises);
                 break;
@@ -72,7 +71,7 @@ export class DataProvider {
     /**
      * Загрузка данных для шаблона
      */
-    private async loadData(dataSet: DataSetTemplate): Promise<Array<SingleTimeSeriesValue>> {
+    private async loadData(dataSet: DataSetTemplate): Promise<SingleTimeSeriesValue[]> {
         return await axios.post(this.gqlLink, this.serializeGQL(dataSet))
             .then(
                 (response) => {
