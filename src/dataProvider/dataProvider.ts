@@ -8,26 +8,22 @@ import {WidgetConfig} from "../models/widgetConfig";
 
 const axios = require('axios');
 
-interface zxc {
-    [propName: string]: any;
-}
-interface qwe extends zxc{
-    a: string;
-    b: string;
-}
-
 export class DataProvider {
+    private apiUrl: string;
+
     private get gqlLink(): string {
-        return 'http://34.83.209.150:8080/graphql';
+        return this.apiUrl || 'http://34.83.209.150:8080/graphql';
     }
 
     private get templatesLink(): string {
         return 'http://34.83.209.150:8080/api/v1/templates';
     }
 
+    constructor(apiUrl: string) {
+        this.apiUrl = apiUrl;
+    }
+
     public async getTemplate(templateId: string): Promise<WidgetTemplate> {
-        let v1: qwe;
-        v1 = {a: 'zxc', b:'zxc', c:'asdasd'};
         try {
             const response = await axios.get(this.templatesLink + '/' + templateId);
             console.log('Load template', response.data);

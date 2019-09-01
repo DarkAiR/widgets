@@ -13,7 +13,7 @@ import {
 import {WidgetConfig} from "../models/widgetConfig";
 
 export class WidgetFactory {
-    dataProvider: DataProvider = new DataProvider();
+    dataProvider: DataProvider = null;
 
     run(config: WidgetConfig): void {
         if (!config.element) {
@@ -25,34 +25,47 @@ export class WidgetFactory {
             return;
         }
 
-        this.dataProvider.getTemplate(config.templateId).then((template: WidgetTemplate) => {
-            this.dataProvider.parseTemplate(template).then((data: IChartData) => {
-                switch (template.widgetType) {
-                    // Сплайн
-                    case "SPLINE":
-                        new SplineChart().run(config, data);
-                        break;
+        this.dataProvider = new DataProvider(config.apiUrl);
+        this.dataProvider.getTemplate(config.templateId).then((template: WidgetTemplate) => this.createWidget(config, template));
+    }
 
-                    // Средние показатели за прошлый и позапрошлый интервал
-                    case "AVERAGE_NUMBER":
-                        new AverageNumberChart().run(config, data);
-                        break;
+    runWithSource(config: WidgetConfig, template: WidgetTemplate): void {
+        if (!config.element) {
+            console.error('Required field "element" is not specified');
+            return;
+        }
 
-                    // Индикатор в виде полукруга
-                    case "SOLID_GAUGE":
-                        new SolidGaugeChart().run(config, data);
-                        break;
+        this.dataProvider = new DataProvider(config.apiUrl);
+        this.createWidget(config, template);
+    }
 
-                    // Таблица разных индикаторов
-                    case "INDICATORS_TABLE":
-                        new IndicatorsTableChart().run(config, data);
-                        break;
+    private createWidget(config: WidgetConfig, template: WidgetTemplate): void {
+        this.dataProvider.parseTemplate(template).then((data: IChartData) => {
+            switch (template.widgetType) {
+                // Сплайн
+                case "SPLINE":
+                    new SplineChart().run(config, data);
+                    break;
 
-                    default:
-                        console.error('Not supported');
-                        break;
-                }
-            });
+                // Средние показатели за прошлый и позапрошлый интервал
+                case "AVERAGE_NUMBER":
+                    new AverageNumberChart().run(config, data);
+                    break;
+
+                // Индикатор в виде полукруга
+                case "SOLID_GAUGE":
+                    new SolidGaugeChart().run(config, data);
+                    break;
+
+                // Таблица разных индикаторов
+                case "INDICATORS_TABLE":
+                    new IndicatorsTableChart().run(config, data);
+                    break;
+
+                default:
+                    console.error('Not supported');
+                    break;
+            }
         });
     }
 }
