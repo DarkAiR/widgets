@@ -119,16 +119,16 @@ export class IndicatorsTableChart extends Chart implements IChart {
                     </div>
                     <div class="${w['icons']}">`;
                 if (this.checkBit(dataSet6[idx].value, 0)) {
-                    blockHtml += `<span class="icon-clock-alert-outline ${s['size-20']} ${s['color-yellow']}"></span>`;
+                    blockHtml += `<span class="mdi mdi-clock-alert-outline ${s['size-20']} ${s['color-yellow']}"></span>`;
                 }
                 if (this.checkBit(dataSet6[idx].value, 1)) {
-                    blockHtml += `<span class="icon-run-fast ${s['size-20']} ${s['color-blue']}"></span>`;
+                    blockHtml += `<span class="mdi mdi-run-fast ${s['size-20']} ${s['color-blue']}"></span>`;
                 }
                 if (this.checkBit(dataSet6[idx].value, 2)) {
-                    blockHtml += `<span class="icon-account-plus ${s['size-20']} ${s['color-green']}"></span>`;
+                    blockHtml += `<span class="mdi mdi-account-plus ${s['size-20']} ${s['color-green']}"></span>`;
                 }
                 if (this.checkBit(dataSet6[idx].value, 3)) {
-                    blockHtml += `<span class="icon-account-remove ${s['size-20']} ${s['color-red']}"></span>`;
+                    blockHtml += `<span class="mdi mdi-account-remove ${s['size-20']} ${s['color-red']}"></span>`;
                 }
             }
             blockHtml += `

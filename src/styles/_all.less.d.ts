@@ -412,6 +412,9 @@ export interface I_allLess {
   'select-large': string;
   'textarea-small': string;
   'textarea-large': string;
+  'switch-small': string;
+  'radio-small': string;
+  'checkbox-small': string;
   'header': string;
   'menu': string;
   'menu-sub': string;
@@ -432,7 +435,6 @@ export interface I_allLess {
   'panel-body': string;
   'panel-footer': string;
   'popup': string;
-  'popup-overlay': string;
   'popup-dialog': string;
   'popup-dialog-body': string;
   'popup-dialog-footer': string;
@@ -462,8 +464,9 @@ export interface I_allLess {
   'tabs-grow': string;
   'tabs-container': string;
   'tile': string;
-  'tile-2-1': string;
+  'tile-1-1': string;
   'tile-body': string;
+  'tile-2-1': string;
   'tile-4-3': string;
   'tile-16-9': string;
   'toast': string;

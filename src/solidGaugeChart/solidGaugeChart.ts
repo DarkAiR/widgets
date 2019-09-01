@@ -44,7 +44,7 @@ export class SolidGaugeChart extends Chart implements IChart {
                     <div class="${w['title']}">${settings.title}</div>
                 </div>
                 <div class="${w['chart']}">
-                    <span class="${settings.icon} ${w['icon']} ${s['size-24']} ${s['color-yellow']}"></span>
+                    <span class="mdi ${settings.icon} ${w['icon']} ${s['size-24']} ${s['color-yellow']}"></span>
                     <svg width="100%" height="100%" viewBox="0 0 336 176" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M8 168C8.00001 79.6344 79.6345 7.99998 168 7.99999C256.366 7.99999 328 79.6344 328 168" 
                             stroke="black" stroke-opacity="0.15" stroke-width="16"

@@ -1,4 +1,5 @@
 const path = require('path');
+const CopyWebpackPlugin = require('copy-webpack-plugin');
 
 module.exports = (env) => {
 
@@ -144,6 +145,33 @@ module.exports = (env) => {
             }
         },
         plugins: [
+            new CopyWebpackPlugin([
+                {
+                    from: './README.md',
+                    to: 'README.md'
+                }, {
+                    from: './package-lib.json',
+                    to: 'package.json'
+                }, {
+                    from: './src/styles/_styles.css',
+                    to: 'styles.css'
+                }, {
+                    from: './node_modules/goodt-framework-css/dist/all.min.css',
+                    to  : 'assets/all.min.css'
+                }, {
+                    from: './node_modules/@mdi/font/css/materialdesignicons.css',
+                    to  : 'assets/materialdesignicons.css',
+                    transform(content, path) {
+                        return content.toString().replace(/\.\.\/fonts\//g, './fonts/');
+                    }
+                }, {
+                    from: './node_modules/@mdi/font/fonts/',
+                    to  : 'assets/fonts/'
+                }, {
+                    from: './node_modules/goodt-framework-css/fonts/',
+                    to  : 'assets/fonts/'
+                }
+            ])
         ]
     }
 };
