@@ -38,6 +38,16 @@ config.apiUrl = 'YOUR GRAPHQL API';     // Optional
 this.widgetFactory.run(config);
 ```
 
+Also you can use Promise for receiving signals about complete of loading widget or errors.
+
+For example:
+```js
+this.widgetFactory.run(config).then(
+    () => complete,
+    () => error
+);
+``` 
+
 -----------------------
 
 ### Local development
