@@ -8,6 +8,7 @@ import {get as _get, keys as _keys, map as _map, forEach as _forEach} from "loda
 import {Chart} from "../models/Chart";
 import {TimeSeriesHelper} from "../helpers/TimeSeries.helper";
 import {WidgetConfig} from "../models/widgetConfig";
+import {YAxisType} from "../models/types";
 
 export class SplineChart extends Chart implements IChart {
     run(config: WidgetConfig, data: IChartData): void {
@@ -56,7 +57,7 @@ export class SplineChart extends Chart implements IChart {
 
         const el = config.element.getElementsByClassName(w['chart'])[0];
         const myChart = echarts.init(el);
-        const yAxisPosition = settings.yAxis || 'left';
+        const yAxisPosition: YAxisType = settings.yAxis || 'left';
 
         const option = {
             grid: {
