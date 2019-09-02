@@ -11,4 +11,4 @@ export type ChartType = 'LINE' | 'HISTOGRAM' | 'SCATTER';
 export type Frequency = 'YEAR' | 'MONTH' | 'WEEK' | 'DAY' | 'HOUR';
 export type Operation = 'SUM' | 'AVG' | 'MIN' | 'MAX' | 'DIVIDE';
 export type DataSourceType = 'SINGLE' | 'AGGREGATION';
-export type YAxisType = 'left' | 'right';
+export type YAxisTypes = 'left' | 'right';
