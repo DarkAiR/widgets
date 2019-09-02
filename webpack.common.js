@@ -107,11 +107,6 @@ module.exports = (env) => {
                 //     options: {}
                 // }
             }, {
-                //     test: /\.ttf$/,
-                //     use: {
-                //         loader: 'ttf-loader',
-                //     }
-            }, {
                 // test: /\.(woff|woff2|eot|ttf|otf)$/,
                 // use: [{
                 //     loader: 'file-loader',
