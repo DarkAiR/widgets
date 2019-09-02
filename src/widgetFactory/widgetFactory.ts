@@ -38,6 +38,7 @@ export class WidgetFactory {
                 console.error('Required field "element" is not specified');
                 reject();
             }
+            resolve();
         }).then(() => {
             this.dataProvider = new DataProvider(config.apiUrl);
             return this.createWidget(config, template);
