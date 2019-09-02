@@ -11,32 +11,42 @@ import {WidgetConfig} from "../models/widgetConfig";
 export class WidgetFactory {
     dataProvider: DataProvider = null;
 
-    run(config: WidgetConfig): void {
-        if (!config.element) {
-            console.error('Required field "element" is not specified');
-            return;
-        }
-        if (!config.templateId) {
-            console.error('Required field "templateId" is not specified');
-            return;
-        }
-
-        this.dataProvider = new DataProvider(config.apiUrl);
-        this.dataProvider.getTemplate(config.templateId).then((template: WidgetTemplate) => this.createWidget(config, template));
+    run(config: WidgetConfig): Promise<void> {
+        return new Promise((resolve, reject) => {
+            if (!config.element) {
+                console.error('Required field "element" is not specified');
+                reject();
+            }
+            if (!config.templateId) {
+                console.error('Required field "templateId" is not specified');
+                reject();
+            }
+            resolve();
+        }).then(() => {
+            this.dataProvider = new DataProvider(config.apiUrl);
+            return this.dataProvider
+                .getTemplate(config.templateId)
+                .then((template: WidgetTemplate) => {
+                    return this.createWidget(config, template);
+                });
+        });
     }
 
-    runWithSource(config: WidgetConfig, template: WidgetTemplate): void {
-        if (!config.element) {
-            console.error('Required field "element" is not specified');
-            return;
-        }
-
-        this.dataProvider = new DataProvider(config.apiUrl);
-        this.createWidget(config, template);
+    runWithSource(config: WidgetConfig, template: WidgetTemplate): Promise<void> {
+        return new Promise((resolve, reject) => {
+            if (!config.element) {
+                console.error('Required field "element" is not specified');
+                reject();
+            }
+            resolve();
+        }).then(() => {
+            this.dataProvider = new DataProvider(config.apiUrl);
+            return this.createWidget(config, template);
+        })
     }
 
-    private createWidget(config: WidgetConfig, template: WidgetTemplate): void {
-        this.dataProvider.parseTemplate(template).then((data: IChartData) => {
+    private createWidget(config: WidgetConfig, template: WidgetTemplate): Promise<void> {
+        return this.dataProvider.parseTemplate(template).then((data: IChartData) => {
             switch (template.widgetType) {
                 // Сплайн
                 case "SPLINE":
