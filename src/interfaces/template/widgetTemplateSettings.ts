@@ -6,4 +6,5 @@ import {ISettings} from "../ISettings";
  */
 export interface WidgetTemplateSettings extends ISettings {
     title: string;
+    yAxis?: 'LEFT' | 'RIGHT';
 }

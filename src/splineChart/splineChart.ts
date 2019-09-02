@@ -56,12 +56,14 @@ export class SplineChart extends Chart implements IChart {
 
         const el = config.element.getElementsByClassName(w['chart'])[0];
         const myChart = echarts.init(el);
+        const yAxisPosition = settings.yAxis || 'LEFT';
+
         const option = {
             grid: {
                 top: '10px',
-                right: '10px',
+                right: yAxisPosition === 'LEFT'? '10px' : '50px',
                 bottom: '20px',
-                left: '50px'
+                left: yAxisPosition === 'LEFT'? '50px' : '10px'
             },
             xAxis: {
                 type: 'category',
@@ -84,6 +86,7 @@ export class SplineChart extends Chart implements IChart {
             },
             yAxis: {
                 type: 'value',
+                position: yAxisPosition.toLowerCase(),
                 // Цифры
                 axisLabel: {
                     color: '#b4b4b4',
