@@ -33,7 +33,7 @@ export class SolidGaugeChart extends Chart implements IChart {
                 case 12:
                     return '34';
                 default:
-                    return '56';
+                    return '54';
             }
         };
 
