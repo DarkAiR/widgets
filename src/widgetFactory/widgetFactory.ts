@@ -74,9 +74,9 @@ export class WidgetFactory {
                     console.error('Not supported');
                     break;
             }
-            if (process.env.NODE_ENV === 'development') {
+            // if (process.env.NODE_ENV === 'development') {
                 this.addVersion(config);
-            }
+            // }
         });
     }
 
