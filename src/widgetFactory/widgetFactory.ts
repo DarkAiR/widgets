@@ -8,6 +8,8 @@ import {
 } from "..";
 import {WidgetConfig} from "../models/widgetConfig";
 
+declare var __VERSION__: string;
+
 export class WidgetFactory {
     dataProvider: DataProvider = null;
 
@@ -72,6 +74,22 @@ export class WidgetFactory {
                     console.error('Not supported');
                     break;
             }
+            if (process.env.NODE_ENV === 'development') {
+                this.addVersion(config);
+            }
         });
+    }
+
+    private addVersion(config: WidgetConfig): void {
+        const versionElement = document.createElement('div');
+
+        config.element.style.position = 'relative';
+        versionElement.style.position = 'absolute';
+        versionElement.style.right = '0px';
+        versionElement.style.bottom = '0px';
+        versionElement.style.fontSize = '.5em';
+        versionElement.style.opacity = '.1';
+        versionElement.innerHTML = 'v'+__VERSION__;
+        config.element.appendChild(versionElement);
     }
 }

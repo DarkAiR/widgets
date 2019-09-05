@@ -1,5 +1,8 @@
+const webpack = require('webpack');
 const path = require('path');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
+
+var pjson = require('./package-lib.json');
 
 module.exports = (env) => {
 
@@ -166,7 +169,10 @@ module.exports = (env) => {
                     from: './node_modules/goodt-framework-css/fonts/',
                     to  : 'assets/fonts/'
                 }
-            ])
+            ]),
+            new webpack.DefinePlugin({
+                __VERSION__: JSON.stringify(pjson.version)
+            })
         ]
     }
 };
