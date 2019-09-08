@@ -15,32 +15,48 @@ export class SolidGaugeChart extends Chart implements IChart {
 
         const maxValue = _get(data, 'data[1][0].value', 0);
         const currValue = _get(data, 'data[1][1].value', 0);
-        const color = _get(data, 'dataSets[0].settings.color', 0);
+        const c olor = _get(data, 'dataSets[0].settings.color', 0);
 
         const percent = currValue / maxValue * 100;
         const magicLengthOfSvgPath = 503.3096923828125;
         const percentToLength = magicLengthOfSvgPath * (percent / 100);
         const sdo = magicLengthOfSvgPath - percentToLength > 0 ? magicLengthOfSvgPath - percentToLength : 0;
-        const getCurrentValueFZ = (currValue)=> {
+        const getCurrentValueFZ = (currValue, isSmall) => {
             const length = currValue.toString().length;
-            switch (length) {
-                case 9:
-                    return '46';
-                case 10:
-                    return '40';
-                case 11:
-                    return '36';
-                case 12:
-                    return '34';
-                default:
-                    return '54';
+            if (!isSmall) {
+                switch (length) {
+                    case 9:
+                        return '46';
+                    case 10:
+                        return '40';
+                    case 11:
+                        return '36';
+                    case 12:
+                        return '30';
+                    default:
+                        return '54';
+                }
+            } else {
+                switch (length) {
+                    case 9:
+                        return '18';
+                    case 10:
+                        return '16';
+                    case 11:
+                        return '14';
+                    case 12:
+                        return '12';
+                    default:
+                        return '20';
+                }
             }
         };
+        let currentValueFZ = getCurrentValueFZ(currValue, false);
 
         const str = `
             <div class='${s["widget"]} ${w['widget']}'>
                 <div class="${w['info']}">
-                    <div class="${w['current-value']}" style="font-size: ${getCurrentValueFZ(currValue)}px">${currValue}</div>
+                    <div class="${w['current-value']}" style="font-size: ${currentValueFZ}px">${currValue}</div>
                     <div class="${w['title']}">${settings.title}</div>
                 </div>
                 <div class="${w['chart']}">
@@ -60,10 +76,23 @@ export class SolidGaugeChart extends Chart implements IChart {
                 </div>
             </div>
         `;
-
         config.element.innerHTML = str;
 
+
         this.resize(config.element, (width, height) => {
+            const widgets = document.getElementsByClassName('solidGaugeChart-widget');
+            const currentValues = document.getElementsByClassName('solidGaugeChart-current-value');
+
+            if (width < 300) {
+                const currentValueFZ = getCurrentValueFZ(currValue, true);
+                [].forEach.call(currentValues, cv => cv.setAttribute('style', `font-size: ${currentValueFZ}px`));
+                [].forEach.call(widgets, w => w.classList.add('solidGaugeChart-widget__small'));
+            } else {
+                const currentValueFZ = getCurrentValueFZ(currValue, false);
+                [].forEach.call(currentValues, cv => cv.setAttribute('style', `font-size: ${currentValueFZ}px`));
+                [].forEach.call(widgets, w => w.classList.remove('solidGaugeChart-widget__small'));
+            }
         });
+        console.log('innerHTML', config.element.innerHTML)
     }
 }
