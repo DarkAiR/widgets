@@ -11,7 +11,6 @@ export class SolidGaugeChart extends Chart implements IChart {
     run(config: WidgetConfig, data: IChartData): void {
         const settings = <SolidGaugeSettings>data.settings;
         console.log('SolidGaugeChart settings: ', settings);
-        console.log('SolidGaugeChart data: ', data);
 
         const maxValue = _get(data, 'data[1][0].value', 0);
         const currValue = _get(data, 'data[1][1].value', 0);
@@ -78,7 +77,6 @@ export class SolidGaugeChart extends Chart implements IChart {
         `;
         config.element.innerHTML = str;
 
-
         this.resize(config.element, (width, height) => {
             const widgets = document.getElementsByClassName('solidGaugeChart-widget');
             const currentValues = document.getElementsByClassName('solidGaugeChart-current-value');
@@ -93,6 +91,5 @@ export class SolidGaugeChart extends Chart implements IChart {
                 [].forEach.call(widgets, w => w.classList.remove('solidGaugeChart-widget__small'));
             }
         });
-        console.log('innerHTML', config.element.innerHTML)
     }
 }
