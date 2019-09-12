@@ -20,8 +20,9 @@ export class SolidGaugeChart extends Chart implements IChart {
         const magicLengthOfSvgPath = 503.3096923828125;
         const percentToLength = magicLengthOfSvgPath * (percent / 100);
         const sdo = magicLengthOfSvgPath - percentToLength > 0 ? magicLengthOfSvgPath - percentToLength : 0;
-        const getCurrentValueFZ = (currValue, isSmall) => {
-            const length = currValue.toString().length;
+
+        const getCurrentValueFZ = (v, isSmall) => {
+            const length = v.toString().length;
             if (!isSmall) {
                 switch (length) {
                     case 9:
@@ -82,13 +83,13 @@ export class SolidGaugeChart extends Chart implements IChart {
             const currentValues = document.getElementsByClassName('solidGaugeChart-current-value');
 
             if (width < 300) {
-                const currentValueFZ = getCurrentValueFZ(currValue, true);
-                [].forEach.call(currentValues, cv => cv.setAttribute('style', `font-size: ${currentValueFZ}px`));
-                [].forEach.call(widgets, w => w.classList.add('solidGaugeChart-widget__small'));
+                const currentValueFZ2 = getCurrentValueFZ(currValue, true);
+                [].forEach.call(currentValues, cv => cv.setAttribute('style', `font-size: ${currentValueFZ2}px`));
+                [].forEach.call(widgets, v => v.classList.add('solidGaugeChart-widget__small'));
             } else {
-                const currentValueFZ = getCurrentValueFZ(currValue, false);
-                [].forEach.call(currentValues, cv => cv.setAttribute('style', `font-size: ${currentValueFZ}px`));
-                [].forEach.call(widgets, w => w.classList.remove('solidGaugeChart-widget__small'));
+                const currentValueFZ2 = getCurrentValueFZ(currValue, false);
+                [].forEach.call(currentValues, cv => cv.setAttribute('style', `font-size: ${currentValueFZ2}px`));
+                [].forEach.call(widgets, v => v.classList.remove('solidGaugeChart-widget__small'));
             }
         });
     }
