@@ -96,7 +96,7 @@ export class SplineChart extends Chart implements IChart {
 
         const el = config.element.getElementsByClassName(w['chart'])[0];
         const myChart = echarts.init(el);
-        let yAxisPosition;
+        let yAxisPosition: YAxisTypesExtended;
         if (yaxis.length === 1 || onlyOneCide(yaxis)) {
             yAxisPosition = yaxis[0].position;
         } else {
