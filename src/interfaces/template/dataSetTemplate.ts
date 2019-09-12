@@ -10,7 +10,7 @@ export interface DataSetTemplate {
     chartType: ChartType;                   // тип отрисовки данных из данного источника
     from: string | null;                    // дата начала выборки 'YYYY-mm-dd'
     to: string | null;                      // дата окончания выборки 'YYYY-mm-dd'
-    period?: string,                        // период запроса данных, при указании имеет приоритет перед from/to
+    period?: string;                        // период запроса данных, при указании имеет приоритет перед from/to
                                             // возможно задавать в формате startDate/period, period/endDate, period, period/period
     years?: number[] | null;                // фильтр по годам
     days?: number[] | null;                 // фильтр по дням месяца

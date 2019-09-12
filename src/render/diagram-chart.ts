@@ -6,28 +6,28 @@ import {Moment} from "moment";
 import StartOf = moment.unitOfTime.StartOf;
 import {ChartType, Paddings} from "../models/types";
 
-export type DiagramChartDataValue = {
-    value: number,
-    delta: number,
-    color: string,
-    interactive: boolean,
-    onClick,
-    onMouseLeave,
-    onMouseOver,
-    _bar: boolean,
+export interface DiagramChartDataValue {
+    value: number;
+    delta: number;
+    color: string;
+    interactive: boolean;
+    onClick;
+    onMouseLeave;
+    onMouseOver;
+    _bar: boolean;
     _data: {
         organizationUnit: string,
         date: Moment,
         kpi: "fte"
-    }
+    };
 }
 
-export type DiagramChartDataValuesOnDate = {
-    date: Moment,
-    data: Array<DiagramChartDataValue>
+export interface DiagramChartDataValuesOnDate {
+    date: Moment;
+    data: Array<DiagramChartDataValue>;
 }
 
-export type DiagramChartData = {
+export interface DiagramChartData {
     values: Array<DiagramChartDataValuesOnDate>;
     properties: {
         currency: boolean,

@@ -2,7 +2,7 @@ import {ISerializer} from "./ISerializer";
 import {DataSetTemplate, SingleDataSource} from "../../interfaces";
 import * as stringifyObject from 'stringify-object';
 
-export class SingleDataSourceSerializer implements ISerializer{
+export class SingleDataSourceSerializer implements ISerializer {
     serialize(dataSet: DataSetTemplate): string {
         const dataSource1 = <SingleDataSource>dataSet.dataSource1;
         let dimensionsJson: string = '{}';

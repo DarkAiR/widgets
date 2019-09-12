@@ -1,4 +1,4 @@
-export type Paddings = {
+export interface Paddings {
     top: number;
     right: number;
     bottom: number;

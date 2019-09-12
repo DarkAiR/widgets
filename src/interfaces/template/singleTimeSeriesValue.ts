@@ -6,6 +6,6 @@ export interface SingleTimeSeriesValue {
     orgUnits: Array<{
         name: string
     }>;
-    value: number,
+    value: number;
     localDateTime: string;
 }

@@ -99,13 +99,19 @@ export class DataProvider {
                 break;
         }
 
+        let period = '';
+        if (dataSet.period) {
+            period = `period: "${dataSet.period}"`;
+        } else {
+            period = `from: "${dataSet.from}"
+                      to: "${dataSet.to}"`;
+        }
         return {
             operationName: null,
             variables: {},
             query: `
 {getSingleTimeSeries(dataSet: {
-    from: "${dataSet.from}"
-    to: "${dataSet.to}"
+    ${period}
     frequency: ${dataSet.frequency}
     preFrequency: ${dataSet.preFrequency}
     operation: ${dataSet.operation}
