@@ -1,7 +1,4 @@
 {
-  "rulesDirectory": [
-    "node_modules/codelyzer"
-  ],
   "rules": {
     "arrow-return-shorthand": true,
     "callable-types": true,
@@ -46,6 +43,7 @@
     "no-any": [true, {"ignore-rest-args": true}],
     "no-arg": true,
     "no-bitwise": true,
+    "no-conditional-assignment": true,
     "no-console": [
       true,
       "debug",
@@ -57,6 +55,7 @@
     "no-construct": true,
     "no-debugger": true,
     "no-duplicate-super": true,
+    "no-duplicate-variable": true,
     "no-empty": false,
     "no-empty-interface": true,
     "no-eval": true,
@@ -70,9 +69,11 @@
     "no-string-literal": false,
     "no-string-throw": true,
     "no-switch-case-fall-through": true,
+    "no-tautology-expression": true,
     "no-trailing-whitespace": true,
     "no-unnecessary-initializer": true,
     "no-unused-expression": true,
+    "no-unused-variable": true,
     "no-use-before-declare": true,
     "no-var-keyword": true,
     "object-literal-sort-keys": false,
@@ -83,20 +84,14 @@
       "check-else",
       "check-whitespace"
     ],
+    "one-variable-per-declaration": [true, "ignore-for-loop"],
     "prefer-const": true,
-    "quotemark": [
-      true,
-      "single"
-    ],
+    "quotemark": [false],
     "radix": true,
-    "semicolon": [
-      true,
-      "always"
-    ],
-    "triple-equals": [
-      true,
-      "allow-null-check"
-    ],
+    "semicolon": [true, "always"],
+    "static-this": true,
+    "triple-equals": [true, "allow-null-check"],
+    "typedef": [true, "parameter", "property-declaration", "member-variable-declaration"],
     "typedef-whitespace": [
       true,
       {

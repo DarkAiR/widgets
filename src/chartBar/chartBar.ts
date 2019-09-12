@@ -1,5 +1,5 @@
-import {DiagramChartData, DiagramChart} from "../render/diagram-chart";
-var styles = require("./styles.scss");
+import {DiagramChartData} from "../render/diagram-chart";
+const styles = require("./styles.scss");
 import ResizeObserver from 'resize-observer-polyfill';
 import {IRender} from "../interfaces";
 import {WidgetConfig} from "../models/widgetConfig";

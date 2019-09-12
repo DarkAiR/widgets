@@ -44,7 +44,7 @@ export class WidgetFactory {
         }).then(() => {
             this.dataProvider = new DataProvider(config.apiUrl);
             return this.createWidget(config, template);
-        })
+        });
     }
 
     private createWidget(config: WidgetConfig, template: WidgetTemplate): Promise<void> {
@@ -89,7 +89,7 @@ export class WidgetFactory {
         versionElement.style.bottom = '0px';
         versionElement.style.fontSize = '.5em';
         versionElement.style.opacity = '.1';
-        versionElement.innerHTML = 'v'+__VERSION__;
+        versionElement.innerHTML = 'v' + __VERSION__;
         config.element.appendChild(versionElement);
     }
 }

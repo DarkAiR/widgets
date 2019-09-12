@@ -1,17 +1,16 @@
-import s from "../styles/_all.less";
-import w from "./splineChart.less";
-import echarts from "echarts";
+import s from '../styles/_all.less';
+import w from './splineChart.less';
+import echarts from 'echarts';
 
-import {IChart, IChartData} from "../interfaces";
-import {SplineSettings} from "./splineSettings";
-import {get as _get, keys as _keys, map as _map, forEach as _forEach} from "lodash";
-import {Chart} from "../models/Chart";
-import {TimeSeriesHelper} from "../helpers/TimeSeries.helper";
-import {WidgetConfig} from "../models/widgetConfig";
-import {YAxisTypes} from "../models/types";
+import {IChart, IChartData} from '../interfaces';
+import {SplineSettings} from './splineSettings';
+import {get as _get, keys as _keys, map as _map, forEach as _forEach} from 'lodash';
+import {Chart} from '../models/Chart';
+import {TimeSeriesHelper} from '../helpers/TimeSeries.helper';
+import {WidgetConfig} from '../models/widgetConfig';
 
 
-type YAxisTypesExtended  ='left' | 'right' | 'multi'
+type YAxisTypesExtended  = 'left' | 'right' | 'multi';
 
 interface YaxisData {
     type: string;
@@ -27,7 +26,7 @@ export class SplineChart extends Chart implements IChart {
         console.log('SplineChats data: ', data.dataSets);
 
         const str = `
-            <div class='${s["widget"]}  ${w['widget']}'>
+            <div class='${s['widget']}  ${w['widget']}'>
                 <div class='${w['row']}'>
                     <div class="${w['title']}">
                         ${settings.title}
@@ -81,26 +80,26 @@ export class SplineChart extends Chart implements IChart {
                         type: 'solid'
                     }
                 },
-            })
+            });
         }
-        const onlyOneCide = (yaxis) => {
-            const firstPosition = yaxis[0].position;
+        const onlyOneCide = (v) => {
+            const firstPosition = v[0].position;
             let result = true;
-            yaxis.forEach(x => {
+            v.forEach(x => {
                 if (x.position !== firstPosition) {
                     result = false;
-                };
+                }
             });
             return result;
         };
 
         const el = config.element.getElementsByClassName(w['chart'])[0];
         const myChart = echarts.init(el);
-        let yAxisPosition;
+        let yAxisPosition: YAxisTypesExtended;
         if (yaxis.length === 1 || onlyOneCide(yaxis)) {
             yAxisPosition = yaxis[0].position;
         } else {
-            yAxisPosition = 'multi'
+            yAxisPosition = 'multi';
         }
 
         const option = {

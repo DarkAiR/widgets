@@ -1,10 +1,9 @@
-import {DataSetTemplate, IChartData, WidgetTemplate, WidgetTemplateSettings} from "../interfaces";
+import {DataSetTemplate, IChartData, WidgetTemplate} from "../interfaces";
 import {get as _get, forEach as _forEach} from 'lodash';
 import {IGqlRequest} from "./IGqlRequest";
 import {SingleTimeSeriesValue} from "../interfaces/template/singleTimeSeriesValue";
 import {SingleDataSourceSerializer} from "./dataSourceSerializers/singleDataSourceSerializer";
 import {AggregationDataSourceSerializer} from "./dataSourceSerializers/aggregationDataSourceSerializer";
-import {ViewType, WidgetType} from "../models/types";
 
 const axios = require('axios');
 
@@ -99,13 +98,19 @@ export class DataProvider {
                 break;
         }
 
+        let period = '';
+        if (dataSet.period) {
+            period = `period: "${dataSet.period}"`;
+        } else {
+            period = `from: "${dataSet.from}"
+                      to: "${dataSet.to}"`;
+        }
         return {
             operationName: null,
             variables: {},
             query: `
 {getSingleTimeSeries(dataSet: {
-    from: "${dataSet.from}"
-    to: "${dataSet.to}"
+    ${period}
     frequency: ${dataSet.frequency}
     preFrequency: ${dataSet.preFrequency}
     operation: ${dataSet.operation}

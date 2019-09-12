@@ -20,7 +20,7 @@ export class TimeSeriesHelper {
         for (let idx = 0; idx < data.length; idx++) {
             const arr: number[] = [];
             // Вот такой странный обход массива, т.к. это по факту объект
-            for (let v in valuesArr) {
+            for (const v in valuesArr) {
                 arr.push(valuesArr[v][idx]);
             }
             result[idx] = arr;

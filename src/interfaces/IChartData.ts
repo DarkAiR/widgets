@@ -1,6 +1,5 @@
 import {Frequency} from "../models/types";
 import {SingleTimeSeriesValue} from "./template/singleTimeSeriesValue";
-import {DataSetSettings} from "./template/dataSetSettings";
 import {WidgetTemplateSettings} from "./template/widgetTemplateSettings";
 import {DataSetTemplate} from "./template/dataSetTemplate";
 
