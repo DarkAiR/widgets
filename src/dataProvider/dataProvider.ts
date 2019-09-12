@@ -1,10 +1,9 @@
-import {DataSetTemplate, IChartData, WidgetTemplate, WidgetTemplateSettings} from "../interfaces";
+import {DataSetTemplate, IChartData, WidgetTemplate} from "../interfaces";
 import {get as _get, forEach as _forEach} from 'lodash';
 import {IGqlRequest} from "./IGqlRequest";
 import {SingleTimeSeriesValue} from "../interfaces/template/singleTimeSeriesValue";
 import {SingleDataSourceSerializer} from "./dataSourceSerializers/singleDataSourceSerializer";
 import {AggregationDataSourceSerializer} from "./dataSourceSerializers/aggregationDataSourceSerializer";
-import {ViewType, WidgetType} from "../models/types";
 
 const axios = require('axios');
 

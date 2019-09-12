@@ -1,4 +1,4 @@
-import {DiagramChartData, DiagramChart} from "../render/diagram-chart";
+import {DiagramChartData} from "../render/diagram-chart";
 const styles = require("./styles.scss");
 import ResizeObserver from 'resize-observer-polyfill';
 import {IRender} from "../interfaces";

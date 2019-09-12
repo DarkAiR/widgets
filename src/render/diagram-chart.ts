@@ -1,10 +1,8 @@
-import * as d3 from 'd3';
 import * as moment from 'moment';
 import * as _ from 'lodash';
-import {IRender} from '../interfaces';
 import {Moment} from "moment";
 import StartOf = moment.unitOfTime.StartOf;
-import {ChartType, Paddings} from "../models/types";
+import {ChartType} from "../models/types";
 
 export interface DiagramChartDataValue {
     value: number;

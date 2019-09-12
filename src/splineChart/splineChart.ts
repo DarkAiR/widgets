@@ -8,7 +8,6 @@ import {get as _get, keys as _keys, map as _map, forEach as _forEach} from 'loda
 import {Chart} from '../models/Chart';
 import {TimeSeriesHelper} from '../helpers/TimeSeries.helper';
 import {WidgetConfig} from '../models/widgetConfig';
-import {YAxisTypes} from '../models/types';
 
 
 type YAxisTypesExtended  = 'left' | 'right' | 'multi';
