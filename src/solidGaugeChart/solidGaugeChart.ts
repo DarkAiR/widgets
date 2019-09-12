@@ -13,7 +13,7 @@ export class SolidGaugeChart extends Chart implements IChart {
         console.log('SolidGaugeChart settings: ', settings);
 
         const maxValue = _get(data, 'data[1][0].value', 0);
-        const currValue = _get(data, 'data[1][1].value', 0);
+        const currValue = _get(data, 'data[0][0].value', 0);
         const color = _get(data, 'dataSets[0].settings.color', 0);
 
         const percent = currValue / maxValue * 100;
