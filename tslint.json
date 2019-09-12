@@ -43,6 +43,7 @@
     "no-any": [true, {"ignore-rest-args": true}],
     "no-arg": true,
     "no-bitwise": true,
+    "no-conditional-assignment": true,
     "no-console": [
       true,
       "debug",
@@ -93,6 +94,7 @@
       true,
       "allow-null-check"
     ],
+    "typedef": [true, "parameter"],
     "typedef-whitespace": [
       true,
       {
