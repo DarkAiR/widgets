@@ -1,56 +1,56 @@
-import * as moment from 'moment';
-import * as _ from 'lodash';
-import {Moment} from "moment";
-import StartOf = moment.unitOfTime.StartOf;
-import {ChartType} from "../models/types";
-
-export interface DiagramChartDataValue {
-    value: number;
-    delta: number;
-    color: string;
-    interactive: boolean;
-    onClick;
-    onMouseLeave;
-    onMouseOver;
-    _bar: boolean;
-    _data: {
-        organizationUnit: string,
-        date: Moment,
-        kpi: "fte"
-    };
-}
-
-export interface DiagramChartDataValuesOnDate {
-    date: Moment;
-    data: Array<DiagramChartDataValue>;
-}
-
-export interface DiagramChartData {
-    values: Array<DiagramChartDataValuesOnDate>;
-    properties: {
-        currency: boolean,
-        drawingType: ChartType,
-        startDate: Moment,
-        endDate: Moment,
-        secondaryAxis: boolean,
-        height: number,
-        frequency: StartOf
-    };
-     indicators: Array<{
-        values,
-        properties: {
-            hide: boolean,
-            type: ChartType,
-            color: string,
-            interactive: boolean
-        }
-     }>;
-}
+// import * as moment from 'moment';
+// import * as _ from 'lodash';
+// import {Moment} from "moment";
+// import StartOf = moment.unitOfTime.StartOf;
+// import {ChartType} from "../models/types";
+//
+// export interface DiagramChartDataValue {
+//     value: number;
+//     delta: number;
+//     color: string;
+//     interactive: boolean;
+//     onClick;
+//     onMouseLeave;
+//     onMouseOver;
+//     _bar: boolean;
+//     _data: {
+//         organizationUnit: string,
+//         date: Moment,
+//         kpi: "fte"
+//     };
+// }
+//
+// export interface DiagramChartDataValuesOnDate {
+//     date: Moment;
+//     data: Array<DiagramChartDataValue>;
+// }
+//
+// export interface DiagramChartData {
+//     values: Array<DiagramChartDataValuesOnDate>;
+//     properties: {
+//         currency: boolean,
+//         drawingType: ChartType,
+//         startDate: Moment,
+//         endDate: Moment,
+//         secondaryAxis: boolean,
+//         height: number,
+//         frequency: StartOf
+//     };
+//      indicators: Array<{
+//         values,
+//         properties: {
+//             hide: boolean,
+//             type: ChartType,
+//             color: string,
+//             interactive: boolean
+//         }
+//      }>;
+// }
 
 /**
  * Чарт для диаграм
  */
-export class DiagramChart /* implements IRender */ {
+// export class DiagramChart /* implements IRender */ {
 /*    private config: WidgetConfig = new WidgetConfig();
     private styles = null;
     private svg = null;
@@ -331,4 +331,4 @@ export class DiagramChart /* implements IRender */ {
             })
         );
     };*/
-}
+// }

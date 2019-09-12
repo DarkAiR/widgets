@@ -42,7 +42,7 @@
     ],
     "no-any": [true, {"ignore-rest-args": true}],
     "no-arg": true,
-    "no-bitwise": true,
+    "no-bitwise": false,                // Разрешаем битовые операции, это нужно для indicatorsTable
     "no-conditional-assignment": true,
     "no-console": [
       true,

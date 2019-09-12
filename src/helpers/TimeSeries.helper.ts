@@ -19,9 +19,11 @@ export class TimeSeriesHelper {
         const result: Array<number[]> = [];
         for (let idx = 0; idx < data.length; idx++) {
             const arr: number[] = [];
-            // Вот такой странный обход массива, т.к. это по факту объект
+            // Вот такой странный обход массива, т.к. это по факту объект (forEach не заработает)
             for (const v in valuesArr) {
-                arr.push(valuesArr[v][idx]);
+                if (valuesArr.hasOwnProperty(v)) {
+                    arr.push(valuesArr[v][idx]);
+                }
             }
             result[idx] = arr;
         }

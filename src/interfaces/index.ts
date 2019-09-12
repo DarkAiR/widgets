@@ -1,6 +1,5 @@
 export * from "./IChart";
 export * from "./IChartData";
-export * from "./IRender";
 export * from "./ISettings";
 export * from "./template/widgetTemplate";
 export * from "./template/widgetTemplateSettings";

@@ -67,6 +67,9 @@ export class IndicatorsTableChart extends Chart implements IChart {
         const timeSeriesData = TimeSeriesHelper.convertTimeSeriesToData(data.data);
 
         for (const idx in timeSeriesData.dates) {
+            if (!timeSeriesData.dates.hasOwnProperty(idx)) {
+                continue;
+            }
             let status: MetricsStatus = 'normal';
             let blockHtml = `
                 <div class="${w['series1']}">`;

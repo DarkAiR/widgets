@@ -1,6 +1,6 @@
 import ResizeObserver from 'resize-observer-polyfill';
 
-export type ResizeFunction = (this, width: number, height: number) => void;
+export type ResizeFunction = (this: Chart, width: number, height: number) => void;
 
 export abstract class Chart {
     protected resize(element: HTMLElement, callback: ResizeFunction) {
@@ -9,7 +9,7 @@ export abstract class Chart {
         }
     }
 
-    private resizeObserve(element, callback: Function) {
+    private resizeObserve(element: HTMLElement, callback: Function) {
         new ResizeObserver(entries => {
             const entry: ResizeObserverEntry = entries[0];
             callback.call(this, entry.contentRect.width, entry.contentRect.height);
