@@ -4,7 +4,7 @@ import echarts from 'echarts';
 
 import {IChart, IChartData} from '../interfaces';
 import {SplineSettings} from './splineSettings';
-import {get as _get, keys as _keys, map as _map, forEach as _forEach} from 'lodash';
+import {get as _get, keys as _keys, map as _map, forEach as _forEach, max as _max, min as _min} from 'lodash';
 import {Chart} from '../models/Chart';
 import {TimeSeriesHelper} from '../helpers/TimeSeries.helper';
 import {WidgetConfig} from '../models/widgetConfig';
@@ -17,6 +17,8 @@ interface YaxisData {
     position: YAxisTypesExtended;
     axisLabel: Object;
     splitLine: Object;
+    min?: number;
+    max?: number;
 }
 
 export class SplineChart extends Chart implements IChart {
@@ -42,7 +44,14 @@ export class SplineChart extends Chart implements IChart {
 
         // Конвертируем из строковых дат в дни месяца
         const axisData = _map(timeSeriesData.dates, v => new Date(v).getDate());
-
+        const getMinYAxisValue = (values: number[]): number => {
+            const minValue = _min(values);
+            if (minValue > 0) {
+                return 0;
+            } else {
+                return minValue;
+            }
+        };
         const series: Object[] = [];
         const yaxis: YaxisData[] = [];
         for (let idx = 0; idx < data.data.length; idx++) {
@@ -66,7 +75,9 @@ export class SplineChart extends Chart implements IChart {
             });
             yaxis.push({
                 type: 'value',
-                position: _get(data.dataSets[idx], 'axis', 'left'),
+                position: _get(data.dataSets[idx].settings, 'yAxis', 'left'),
+                min: getMinYAxisValue(timeSeriesData.values[idx]),
+                max: _max(timeSeriesData.values[idx]),
                 // Цифры
                 axisLabel: {
                     color: '#b4b4b4',
@@ -107,7 +118,7 @@ export class SplineChart extends Chart implements IChart {
                 top: '10px',
                 right: yAxisPosition === 'left' ? '10px' : '50px',
                 bottom: '20px',
-                left: yAxisPosition === 'left' || 'multi' ? '50px' : '10px'
+                left: yAxisPosition === 'left' || yAxisPosition === 'multi' ? '50px' : '10px'
             },
             xAxis: {
                 type: 'category',

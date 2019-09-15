@@ -1,4 +1,5 @@
 import {ISettings} from "../ISettings";
+import {YAxisTypes} from "../../models/types";
 
 /**
  * Settings для источника данных
@@ -6,4 +7,5 @@ import {ISettings} from "../ISettings";
  */
 export interface DataSetSettings extends ISettings {
     color: string;                      // Цвет графика
+    yAxis: YAxisTypes;
 }
