@@ -7,5 +7,5 @@ import {YAxisTypes} from "../../models/types";
  */
 export interface DataSetSettings extends ISettings {
     color: string;                      // Цвет графика
-    yAxis: YAxisTypes;
+    yAxis: YAxisTypes;                  // Тип оси
 }

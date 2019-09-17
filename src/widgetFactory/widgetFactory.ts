@@ -88,7 +88,7 @@ export class WidgetFactory {
         versionElement.style.right = '0px';
         versionElement.style.bottom = '0px';
         versionElement.style.fontSize = '.5em';
-        versionElement.style.opacity = '.1';
+        versionElement.style.opacity = '.4';
         versionElement.innerHTML = 'v' + __VERSION__;
         config.element.appendChild(versionElement);
     }

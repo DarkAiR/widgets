@@ -6,4 +6,6 @@ import {ISettings} from "../ISettings";
  */
 export interface WidgetTemplateSettings extends ISettings {
     title: string;
+
+    // NOTE: настройки для конкретных виджетов должны объявляться в конкретных виджетах
 }

@@ -93,7 +93,7 @@ export class SplineChart extends Chart implements IChart {
                 },
             });
         }
-        const onlyOneCide = (v) => {
+        const onlyOneSide = (v) => {
             const firstPosition = v[0].position;
             let result = true;
             v.forEach(x => {
@@ -107,13 +107,13 @@ export class SplineChart extends Chart implements IChart {
         const el = config.element.getElementsByClassName(w['chart'])[0];
         const myChart = echarts.init(el);
         let yAxisPosition: YAxisTypesExtended;
-        if (yaxis.length === 1 || onlyOneCide(yaxis)) {
+        if (yaxis.length === 1 || onlyOneSide(yaxis)) {
             yAxisPosition = yaxis[0].position;
         } else {
             yAxisPosition = 'multi';
         }
 
-        const option = {
+        const options = {
             grid: {
                 top: '10px',
                 right: yAxisPosition === 'left' ? '10px' : '50px',
@@ -149,9 +149,11 @@ export class SplineChart extends Chart implements IChart {
             },
             series: series
         };
-        myChart.setOption(option);
+        console.log('splineChart: options:', options);
+        myChart.setOption(options);
 
         this.resize(config.element, (width, height) => {
+            console.log('splineChart: resize:', width, height);
             myChart.resize();
         });
     }

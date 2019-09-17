@@ -2,7 +2,7 @@
   "scripts": {
     "dev": "npm run lint  &&  SET \"NODE_ENV=dev\"  &&  webpack --display-error-details --config webpack.dev.js",
     "build": "npm run lint  &&  SET \"NODE_ENV=prod\"  &&  webpack --config webpack.prod.js",
-    "postversion": "npm build  &&  copy package-lib.json lib\\package.json /Y && npm publish lib",
+    "postversion": "npm run build  &&  copy package-lib.json lib\\package.json /Y && npm publish lib",
     "lint": "tslint -p tsconfig.json"
   },
   "name": "abc-charts",
