@@ -8,7 +8,7 @@ export interface Paddings {
 export type WidgetType = 'SPLINE' | 'AVERAGE_NUMBER' | 'SOLID_GAUGE' | 'INDICATORS_TABLE';
 export type ViewType = 'STATIC' | 'DYNAMIC' | 'DISTRIBUTION' | 'PROFILE' | 'REPORT' | 'MAP';
 export type ChartType = 'LINE' | 'HISTOGRAM' | 'SCATTER';
-export type Frequency = 'YEAR' | 'MONTH' | 'WEEK' | 'DAY' | 'HOUR';
+export type Frequency = 'YEAR' | 'MONTH' | 'WEEK' | 'DAY' | 'HOUR' | 'ALL';
 export type Operation = 'SUM' | 'AVG' | 'MIN' | 'MAX' | 'DIVIDE';
 export type DataSourceType = 'SINGLE' | 'AGGREGATION';
 export type YAxisTypes = 'left' | 'right';
