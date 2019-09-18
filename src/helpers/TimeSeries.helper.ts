@@ -2,6 +2,9 @@ import {forEach as _forEach, keys as _keys, map as _map} from "lodash";
 import {SingleTimeSeriesValue} from "../interfaces/template/singleTimeSeriesValue";
 
 export class TimeSeriesHelper {
+    /**
+     * Конвертирует данные TimeSeries в массив дат и массив значений
+     */
     static convertTimeSeriesToData(data: Array<SingleTimeSeriesValue[]>): {
         dates: string[],
         values: Array<number[]>

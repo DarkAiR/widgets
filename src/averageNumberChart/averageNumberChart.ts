@@ -1,7 +1,7 @@
 import s from "../styles/_all.less";
 import w from "./averageNumberChart.less";
 
-import {IChart, IChartData} from "../interfaces";
+import {DataSetSettings, IChart, IChartData} from "../interfaces";
 import {AverageNumberSettings} from "./averageNumberSettings";
 import {get as _get} from "lodash";
 import {Chart} from "../models/Chart";
@@ -13,10 +13,11 @@ export class AverageNumberChart extends Chart implements IChart {
         const settings = <AverageNumberSettings>data.settings;
         console.log('AverageNumberChart settings: ', settings);
 
-        const timeSeries: SingleTimeSeriesValue[] = data.data[0];
-        const currValue = _get(timeSeries, '[0].value', 0);
-        const prevValue = _get(timeSeries, '[1].value', 1);
-        const currColor = _get(data.dataSets[0].settings, 'color', '#E4B01E');
+        const currValue = _get(data.data[0], '[0].value', 0);
+        const prevValue = _get(data.data[1], '[0].value', 0);
+
+        const currColor = this.getColor(data.dataSets[0].settings, 'color-yellow');
+        const prevColor = this.getColor(data.dataSets[1].settings, 'color-grey');
 
         const str = `
             <div class='${s["widget"]}'>
@@ -28,18 +29,26 @@ export class AverageNumberChart extends Chart implements IChart {
                     </div>
                 </div>
                 <div class='${s["row"]}'>
-                    <div class='${w['curr']} ${w['num']}  ${s["col"]} ${s["s-w-12-24"]} ${s["col-vmid"]}' style='color: ${currColor}'>
+                    <div class='${w['curr']} ${w['num']} ${w[currColor.className]}  ${s["col"]} ${s["s-w-12-24"]} ${s["col-vmid"]}'
+                         style='${currColor.colorStyle}'
+                    >
                         ${currValue}
                     </div>
-                    <div class='${w['prev']} ${w['num']}  ${s["col"]} ${s["s-w-12-24"]} ${s["col-vmid"]}'>
+                    <div class='${w['prev']} ${w['num']} ${w[prevColor.className]}  ${s["col"]} ${s["s-w-12-24"]} ${s["col-vmid"]}'
+                         style='${prevColor.colorStyle}'
+                    >
                         ${prevValue}
                     </div>
                 </div>
                 <div class='${s["row"]}'>
-                    <div class='${w['curr']} ${w['text']}  ${s["col"]} ${s["s-w-12-24"]}' style='color: ${currColor}'>
+                    <div class='${w['curr']} ${w['text']} ${w[currColor.className]}  ${s["col"]} ${s["s-w-12-24"]}'
+                         style='${currColor.colorStyle}'
+                    >
                         Текущие
                     </div>
-                    <div class='${w['prev']} ${w['text']}  ${s["col"]} ${s["s-w-12-24"]}'>
+                    <div class='${w['prev']} ${w['text']} ${w[prevColor.className]}  ${s["col"]} ${s["s-w-12-24"]}'
+                         style='${prevColor.colorStyle}'
+                    >
                         Предыдущие
                     </div>
                 </div>

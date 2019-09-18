@@ -4,7 +4,7 @@ import echarts from 'echarts';
 
 import {IChart, IChartData} from '../interfaces';
 import {SplineSettings} from './splineSettings';
-import {get as _get, keys as _keys, map as _map, forEach as _forEach, max as _max, min as _min} from 'lodash';
+import {get as _get, flow as _flow, map as _map, max as _max, min as _min} from 'lodash';
 import {Chart} from '../models/Chart';
 import {TimeSeriesHelper} from '../helpers/TimeSeries.helper';
 import {WidgetConfig} from '../models/widgetConfig';
@@ -44,30 +44,29 @@ export class SplineChart extends Chart implements IChart {
 
         // Конвертируем из строковых дат в дни месяца
         const axisData = _map(timeSeriesData.dates, v => new Date(v).getDate());
-        const getMinYAxisValue = (values: number[]): number => {
-            const minValue = _min(values);
-            if (minValue > 0) {
-                return 0;
-            } else {
-                return minValue;
-            }
-        };
         const series: Object[] = [];
         const yaxis: YaxisData[] = [];
         for (let idx = 0; idx < data.data.length; idx++) {
+            const currColor = this.getColor(data.dataSets[idx].settings, 'color-yellow');
+            const maxY: number = _max(timeSeriesData.values[idx]);
+            const minY: number = _flow(
+                _min,
+                v => v > 0 ? 0 : v
+            )(timeSeriesData.values[idx]);
+
             series.push({
                 data: timeSeriesData.values[idx],
                 type: 'line',
                 smooth: true,
                 smoothMonotone: 'x',
                 lineStyle: {
-                    color: _get(data.dataSets[idx].settings, 'color', '#E4B01E'),
+                    color: currColor.color,
                     width: 2,
                 },
                 symbol: 'circle',
                 symbolSize: 8,
                 itemStyle: {
-                    color: _get(data.dataSets[idx].settings, 'color', '#E4B01E'),
+                    color: currColor.color,
                     borderColor: '#fff',
                     borderWidth: 2
 
@@ -76,8 +75,8 @@ export class SplineChart extends Chart implements IChart {
             yaxis.push({
                 type: 'value',
                 position: _get(data.dataSets[idx].settings, 'yAxis', 'left'),
-                min: getMinYAxisValue(timeSeriesData.values[idx]),
-                max: _max(timeSeriesData.values[idx]),
+                min: minY,
+                max: maxY,
                 // Цифры
                 axisLabel: {
                     color: '#b4b4b4',
@@ -150,6 +149,7 @@ export class SplineChart extends Chart implements IChart {
             series: series
         };
         console.log('splineChart: options:', options);
+        console.log('splineChart: myChart:', myChart);
         myChart.setOption(options);
 
         this.resize(config.element, (width, height) => {

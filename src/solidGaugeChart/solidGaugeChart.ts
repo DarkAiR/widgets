@@ -14,8 +14,9 @@ export class SolidGaugeChart extends Chart implements IChart {
 
         const maxValue = _get(data, 'data[1][0].value', 0);
         const currValue = _get(data, 'data[0][0].value', 0);
-        const color = _get(data, 'dataSets[0].settings.color', 0);
-        const maxColor = _get(data, 'dataSets[1].settings.color', 0);
+
+        const color = this.getColor(data.dataSets[0].settings, 'color-yellow');
+        const maxColor = this.getColor(data.dataSets[1].settings, 'color-grey');
 
         const percent = currValue / maxValue * 100;
         const magicLengthOfSvgPath = 503.3096923828125;
@@ -64,10 +65,10 @@ export class SolidGaugeChart extends Chart implements IChart {
                     <span class="mdi ${settings.icon} ${w['icon']} ${s['size-24']} ${s['color-yellow']}"></span>
                     <svg width="100%" height="100%" viewBox="0 0 336 176" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M8 168C8.00001 79.6344 79.6345 7.99998 168 7.99999C256.366 7.99999 328 79.6344 328 168"
-                            stroke="${maxColor}" stroke-width="16"
+                            stroke="${maxColor.color}" stroke-width="16"
                             stroke-linecap="round" stroke-linejoin="round" />
                         <path d="M8 168C8.00001 79.6344 79.6345 7.99998 168 7.99999C256.366 7.99999 328 79.6344 328 168"
-                            stroke="${color}" stroke-width="16"
+                            stroke="${color.color}" stroke-width="16"
                             stroke-linecap="round" stroke-linejoin="round"
                             stroke-dasharray=${magicLengthOfSvgPath} stroke-dashoffset=${sdo} />
                     </svg>

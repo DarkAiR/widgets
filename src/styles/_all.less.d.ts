@@ -1,6 +1,8 @@
 export interface I_allLess {
   'widget': string;
   'color-blue': string;
+  'color-yellow': string;
+  'color-grey': string;
   'h1': string;
   'h2': string;
   'h3': string;
@@ -633,9 +635,7 @@ export interface I_allLess {
   'color-red': string;
   'color-valid': string;
   'color-green': string;
-  'color-yellow': string;
   'color-orange': string;
-  'color-grey': string;
   'color-grey-dark': string;
   'color-grey-light': string;
   'color-grey-lighter': string;
