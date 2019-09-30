@@ -5,7 +5,7 @@ import {DataSourceType} from './../../models/types';
 
 export interface SingleDataSource {
     name: string;                       // название таблицы (применим только для SINGLE, нр fte)
-    type: DataSourceType;               // тип источника
+    type?: DataSourceType;               // тип источника
 
     // набор фильтров по полям (применим только для SINGLE)
     // фильтр - это KEY (название поля):[список допустимых значений]
@@ -14,5 +14,5 @@ export interface SingleDataSource {
        values: Array<string>;
     }>;
 
-    metric: string;                     // метрика которую надо расчитать
+    metric?: string;                     // метрика которую надо расчитать
 }
