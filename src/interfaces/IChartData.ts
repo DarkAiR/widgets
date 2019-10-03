@@ -9,6 +9,7 @@ export interface IChartData {
     frequency: Frequency;                   // частота конечной аггрегации
     preFrequency: Frequency;                // частота выборки для которой выполняется операция, указанная в operation
 
+    // NOTE: <dataSets> и <data> содержат одинаковое количество элементов
     dataSets: DataSetTemplate[];            // Источники данных, пришедшие в шаблоне
     data: Array<SingleTimeSeriesValue[]>;   // набор данных, каждый item описывает один набор данных, для одного графика/отчета
 
