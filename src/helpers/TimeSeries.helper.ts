@@ -1,14 +1,16 @@
 import {forEach as _forEach, keys as _keys, map as _map} from "lodash";
 import {SingleTimeSeriesValue} from "../interfaces/template/singleTimeSeriesValue";
 
+export interface TimeSeriesData {
+    dates: string[];
+    values: Array<number[]>;
+}
+
 export class TimeSeriesHelper {
     /**
      * Конвертирует данные TimeSeries в массив дат и массив значений
      */
-    static convertTimeSeriesToData(data: Array<SingleTimeSeriesValue[]>): {
-        dates: string[],
-        values: Array<number[]>
-    } {
+    static convertTimeSeriesToData(data: Array<SingleTimeSeriesValue[]>): TimeSeriesData {
         const valuesArr: Array<number[]> = [];
         _forEach(data, (dataValues: SingleTimeSeriesValue[], idx) => {
             _forEach(dataValues, (v: SingleTimeSeriesValue) => {
