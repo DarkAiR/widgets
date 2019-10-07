@@ -81,17 +81,17 @@ export class SolidGaugeChart extends Chart implements IChart {
         config.element.innerHTML = str;
 
         this.resize(config.element, (width, height) => {
-            const widgets = document.getElementsByClassName('solidGaugeChart-widget');
-            const currentValues = document.getElementsByClassName('solidGaugeChart-current-value');
+            const widget = config.element.querySelector('.solidGaugeChart-widget');
+            const currentValue = config.element.querySelector('.solidGaugeChart-current-value');
 
             if (width < 300) {
                 const currentValueFZ2 = getCurrentValueFZ(currValue, true);
-                [].forEach.call(currentValues, cv => cv.setAttribute('style', `font-size: ${currentValueFZ2}px`));
-                [].forEach.call(widgets, v => v.classList.add('solidGaugeChart-widget__small'));
+                currentValue.setAttribute('style', `font-size: ${currentValueFZ2}px`);
+                widget.classList.add('solidGaugeChart-widget__small');
             } else {
                 const currentValueFZ2 = getCurrentValueFZ(currValue, false);
-                [].forEach.call(currentValues, cv => cv.setAttribute('style', `font-size: ${currentValueFZ2}px`));
-                [].forEach.call(widgets, v => v.classList.remove('solidGaugeChart-widget__small'));
+                currentValue.setAttribute('style', `font-size: ${currentValueFZ2}px`);
+                widget.classList.remove('solidGaugeChart-widget__small');
             }
         });
     }
