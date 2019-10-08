@@ -1,15 +1,17 @@
 import s from "../styles/_all.less";
 import w from "./averageNumberChart.less";
 
-import {DataSetSettings, IChart, IChartData} from "../interfaces";
+import {IChart, IChartData, IWidgetVariables} from "../interfaces";
 import {AverageNumberSettings} from "./averageNumberSettings";
 import {get as _get} from "lodash";
 import {Chart} from "../models/Chart";
-import {WidgetConfig} from "../models/widgetConfig";
-import {SingleTimeSeriesValue} from "../interfaces/template/singleTimeSeriesValue";
 
 export class AverageNumberChart extends Chart implements IChart {
-    run(config: WidgetConfig, data: IChartData): void {
+    getVariables(): IWidgetVariables {
+        return {};
+    }
+
+    run(data: IChartData): void {
         const settings = <AverageNumberSettings>data.settings;
         console.log('AverageNumberChart settings: ', settings);
 
@@ -54,6 +56,17 @@ export class AverageNumberChart extends Chart implements IChart {
                 </div>
             </div>
         `;
-        config.element.innerHTML = str;
+        this.config.element.innerHTML = str;
+
+        const currElement: HTMLElement = this.config.element.querySelector(`.${w['curr']}`);
+        const prevElement: HTMLElement = this.config.element.querySelector(`.${w['prev']}`);
+        if (currElement) {
+            currElement.addEventListener('click', () => {
+                this.config.eventBus.trigger('EVENT_W2_TO_W1', {value: currValue});
+            });
+            prevElement.addEventListener('click', () => {
+                this.config.eventBus.trigger('EVENT_W1_TO_W2', {value: prevValue});
+            });
+        }
     }
 }

@@ -2,17 +2,28 @@ import s from '../styles/_all.less';
 import w from './splineChart.less';
 import echarts from 'echarts';
 
-import {IChart, IChartData} from '../interfaces';
+import {IChart, IChartData, IWidgetVariables} from '../interfaces';
 import {SplineSettings} from './splineSettings';
 import {get as _get, flow as _flow, map as _map, max as _max, min as _min} from 'lodash';
 import {Chart} from '../models/Chart';
 import {TimeSeriesData, TimeSeriesHelper} from '../helpers/TimeSeries.helper';
-import {WidgetConfig} from '../models/widgetConfig';
 import {YAxisTypes} from "../models/types";
 
 export class SplineChart extends Chart implements IChart {
-    run(config: WidgetConfig, data: IChartData): void {
+    getVariables(): IWidgetVariables {
+        return {
+            'startDate': {
+                description: 'Начало периода'
+            }
+        };
+    }
+
+    run(data: IChartData): void {
         const settings = <SplineSettings>data.settings;
+
+        this.config.eventBus.listenVariableChange((ev, d) => {
+            console.log('SplineChart listenVariableChange:', ev, d);
+        });
 
         const str = `
             <div class='${s['widget']}  ${w['widget']}'>
@@ -25,7 +36,7 @@ export class SplineChart extends Chart implements IChart {
                 </div>
             </div>
         `;
-        config.element.innerHTML = str;
+        this.config.element.innerHTML = str;
 
         const timeSeriesData: TimeSeriesData = TimeSeriesHelper.convertTimeSeriesToData(data.data);
 
@@ -74,11 +85,11 @@ export class SplineChart extends Chart implements IChart {
             series: series
         };
 
-        const el = config.element.getElementsByClassName(w['chart'])[0];
+        const el = this.config.element.getElementsByClassName(w['chart'])[0];
         const myChart = echarts.init(el);
         myChart.setOption(options);
 
-        this.resize(config.element, (width, height) => {
+        this.resize(this.config.element, (width, height) => {
             myChart.resize();
         });
     }

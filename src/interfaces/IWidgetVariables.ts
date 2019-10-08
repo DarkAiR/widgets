@@ -1,4 +1,4 @@
-export interface IWidgetVariable {
+export interface IWidgetVariables {
     [propName: string]: {
         description?: string;
     };
