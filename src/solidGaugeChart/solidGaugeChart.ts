@@ -83,7 +83,7 @@ export class SolidGaugeChart extends Chart implements IChart {
         `;
         this.config.element.innerHTML = str;
 
-        this.resize(config.element, (width, height) => {
+        this.resize(this.config.element, (width, height) => {
             const widget = this.config.element.querySelector('.solidGaugeChart-widget');
             const currentValue = this.config.element.querySelector('.solidGaugeChart-current-value');
 
