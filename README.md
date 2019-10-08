@@ -35,6 +35,7 @@ const config = new WidgetConfig();
 config.templateId = 'TEMPLATE_ID';
 config.element = document.getElementById('ELEMENT_ID');
 config.apiUrl = 'YOUR GRAPHQL API';     // Optional
+config.eventBus = <EventBusWrapper>
 this.widgetFactory.run(config);
 ```
 
@@ -43,10 +44,26 @@ Also you can use Promise for receiving signals about complete of loading widget 
 For example:
 ```js
 this.widgetFactory.run(config).then(
-    () => complete,
+    (widget: IChart) => complete,
     () => error
 );
 ``` 
+
+Interface IChart has method for getting available variables for EventBus:
+```js
+interface IChart {
+    getVariables(): IWidgetVariables;
+    ...
+}
+```
+where IWidgetVariables is
+```js
+{
+    <VAR_NAME>: {
+        description?: string;
+    }
+}
+```
 
 -----------------------
 

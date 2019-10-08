@@ -1,28 +1,31 @@
 import s from "../styles/_all.less";
 import w from "./indicatorsTableChart.less";
 
-import {IChart, IChartData} from "../interfaces";
+import {IChart, IChartData, IWidgetVariables} from "../interfaces";
 import {IndicatorsTableSettings} from "./indicatorsTableSettings";
 import {get as _get, head as _head, forEach as _forEach} from "lodash";
 import * as moment from 'moment';
 import * as hammer from 'hammerjs';
 import {Chart} from "../models/Chart";
 import {TimeSeriesData, TimeSeriesHelper} from "../helpers/TimeSeries.helper";
-import {WidgetConfig} from "../models/widgetConfig";
 
 type MetricsStatus = 'normal' | 'warning' | 'error';
 
 export class IndicatorsTableChart extends Chart implements IChart {
-    run(config: WidgetConfig, data: IChartData): void {
+    getVariables(): IWidgetVariables {
+        return {};
+    }
+
+    run(data: IChartData): void {
         const settings = <IndicatorsTableSettings>data.settings;
         console.log('IndicatorsTableConfig settings: ', settings);
 
-        const mc = hammer(config.element);
+        const mc = hammer(this.config.element);
 
         let startOffs = 0;
         mc.get('pan').set({ direction: hammer.DIRECTION_HORIZONTAL });
         mc.on("panstart panleft panright", ev => {
-            const contEl = _head(config.element.getElementsByClassName(w['cont']));
+            const contEl = _head(this.config.element.getElementsByClassName(w['cont']));
             switch (ev.type) {
                 case 'panstart':
                     if (contEl.style.left === '') {
@@ -154,7 +157,7 @@ export class IndicatorsTableChart extends Chart implements IChart {
                 </div>
             </div>
         `;
-        config.element.innerHTML = str;
+        this.config.element.innerHTML = str;
     }
 
     /**

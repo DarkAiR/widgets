@@ -1,6 +1,7 @@
 export * from "./IChart";
 export * from "./IChartData";
 export * from "./ISettings";
+export * from "./IWidgetVariables";
 export * from "./template/widgetTemplate";
 export * from "./template/widgetTemplateSettings";
 export * from "./template/dataSetTemplate";
