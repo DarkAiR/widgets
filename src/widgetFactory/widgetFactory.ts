@@ -79,11 +79,11 @@ export class WidgetFactory {
                         console.error('Not supported');
                         break;
                 }
-                // if (process.env.NODE_ENV === 'development') {
-                this.addVersion(config);
-                // }
                 if (widget) {
                     widget.run(data);
+                    // if (process.env.NODE_ENV === 'development') {
+                    this.addVersion(config);
+                    // }
                     resolve(widget);
                 }
             });
