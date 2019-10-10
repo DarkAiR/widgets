@@ -21,7 +21,7 @@ export class SplineChart extends Chart implements IChart {
     run(data: IChartData): void {
         const settings = <SplineSettings>data.settings;
 
-        this.config.eventBus.listenVariableChange((ev, d) => {
+        this.listen((ev, d) => {
             console.log('SplineChart listenVariableChange:', ev, d);
         });
 
