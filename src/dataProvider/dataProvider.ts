@@ -150,12 +150,12 @@ export class DataProvider {
             variables: {},
             query: `
                 {getReport(dataSet: {
-                    from: ${dataSet.from}
-                    to: ${dataSet.to}
+                    from: "${dataSet.from}"
+                    to: "${dataSet.to}"
                     frequency: ${dataSet.frequency}
                     preFrequency: ${dataSet.preFrequency}
                     operation: ${dataSet.operation}
-                    methods: ${dataSet.methods}
+                    methods: ["${dataSet.methods}"]
                     dataSource1: ${dataSource1}
                     dataSource2: ${dataSource2}
                 }){

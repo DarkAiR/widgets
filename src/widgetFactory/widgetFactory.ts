@@ -8,7 +8,6 @@ import {
     ReportChart,
 } from "..";
 import {WidgetConfig} from "../models/widgetConfig";
-import {Chart} from '../models/Chart';
 
 declare var __VERSION__: string;
 
