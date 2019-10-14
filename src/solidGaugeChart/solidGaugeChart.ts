@@ -1,14 +1,17 @@
 import s from "../styles/_all.less";
 import w from "./solidGaugeChart.less";
 
-import {IChart, IChartData} from "../interfaces";
+import {IChart, IChartData, IWidgetVariables} from "../interfaces";
 import {SolidGaugeSettings} from "./solidGaugeSettings";
 import {get as _get} from "lodash";
 import {Chart} from "../models/Chart";
-import {WidgetConfig} from "../models/widgetConfig";
 
 export class SolidGaugeChart extends Chart implements IChart {
-    run(config: WidgetConfig, data: IChartData): void {
+    getVariables(): IWidgetVariables {
+        return {};
+    }
+
+    run(data: IChartData): void {
         const settings = <SolidGaugeSettings>data.settings;
         console.log('SolidGaugeChart settings: ', settings);
 
@@ -78,20 +81,20 @@ export class SolidGaugeChart extends Chart implements IChart {
                 </div>
             </div>
         `;
-        config.element.innerHTML = str;
+        this.config.element.innerHTML = str;
 
-        this.resize(config.element, (width, height) => {
-            const widgets = document.getElementsByClassName('solidGaugeChart-widget');
-            const currentValues = document.getElementsByClassName('solidGaugeChart-current-value');
+        this.resize(this.config.element, (width, height) => {
+            const widget = this.config.element.querySelector('.solidGaugeChart-widget');
+            const currentValue = this.config.element.querySelector('.solidGaugeChart-current-value');
 
             if (width < 300) {
                 const currentValueFZ2 = getCurrentValueFZ(currValue, true);
-                [].forEach.call(currentValues, cv => cv.setAttribute('style', `font-size: ${currentValueFZ2}px`));
-                [].forEach.call(widgets, v => v.classList.add('solidGaugeChart-widget__small'));
+                currentValue.setAttribute('style', `font-size: ${currentValueFZ2}px`);
+                widget.classList.add('solidGaugeChart-widget__small');
             } else {
                 const currentValueFZ2 = getCurrentValueFZ(currValue, false);
-                [].forEach.call(currentValues, cv => cv.setAttribute('style', `font-size: ${currentValueFZ2}px`));
-                [].forEach.call(widgets, v => v.classList.remove('solidGaugeChart-widget__small'));
+                currentValue.setAttribute('style', `font-size: ${currentValueFZ2}px`);
+                widget.classList.remove('solidGaugeChart-widget__small');
             }
         });
     }

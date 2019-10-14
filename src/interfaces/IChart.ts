@@ -1,6 +1,7 @@
-import {IChartData} from ".";
-import {WidgetConfig} from "../models/widgetConfig";
+import {IChartData, IWidgetVariables} from ".";
 
 export interface IChart {
-    run(config: WidgetConfig, data: IChartData): void;
+    destroy(): void;                        // Удаление виджета
+    getVariables(): IWidgetVariables;       // Возвращает список переменных, доступных для прослушивания
+    run(data: IChartData): void;            // Запуск виджета
 }

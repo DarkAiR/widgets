@@ -1,4 +1,4 @@
-import {IChartData, WidgetTemplate} from "../interfaces";
+import {IChart, IChartData, WidgetTemplate} from "../interfaces";
 import {
     DataProvider,
     AverageNumberChart,
@@ -8,13 +8,14 @@ import {
     ReportChart,
 } from "..";
 import {WidgetConfig} from "../models/widgetConfig";
+import {Chart} from '../models/Chart';
 
 declare var __VERSION__: string;
 
 export class WidgetFactory {
     dataProvider: DataProvider = null;
 
-    run(config: WidgetConfig): Promise<void> {
+    run(config: WidgetConfig): Promise<IChart> {
         return new Promise((resolve, reject) => {
             if (!config.element) {
                 console.error('Required field "element" is not specified');
@@ -27,15 +28,17 @@ export class WidgetFactory {
             resolve();
         }).then(() => {
             this.dataProvider = new DataProvider(config.apiUrl);
-            return this.dataProvider
-                .getTemplate(config.templateId)
-                .then((template: WidgetTemplate) => {
-                    return this.createWidget(config, template);
-                });
+            return new Promise<IChart>((resolve) => {
+                this.dataProvider
+                    .getTemplate(config.templateId)
+                    .then((template: WidgetTemplate) => {
+                        this.createWidget(config, template).then((widget: IChart) => resolve(widget));
+                    });
+            });
         });
     }
 
-    runWithSource(config: WidgetConfig, template: WidgetTemplate): Promise<void> {
+    runWithSource(config: WidgetConfig, template: WidgetTemplate): Promise<IChart> {
         return new Promise((resolve, reject) => {
             if (!config.element) {
                 console.error('Required field "element" is not specified');
@@ -48,41 +51,49 @@ export class WidgetFactory {
         });
     }
 
-    private createWidget(config: WidgetConfig, template: WidgetTemplate): Promise<void> {
-        return this.dataProvider.parseTemplate(template).then((data: IChartData) => {
-            switch (template.widgetType) {
-                // Сплайн
-                case "SPLINE":
-                    new SplineChart().run(config, data);
-                    break;
+    private createWidget(config: WidgetConfig, template: WidgetTemplate): Promise<IChart> {
+        const promise = new Promise<IChart>((resolve) => {
+            this.dataProvider.parseTemplate(template).then((data: IChartData) => {
+                let widget: IChart = null;
+                switch (template.widgetType) {
+                    // Сплайн
+                    case "SPLINE":
+                        widget = new SplineChart(config);
+                        break;
 
-                // Средние показатели за прошлый и позапрошлый интервал
-                case "AVERAGE_NUMBER":
-                    new AverageNumberChart().run(config, data);
-                    break;
+                    // Средние показатели за прошлый и позапрошлый интервал
+                    case "AVERAGE_NUMBER":
+                        widget = new AverageNumberChart(config);
+                        break;
 
-                // Индикатор в виде полукруга
-                case "SOLID_GAUGE":
-                    new SolidGaugeChart().run(config, data);
-                    break;
+                    // Индикатор в виде полукруга
+                    case "SOLID_GAUGE":
+                        widget = new SolidGaugeChart(config);
+                        break;
 
-                // Таблица разных индикаторов
-                case "INDICATORS_TABLE":
-                    new IndicatorsTableChart().run(config, data);
-                    break;
+                    // Таблица разных индикаторов
+                    case "INDICATORS_TABLE":
+                        widget = new IndicatorsTableChart(config);
+                        break;
 
-                case 'REPORT':
-                    new ReportChart().run(config, data);
-                    break;
+                    case "REPORT":
+                        widget = new ReportChart(config);
+                        break;
 
-                default:
-                    console.error('Not supported');
-                    break;
-            }
-            // if (process.env.NODE_ENV === 'development') {
-                this.addVersion(config);
-            // }
+                    default:
+                        console.error('Not supported');
+                        break;
+                }
+                if (widget) {
+                    widget.run(data);
+                    // if (process.env.NODE_ENV === 'development') {
+                    this.addVersion(config);
+                    // }
+                    resolve(widget);
+                }
+            });
         });
+        return promise;
     }
 
     private addVersion(config: WidgetConfig): void {
