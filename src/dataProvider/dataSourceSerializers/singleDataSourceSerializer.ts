@@ -15,7 +15,6 @@ export class SingleDataSourceSerializer implements ISerializer {
                     singleQuotes: false
                 }).replace(/\n/g, '');
                 break;
-            case "REPORT":
             case "STATIC":
                 break;
         }
@@ -24,6 +23,19 @@ export class SingleDataSourceSerializer implements ISerializer {
             type: ${dataSource1.type},
             name: "${dataSource1.name}",
             metric: "${dataSource1.metric}",
+            dimensions: ${dimensionsJson}
+        }`;
+    }
+
+    serializeReport(dataSource: SingleDataSource): string {
+        const dimensionsJson = stringifyObject(dataSource.dimensions, {
+            indent: ' ',
+            singleQuotes: false
+        }).replace(/\n/g, '');
+        return `{
+            type: ${dataSource.type},
+            name: "${dataSource.name}",
+            metric: "${dataSource.metric}",
             dimensions: ${dimensionsJson}
         }`;
     }
