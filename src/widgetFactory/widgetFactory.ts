@@ -5,9 +5,9 @@ import {
     SolidGaugeChart,
     SplineChart,
     IndicatorsTableChart,
+    ReportChart,
 } from "..";
 import {WidgetConfig} from "../models/widgetConfig";
-import {Chart} from '../models/Chart';
 
 declare var __VERSION__: string;
 
@@ -73,6 +73,10 @@ export class WidgetFactory {
                     // Таблица разных индикаторов
                     case "INDICATORS_TABLE":
                         widget = new IndicatorsTableChart(config);
+                        break;
+
+                    case "REPORT":
+                        widget = new ReportChart(config);
                         break;
 
                     default:

@@ -1,4 +1,4 @@
-import {DataSetTemplate, IChartData, WidgetTemplate} from "../interfaces";
+import {DataSetTemplate, IChartData, SingleDataSource, WidgetTemplate} from "../interfaces";
 import {get as _get, forEach as _forEach} from 'lodash';
 import {IGqlRequest} from "./IGqlRequest";
 import {SingleTimeSeriesValue} from "../interfaces/template/singleTimeSeriesValue";
@@ -61,6 +61,13 @@ export class DataProvider {
                 });
                 await Promise.all(promises);
                 break;
+            case "REPORT":
+                const reportPromises = template.dataSets.map(async (item, idx) => {
+                    // Сохраняем порядок dataSet
+                    data.data[idx] = await this.loadReportData(item);
+                });
+                await Promise.all(reportPromises);
+                break;
         }
 
         console.log('Load template data', data.data);
@@ -86,6 +93,18 @@ export class DataProvider {
                 }
             );
     }
+    private async loadReportData(dataSet: DataSetTemplate): Promise<SingleTimeSeriesValue[]> {
+        return await axios.post(this.gqlLink, this.serializeReportGQL(dataSet))
+            .then(
+                (response) => {
+                    const data = response.data;
+                    return _get(data, 'data.getReport', []);
+                },
+                (error) => {
+                    throw error;
+                }
+            );
+    }
 
     private serializeGQL(dataSet: DataSetTemplate): IGqlRequest | null {
         let dataSource = '{}';
@@ -93,11 +112,11 @@ export class DataProvider {
             case "SINGLE":
                 dataSource = (new SingleDataSourceSerializer()).serialize(dataSet);
                 break;
+
             case "AGGREGATION":
                 dataSource = (new AggregationDataSourceSerializer()).serialize(dataSet);
                 break;
         }
-
         let period = '';
         if (dataSet.period) {
             period = `period: "${dataSet.period}"`;
@@ -109,17 +128,42 @@ export class DataProvider {
             operationName: null,
             variables: {},
             query: `
-{getSingleTimeSeries(dataSet: {
-    ${period}
-    frequency: ${dataSet.frequency}
-    preFrequency: ${dataSet.preFrequency}
-    operation: ${dataSet.operation}
-    dataSource1: ${dataSource}
-}){
-    orgUnits { name }
-    value
-    localDateTime
-}}`
+                {getSingleTimeSeries(dataSet: {
+                    ${period}
+                    frequency: ${dataSet.frequency}
+                    preFrequency: ${dataSet.preFrequency}
+                    operation: ${dataSet.operation}
+                    dataSource1: ${dataSource}
+                }){
+                    orgUnits { name }
+                    value
+                    localDateTime
+                }}`
+        };
+    }
+
+    private serializeReportGQL(dataSet: DataSetTemplate): IGqlRequest | null {
+        const dataSource1 = (new SingleDataSourceSerializer()).serializeReport(dataSet.dataSource1 as SingleDataSource);
+        const dataSource2 = (new SingleDataSourceSerializer()).serializeReport(dataSet.dataSource2 as SingleDataSource);
+        return {
+            operationName: null,
+            variables: {},
+            query: `
+                {getReport(dataSet: {
+                    from: "${dataSet.from}"
+                    to: "${dataSet.to}"
+                    frequency: ${dataSet.frequency}
+                    preFrequency: ${dataSet.preFrequency}
+                    operation: ${dataSet.operation}
+                    methods: ["${dataSet.methods}"]
+                    dataSource1: ${dataSource1}
+                    dataSource2: ${dataSource2}
+                }){
+                    items {
+                      key
+                      value
+                    }
+                }}`
         };
     }
 }

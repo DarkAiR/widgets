@@ -1,5 +1,5 @@
 import {DataSetTemplate} from './dataSetTemplate';
-import {ViewType, WidgetType} from "../../models/types";
+import {ViewType, WidgetType, MethodType} from "../../models/types";
 import {WidgetTemplateSettings} from "./widgetTemplateSettings";
 
 export interface WidgetTemplate {

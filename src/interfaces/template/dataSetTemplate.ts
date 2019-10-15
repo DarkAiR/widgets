@@ -22,7 +22,7 @@ export interface DataSetTemplate {
     operation: Operation;                   // операция, которую необходимо выполнить при агрегации из preFrequency во frequency
     axis: number;                           // номер оси, на которую накладывается график
     numberOfBeans?: number;                 // количество столбцов (используется только для DISTRIBUTION)
-    method?: string | null;
+    methods?: string[] | null;
 
     settings?: DataSetSettings;             // Настройки конкретных источников данных
 }
