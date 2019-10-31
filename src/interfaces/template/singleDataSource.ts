@@ -1,11 +1,10 @@
 /**
  * описание источника данных для dataSet'a
  */
-import {DataSourceType} from './../../models/types';
+import {IDataSourceBase} from "./IDataSourceBase";
 
-export interface SingleDataSource {
+export interface SingleDataSource extends IDataSourceBase {
     name: string;                       // название таблицы (применим только для SINGLE, нр fte)
-    type?: DataSourceType;               // тип источника
 
     // набор фильтров по полям (применим только для SINGLE)
     // фильтр - это KEY (название поля):[список допустимых значений]
@@ -14,5 +13,9 @@ export interface SingleDataSource {
        values: Array<string>;
     }>;
 
-    metric?: string;                     // метрика которую надо расчитать
+    // метрика которую надо расчитать
+    metric?: {
+        name: string,
+        expression?: string            // если не указан, то name берется как название поля
+    };
 }

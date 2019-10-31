@@ -1,18 +1,21 @@
 import {get as _get} from 'lodash';
 import ResizeObserver from 'resize-observer-polyfill';
-import {DataSetSettings} from "../interfaces";
-import {WidgetConfig} from "./widgetConfig";
+import {DataSetSettings, IChart, IChartData, IWidgetVariables} from "../interfaces";
+import {WidgetConfigInner} from "./widgetConfig";
 import {EventBusWrapper, EventBus, EventBusEvent} from 'goodteditor-event-bus';
 
 export type ListenFunction = (event: EventBusEvent, data: Object) => void;
 export type ResizeFunction = (this: Chart, width: number, height: number) => void;
 
-export abstract class Chart {
-    protected config: WidgetConfig = null;
+export abstract class Chart implements IChart {
+    protected config: WidgetConfigInner = null;
     private resizeObserver: ResizeObserver = null;
     private listenCb: ListenFunction = null;
 
-    constructor(config: WidgetConfig) {
+    abstract getVariables(): IWidgetVariables;
+    abstract run(data: IChartData): void;
+
+    constructor(config: WidgetConfigInner) {
         this.config = config;
 
         if (!this.config.eventBus) {
@@ -56,12 +59,19 @@ export abstract class Chart {
         this.resizeObserver.observe(element);
     }
 
+    protected async reload(): Promise<IChartData | null> {
+        const data: IChartData = await this.config.dataProvider.parseTemplate(this.config.template);
+        this.destroy();
+        this.run(data);
+        return data;
+    }
+
     /**
      * Возвращает строку стилей и имя класса
      * Оба значения можно использовать как есть в виде class=`${className}` style=`${colorStyle}`
      * @return Всегда возвращает валидный цвет для подстановки
      */
-    getColor(settings: DataSetSettings, defClassName: string, defColor: string = '#000'): {
+    protected getColor(settings: DataSetSettings, defClassName: string, defColor: string = '#000'): {
         color: string, colorStyle: string, className: string
     } {
         let color: string = _get(settings, 'color', '');

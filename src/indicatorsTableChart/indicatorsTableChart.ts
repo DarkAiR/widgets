@@ -11,7 +11,7 @@ import {TimeSeriesData, TimeSeriesHelper} from "../helpers/TimeSeries.helper";
 
 type MetricsStatus = 'normal' | 'warning' | 'error';
 
-export class IndicatorsTableChart extends Chart implements IChart {
+export class IndicatorsTableChart extends Chart {
     getVariables(): IWidgetVariables {
         return {};
     }

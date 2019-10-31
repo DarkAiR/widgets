@@ -6,7 +6,7 @@ import {SolidGaugeSettings} from "./solidGaugeSettings";
 import {get as _get} from "lodash";
 import {Chart} from "../models/Chart";
 
-export class SolidGaugeChart extends Chart implements IChart {
+export class SolidGaugeChart extends Chart {
     getVariables(): IWidgetVariables {
         return {};
     }

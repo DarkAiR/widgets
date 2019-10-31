@@ -6,7 +6,7 @@ import {AverageNumberSettings} from "./averageNumberSettings";
 import {get as _get} from "lodash";
 import {Chart} from "../models/Chart";
 
-export class AverageNumberChart extends Chart implements IChart {
+export class AverageNumberChart extends Chart {
     getVariables(): IWidgetVariables {
         return {};
     }

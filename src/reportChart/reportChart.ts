@@ -6,7 +6,7 @@ import {ReportChartSettings} from "./reportChartSettings";
 import {get as _get} from "lodash";
 import {Chart} from "../models/Chart";
 
-export class ReportChart extends Chart implements IChart {
+export class ReportChart extends Chart {
     getVariables(): IWidgetVariables {
         return {};
     }

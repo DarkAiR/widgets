@@ -1,6 +1,7 @@
 import {ISerializer} from "./ISerializer";
 import {DataSetTemplate, SingleDataSource} from "../../interfaces";
 import * as stringifyObject from 'stringify-object';
+import {get as _get} from 'lodash';
 
 export class SingleDataSourceSerializer implements ISerializer {
     serialize(dataSet: DataSetTemplate): string {
@@ -22,7 +23,10 @@ export class SingleDataSourceSerializer implements ISerializer {
         return `{
             type: ${dataSource1.type},
             name: "${dataSource1.name}",
-            metric: "${dataSource1.metric}",
+            metric: {
+                name: "${dataSource1.metric.name}",
+                expression: "${_get(dataSource1.metric, 'expression', dataSource1.metric.name)}",
+            },
             dimensions: ${dimensionsJson}
         }`;
     }
@@ -32,10 +36,19 @@ export class SingleDataSourceSerializer implements ISerializer {
             indent: ' ',
             singleQuotes: false
         }).replace(/\n/g, '');
+        const metricObj = !dataSource.metric
+            ? {}
+            : {
+                metric: {
+                    name: dataSource.metric.name,
+                    expression: _get(dataSource.metric, 'expression', dataSource.metric.name),
+                }
+            };
+
         return `{
             type: ${dataSource.type},
             name: "${dataSource.name}",
-            metric: "${dataSource.metric}",
+            ${metricObj},
             dimensions: ${dimensionsJson}
         }`;
     }

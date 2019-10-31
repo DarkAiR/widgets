@@ -51,7 +51,6 @@ export class DataProvider {
             data.settings.title = title;
         }
 
-
         switch (template.viewType) {
             case "DYNAMIC":
                 // Асинхронно загружаем все данные
@@ -160,8 +159,8 @@ export class DataProvider {
                     dataSource2: ${dataSource2}
                 }){
                     items {
-                      key
-                      value
+                        key
+                        value
                     }
                 }}`
         };

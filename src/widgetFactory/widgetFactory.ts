@@ -7,7 +7,7 @@ import {
     IndicatorsTableChart,
     ReportChart,
 } from "..";
-import {WidgetConfig} from "../models/widgetConfig";
+import {WidgetConfig, WidgetConfigInner} from "../models/widgetConfig";
 
 declare var __VERSION__: string;
 
@@ -31,7 +31,11 @@ export class WidgetFactory {
                 this.dataProvider
                     .getTemplate(config.templateId)
                     .then((template: WidgetTemplate) => {
-                        this.createWidget(config, template).then((widget: IChart) => resolve(widget));
+                        const innerConfig: WidgetConfigInner = Object.assign(config, {
+                            dataProvider: this.dataProvider,
+                            template: template
+                        });
+                        this.createWidget(innerConfig, template).then((widget: IChart) => resolve(widget));
                     });
             });
         });
@@ -46,11 +50,15 @@ export class WidgetFactory {
             resolve();
         }).then(() => {
             this.dataProvider = new DataProvider(config.apiUrl);
-            return this.createWidget(config, template);
+            const innerConfig: WidgetConfigInner = Object.assign(config, {
+                dataProvider: this.dataProvider,
+                template: template
+            });
+            return this.createWidget(innerConfig, template);
         });
     }
 
-    private createWidget(config: WidgetConfig, template: WidgetTemplate): Promise<IChart> {
+    private createWidget(config: WidgetConfigInner, template: WidgetTemplate): Promise<IChart> {
         const promise = new Promise<IChart>((resolve) => {
             this.dataProvider.parseTemplate(template).then((data: IChartData) => {
                 let widget: IChart = null;
@@ -95,7 +103,7 @@ export class WidgetFactory {
         return promise;
     }
 
-    private addVersion(config: WidgetConfig): void {
+    private addVersion(config: WidgetConfigInner): void {
         const versionElement = document.createElement('div');
 
         config.element.style.position = 'relative';

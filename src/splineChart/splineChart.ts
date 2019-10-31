@@ -1,29 +1,57 @@
 import s from '../styles/_all.less';
 import w from './splineChart.less';
 import echarts from 'echarts';
+import {EventBusEvent} from 'goodteditor-event-bus';
 
-import {IChart, IChartData, IWidgetVariables} from '../interfaces';
+import {
+    DataSetTemplate,
+    IChart,
+    IChartData,
+    INameValue,
+    IWidgetVariables,
+    SingleDataSource
+} from '../interfaces';
 import {SplineSettings} from './splineSettings';
-import {get as _get, flow as _flow, map as _map, max as _max, min as _min} from 'lodash';
+import {
+    get as _get, set as _set,
+    flow as _flow,
+    map as _map,
+    max as _max, min as _min,
+    forEach as _forEach,
+    defaultTo as _defaultTo
+} from 'lodash';
 import {Chart} from '../models/Chart';
 import {TimeSeriesData, TimeSeriesHelper} from '../helpers/TimeSeries.helper';
 import {YAxisTypes} from "../models/types";
 
-export class SplineChart extends Chart implements IChart {
+export class SplineChart extends Chart {
     getVariables(): IWidgetVariables {
-        return {
-            'startDate': {
-                description: 'Начало периода'
-            }
+        const res: IWidgetVariables = {};
+        let sortIndex = 0;
+        const addVar = (idx: number, name: string, description: string, hint: string) => {
+            res[name + (idx === 0 ? '' : ' ' + idx)] = {
+                description,
+                hint,
+                sortIndex: sortIndex++,
+            };
         };
+        _forEach(this.config.template.dataSets, (v: DataSetTemplate, idx: number) => {
+            const nameStr: string = v.dataSource1.type === 'SINGLE'  ? '(' + (<SingleDataSource>v.dataSource1).name + ')' : '';
+            addVar(idx, 'period', 'Период', `${nameStr}: формат см. документацию по template-api`);
+            addVar(idx, 'start date', 'Начало выборки', `${nameStr}: YYYY-mm-dd`);
+            addVar(idx, 'finish date', 'Окончание выборки', `${nameStr}: YYYY-mm-dd`);
+            addVar(idx, 'view type', 'Тип отображения', `${nameStr}: LINE | HISTOGRAM`);
+            addVar(idx, 'frequency', 'Частота конечной агрегации', `${nameStr}: YEAR | MONTH | WEEK | DAY | HOUR | ALL`);
+            addVar(idx, 'pre frequency', 'Частота выборки для которой выполняется операция, указанная в operation', `${nameStr}: YEAR | MONTH | WEEK | DAY | HOUR | ALL`);
+            addVar(idx, 'operation', 'операция, которую необходимо выполнить при агрегации из preFrequency во frequency', `${nameStr}: SUM | AVG | MIN | MAX | DIVIDE`);
+        });
+        return res;
     }
 
     run(data: IChartData): void {
         const settings = <SplineSettings>data.settings;
 
-        this.listen((ev, d) => {
-            console.log('SplineChart listenVariableChange:', ev, d);
-        });
+        this.listen(this.onEventBus.bind(this));
 
         const str = `
             <div class='${s['widget']}  ${w['widget']}'>
@@ -245,5 +273,40 @@ export class SplineChart extends Chart implements IChart {
                 color,
             }
         };
+    }
+
+    private onEventBus(ev: EventBusEvent, eventData: INameValue): void {
+        console.log('SplineChart listenVariableChange:', ev, eventData);
+        const res = /(.*?)(?: (\d*))?$/.exec(eventData.name);
+        const varName: string = _defaultTo(_get(res, '1'), '');
+        const varId: number = _defaultTo(_get(res, '2'), 0);
+
+        const setVar = (id, prop, val) => {
+            _set(this.config.template.dataSets[varId], prop, val);
+            this.reload();
+        };
+        switch (varName) {
+            case 'start date':
+                setVar(varId, 'from', eventData.value);
+                break;
+            case 'finish date':
+                setVar(varId, 'to', eventData.value);
+                break;
+            case 'period':
+                setVar(varId, 'period', eventData.value);
+                break;
+            case 'view type':
+                setVar(varId, 'chartType', eventData.value);
+                break;
+            case 'frequency':
+                setVar(varId, 'frequency', eventData.value);
+                break;
+            case 'pre frequency':
+                setVar(varId, 'preFrequency', eventData.value);
+                break;
+            case 'operation':
+                setVar(varId, 'operation', eventData.value);
+                break;
+        }
     }
 }

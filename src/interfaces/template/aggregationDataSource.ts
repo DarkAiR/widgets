@@ -4,9 +4,9 @@
  */
 import {DataSourceType, Operation} from './../../models/types';
 import {SingleDataSource} from "./singleDataSource";
+import {IDataSourceBase} from "./IDataSourceBase";
 
-export interface AggregationDataSource {
-    type: DataSourceType;
+export interface AggregationDataSource extends IDataSourceBase {
     firstDataSource: SingleDataSource | AggregationDataSource;      // первый вложенный источник данных
     operation: Operation;                                           // операция между первым и вторым источником данных.
     secondDataSource: SingleDataSource | AggregationDataSource;     // второй вложенный источник данных.
