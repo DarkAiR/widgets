@@ -13,3 +13,4 @@ export type Operation = 'SUM' | 'AVG' | 'MIN' | 'MAX' | 'DIVIDE';
 export type DataSourceType = 'SINGLE' | 'AGGREGATION';
 export type YAxisTypes = 'left' | 'right';
 export type MethodType = 'MAPE' | 'MAE' | 'coverage' | 'utilization';
+export type ServerType = 'druid' | 'qlik';

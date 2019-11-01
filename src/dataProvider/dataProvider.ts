@@ -4,6 +4,7 @@ import {IGqlRequest} from "./IGqlRequest";
 import {SingleTimeSeriesValue} from "../interfaces/template/singleTimeSeriesValue";
 import {SingleDataSourceSerializer} from "./dataSourceSerializers/singleDataSourceSerializer";
 import {AggregationDataSourceSerializer} from "./dataSourceSerializers/aggregationDataSourceSerializer";
+import {ServerType} from "../models/types";
 
 const axios = require('axios');
 
@@ -56,14 +57,14 @@ export class DataProvider {
                 // Асинхронно загружаем все данные
                 const promises = template.dataSets.map(async (item, idx) => {
                     // Сохраняем порядок dataSet
-                    data.data[idx] = await this.loadData(item);
+                    data.data[idx] = await this.loadData(item, template.settings.server);
                 });
                 await Promise.all(promises);
                 break;
             case "REPORT":
                 const reportPromises = template.dataSets.map(async (item, idx) => {
                     // Сохраняем порядок dataSet
-                    data.data[idx] = await this.loadReportData(item);
+                    data.data[idx] = await this.loadReportData(item, template.settings.server);
                 });
                 await Promise.all(reportPromises);
                 break;
@@ -76,8 +77,8 @@ export class DataProvider {
     /**
      * Загрузка данных для шаблона
      */
-    private async loadData(dataSet: DataSetTemplate): Promise<SingleTimeSeriesValue[]> {
-        return await axios.post(this.gqlLink, this.serializeGQL(dataSet))
+    private async loadData(dataSet: DataSetTemplate, server: ServerType): Promise<SingleTimeSeriesValue[]> {
+        return await axios.post(this.gqlLink, this.serializeGQL(dataSet, server))
             .then(
                 (response) => {
                     let data = response.data;
@@ -92,8 +93,8 @@ export class DataProvider {
                 }
             );
     }
-    private async loadReportData(dataSet: DataSetTemplate): Promise<SingleTimeSeriesValue[]> {
-        return await axios.post(this.gqlLink, this.serializeReportGQL(dataSet))
+    private async loadReportData(dataSet: DataSetTemplate, server: ServerType): Promise<SingleTimeSeriesValue[]> {
+        return await axios.post(this.gqlLink, this.serializeReportGQL(dataSet, server))
             .then(
                 (response) => {
                     const data = response.data;
@@ -105,7 +106,7 @@ export class DataProvider {
             );
     }
 
-    private serializeGQL(dataSet: DataSetTemplate): IGqlRequest | null {
+    private serializeGQL(dataSet: DataSetTemplate, server: ServerType): IGqlRequest | null {
         let dataSource = '{}';
         switch (dataSet.dataSource1.type) {
             case "SINGLE":
@@ -127,13 +128,16 @@ export class DataProvider {
             operationName: null,
             variables: {},
             query: `
-                {getSingleTimeSeries(dataSet: {
-                    ${period}
-                    frequency: ${dataSet.frequency}
-                    preFrequency: ${dataSet.preFrequency}
-                    operation: ${dataSet.operation}
-                    dataSource1: ${dataSource}
-                }){
+                {getSingleTimeSeries(
+                    server: "${server}"
+                    dataSet: {
+                        ${period}
+                        frequency: ${dataSet.frequency}
+                        preFrequency: ${dataSet.preFrequency}
+                        operation: ${dataSet.operation}
+                        dataSource1: ${dataSource}
+                    }
+                ){
                     orgUnits { name }
                     value
                     localDateTime
@@ -141,23 +145,26 @@ export class DataProvider {
         };
     }
 
-    private serializeReportGQL(dataSet: DataSetTemplate): IGqlRequest | null {
+    private serializeReportGQL(dataSet: DataSetTemplate, server: ServerType): IGqlRequest | null {
         const dataSource1 = (new SingleDataSourceSerializer()).serializeReport(dataSet.dataSource1 as SingleDataSource);
         const dataSource2 = (new SingleDataSourceSerializer()).serializeReport(dataSet.dataSource2 as SingleDataSource);
         return {
             operationName: null,
             variables: {},
             query: `
-                {getReport(dataSet: {
-                    from: "${dataSet.from}"
-                    to: "${dataSet.to}"
-                    frequency: ${dataSet.frequency}
-                    preFrequency: ${dataSet.preFrequency}
-                    operation: ${dataSet.operation}
-                    methods: ["${dataSet.methods}"]
-                    dataSource1: ${dataSource1}
-                    dataSource2: ${dataSource2}
-                }){
+                {getReport(
+                    server: "${server}"
+                    dataSet: {
+                        from: "${dataSet.from}"
+                        to: "${dataSet.to}"
+                        frequency: ${dataSet.frequency}
+                        preFrequency: ${dataSet.preFrequency}
+                        operation: ${dataSet.operation}
+                        methods: ["${dataSet.methods}"]
+                        dataSource1: ${dataSource1}
+                        dataSource2: ${dataSource2}
+                    }
+                ){
                     items {
                         key
                         value
