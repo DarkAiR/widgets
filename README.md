@@ -36,6 +36,7 @@ config.templateId = 'TEMPLATE_ID';
 config.element = document.getElementById('ELEMENT_ID');
 config.apiUrl = 'YOUR GRAPHQL API';     // Optional
 config.eventBus = <EventBusWrapper>
+config.server = 'druid' | 'qlik'
 this.widgetFactory.run(config);
 ```
 

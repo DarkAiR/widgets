@@ -5,7 +5,6 @@ import {EventBusEvent} from 'goodteditor-event-bus';
 
 import {
     DataSetTemplate,
-    IChart,
     IChartData,
     INameValue,
     IWidgetVariables,
@@ -195,6 +194,9 @@ export class SplineChart extends Chart {
             )(timeSeriesData.values[idx]);
 
             const pos: YAxisTypes = _get(data.dataSets[idx].settings, 'yAxis', 'left');
+            const rotate: number = (maxY < 10000)
+                ? 0
+                : (maxY < 100000 ? 30 : 90);
             let offset = 0;
             switch (pos) {
                 case "left":
@@ -213,7 +215,8 @@ export class SplineChart extends Chart {
                 // Цифры
                 axisLabel: {
                     color: currColor.color,
-                    fontSize: 12
+                    fontSize: 12,
+                    rotate: rotate
                 },
                 // Настройки оси
                 axisLine: {
