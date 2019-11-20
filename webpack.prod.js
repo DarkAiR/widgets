@@ -4,6 +4,6 @@ module.exports = (env) => {
     const common = require('./webpack.common.js')();
 
     return merge(common, {
-        mode: 'production'
+        mode: 'development'
     });
 }
