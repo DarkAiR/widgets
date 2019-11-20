@@ -36,20 +36,19 @@ export class SingleDataSourceSerializer implements ISerializer {
             indent: ' ',
             singleQuotes: false
         }).replace(/\n/g, '');
-        const metricObj = !dataSource.metric
-            ? {}
-            : {
-                metric: {
-                    name: dataSource.metric.name,
-                    expression: _get(dataSource.metric, 'expression', dataSource.metric.name),
-                }
-            };
 
-        return `{
+        let res = `
             type: ${dataSource.type},
             name: "${dataSource.name}",
-            ${metricObj},
-            dimensions: ${dimensionsJson}
-        }`;
+            dimensions: ${dimensionsJson}`;
+
+        if (dataSource.metric) {
+            res += `,
+            metric: {
+                name: "${dataSource.metric.name}",
+                expression: "${_get(dataSource.metric, 'expression', dataSource.metric.name)}"
+            }`;
+        }
+        return '{' + res + '}';
     }
 }
