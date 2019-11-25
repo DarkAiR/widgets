@@ -57,14 +57,14 @@ export class DataProvider {
                 // Асинхронно загружаем все данные
                 const promises = template.dataSets.map(async (item, idx) => {
                     // Сохраняем порядок dataSet
-                    data.data[idx] = await this.loadData(item, template.settings.server);
+                    data.data[idx] = await this.loadData(item, template.server);
                 });
                 await Promise.all(promises);
                 break;
             case "REPORT":
                 const reportPromises = template.dataSets.map(async (item, idx) => {
                     // Сохраняем порядок dataSet
-                    data.data[idx] = await this.loadReportData(item, template.settings.server);
+                    data.data[idx] = await this.loadReportData(item, template.server);
                 });
                 await Promise.all(reportPromises);
                 break;

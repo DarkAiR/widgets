@@ -7,7 +7,6 @@ import {ServerType} from "../../models/types";
  */
 export interface WidgetTemplateSettings extends ISettings {
     title: string;
-    server: ServerType;
 
     // NOTE: настройки для конкретных виджетов должны объявляться в конкретных виджетах
 }

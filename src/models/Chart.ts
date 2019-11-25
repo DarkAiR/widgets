@@ -24,11 +24,14 @@ export abstract class Chart implements IChart {
     }
 
     destroy(): void {
+        console.log('%cWidget destroy listeners', 'color: #b080ff');
         if (this.resizeObserver) {
+            console.log('%c    - resize', 'color: #b080ff');
             this.resizeObserver.disconnect();
             this.resizeObserver = null;
         }
         if (this.listenCb) {
+            console.log('%c    - eventBus', 'color: #b080ff');
             this.config.eventBus.unlistenVariableChange(this.listenCb);
             this.listenCb = null;
         }
@@ -38,6 +41,7 @@ export abstract class Chart implements IChart {
      * Повесить слушателя на изменения переменных
      */
     protected listen(cb: ListenFunction): void {
+        console.log('%cWidget add listeners', 'color: #b080ff');
         this.listenCb = cb;
         this.config.eventBus.listenVariableChange(this.listenCb);
     }

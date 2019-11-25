@@ -48,6 +48,7 @@ export class SplineChart extends Chart {
     }
 
     run(data: IChartData): void {
+        console.log('%cSplineChart run', 'color: #b080ff');
         const settings = <SplineSettings>data.settings;
 
         this.listen(this.onEventBus.bind(this));
