@@ -10,3 +10,4 @@ export * from "./template/dataSetSettings";
 export * from "./template/singleDataSource";
 export * from "./template/aggregationDataSource";
 export * from "./template/dimensionFilter";
+export * from "./template/metric";

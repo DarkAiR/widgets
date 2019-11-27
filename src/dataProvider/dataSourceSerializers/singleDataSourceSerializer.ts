@@ -1,7 +1,7 @@
 import {ISerializer} from "./ISerializer";
 import {DataSetTemplate, SingleDataSource} from "../../interfaces";
 import * as stringifyObject from 'stringify-object';
-import {get as _get} from 'lodash';
+import {get as _get, isEmpty as _isEmpty} from 'lodash';
 
 export class SingleDataSourceSerializer implements ISerializer {
     serialize(dataSet: DataSetTemplate): string {
@@ -20,12 +20,17 @@ export class SingleDataSourceSerializer implements ISerializer {
                 break;
         }
 
+        let expression = _get(dataSource1.metric, 'expression', dataSource1.metric.name);
+        if (!_isEmpty(expression)) {
+            expression = expression.replace(/([\"\\])/gm, '\\$1');
+        }
+
         return `{
             type: ${dataSource1.type},
             name: "${dataSource1.name}",
             metric: {
                 name: "${dataSource1.metric.name}",
-                expression: "${_get(dataSource1.metric, 'expression', dataSource1.metric.name)}",
+                expression: "${expression}",
             },
             dimensions: ${dimensionsJson}
         }`;
