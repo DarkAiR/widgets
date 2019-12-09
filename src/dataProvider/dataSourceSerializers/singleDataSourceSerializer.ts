@@ -56,4 +56,21 @@ export class SingleDataSourceSerializer implements ISerializer {
         }
         return '{' + res + '}';
     }
+
+    serializeStatic(dataSource: SingleDataSource): string {
+        const dimensionsJson = stringifyObject(dataSource.dimensions, {
+            indent: ' ',
+            singleQuotes: false
+        }).replace(/\n/g, '');
+
+        const res = `
+            type: ${dataSource.type},
+            name: "${dataSource.name}",
+            dimensions: ${dimensionsJson},
+            metric: {
+                name: "value"
+            }`;
+
+        return '{' + res + '}';
+    }
 }

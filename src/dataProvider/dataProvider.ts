@@ -68,6 +68,13 @@ export class DataProvider {
                 });
                 await Promise.all(reportPromises);
                 break;
+            case "STATIC":
+                const staticPromises = template.dataSets.map(async (item, idx) => {
+                    // Сохраняем порядок dataSet
+                    data.data[idx] = await this.loadStaticData(item, template.server);
+                });
+                await Promise.all(staticPromises);
+                break;
         }
 
         console.log('Load template data', data.data);
@@ -99,6 +106,19 @@ export class DataProvider {
                 (response) => {
                     const data = response.data;
                     return _get(data, 'data.getReport', []);
+                },
+                (error) => {
+                    throw error;
+                }
+            );
+    }
+
+    private async loadStaticData(dataSet: DataSetTemplate, server: ServerType): Promise<SingleTimeSeriesValue[]> {
+        return await axios.post(this.gqlLink, this.serializeStaticGQL(dataSet, server))
+            .then(
+                (response) => {
+                   const data = response.data;
+                   return _get(data, 'data.getStatic', []);
                 },
                 (error) => {
                     throw error;
@@ -169,6 +189,32 @@ export class DataProvider {
                         key
                         value
                     }
+                }}`
+        };
+    }
+
+    private serializeStaticGQL(dataSet: DataSetTemplate, server: ServerType): IGqlRequest | null {
+        const dataSource1 = (new SingleDataSourceSerializer()).serializeStatic(dataSet.dataSource1 as SingleDataSource);
+        const dataSource2 = (new SingleDataSourceSerializer()).serializeStatic(dataSet.dataSource2 as SingleDataSource);
+        return {
+            operationName: null,
+            variables: {},
+            query: `
+                {getStatic(
+                    server: "${server}",
+                    dataSet: {
+                        from: "${dataSet.from}"
+                        to: "${dataSet.to}"
+                        frequency: ${dataSet.frequency}
+                        preFrequency: ${dataSet.preFrequency}
+                        operation: ${dataSet.operation}
+                        dataSource1: ${dataSource1}
+                        dataSource2: ${dataSource2}
+                    }
+                ){
+                    orgUnits{outerId, name}
+                    xValue
+                    yValue
                 }}`
         };
     }

@@ -6,3 +6,4 @@ export * from './reportChart';
 export * from './splineChart';
 export * from './indicatorsTableChart';
 export * from './models/widgetConfig';
+export * from './staticChart';
