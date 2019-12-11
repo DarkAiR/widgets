@@ -24,11 +24,12 @@ module.exports = (env) => {
         entry: {
             "abc-charts": path.resolve(__dirname, 'src', 'index.ts'),
             widgetFactory: path.resolve(__dirname, 'src', 'widgetFactory/index.ts'),
-            averageNumberChart: path.resolve(__dirname, 'src', 'averageNumberChart/index.ts'),
-            splineChart: path.resolve(__dirname, 'src', 'splineChart/index.ts'),
-            solidGaugeChart: path.resolve(__dirname, 'src', 'solidGaugeChart/index.ts'),
-            indicatorsTableChart: path.resolve(__dirname, 'src', 'indicatorsTableChart/index.ts'),
-            tableChart: path.resolve(__dirname, 'src', 'tableChart/index.ts'),
+            averageNumberChart: path.resolve(__dirname, 'src/widgets', 'averageNumberChart/index.ts'),
+            splineChart: path.resolve(__dirname, 'src/widgets', 'splineChart/index.ts'),
+            solidGaugeChart: path.resolve(__dirname, 'src/widgets', 'solidGaugeChart/index.ts'),
+            indicatorsTableChart: path.resolve(__dirname, 'src/widgets', 'indicatorsTableChart/index.ts'),
+            tableChart: path.resolve(__dirname, 'src/widgets', 'tableChart/index.ts'),
+            "searchBar": path.resolve(__dirname, 'src/widgets', 'searchBar/index.ts'),
         },
         output: {
             path: path.resolve(__dirname, 'lib'),

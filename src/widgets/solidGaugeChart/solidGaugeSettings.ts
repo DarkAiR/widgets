@@ -1,5 +1,5 @@
-import {ISettings} from "../interfaces";
-import {ServerType} from "../models/types";
+import {ISettings} from "../../interfaces";
+import {ServerType} from "../../models/types";
 
 export interface SolidGaugeSettings extends ISettings {
     title: string;

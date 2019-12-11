@@ -9,7 +9,7 @@ import {
     INameValue,
     IWidgetVariables,
     SingleDataSource
-} from '../interfaces';
+} from '../../interfaces';
 import {SplineSettings} from './splineSettings';
 import {
     get as _get, set as _set,
@@ -19,21 +19,15 @@ import {
     forEach as _forEach,
     defaultTo as _defaultTo
 } from 'lodash';
-import {Chart} from '../models/Chart';
-import {TimeSeriesData, TimeSeriesHelper} from '../helpers/TimeSeries.helper';
-import {YAxisTypes} from "../models/types";
+import {Chart} from '../../models/Chart';
+import {TimeSeriesData, TimeSeriesHelper} from '../../helpers/timeSeries.helper';
+import {YAxisTypes} from "../../models/types";
+import {TSPoint} from "../../interfaces/template/TSPoint";
 
 export class SplineChart extends Chart {
     getVariables(): IWidgetVariables {
         const res: IWidgetVariables = {};
-        let sortIndex = 0;
-        const addVar = (idx: number, name: string, description: string, hint: string) => {
-            res[name + (idx === 0 ? '' : ' ' + idx)] = {
-                description,
-                hint,
-                sortIndex: sortIndex++,
-            };
-        };
+        const addVar = this.addVar(res);
         _forEach(this.config.template.dataSets, (v: DataSetTemplate, idx: number) => {
             const nameStr: string = v.dataSource1.type === 'SINGLE'  ? '(' + (<SingleDataSource>v.dataSource1).name + ')' : '';
             addVar(idx, 'period', 'Период', `${nameStr}: формат см. документацию по template-api`);
@@ -66,7 +60,7 @@ export class SplineChart extends Chart {
         `;
         this.config.element.innerHTML = str;
 
-        const timeSeriesData: TimeSeriesData = TimeSeriesHelper.convertTimeSeriesToData(data.data);
+        const timeSeriesData: TimeSeriesData = TimeSeriesHelper.convertTimeSeriesToData(data.data as TSPoint[][]);
 
         // Конвертируем из строковых дат в дни месяца
         const axisData = _map(timeSeriesData.dates, v => new Date(v).getDate());

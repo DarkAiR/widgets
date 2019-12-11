@@ -1,10 +1,10 @@
-import s from "../styles/_all.less";
+import s from "../../styles/_all.less";
 import w from "./averageNumberChart.less";
 
-import {IChartData, IWidgetVariables} from "../interfaces";
+import {IChartData, IWidgetVariables} from "../../interfaces";
 import {AverageNumberSettings} from "./averageNumberSettings";
 import {get as _get} from "lodash";
-import {Chart} from "../models/Chart";
+import {Chart} from "../../models/Chart";
 
 export class AverageNumberChart extends Chart {
     getVariables(): IWidgetVariables {

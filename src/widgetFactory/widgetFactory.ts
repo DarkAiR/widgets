@@ -6,7 +6,7 @@ import {
     SplineChart,
     IndicatorsTableChart,
     ReportChart,
-    StaticChart, TableChart
+    StaticChart, TableChart, SearchBar
 } from "..";
 import {WidgetConfig, WidgetConfigInner} from "../models/widgetConfig";
 
@@ -95,6 +95,10 @@ export class WidgetFactory {
 
                     case "STATIC":
                         widget = new StaticChart(config);
+                        break;
+
+                    case "SEARCH_BAR":
+                        widget = new SearchBar(config);
                         break;
 
                     default:

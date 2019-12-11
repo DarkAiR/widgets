@@ -1,4 +1,4 @@
-import s from '../styles/_all.less';
+import s from '../../styles/_all.less';
 import w from './staticChart.less';
 import echarts from 'echarts';
 import {EventBusEvent} from 'goodteditor-event-bus';
@@ -9,15 +9,15 @@ import {
     INameValue,
     IWidgetVariables,
     SingleDataSource
-} from '../interfaces';
+} from '../../interfaces';
 import {StaticSettings} from './staticSettings';
 import {
     get as _get, set as _set,
     forEach as _forEach,
     defaultTo as _defaultTo
 } from 'lodash';
-import {Chart} from '../models/Chart';
-import { Point } from '../interfaces/template/Point';
+import {Chart} from '../../models/Chart';
+import { Point } from '../../interfaces/template/Point';
 
 export class StaticChart extends Chart {
     getVariables(): IWidgetVariables {

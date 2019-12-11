@@ -1,2 +1,2 @@
-export * from "./splineChart";
-export * from "./splineSettings";
+export * from "./searchBar";
+export * from "./searchBarSettings";
