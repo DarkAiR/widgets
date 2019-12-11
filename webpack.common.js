@@ -28,6 +28,7 @@ module.exports = (env) => {
             splineChart: path.resolve(__dirname, 'src', 'splineChart/index.ts'),
             solidGaugeChart: path.resolve(__dirname, 'src', 'solidGaugeChart/index.ts'),
             indicatorsTableChart: path.resolve(__dirname, 'src', 'indicatorsTableChart/index.ts'),
+            tableChart: path.resolve(__dirname, 'src', 'tableChart/index.ts'),
         },
         output: {
             path: path.resolve(__dirname, 'lib'),

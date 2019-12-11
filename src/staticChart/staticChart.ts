@@ -17,19 +17,12 @@ import {
     defaultTo as _defaultTo
 } from 'lodash';
 import {Chart} from '../models/Chart';
-import {SingleTimeSeriesValue} from "../interfaces/template/singleTimeSeriesValue";
+import { Point } from '../interfaces/template/Point';
 
 export class StaticChart extends Chart {
     getVariables(): IWidgetVariables {
         const res: IWidgetVariables = {};
-        let sortIndex = 0;
-        const addVar = (idx: number, name: string, description: string, hint: string) => {
-            res[name + (idx === 0 ? '' : ' ' + idx)] = {
-                description,
-                hint,
-                sortIndex: sortIndex++,
-            };
-        };
+        const addVar = this.addVar(res);
         _forEach(this.config.template.dataSets, (v: DataSetTemplate, idx: number) => {
             const nameStr: string = v.dataSource1.type === 'SINGLE'  ? '(' + (<SingleDataSource>v.dataSource1).name + ')' : '';
             addVar(idx, 'period', 'Период', `${nameStr}: формат см. документацию по template-api`);
@@ -62,7 +55,7 @@ export class StaticChart extends Chart {
         `;
         this.config.element.innerHTML = str;
 
-        const series: Object[] = this.getSeries(data.data);
+        const series: Object[] = this.getSeries(data.data as Point[][]);
 
         const options = {
             xAxis: {},
@@ -79,16 +72,16 @@ export class StaticChart extends Chart {
         });
     }
 
-    private getSeries(data: SingleTimeSeriesValue[][]): Object[] {
+    private getSeries(data: Point[][]): Object[] {
         const series: Object[] = [];
-        data.forEach((item: [], index) => {
+        data.forEach((item: Point[], index) => {
             const seriesData = {
                 symbolSize: 20,
                 data: [],
                 type: "scatter"
             };
 
-            item.forEach((obj: {xValue: number, yValue: number}) => {
+            item.forEach((obj: Point) => {
                 const pair = [obj.xValue, obj.yValue];
                 seriesData.data.push(pair);
             });

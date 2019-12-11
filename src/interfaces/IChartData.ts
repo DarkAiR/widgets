@@ -1,7 +1,13 @@
 import {Frequency} from "../models/types";
-import {SingleTimeSeriesValue} from "./template/singleTimeSeriesValue";
+import {TSPoint} from "./template/TSPoint";
 import {WidgetTemplateSettings} from "./template/widgetTemplateSettings";
 import {DataSetTemplate} from "./template/dataSetTemplate";
+import {ReportPoint} from "./template/ReportPoint";
+import {ProfilePoint} from "./template/ProfilePoint";
+import {Point} from "./template/Point";
+
+// Типы данных, возвращаемых из GraphQL
+export type TData = TSPoint[] | ReportPoint | ProfilePoint[] | Point[];
 
 export interface IChartData {
     from: string;                           // дата начала выборки 'YYYY-mm-dd'
@@ -11,7 +17,7 @@ export interface IChartData {
 
     // NOTE: <dataSets> и <data> содержат одинаковое количество элементов
     dataSets: DataSetTemplate[];            // Источники данных, пришедшие в шаблоне
-    data: Array<SingleTimeSeriesValue[]>;   // набор данных, каждый item описывает один набор данных, для одного графика/отчета
+    data: TData[];                          // набор данных, каждый item описывает один набор данных, для одного графика/отчета
 
     settings: WidgetTemplateSettings;       // Настройки виджета
 }

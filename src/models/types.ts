@@ -5,7 +5,8 @@ export interface Paddings {
     left: number;
 }
 
-export type WidgetType = 'SPLINE' | 'AVERAGE_NUMBER' | 'SOLID_GAUGE' | 'INDICATORS_TABLE' | 'SINGLE_NUMBER' | 'REPORT' | 'STATIC';
+export type WidgetType = 'SPLINE' | 'AVERAGE_NUMBER' | 'SOLID_GAUGE' | 'INDICATORS_TABLE' | 'TABLE'
+    | 'SINGLE_NUMBER' | 'REPORT' | 'STATIC';
 export type ViewType = 'STATIC' | 'DYNAMIC' | 'DISTRIBUTION' | 'PROFILE' | 'REPORT' | 'MAP';
 export type ChartType = 'LINE' | 'HISTOGRAM' | 'SCATTER';
 export type Frequency = 'YEAR' | 'MONTH' | 'WEEK' | 'DAY' | 'HOUR' | 'ALL';

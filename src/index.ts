@@ -5,5 +5,6 @@ export * from './solidGaugeChart';
 export * from './reportChart';
 export * from './splineChart';
 export * from './indicatorsTableChart';
+export * from './tableChart';
 export * from './models/widgetConfig';
 export * from './staticChart';
