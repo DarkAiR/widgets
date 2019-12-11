@@ -71,6 +71,20 @@ export abstract class Chart implements IChart {
     }
 
     /**
+     * Добавить переменную для управления виджетом извне
+     */
+    protected addVar(res: IWidgetVariables) {
+        let sortIndex = 0;
+        return (idx: number, name: string, description: string, hint: string) => {
+            res[name + (idx === 0 ? '' : ' ' + idx)] = {
+                description,
+                hint,
+                sortIndex: sortIndex++,
+            };
+        };
+    }
+
+    /**
      * Возвращает строку стилей и имя класса
      * Оба значения можно использовать как есть в виде class=`${className}` style=`${colorStyle}`
      * @return Всегда возвращает валидный цвет для подстановки

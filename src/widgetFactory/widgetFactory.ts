@@ -6,7 +6,7 @@ import {
     SplineChart,
     IndicatorsTableChart,
     ReportChart,
-    StaticChart
+    StaticChart, TableChart
 } from "..";
 import {WidgetConfig, WidgetConfigInner} from "../models/widgetConfig";
 
@@ -82,6 +82,11 @@ export class WidgetFactory {
                     // Таблица разных индикаторов
                     case "INDICATORS_TABLE":
                         widget = new IndicatorsTableChart(config);
+                        break;
+
+                    // Таблица показателей
+                    case "TABLE":
+                        widget = new TableChart(config);
                         break;
 
                     case "REPORT":

@@ -1,2 +1,2 @@
-export * from "./indicatorsTableChart";
-export * from "./indicatorsTableSettings";
+export * from "./tableChart";
+export * from "./tableSettings";

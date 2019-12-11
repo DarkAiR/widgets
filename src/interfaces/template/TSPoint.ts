@@ -1,11 +1,10 @@
 /**
- * Возвращаемые данные для dataSource
+ * Возвращаемые данные для dataSource SingleTimeSeries
  */
+import {OrganizationUnit} from "./organizationUnit";
 
-export interface SingleTimeSeriesValue {
-    orgUnits: Array<{
-        name: string
-    }>;
+export interface TSPoint {
+    orgUnits: OrganizationUnit[];
     value: number;
     localDateTime: string;
 }

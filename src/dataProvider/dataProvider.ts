@@ -1,10 +1,12 @@
-import {DataSetTemplate, IChartData, SingleDataSource, WidgetTemplate} from "../interfaces";
+import {DataSetTemplate, IChartData, SingleDataSource, TData, WidgetTemplate} from "../interfaces";
 import {get as _get, forEach as _forEach} from 'lodash';
 import {IGqlRequest} from "./IGqlRequest";
-import {SingleTimeSeriesValue} from "../interfaces/template/singleTimeSeriesValue";
+import {TSPoint} from "../interfaces/template/TSPoint";
 import {SingleDataSourceSerializer} from "./dataSourceSerializers/singleDataSourceSerializer";
 import {AggregationDataSourceSerializer} from "./dataSourceSerializers/aggregationDataSourceSerializer";
 import {ServerType} from "../models/types";
+import {ReportPoint} from "../interfaces/template/ReportPoint";
+import {Point} from "../interfaces/template/Point";
 
 const axios = require('axios');
 
@@ -57,7 +59,7 @@ export class DataProvider {
                 // Асинхронно загружаем все данные
                 const promises = template.dataSets.map(async (item, idx) => {
                     // Сохраняем порядок dataSet
-                    data.data[idx] = await this.loadData(item, template.server);
+                    data.data[idx] = await this.loadDynamicData(item, template.server);
                 });
                 await Promise.all(promises);
                 break;
@@ -84,7 +86,7 @@ export class DataProvider {
     /**
      * Загрузка данных для шаблона
      */
-    private async loadData(dataSet: DataSetTemplate, server: ServerType): Promise<SingleTimeSeriesValue[]> {
+    private async loadDynamicData(dataSet: DataSetTemplate, server: ServerType): Promise<TSPoint[]> {
         return await axios.post(this.gqlLink, this.serializeGQL(dataSet, server))
             .then(
                 (response) => {
@@ -100,7 +102,8 @@ export class DataProvider {
                 }
             );
     }
-    private async loadReportData(dataSet: DataSetTemplate, server: ServerType): Promise<SingleTimeSeriesValue[]> {
+
+    private async loadReportData(dataSet: DataSetTemplate, server: ServerType): Promise<ReportPoint> {
         return await axios.post(this.gqlLink, this.serializeReportGQL(dataSet, server))
             .then(
                 (response) => {
@@ -113,7 +116,7 @@ export class DataProvider {
             );
     }
 
-    private async loadStaticData(dataSet: DataSetTemplate, server: ServerType): Promise<SingleTimeSeriesValue[]> {
+    private async loadStaticData(dataSet: DataSetTemplate, server: ServerType): Promise<Point[]> {
         return await axios.post(this.gqlLink, this.serializeStaticGQL(dataSet, server))
             .then(
                 (response) => {

@@ -1,23 +1,24 @@
 import s from "../styles/_all.less";
-import w from "./indicatorsTableChart.less";
+import w from "./tableChart.less";
 
-import {IChart, IChartData, IWidgetVariables} from "../interfaces";
-import {IndicatorsTableSettings} from "./indicatorsTableSettings";
+import {IChartData, IWidgetVariables} from "../interfaces";
+import {TableSettings} from "./tableSettings";
 import {get as _get, head as _head, forEach as _forEach} from "lodash";
 import * as moment from 'moment';
 import * as hammer from 'hammerjs';
 import {Chart} from "../models/Chart";
 import {TimeSeriesData, TimeSeriesHelper} from "../helpers/TimeSeries.helper";
+import {TSPoint} from "../interfaces/template/TSPoint";
 
 type MetricsStatus = 'normal' | 'warning' | 'error';
 
-export class IndicatorsTableChart extends Chart {
+export class TableChart extends Chart {
     getVariables(): IWidgetVariables {
         return {};
     }
 
     run(data: IChartData): void {
-        const settings = <IndicatorsTableSettings>data.settings;
+        const settings = <TableSettings>data.settings;
         console.log('IndicatorsTableConfig settings: ', settings);
 
         const mc = hammer(this.config.element);
@@ -67,7 +68,7 @@ export class IndicatorsTableChart extends Chart {
         const dataSet5 = _get(data.data, '4', null);
         const dataSet6 = _get(data.data, '5', null);
 
-        const timeSeriesData: TimeSeriesData = TimeSeriesHelper.convertTimeSeriesToData(data.data);
+        const timeSeriesData: TimeSeriesData = TimeSeriesHelper.convertTimeSeriesToData(data.data as TSPoint[][]);
 
         for (const idx in timeSeriesData.dates) {
             if (!timeSeriesData.dates.hasOwnProperty(idx)) {

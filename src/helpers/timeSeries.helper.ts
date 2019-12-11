@@ -1,5 +1,5 @@
 import {forEach as _forEach, keys as _keys, map as _map} from "lodash";
-import {SingleTimeSeriesValue} from "../interfaces/template/singleTimeSeriesValue";
+import {TSPoint} from "../interfaces/template/TSPoint";
 
 export interface TimeSeriesData {
     dates: string[];
@@ -10,10 +10,10 @@ export class TimeSeriesHelper {
     /**
      * Конвертирует данные TimeSeries в массив дат и массив значений
      */
-    static convertTimeSeriesToData(data: Array<SingleTimeSeriesValue[]>): TimeSeriesData {
+    static convertTimeSeriesToData(data: TSPoint[][]): TimeSeriesData {
         const valuesArr: Array<number[]> = [];
-        _forEach(data, (dataValues: SingleTimeSeriesValue[], idx) => {
-            _forEach(dataValues, (v: SingleTimeSeriesValue) => {
+        _forEach(data, (dataValues: TSPoint[], idx) => {
+            _forEach(dataValues, (v: TSPoint) => {
                 if (valuesArr[v.localDateTime] === undefined) {
                     valuesArr[v.localDateTime] = [];
                 }

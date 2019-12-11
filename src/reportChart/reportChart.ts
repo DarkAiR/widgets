@@ -1,7 +1,7 @@
 import s from "../styles/_all.less";
 import w from "./reportChart.less";
 
-import {IChart, IChartData, IWidgetVariables} from "../interfaces";
+import {IChartData, IWidgetVariables} from "../interfaces";
 import {ReportChartSettings} from "./reportChartSettings";
 import {get as _get} from "lodash";
 import {Chart} from "../models/Chart";

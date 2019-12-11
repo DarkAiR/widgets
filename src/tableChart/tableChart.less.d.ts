@@ -1,4 +1,4 @@
-export interface IIndicatorsTableChartLess {
+export interface ITableChartLess {
   'cont': string;
   'block': string;
   'inner-block': string;
@@ -13,4 +13,4 @@ export interface IIndicatorsTableChartLess {
   'icons': string;
 }
 
-export const locals: IIndicatorsTableChartLess;
+export const locals: ITableChartLess;

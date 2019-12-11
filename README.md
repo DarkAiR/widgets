@@ -2,7 +2,7 @@
 
 The library for visualisation data via charts.
 
-### Install
+### Installccc
 
 ```npm
 npm i abc-charts --save
@@ -80,3 +80,37 @@ For example:
 ```
 
 Don't forget local link will be reset after any npm-operations in your package.
+
+#### Добавление нового виджета
+
+Создаем (копируем из существующего виджета) директорию видa
+```
+/src/<WidgetName>Chart/
+  ⎣ index.ts
+  ⎣ <WidgetName>Chart.ts
+  ⎣ <WidgetName>Chart.less
+  ⎣ <WidgetName>Settings.ts
+```
+
+добавляем в /src/index.ts экспорт
+```
+export * from './<WidgetName>Chart';
+```
+
+добавляем в /webpack.common.js отдельную сборку для виджета
+```
+entry: {
+    ...
+    <WidgetName>Chart: path.resolve(__dirname, 'src', '<WidgetName>Chart/index.ts'),
+}
+```
+
+обрабатываем в WidgetFactory
+```
+private createWidget(...) {
+    ...
+    switch (template.widgetType) {
+        ...
+        case '
+}
+```
