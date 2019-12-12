@@ -1,11 +1,12 @@
 const webpack = require('webpack');
 const path = require('path');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
+const pjson = require('./package-lib.json');
 
-var pjson = require('./package-lib.json');
+const getWidgets = require('./webpack/get-widgets');
+const widgets = getWidgets(path.resolve(__dirname, 'src/widgets/'));
 
 module.exports = (env) => {
-
     stylesOptions =  {
         sourceMap: process.env.NODE_ENV === 'dev',
         modules: true,
@@ -22,14 +23,9 @@ module.exports = (env) => {
     return {
         target: 'web',     // compile with or without webpackJsonp
         entry: {
-            "abc-charts": path.resolve(__dirname, 'src', 'index.ts'),
-            widgetFactory: path.resolve(__dirname, 'src', 'widgetFactory/index.ts'),
-            averageNumberChart: path.resolve(__dirname, 'src/widgets', 'averageNumberChart/index.ts'),
-            splineChart: path.resolve(__dirname, 'src/widgets', 'splineChart/index.ts'),
-            solidGaugeChart: path.resolve(__dirname, 'src/widgets', 'solidGaugeChart/index.ts'),
-            indicatorsTableChart: path.resolve(__dirname, 'src/widgets', 'indicatorsTableChart/index.ts'),
-            tableChart: path.resolve(__dirname, 'src/widgets', 'tableChart/index.ts'),
-            "searchBar": path.resolve(__dirname, 'src/widgets', 'searchBar/index.ts'),
+            "abc-charts":       path.resolve(__dirname, 'src', 'index.ts'),
+            widgetFactory:      path.resolve(__dirname, 'src', 'widgetFactory', 'index.ts'),
+            ...widgets
         },
         output: {
             path: path.resolve(__dirname, 'lib'),

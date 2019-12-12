@@ -1,13 +1,6 @@
 import {IChart, IChartData, WidgetTemplate} from "../interfaces";
-import {
-    DataProvider,
-    AverageNumberChart,
-    SolidGaugeChart,
-    SplineChart,
-    IndicatorsTableChart,
-    ReportChart,
-    StaticChart, TableChart, SearchBar
-} from "..";
+import {DataProvider} from "../dataProvider";
+import * as widgets from "../widgets";
 import {WidgetConfig, WidgetConfigInner} from "../models/widgetConfig";
 
 declare var __VERSION__: string;
@@ -66,39 +59,39 @@ export class WidgetFactory {
                 switch (template.widgetType) {
                     // Сплайн
                     case "SPLINE":
-                        widget = new SplineChart(config);
+                        widget = new widgets.Spline(config);
                         break;
 
                     // Средние показатели за прошлый и позапрошлый интервал
                     case "AVERAGE_NUMBER":
-                        widget = new AverageNumberChart(config);
+                        widget = new widgets.AverageNumber(config);
                         break;
 
                     // Индикатор в виде полукруга
                     case "SOLID_GAUGE":
-                        widget = new SolidGaugeChart(config);
+                        widget = new widgets.SolidGauge(config);
                         break;
 
                     // Таблица разных индикаторов
                     case "INDICATORS_TABLE":
-                        widget = new IndicatorsTableChart(config);
+                        widget = new widgets.IndicatorsTable(config);
                         break;
 
                     // Таблица показателей
                     case "TABLE":
-                        widget = new TableChart(config);
+                        widget = new widgets.Table(config);
                         break;
 
                     case "REPORT":
-                        widget = new ReportChart(config);
+                        widget = new widgets.Report(config);
                         break;
 
                     case "STATIC":
-                        widget = new StaticChart(config);
+                        widget = new widgets.Static(config);
                         break;
 
                     case "SEARCH_BAR":
-                        widget = new SearchBar(config);
+                        widget = new widgets.SearchBar(config);
                         break;
 
                     default:
