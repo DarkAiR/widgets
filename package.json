@@ -1,6 +1,6 @@
 {
   "scripts": {
-    "dev": "npm run lint  &&  SET \"NODE_ENV=dev\"  &&  webpack --display-error-details --config webpack.dev.js",
+    "dev": "SET \"NODE_ENV=dev\"  &&  webpack --display-error-details --config webpack.dev.js",
     "build": "npm run lint  &&  SET \"NODE_ENV=prod\"  &&  webpack --config webpack.prod.js",
     "dev-watch": "npm run lint  &&  webpack --display-error-details --config webpack.dev.js --watch --progress",
     "postversion": "npm run build  &&  copy package-lib.json lib\\package.json /Y && npm publish lib",
@@ -47,6 +47,7 @@
     "less": "^3.10.3",
     "less-loader": "^4.1.0",
     "less-vars-loader": "^1.1.0",
+    "litedom": "^0.12.1",
     "lodash": "^4.17.15",
     "moment": "^2.24.0",
     "normalize.css": "^8.0.1",

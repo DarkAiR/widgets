@@ -1,8 +1,11 @@
+import Litedom from 'litedom';
 import {get as _get} from 'lodash';
 import ResizeObserver from 'resize-observer-polyfill';
 import {DataSetSettings, IChart, IChartData, IWidgetVariables} from "../interfaces";
 import {WidgetConfigInner} from "./widgetConfig";
 import {EventBusWrapper, EventBus, EventBusEvent} from 'goodteditor-event-bus';
+
+import s from "../styles/_all.less";
 
 export type ListenFunction = (event: EventBusEvent, data: Object) => void;
 export type ResizeFunction = (this: Chart, width: number, height: number) => void;
@@ -103,5 +106,21 @@ export abstract class Chart implements IChart {
             colorStyle = 'color: ' + color;
         }
         return {color, colorStyle, className};
+    }
+
+    /**
+     * Use litedom templates
+     * @inheritDoc https://litedom.js.org/guide/#component__configurations
+     */
+    protected template(litedomObject: Object): void {
+        const tagName = this.getTemplateTagName();
+        this.config.element.innerHTML = `<${tagName} class='${s['widget']}'></${tagName}>`;
+
+        Object.assign(litedomObject, {tagName: tagName});
+        Litedom(litedomObject);
+    }
+
+    private getTemplateTagName(): string {
+        return 'litedom-' + this.constructor.name.split(/(?=[A-Z])/).join('-').toLowerCase();
     }
 }
