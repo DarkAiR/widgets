@@ -2,8 +2,12 @@ import {IChart, IChartData, WidgetTemplate} from "../interfaces";
 import {DataProvider} from "../dataProvider";
 import * as widgets from "../widgets";
 import {WidgetConfig, WidgetConfigInner} from "../models/widgetConfig";
+import { WidgetType } from '../models/types';
+import {Chart} from "../models/Chart";
 
 declare var __VERSION__: string;
+
+type WidgetsArr = Record<WidgetType, Function>;
 
 export class WidgetFactory {
     dataProvider: DataProvider = null;
@@ -53,58 +57,30 @@ export class WidgetFactory {
     }
 
     private createWidget(config: WidgetConfigInner, template: WidgetTemplate): Promise<IChart> {
-        const promise = new Promise<IChart>((resolve) => {
+        const widgetsArr: WidgetsArr = {
+            "SPLINE": () => widgets.Spline,
+            "AVERAGE_NUMBER": () => widgets.AverageNumber,
+            "SOLID_GAUGE": () => widgets.SolidGauge,
+            "INDICATORS_TABLE": () => widgets.IndicatorsTable,
+            "TABLE": () => widgets.Table,
+            "REPORT": () => widgets.Report,
+            "STATIC": () => widgets.Static,
+            "SEARCH_BAR": () => widgets.SearchBar,
+        };
+        const promise = new Promise<IChart>((resolve, reject) => {
             this.dataProvider.parseTemplate(template).then((data: IChartData) => {
                 let widget: IChart = null;
-                switch (template.widgetType) {
-                    // Сплайн
-                    case "SPLINE":
-                        widget = new widgets.Spline(config);
-                        break;
-
-                    // Средние показатели за прошлый и позапрошлый интервал
-                    case "AVERAGE_NUMBER":
-                        widget = new widgets.AverageNumber(config);
-                        break;
-
-                    // Индикатор в виде полукруга
-                    case "SOLID_GAUGE":
-                        widget = new widgets.SolidGauge(config);
-                        break;
-
-                    // Таблица разных индикаторов
-                    case "INDICATORS_TABLE":
-                        widget = new widgets.IndicatorsTable(config);
-                        break;
-
-                    // Таблица показателей
-                    case "TABLE":
-                        widget = new widgets.Table(config);
-                        break;
-
-                    case "REPORT":
-                        widget = new widgets.Report(config);
-                        break;
-
-                    case "STATIC":
-                        widget = new widgets.Static(config);
-                        break;
-
-                    case "SEARCH_BAR":
-                        widget = new widgets.SearchBar(config);
-                        break;
-
-                    default:
-                        console.error('Not supported');
-                        break;
+                if (!widgetsArr[template.widgetType]) {
+                    console.error('Not supported');
+                    reject();
                 }
-                if (widget) {
-                    widget.run(data);
-                    // if (process.env.NODE_ENV === 'development') {
+
+                widget = new (widgetsArr[template.widgetType]())(config);
+                widget.run(data);
+                // if (process.env.NODE_ENV === 'development') {
                     this.addVersion(config);
-                    // }
-                    resolve(widget);
-                }
+                // }
+                resolve(widget);
             });
         });
         return promise;

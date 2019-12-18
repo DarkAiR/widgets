@@ -5,6 +5,4 @@ import {ReportItem} from "./ReportItem";
 
 export interface ReportPoint {
     items: ReportItem[];
-    xValue: number;
-    yValue: number;
 }

@@ -1,7 +1,13 @@
 import s from "../../styles/_all.less";
 import w from "./table.less";
+const hogan = require('hogan.js');
 
-import {DimensionFilter, IChartData, IWidgetVariables, SingleDataSource} from "../../interfaces";
+import {
+    DimensionUnit,
+    IChartData,
+    IWidgetVariables,
+    TSPoint
+} from "../../interfaces";
 import {TableSettings} from "./tableSettings";
 import {get as _get, head as _head, forEach as _forEach} from "lodash";
 import {Chart} from "../../models/Chart";
@@ -17,34 +23,50 @@ export class Table extends Chart {
         const settings = <TableSettings>data.settings;
         console.log('TableConfig settings: ', settings);
 
-        const dataSource: SingleDataSource = (data.dataSets[0].dataSource1 as SingleDataSource);
-        const dimensions: string[] = [];
-        _forEach(
-            dataSource.dimensions,
-            (v: DimensionFilter) => {
-                dimensions.push(v.name);
-            });
+        const dataByDataSources: TSPoint[][] = data.data as TSPoint[][];
 
-        this.template({
-            template: `
-                <div class="${w['cont']}">
-                    <div :for="dimensionName in this.dimensions" class="${w['block']}">
-                        <div class="${w['inner-block']}">
-                            {dimensionName}
-                        </div>
-                    </div>
-                    <div class="${w['block']}">
-                        <div class="${w['inner-block']}">
-                            ${dataSource.name} : ${dataSource.metric.name}
-                        </div>
-                    </div>
-                </div>
-            `,
-            data: {
-                dimensions
-            }
+        // FIXME: Берем только первый источник, а надо все
+        const points: TSPoint[] = _get(dataByDataSources, 0, []);
+        const dimensions: DimensionUnit[] = _get(points, '0.dimensions', []);
+
+        console.log('points', points);
+        console.log('dimensions', dimensions);
+
+        // 1.       localDateTime
+        // 2...N-1  dimensions
+        // N        value
+        const template = hogan.compile(`
+            <div class='${s["widget"]}'>
+                <table class="${s['table']} ${s['w-100']}">
+                <thead>
+                    <tr>
+                        <th class="${s['table-w-auto']}">localDateTime</th>
+                        {{#dimensions}}
+                        <th>{{name}}</th>
+                        {{/dimensions}}
+                        <th class="${s['table-w-auto']}">value</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {{#points}}
+                    <tr>
+                        <td>{{localDateTime}}</td>
+                        {{#dimensions}}
+                        <td>{{value}}</td>
+                        {{/dimensions}}
+                        <td>{{value}}</td>
+                    </tr>
+                    {{/points}}
+                </tbody>
+                </table>
+            </div>
+        `);
+
+        const output = template.render({
+            dimensions,
+            points
         });
-        return;
+        this.config.element.innerHTML = output;
     }
 
     /**

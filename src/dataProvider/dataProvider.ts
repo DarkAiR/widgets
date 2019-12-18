@@ -4,7 +4,7 @@ import {IGqlRequest} from "./IGqlRequest";
 import {TSPoint} from "../interfaces/template/TSPoint";
 import {SingleDataSourceSerializer} from "./dataSourceSerializers/singleDataSourceSerializer";
 import {AggregationDataSourceSerializer} from "./dataSourceSerializers/aggregationDataSourceSerializer";
-import {ServerType} from "../models/types";
+import {ServerType, WidgetType} from "../models/types";
 import {ReportPoint} from "../interfaces/template/ReportPoint";
 import {Point} from "../interfaces/template/Point";
 
@@ -54,30 +54,22 @@ export class DataProvider {
             data.settings.title = title;
         }
 
-        switch (template.viewType) {
-            case "DYNAMIC":
-                // Асинхронно загружаем все данные
-                const promises = template.dataSets.map(async (item, idx) => {
-                    // Сохраняем порядок dataSet
-                    data.data[idx] = await this.loadDynamicData(item, template.server);
-                });
-                await Promise.all(promises);
-                break;
-            case "REPORT":
-                const reportPromises = template.dataSets.map(async (item, idx) => {
-                    // Сохраняем порядок dataSet
-                    data.data[idx] = await this.loadReportData(item, template.server);
-                });
-                await Promise.all(reportPromises);
-                break;
-            case "STATIC":
-                const staticPromises = template.dataSets.map(async (item, idx) => {
-                    // Сохраняем порядок dataSet
-                    data.data[idx] = await this.loadStaticData(item, template.server);
-                });
-                await Promise.all(staticPromises);
-                break;
-        }
+        // NOTE: idx - Сохраняем порядок dataSet
+        const promises = template.dataSets.map(async (item, idx) => {
+            switch (item.viewType) {
+                case "DYNAMIC":
+                    data.data[idx] = await this.loadDynamicData(item, template.widgetType, template.server);
+                    break;
+                case "REPORT":
+                    data.data[idx] = await this.loadReportData(item, template.widgetType, template.server);
+                    break;
+                case "STATIC":
+                    data.data[idx] = await this.loadStaticData(item, template.widgetType, template.server);
+                    break;
+            }
+        });
+        // Асинхронно загружаем все данные
+        await Promise.all(promises);
 
         console.log('Load template data', data.data);
         return data;
@@ -86,50 +78,31 @@ export class DataProvider {
     /**
      * Загрузка данных для шаблона
      */
-    private async loadDynamicData(dataSet: DataSetTemplate, server: ServerType): Promise<TSPoint[]> {
-        return await axios.post(this.gqlLink, this.serializeGQL(dataSet, server))
+    private async loadDynamicData(dataSet: DataSetTemplate, widgetType: WidgetType, server: ServerType): Promise<TSPoint[]> {
+        return await axios.post(this.gqlLink, this.serializeDynamicGQL(dataSet, widgetType, server))
             .then(
-                (response) => {
-                    let data = response.data;
-                    // todo hot fix
-                    if (dataSet.viewType === 'DISTRIBUTION') {
-                        data = _get(data, 'frequencyValues');
-                    }
-                    return _get(data, 'data.getSingleTimeSeries', []);
-                },
-                (error) => {
-                    throw error;
-                }
+                response => _get(response.data, 'data.getSingleTimeSeries', []),
+                error => { throw error; }
             );
     }
 
-    private async loadReportData(dataSet: DataSetTemplate, server: ServerType): Promise<ReportPoint> {
-        return await axios.post(this.gqlLink, this.serializeReportGQL(dataSet, server))
+    private async loadReportData(dataSet: DataSetTemplate, widgetType: WidgetType, server: ServerType): Promise<ReportPoint> {
+        return await axios.post(this.gqlLink, this.serializeReportGQL(dataSet, widgetType, server))
             .then(
-                (response) => {
-                    const data = response.data;
-                    return _get(data, 'data.getReport', []);
-                },
-                (error) => {
-                    throw error;
-                }
+                response => _get(response.data, 'data.getReport', []),
+                error => { throw error; }
             );
     }
 
-    private async loadStaticData(dataSet: DataSetTemplate, server: ServerType): Promise<Point[]> {
-        return await axios.post(this.gqlLink, this.serializeStaticGQL(dataSet, server))
+    private async loadStaticData(dataSet: DataSetTemplate, widgetType: WidgetType, server: ServerType): Promise<Point[]> {
+        return await axios.post(this.gqlLink, this.serializeStaticGQL(dataSet, widgetType, server))
             .then(
-                (response) => {
-                   const data = response.data;
-                   return _get(data, 'data.getStatic', []);
-                },
-                (error) => {
-                    throw error;
-                }
+                response => _get(response.data, 'data.getStatic', []),
+                error => { throw error; }
             );
     }
 
-    private serializeGQL(dataSet: DataSetTemplate, server: ServerType): IGqlRequest | null {
+    private serializeDynamicGQL(dataSet: DataSetTemplate, widgetType: WidgetType, server: ServerType): IGqlRequest | null {
         let dataSource = '{}';
         switch (dataSet.dataSource1.type) {
             case "SINGLE":
@@ -147,6 +120,7 @@ export class DataProvider {
             period = `from: "${dataSet.from}"
                       to: "${dataSet.to}"`;
         }
+        const dimensionsStr = widgetType === 'TABLE' ? 'dimensions { name, value }' : '';
         return {
             operationName: null,
             variables: {},
@@ -161,6 +135,7 @@ export class DataProvider {
                         dataSource1: ${dataSource}
                     }
                 ){
+                    ${dimensionsStr}
                     orgUnits { name }
                     value
                     localDateTime
@@ -168,7 +143,7 @@ export class DataProvider {
         };
     }
 
-    private serializeReportGQL(dataSet: DataSetTemplate, server: ServerType): IGqlRequest | null {
+    private serializeReportGQL(dataSet: DataSetTemplate, widgetType: WidgetType, server: ServerType): IGqlRequest | null {
         const dataSource1 = (new SingleDataSourceSerializer()).serializeReport(dataSet.dataSource1 as SingleDataSource);
         const dataSource2 = (new SingleDataSourceSerializer()).serializeReport(dataSet.dataSource2 as SingleDataSource);
         return {
@@ -196,7 +171,7 @@ export class DataProvider {
         };
     }
 
-    private serializeStaticGQL(dataSet: DataSetTemplate, server: ServerType): IGqlRequest | null {
+    private serializeStaticGQL(dataSet: DataSetTemplate, widgetType: WidgetType, server: ServerType): IGqlRequest | null {
         const dataSource1 = (new SingleDataSourceSerializer()).serializeStatic(dataSet.dataSource1 as SingleDataSource);
         const dataSource2 = (new SingleDataSourceSerializer()).serializeStatic(dataSet.dataSource2 as SingleDataSource);
         return {
