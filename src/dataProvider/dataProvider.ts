@@ -1,12 +1,9 @@
-import {DataSetTemplate, IChartData, SingleDataSource, TData, WidgetTemplate} from "../interfaces";
 import {get as _get, forEach as _forEach} from 'lodash';
 import {IGqlRequest} from "./IGqlRequest";
-import {TSPoint} from "../interfaces/template/TSPoint";
 import {SingleDataSourceSerializer} from "./dataSourceSerializers/singleDataSourceSerializer";
 import {AggregationDataSourceSerializer} from "./dataSourceSerializers/aggregationDataSourceSerializer";
 import {ServerType, WidgetType} from "../models/types";
-import {ReportPoint} from "../interfaces/template/ReportPoint";
-import {Point} from "../interfaces/template/Point";
+import {DataSetTemplate, IChartData, SingleDataSource, WidgetTemplate, TSPoint, ReportPoint, Point} from "../interfaces";
 
 const axios = require('axios');
 

@@ -17,7 +17,7 @@ import {
     defaultTo as _defaultTo
 } from 'lodash';
 import {Chart} from '../../models/Chart';
-import { Point } from '../../interfaces/template/Point';
+import {Point} from '../../interfaces';
 
 export class Static extends Chart {
     getVariables(): IWidgetVariables {

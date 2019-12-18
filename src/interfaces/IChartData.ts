@@ -1,10 +1,5 @@
 import {Frequency} from "../models/types";
-import {TSPoint} from "./template/TSPoint";
-import {WidgetTemplateSettings} from "./template/widgetTemplateSettings";
-import {DataSetTemplate} from "./template/dataSetTemplate";
-import {ReportPoint} from "./template/ReportPoint";
-import {ProfilePoint} from "./template/ProfilePoint";
-import {Point} from "./template/Point";
+import {WidgetTemplateSettings, DataSetTemplate, TSPoint, ReportPoint, ProfilePoint, Point} from "./";
 
 // Типы данных, возвращаемых из GraphQL
 export type TData = TSPoint[] | ReportPoint | ProfilePoint[] | Point[];
