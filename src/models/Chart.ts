@@ -4,6 +4,8 @@ import {DataSetSettings, IChart, IChartData, IWidgetVariables} from "../interfac
 import {WidgetConfigInner} from "./widgetConfig";
 import {EventBusWrapper, EventBus, EventBusEvent} from 'goodteditor-event-bus';
 
+const hogan = require('hogan.js');
+
 export type ListenFunction = (event: EventBusEvent, data: Object) => void;
 export type ResizeFunction = (this: Chart, width: number, height: number) => void;
 
@@ -11,14 +13,22 @@ export abstract class Chart implements IChart {
     protected config: WidgetConfigInner = null;
     private resizeObserver: ResizeObserver = null;
 
-    abstract getVariables(): IWidgetVariables;
-    abstract run(data: IChartData): void;
+    // tslint:disable: no-any
+    private template: any = null;                   // Скомпилированный шаблон
+
+    abstract run(data: IChartData): void;           // Запуск виджета
+    abstract getVariables(): IWidgetVariables;      // Получить переменные для общения по шине
 
     constructor(config: WidgetConfigInner) {
         this.config = config;
 
         if (!this.config.eventBus) {
             this.config.eventBus = new EventBusWrapper(EventBus);
+        }
+
+        const template = this.getTemplate();
+        if (template) {
+            this.template = hogan.compile(template);
         }
     }
 
@@ -98,5 +108,21 @@ export abstract class Chart implements IChart {
             colorStyle = 'color: ' + color;
         }
         return {color, colorStyle, className};
+    }
+
+    /**
+     * Получить шаблон
+     */
+    protected getTemplate(): string {
+        return '';
+    }
+
+    /**
+     * Отрендерить шаблон
+     */
+    protected renderTemplate(data: Object): string {
+        return this.template
+            ? this.template.render(data)
+            : '';
     }
 }

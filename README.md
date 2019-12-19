@@ -148,3 +148,27 @@ export interface <WidgetName>Settings extends ISettings {
     ...
 }
 ```
+
+### Шаблонизатор
+
+В проекте используется шаблонизатор [hogan.js](https://twitter.github.io/hogan.js/) синтаксис которого базируется на [mustache.js](https://github.com/janl/mustache.js#usage)
+
+##### Пример использования
+
+Если нужно рендерить вручную, то можно не переопределять метод ```getTemplate```.
+
+```
+class Widget extends Chart {
+    run() {
+        const output = this.renderTemplate({
+            var1: value1,
+            var2: value2
+        });
+        this.config.element.innerHTML = output;
+    }
+    
+    getTemplate(): string {
+        return `Your template {{var1}} {{var2}}`;
+    }
+}
+```

@@ -1,6 +1,5 @@
 import s from "../../styles/_all.less";
 import w from "./table.less";
-const hogan = require('hogan.js');
 
 import {
     DimensionUnit,
@@ -35,7 +34,15 @@ export class Table extends Chart {
         // 1.       localDateTime
         // 2...N-1  dimensions
         // N        value
-        const template = hogan.compile(`
+        const output = this.renderTemplate({
+            dimensions,
+            points
+        });
+        this.config.element.innerHTML = output;
+    }
+
+    getTemplate(): string {
+        return `
             <div class='${s["widget"]}'>
                 <table class="${s['table']} ${s['w-100']}">
                 <thead>
@@ -60,13 +67,7 @@ export class Table extends Chart {
                 </tbody>
                 </table>
             </div>
-        `);
-
-        const output = template.render({
-            dimensions,
-            points
-        });
-        this.config.element.innerHTML = output;
+        `;
     }
 
     /**
