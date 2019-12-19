@@ -78,9 +78,13 @@ export class WidgetFactory {
                 widget = new (widgetsArr[template.widgetType]())(config);
                 widget.run(data);
                 // if (process.env.NODE_ENV === 'development') {
-                    this.addVersion(config);
+                this.addVersion(config);
                 // }
                 resolve(widget);
+            }).catch(error => {
+                // Ловим ошибку (например 500), чтобы виджеты не зависти в состоянии loading
+                console.error(error);
+                reject();
             });
         });
         return promise;
