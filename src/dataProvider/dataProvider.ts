@@ -133,7 +133,6 @@ export class DataProvider {
                     }
                 ){
                     ${dimensionsStr}
-                    orgUnits { name }
                     value
                     localDateTime
                 }}`
@@ -187,7 +186,6 @@ export class DataProvider {
                         dataSource2: ${dataSource2}
                     }
                 ){
-                    orgUnits{outerId, name}
                     xValue
                     yValue
                 }}`

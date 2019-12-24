@@ -17,6 +17,7 @@ export abstract class Chart implements IChart {
     private template: any = null;                   // Скомпилированный шаблон
 
     abstract run(data: IChartData): void;           // Запуск виджета
+    abstract reload(data: IChartData): void;        // Перезагрузить виджет с новыми данными без пересоздания обработчиков
     abstract getVariables(): IWidgetVariables;      // Получить переменные для общения по шине
 
     constructor(config: WidgetConfigInner) {
@@ -66,13 +67,6 @@ export abstract class Chart implements IChart {
             callback.call(this, entry.contentRect.width, entry.contentRect.height);
         });
         this.resizeObserver.observe(element);
-    }
-
-    protected async reload(): Promise<IChartData | null> {
-        const data: IChartData = await this.config.dataProvider.parseTemplate(this.config.template);
-        this.destroy();
-        this.run(data);
-        return data;
     }
 
     /**

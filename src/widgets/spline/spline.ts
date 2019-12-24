@@ -116,6 +116,11 @@ export class Spline extends Chart {
         });
     }
 
+
+    protected async reload(data: IChartData): Promise<void> {
+        const templateData: IChartData = await this.config.dataProvider.parseTemplate(this.config.template);
+    }
+
     /**
      * Вычисляем смещения левых и правых осей
      */
@@ -273,38 +278,46 @@ export class Spline extends Chart {
         };
     }
 
-    private onEventBus(ev: EventBusEvent, eventData: INameValue): void {
-        console.log('Spline listenVariableChange:', ev, eventData);
-        const res = /(.*?)(?: (\d*))?$/.exec(eventData.name);
-        const varName: string = _defaultTo(_get(res, '1'), '');
-        const varId: number = _defaultTo(_get(res, '2'), 0);
+    private onEventBus(ev: EventBusEvent, eventObj: Object): void {
+        console.log('Spline listenVariableChange:', ev, eventObj);
+        let needReload = false;
+        _forEach(eventObj, (value: string, name: string) => {
+            const res = /(.*?)(?: (\d*))?$/.exec(name);
+            const varName: string = _defaultTo(_get(res, '1'), '');
+            const varId: number = _defaultTo(_get(res, '2'), 0);
 
-        const setVar = (id, prop, val) => {
-            _set(this.config.template.dataSets[varId], prop, val);
+            console.log('var: ', varName, varId, value);
+
+            const setVar = (id, prop, val) => {
+                _set(this.config.template.dataSets[varId], prop, val);
+                needReload = true;
+            };
+            switch (varName) {
+                case 'start date':
+                    setVar(varId, 'from', value);
+                    break;
+                case 'finish date':
+                    setVar(varId, 'to', value);
+                    break;
+                case 'period':
+                    setVar(varId, 'period', value);
+                    break;
+                case 'view type':
+                    setVar(varId, 'chartType', value);
+                    break;
+                case 'frequency':
+                    setVar(varId, 'frequency', value);
+                    break;
+                case 'pre frequency':
+                    setVar(varId, 'preFrequency', value);
+                    break;
+                case 'operation':
+                    setVar(varId, 'operation', value);
+                    break;
+            }
+        });
+        if (needReload) {
             this.reload();
-        };
-        switch (varName) {
-            case 'start date':
-                setVar(varId, 'from', eventData.value);
-                break;
-            case 'finish date':
-                setVar(varId, 'to', eventData.value);
-                break;
-            case 'period':
-                setVar(varId, 'period', eventData.value);
-                break;
-            case 'view type':
-                setVar(varId, 'chartType', eventData.value);
-                break;
-            case 'frequency':
-                setVar(varId, 'frequency', eventData.value);
-                break;
-            case 'pre frequency':
-                setVar(varId, 'preFrequency', eventData.value);
-                break;
-            case 'operation':
-                setVar(varId, 'operation', eventData.value);
-                break;
         }
     }
 }

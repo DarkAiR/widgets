@@ -93,7 +93,7 @@ export class Static extends Chart {
     }
 
     private onEventBus(ev: EventBusEvent, eventData: INameValue): void {
-        console.log('Static listenVariableChange:', ev, eventData);
+/*        console.log('Static listenVariableChange:', ev, eventData);
         const res = /(.*?)(?: (\d*))?$/.exec(eventData.name);
         const varName: string = _defaultTo(_get(res, '1'), '');
         const varId: number = _defaultTo(_get(res, '2'), 0);
@@ -125,5 +125,5 @@ export class Static extends Chart {
                 setVar(varId, 'operation', eventData.value);
                 break;
         }
-    }
+    }*/
 }

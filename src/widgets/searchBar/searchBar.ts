@@ -34,16 +34,5 @@ export class SearchBar extends Chart {
     }
 
     private onEventBus(ev: EventBusEvent, eventData: INameValue): void {
-        const res = /(.*?)(?: (\d*))?$/.exec(eventData.name);
-        const varName: string = _defaultTo(_get(res, '1'), '');
-        const varId: number = _defaultTo(_get(res, '2'), 0);
-
-        const setVar = (id, prop, val) => {
-            _set(this.config.template.dataSets[varId], prop, val);
-            this.reload();
-        };
-        switch (varName) {
-            // TODO
-        }
     }
 }
