@@ -83,7 +83,7 @@ export class SolidGauge extends Chart {
         `;
         this.config.element.innerHTML = str;
 
-        this.resize(this.config.element, (width, height) => {
+        this.onResize = (width, height) => {
             const widget = this.config.element.querySelector('.solidGauge-widget');
             const currentValue = this.config.element.querySelector('.solidGauge-current-value');
 
@@ -96,6 +96,6 @@ export class SolidGauge extends Chart {
                 currentValue.setAttribute('style', `font-size: ${currentValueFZ2}px`);
                 widget.classList.remove('solidGauge-widget__small');
             }
-        });
+        };
     }
 }

@@ -1,13 +1,10 @@
-import {get as _get} from 'lodash';
+import {get as _get, set as _set, forEach as _forEach, defaultTo as _defaultTo} from 'lodash';
 import ResizeObserver from 'resize-observer-polyfill';
 import {DataSetSettings, IChart, IChartData, IWidgetVariables} from "../interfaces";
 import {WidgetConfigInner} from "./widgetConfig";
 import {EventBusWrapper, EventBus, EventBusEvent} from 'goodteditor-event-bus';
 
 const hogan = require('hogan.js');
-
-export type ListenFunction = (event: EventBusEvent, data: Object) => void;
-export type ResizeFunction = (this: Chart, width: number, height: number) => void;
 
 export abstract class Chart implements IChart {
     protected config: WidgetConfigInner = null;
@@ -17,56 +14,78 @@ export abstract class Chart implements IChart {
     private template: any = null;                   // Скомпилированный шаблон
 
     abstract run(data: IChartData): void;           // Запуск виджета
-    abstract reload(data: IChartData): void;        // Перезагрузить виджет с новыми данными без пересоздания обработчиков
     abstract getVariables(): IWidgetVariables;      // Получить переменные для общения по шине
+
+    // Получить шаблон. Если не перегружена (null), то шаблонизатор не используется
+    getTemplate(): string | null { return null; }
+
+    // Обработчик изменения размера
+    onResize: (width: number, height: number) => void = (w, h) => {};
+    // Обработчки сообщений от шины
+    // true - если необходима перерисовка
+    onEventBus: (varName: string, value: string, dataSourceId: number) => boolean = (...args) => false;
 
     constructor(config: WidgetConfigInner) {
         this.config = config;
 
         if (!this.config.eventBus) {
-            this.config.eventBus = new EventBusWrapper(EventBus);
+            this.config.eventBus = new EventBusWrapper(new EventBus());
         }
 
         const template = this.getTemplate();
         if (template) {
             this.template = hogan.compile(template);
         }
+
+        console.log('%cWidget add listeners', 'color: #b080ff');
+        // Подписаться на шину
+        this.config.eventBus.listenStateChange((ev: EventBusEvent, eventObj: Object) => {
+            console.log('ListenStateChange:', ev, eventObj);
+            let needReload = false;
+            const widgetVars: IWidgetVariables = this.getVariables();
+            _forEach(eventObj, (value: string, name: string) => {
+                const res = /(.*?)(?: (\d*))?$/.exec(name);
+                const varName: string = _defaultTo(_get(res, '1'), '');
+                const dataSourceId: number = _defaultTo(_get(res, '2'), 0);
+
+                if (widgetVars[varName] !== undefined) {
+                    if (this.onEventBus(varName, value, dataSourceId)) {
+                        needReload = true;
+                    }
+                }
+            });
+            if (needReload) {
+                this.redraw();
+            }
+        });
+
+        // Подписаться на resize
+        if (this.config.element) {
+            this.resizeObserver = new ResizeObserver(entries => {
+                const entry: ResizeObserverEntry = entries[0];
+                this.onResize.bind(this).call(this, entry.contentRect.width, entry.contentRect.height);
+            });
+            this.resizeObserver.observe(this.config.element);
+        }
     }
 
     destroy(): void {
         console.log('%cWidget destroy listeners', 'color: #b080ff');
         if (this.resizeObserver) {
-            console.log('%c    - resize', 'color: #b080ff');
             this.resizeObserver.disconnect();
             this.resizeObserver = null;
         }
-        console.log('%c    - eventBus', 'color: #b080ff');
         this.config.eventBus.destroy();
     }
 
     /**
-     * Повесить слушателя на изменения переменных
+     * Перерисовать виджет с текущими данными
      */
-    protected listen(cb: ListenFunction): void {
-        console.log('%cWidget add listeners', 'color: #b080ff');
-        this.config.eventBus.listenVariableChange(cb);
-    }
-
-    /**
-     * Подписаться на resize
-     */
-    protected resize(element: HTMLElement, callback: ResizeFunction) {
-        if (element) {
-            this.resizeObserve(element, callback);
-        }
-    }
-
-    private resizeObserve(element: HTMLElement, callback: Function) {
-        this.resizeObserver = new ResizeObserver(entries => {
-            const entry: ResizeObserverEntry = entries[0];
-            callback.call(this, entry.contentRect.width, entry.contentRect.height);
-        });
-        this.resizeObserver.observe(element);
+    async redraw(): Promise<void> {
+        this.config.dataProvider.parseTemplate(this.config.template)
+            .then((templateData: IChartData) => {
+                this.run(templateData);
+            });
     }
 
     /**
@@ -74,8 +93,8 @@ export abstract class Chart implements IChart {
      */
     protected addVar(res: IWidgetVariables) {
         let sortIndex = 0;
-        return (idx: number, name: string, description: string, hint: string) => {
-            res[name + (idx === 0 ? '' : ' ' + idx)] = {
+        return (dataSourceIndex: number, name: string, description: string, hint: string) => {
+            res[name + (dataSourceIndex === 0 ? '' : ' ' + dataSourceIndex)] = {
                 description,
                 hint,
                 sortIndex: sortIndex++,
@@ -102,13 +121,6 @@ export abstract class Chart implements IChart {
             colorStyle = 'color: ' + color;
         }
         return {color, colorStyle, className};
-    }
-
-    /**
-     * Получить шаблон
-     */
-    protected getTemplate(): string {
-        return '';
     }
 
     /**

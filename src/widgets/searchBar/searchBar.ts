@@ -1,6 +1,5 @@
 import s from '../../styles/_all.less';
 import w from './searchBar.less';
-import {EventBusEvent} from 'goodteditor-event-bus';
 
 import {
     IChartData,
@@ -24,15 +23,6 @@ export class SearchBar extends Chart {
 
     run(data: IChartData): void {
         const settings = <SearchBarSettings>data.settings;
-
-        this.listen(this.onEventBus.bind(this));
-
         this.config.element.innerHTML = '';
-
-        this.resize(this.config.element, (width, height) => {
-        });
-    }
-
-    private onEventBus(ev: EventBusEvent, eventData: INameValue): void {
     }
 }

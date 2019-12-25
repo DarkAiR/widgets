@@ -25,8 +25,5 @@ export class Report extends Chart {
             </div>
         `;
         this.config.element.innerHTML = str;
-
-        this.resize(this.config.element, (width, height) => {
-        });
     }
 }

@@ -45,8 +45,6 @@ export class Spline extends Chart {
         console.log('%cSpline run', 'color: #b080ff');
         const settings = <SplineSettings>data.settings;
 
-        this.listen(this.onEventBus.bind(this));
-
         const str = `
             <div class='${s['widget']}  ${w['widget']}'>
                 <div class='${w['row']}'>
@@ -111,14 +109,10 @@ export class Spline extends Chart {
         const myChart = echarts.init(el);
         myChart.setOption(options);
 
-        this.resize(this.config.element, (width, height) => {
+        this.onResize = (width: number, height: number): void => {
             myChart.resize();
-        });
-    }
-
-
-    protected async reload(data: IChartData): Promise<void> {
-        const templateData: IChartData = await this.config.dataProvider.parseTemplate(this.config.template);
+        };
+        this.onEventBus = this.onEventBusFunc.bind(this);
     }
 
     /**
@@ -278,46 +272,39 @@ export class Spline extends Chart {
         };
     }
 
-    private onEventBus(ev: EventBusEvent, eventObj: Object): void {
-        console.log('Spline listenVariableChange:', ev, eventObj);
+    private onEventBusFunc(varName: string, value: string, dataSourceId: number): boolean {
+        console.log('Spline listenStateChange:', varName, value, dataSourceId);
+
+        // NOTE: Делаем через switch, т.к. в общем случае каждая обработка может содержать дополнительную логику
+
         let needReload = false;
-        _forEach(eventObj, (value: string, name: string) => {
-            const res = /(.*?)(?: (\d*))?$/.exec(name);
-            const varName: string = _defaultTo(_get(res, '1'), '');
-            const varId: number = _defaultTo(_get(res, '2'), 0);
-
-            console.log('var: ', varName, varId, value);
-
-            const setVar = (id, prop, val) => {
-                _set(this.config.template.dataSets[varId], prop, val);
-                needReload = true;
-            };
-            switch (varName) {
-                case 'start date':
-                    setVar(varId, 'from', value);
+        const setVar = (prop, v) => {
+            _set(this.config.template.dataSets[dataSourceId], prop, v);
+            needReload = true;
+        };
+        switch (varName) {
+            case 'start date':
+                setVar('from', value);
+                break;
+            case 'finish date':
+                setVar('to', value);
+                break;
+            case 'period':
+                setVar('period', value);
                     break;
-                case 'finish date':
-                    setVar(varId, 'to', value);
-                    break;
-                case 'period':
-                    setVar(varId, 'period', value);
-                    break;
-                case 'view type':
-                    setVar(varId, 'chartType', value);
-                    break;
-                case 'frequency':
-                    setVar(varId, 'frequency', value);
-                    break;
-                case 'pre frequency':
-                    setVar(varId, 'preFrequency', value);
-                    break;
-                case 'operation':
-                    setVar(varId, 'operation', value);
-                    break;
-            }
-        });
-        if (needReload) {
-            this.reload();
+            case 'view type':
+                setVar('chartType', value);
+                break;
+            case 'frequency':
+                setVar('frequency', value);
+                break;
+            case 'pre frequency':
+                setVar('preFrequency', value);
+                break;
+            case 'operation':
+                setVar('operation', value);
+                break;
         }
+        return needReload;
     }
 }

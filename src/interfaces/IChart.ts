@@ -4,4 +4,5 @@ export interface IChart {
     destroy(): void;                        // Удаление виджета
     getVariables(): IWidgetVariables;       // Возвращает список переменных, доступных для прослушивания
     run(data: IChartData): void;            // Запуск виджета
+    redraw(): Promise<void>;                // Перерисовать виджет с текущими данными
 }
