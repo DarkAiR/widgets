@@ -1,8 +1,8 @@
 import {Frequency} from "../models/types";
-import {WidgetTemplateSettings, DataSetTemplate, TSPoint, ReportPoint, ProfilePoint, Point} from "./";
+import {WidgetTemplateSettings, DataSetTemplate, TSPoint, ReportPoint, ProfilePoint, Point, TableRow} from "./";
 
 // Типы данных, возвращаемых из GraphQL
-export type TData = TSPoint[] | ReportPoint | ProfilePoint[] | Point[];
+export type TData = TSPoint[] | ReportPoint | ProfilePoint[] | Point[] | TableRow[];
 
 export interface IChartData {
     from: string;                           // дата начала выборки 'YYYY-mm-dd'

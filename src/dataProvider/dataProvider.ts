@@ -1,9 +1,17 @@
-import {get as _get, forEach as _forEach} from 'lodash';
+import {get as _get} from 'lodash';
 import {IGqlRequest} from "./IGqlRequest";
-import {SingleDataSourceSerializer} from "./dataSourceSerializers/singleDataSourceSerializer";
-import {AggregationDataSourceSerializer} from "./dataSourceSerializers/aggregationDataSourceSerializer";
-import {ServerType, WidgetType} from "../models/types";
-import {DataSetTemplate, IChartData, SingleDataSource, WidgetTemplate, TSPoint, ReportPoint, Point} from "../interfaces";
+import {Frequency, Operation, ServerType} from "../models/types";
+import {
+    DataSetTemplate,
+    IChartData,
+    SingleDataSource,
+    WidgetTemplate,
+    TSPoint,
+    ReportPoint,
+    Point,
+    AggregationDataSource, TableRow
+} from "../interfaces";
+import {serializers} from '.';
 
 const axios = require('axios');
 
@@ -55,13 +63,16 @@ export class DataProvider {
         const promises = template.dataSets.map(async (item, idx) => {
             switch (item.viewType) {
                 case "DYNAMIC":
-                    data.data[idx] = await this.loadDynamicData(item, template.widgetType, template.server);
+                    data.data[idx] = await this.loadDynamicData(item, template.server);
                     break;
                 case "REPORT":
-                    data.data[idx] = await this.loadReportData(item, template.widgetType, template.server);
+                    data.data[idx] = await this.loadReportData(item, template.server);
                     break;
                 case "STATIC":
-                    data.data[idx] = await this.loadStaticData(item, template.widgetType, template.server);
+                    data.data[idx] = await this.loadStaticData(item, template.server);
+                    break;
+                case 'TABLE':
+                    data.data[idx] = await this.loadTableData(item, template.server);
                     break;
             }
         });
@@ -75,39 +86,51 @@ export class DataProvider {
     /**
      * Загрузка данных для шаблона
      */
-    private async loadDynamicData(dataSet: DataSetTemplate, widgetType: WidgetType, server: ServerType): Promise<TSPoint[]> {
-        return await axios.post(this.gqlLink, this.serializeDynamicGQL(dataSet, widgetType, server))
+    private async loadDynamicData(dataSet: DataSetTemplate, server: ServerType): Promise<TSPoint[]> {
+        return await axios.post(this.gqlLink, this.serializeDynamicGQL(dataSet, server))
             .then(
                 response => _get(response.data, 'data.getSingleTimeSeries', []),
                 error => { throw error; }
             );
     }
 
-    private async loadReportData(dataSet: DataSetTemplate, widgetType: WidgetType, server: ServerType): Promise<ReportPoint> {
-        return await axios.post(this.gqlLink, this.serializeReportGQL(dataSet, widgetType, server))
+    private async loadTableData(dataSet: DataSetTemplate, server: ServerType): Promise<TableRow[]> {
+        return await axios.post(this.gqlLink, this.serializeTableGQL(dataSet, server))
+            .then(
+                response => _get(response.data, 'data.getTableData', []),
+                error => { throw error; }
+            );
+    }
+
+    private async loadReportData(dataSet: DataSetTemplate, server: ServerType): Promise<ReportPoint> {
+        return await axios.post(this.gqlLink, this.serializeReportGQL(dataSet, server))
             .then(
                 response => _get(response.data, 'data.getReport', []),
                 error => { throw error; }
             );
     }
 
-    private async loadStaticData(dataSet: DataSetTemplate, widgetType: WidgetType, server: ServerType): Promise<Point[]> {
-        return await axios.post(this.gqlLink, this.serializeStaticGQL(dataSet, widgetType, server))
+    private async loadStaticData(dataSet: DataSetTemplate, server: ServerType): Promise<Point[]> {
+        return await axios.post(this.gqlLink, this.serializeStaticGQL(dataSet, server))
             .then(
                 response => _get(response.data, 'data.getStatic', []),
                 error => { throw error; }
             );
     }
 
-    private serializeDynamicGQL(dataSet: DataSetTemplate, widgetType: WidgetType, server: ServerType): IGqlRequest | null {
+    private serializeDynamicGQL(dataSet: DataSetTemplate, server: ServerType): IGqlRequest | null {
         let dataSource = '{}';
         switch (dataSet.dataSource1.type) {
             case "SINGLE":
-                dataSource = (new SingleDataSourceSerializer()).serialize(dataSet);
+                dataSource = (new serializers.SingleDataSourceSerializer()).serialize(
+                    dataSet.dataSource1 as SingleDataSource
+                );
                 break;
 
             case "AGGREGATION":
-                dataSource = (new AggregationDataSourceSerializer()).serialize(dataSet);
+                dataSource = (new serializers.AggregationDataSourceSerializer()).serialize(
+                    dataSet.dataSource1 as AggregationDataSource
+                );
                 break;
         }
         let period = '';
@@ -117,7 +140,6 @@ export class DataProvider {
             period = `from: "${dataSet.from}"
                       to: "${dataSet.to}"`;
         }
-        const dimensionsStr = widgetType === 'TABLE' ? 'dimensions { name, value }' : '';
         return {
             operationName: null,
             variables: {},
@@ -132,16 +154,90 @@ export class DataProvider {
                         dataSource1: ${dataSource}
                     }
                 ){
-                    ${dimensionsStr}
                     value
                     localDateTime
                 }}`
         };
     }
 
-    private serializeReportGQL(dataSet: DataSetTemplate, widgetType: WidgetType, server: ServerType): IGqlRequest | null {
-        const dataSource1 = (new SingleDataSourceSerializer()).serializeReport(dataSet.dataSource1 as SingleDataSource);
-        const dataSource2 = (new SingleDataSourceSerializer()).serializeReport(dataSet.dataSource2 as SingleDataSource);
+    private serializeTableGQL(dataSet: DataSetTemplate, server: ServerType): IGqlRequest | null {
+        let dataSource = '{}';
+        switch (dataSet.dataSource1.type) {
+            case "SINGLE":
+                dataSource = (new serializers.SingleDataSourceSerializer()).serialize(
+                    dataSet.dataSource1 as SingleDataSource
+                );
+                break;
+
+            case "AGGREGATION":
+                dataSource = (new serializers.AggregationDataSourceSerializer()).serialize(
+                    dataSet.dataSource1 as AggregationDataSource
+                );
+                break;
+        }
+        let period = '';
+        if (dataSet.period) {
+            period = `period: "${dataSet.period}"`;
+        } else {
+            period = `from: "${dataSet.from}"
+                      to: "${dataSet.to}"`;
+        }
+
+        /*
+        {
+          name: "organizationUnit"
+          values: ["123", "EKT"]
+          groupBy:true
+        }
+         */
+        // FIXME
+        const dimensions: Array<{name: string, values: string[], groupBy: boolean}> = [];
+
+        /*
+          {
+            preFrequency: HOUR
+            operation: SUM
+            dataSource1: {
+                type: SINGLE
+                name: "kpi-traffic"
+                metric: {
+                  name: "value"
+                }
+            }
+          },
+         */
+        // FIXME
+        const dataSetTemplates: Array<{
+            preFrequency: Frequency,
+            operation: Operation,
+            dataSource1: SingleDataSource | AggregationDataSource
+        }> = [];
+        return {
+            operationName: null,
+            variables: {},
+            query: `
+                {getTableData(
+                    server: "${server}"
+                    dataSet: {
+                        ${period}
+                        frequency: ${dataSet.frequency}
+                        operation: ${dataSet.operation}
+                        dataSource1: ${dataSource}
+                        dimensions: ${dimensions}
+                        dataSetTemplates: ${dataSetTemplates}
+                    }
+                ){
+                    localDateTime
+                    dimensions { name, value }
+                    metrics { name, value }
+                }}`
+        };
+    }
+
+    private serializeReportGQL(dataSet: DataSetTemplate, server: ServerType): IGqlRequest | null {
+        const serializer = new serializers.ReportDataSourceSerializer();
+        const dataSource1 = serializer.serialize(dataSet.dataSource1 as SingleDataSource);
+        const dataSource2 = serializer.serialize(dataSet.dataSource2 as SingleDataSource);
         return {
             operationName: null,
             variables: {},
@@ -167,9 +263,10 @@ export class DataProvider {
         };
     }
 
-    private serializeStaticGQL(dataSet: DataSetTemplate, widgetType: WidgetType, server: ServerType): IGqlRequest | null {
-        const dataSource1 = (new SingleDataSourceSerializer()).serializeStatic(dataSet.dataSource1 as SingleDataSource);
-        const dataSource2 = (new SingleDataSourceSerializer()).serializeStatic(dataSet.dataSource2 as SingleDataSource);
+    private serializeStaticGQL(dataSet: DataSetTemplate, server: ServerType): IGqlRequest | null {
+        const serializer = new serializers.StaticDataSourceSerializer();
+        const dataSource1 = serializer.serialize(dataSet.dataSource1 as SingleDataSource);
+        const dataSource2 = serializer.serialize(dataSet.dataSource2 as SingleDataSource);
         return {
             operationName: null,
             variables: {},
