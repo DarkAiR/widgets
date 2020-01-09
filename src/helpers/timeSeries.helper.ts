@@ -1,5 +1,5 @@
 import {forEach as _forEach, keys as _keys, map as _map} from "lodash";
-import {TSPoint} from "../interfaces/template/TSPoint";
+import {TSPoint} from "../interfaces/graphQL/TSPoint";
 
 export interface TimeSeriesData {
     dates: string[];

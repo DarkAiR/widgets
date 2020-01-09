@@ -8,7 +8,7 @@ import * as moment from 'moment';
 import * as hammer from 'hammerjs';
 import {Chart} from "../../models/Chart";
 import {TimeSeriesData, TimeSeriesHelper} from "../../helpers/timeSeries.helper";
-import {TSPoint} from "../../interfaces/template/TSPoint";
+import {TSPoint} from "../../interfaces/graphQL/TSPoint";
 
 type MetricsStatus = 'normal' | 'warning' | 'error';
 

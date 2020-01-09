@@ -1,76 +1,21 @@
 @import (reference) '../../../node_modules/goodt-framework-css/src/_params.less';
 @import (reference) '../../styles/theme.less';
 
-.cont {
-    position: relative;
-    left: 0;
-    display: flex;
-    flex-direction: row;
-    flex-wrap: nowrap;
-    align-items: stretch;
-
-    .block {
-        position: relative;
-        flex-basis: 0;
-        flex-grow: 1;
-        flex-shrink: 0;
-
+table {
+    td,
+    th {
         border-right: 1px solid @color-grey-lighter;
-
-        &:first-child {
-            .inner-block {
-                margin-left: 0px;
-            }
-        }
 
         &:last-child {
             border-right: none;
-            .inner-block {
-                margin-right: 0px;
-            }
-        }
-        .inner-block {
-            margin: 0 16px;
-            overflow: hidden;
         }
     }
-}
-.normal {
-    &.green {
-        color: @color-green;
-    }
-}
-.warning {
-    color: @color-yellow;
-}
-.error {
-    color: @color-red;
-}
-.title {
-    text-align: center;
-    white-space: nowrap;
-    border-bottom: 1px solid @color-grey-lighter;
-    margin-bottom: 6px;
-    padding-bottom: 2px;
 
-    &.warning,
-    &.error {
-        font-weight: bold;
+    .title {
+        text-align: center;
+        white-space: nowrap;
+        border-bottom: 1px solid @color-grey-lighter;
+        margin-bottom: 6px;
+        padding-bottom: 2px;
     }
-}
-.series1 {
-    white-space: nowrap;
-}
-.series2 {
-    white-space: nowrap;
-}
-.percents {
-    white-space: nowrap;
-}
-.icons {
-    white-space: nowrap;
-}
-[class^='icon-'],
-[class*=' icon-'] {
-    margin-right: 4px;
 }

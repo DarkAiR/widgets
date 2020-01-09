@@ -1,7 +1,8 @@
 /**
  * Возвращаемые данные для dataSource "Profile"
  */
-import {DimensionUnit, OrganizationUnit} from "./";
+import {DimensionUnit} from "./dimensionUnit";
+import {OrganizationUnit} from "./organizationUnit";
 
 export interface ProfilePoint {
     dimensions?: DimensionUnit[];

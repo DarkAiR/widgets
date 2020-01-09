@@ -14,9 +14,12 @@ export type WidgetType = 'SPLINE' | 'AVERAGE_NUMBER' | 'SOLID_GAUGE' | 'INDICATO
 export type ViewType = 'STATIC' | 'DYNAMIC' | 'REPORT' | 'TABLE';     // | 'DISTRIBUTION' | 'PROFILE' | 'MAP';
 
 export type ChartType = 'LINE' | 'HISTOGRAM' | 'SCATTER';
-export type Frequency = 'YEAR' | 'MONTH' | 'WEEK' | 'DAY' | 'HOUR' | 'ALL';
-export type Operation = 'SUM' | 'AVG' | 'MIN' | 'MAX' | 'DIVIDE';
-export type DataSourceType = 'SINGLE' | 'AGGREGATION';
 export type YAxisTypes = 'left' | 'right';
 export type MethodType = 'MAPE' | 'MAE' | 'coverage' | 'utilization';
 export type ServerType = 'druid' | 'qlik';
+
+// GraphQL enums
+export type Frequency = 'YEAR' | 'MONTH' | 'WEEK' | 'DAY' | 'HOUR' | 'ALL';
+export type Operation = 'SUM' | 'AVG' | 'MIN' | 'MAX';
+export type DataSourceType = 'SINGLE' | 'AGGREGATION';
+export type ArithmeticOperation = 'SUM' | 'SUBTRACT' | 'MULTIPLY' | 'DIVIDE';

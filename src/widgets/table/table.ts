@@ -4,7 +4,7 @@ import w from "./table.less";
 import {
     DimensionUnit,
     IChartData,
-    IWidgetVariables,
+    IWidgetVariables, MetricUnit,
     TSPoint
 } from "../../interfaces";
 import {TableSettings} from "./tableSettings";
@@ -27,15 +27,22 @@ export class Table extends Chart {
         // FIXME: Берем только первый источник, а надо все
         const points: TSPoint[] = _get(dataByDataSources, 0, []);
         const dimensions: DimensionUnit[] = _get(points, '0.dimensions', []);
+        const metrics: MetricUnit[] = _get(points, '0.metrics', []);
 
         console.log('points', points);
         console.log('dimensions', dimensions);
+
+        // Конвертируем даты
+        _forEach(points, (v: TSPoint) => {
+            v.localDateTime = new Date(v.localDateTime).toLocaleDateString();
+        });
 
         // 1.       localDateTime
         // 2...N-1  dimensions
         // N        value
         const output = this.renderTemplate({
             dimensions,
+            metrics,
             points
         });
         this.config.element.innerHTML = output;
@@ -47,11 +54,19 @@ export class Table extends Chart {
                 <table class="${s['table']} ${s['w-100']}">
                 <thead>
                     <tr>
-                        <th class="${s['table-w-auto']}">localDateTime</th>
+                        <th class="${s['table-w-auto']}">
+                            <div class="${w['title']}">localDateTime</div>
+                        </th>
                         {{#dimensions}}
-                        <th>{{name}}</th>
+                            <th>
+                                <div class="${w['title']}">{{name}}</div>
+                            </th>
                         {{/dimensions}}
-                        <th class="${s['table-w-auto']}">value</th>
+                        {{#metrics}}
+                            <th class="${s['table-w-auto']}">
+                                <div class="${w['title']}">{{name}}</div>
+                            </th>
+                        {{/metrics}}
                     </tr>
                 </thead>
                 <tbody>
@@ -59,9 +74,11 @@ export class Table extends Chart {
                     <tr>
                         <td>{{localDateTime}}</td>
                         {{#dimensions}}
-                        <td>{{value}}</td>
+                            <td>{{value}}</td>
                         {{/dimensions}}
-                        <td>{{value}}</td>
+                        {{#metrics}}
+                            <td>{{value}}</td>
+                        {{/metrics}}
                     </tr>
                     {{/points}}
                 </tbody>

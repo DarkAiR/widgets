@@ -1,6 +1,6 @@
 export interface DimensionFilter {
     name: string;
-    values: Array<string>;
+    values: string[];
     expression: string;             // Строка
     groupBy: boolean;               // Boolean
 }

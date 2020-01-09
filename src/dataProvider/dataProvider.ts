@@ -9,9 +9,10 @@ import {
     TSPoint,
     ReportPoint,
     Point,
-    AggregationDataSource, TableRow
+    AggregationDataSource, TableRow, DimensionFilter
 } from "../interfaces";
 import {serializers} from '.';
+import * as stringifyObject from 'stringify-object';
 
 const axios = require('axios');
 
@@ -30,7 +31,18 @@ export class DataProvider {
         this.apiUrl = apiUrl;
     }
 
-    public async getTemplate(templateId: string): Promise<WidgetTemplate> {
+    private getPeriod(dataSet: DataSetTemplate): string {
+        let period = '';
+        if (dataSet.period) {
+            period = `period: "${dataSet.period}"`;
+        } else {
+            period = `from: "${dataSet.from}"
+                      to: "${dataSet.to}"`;
+        }
+        return period;
+    }
+
+public async getTemplate(templateId: string): Promise<WidgetTemplate> {
         try {
             const response = await axios.get(this.templatesLink + '/' + templateId);
             console.log('Load template', response.data);
@@ -133,13 +145,10 @@ export class DataProvider {
                 );
                 break;
         }
-        let period = '';
-        if (dataSet.period) {
-            period = `period: "${dataSet.period}"`;
-        } else {
-            period = `from: "${dataSet.from}"
-                      to: "${dataSet.to}"`;
-        }
+
+        // NOTE: Типизировать возвращаемые данные не получится, т.к. не все поля являются строками
+        //       Нр, frequency: HOUR, а значит, что не получится их сохранять в объекте и сериализовать
+        //       потому что не получится отличить поле, которое должно быть обернуто в кавычки от других
         return {
             operationName: null,
             variables: {},
@@ -147,7 +156,7 @@ export class DataProvider {
                 {getSingleTimeSeries(
                     server: "${server}"
                     dataSet: {
-                        ${period}
+                        ${this.getPeriod(dataSet)}
                         frequency: ${dataSet.frequency}
                         preFrequency: ${dataSet.preFrequency}
                         operation: ${dataSet.operation}
@@ -162,11 +171,17 @@ export class DataProvider {
 
     private serializeTableGQL(dataSet: DataSetTemplate, server: ServerType): IGqlRequest | null {
         let dataSource = '{}';
+        let orgUnits: Array<string> = [];
         switch (dataSet.dataSource1.type) {
             case "SINGLE":
+                const singleDataSource: SingleDataSource = dataSet.dataSource1 as SingleDataSource;
                 dataSource = (new serializers.SingleDataSourceSerializer()).serialize(
-                    dataSet.dataSource1 as SingleDataSource
+                    singleDataSource
                 );
+                const filter: DimensionFilter = singleDataSource.dimensions.find(
+                    (v: DimensionFilter) => v.name === 'organizationUnit'
+                );
+                orgUnits = filter ? filter.values : [];
                 break;
 
             case "AGGREGATION":
@@ -175,43 +190,54 @@ export class DataProvider {
                 );
                 break;
         }
-        let period = '';
-        if (dataSet.period) {
-            period = `period: "${dataSet.period}"`;
-        } else {
-            period = `from: "${dataSet.from}"
-                      to: "${dataSet.to}"`;
-        }
 
-        /*
-        {
-          name: "organizationUnit"
-          values: ["123", "EKT"]
-          groupBy:true
-        }
-         */
-        // FIXME
-        const dimensions: Array<{name: string, values: string[], groupBy: boolean}> = [];
+        const dimensions: DimensionFilter[] = [];
+        dimensions.push({
+            name: "organizationUnit",
+            expression: "organizationUnit",
+            values: orgUnits,
+            groupBy: true
+        });
+        const dimensionsJson: string = stringifyObject(dimensions, {
+            indent: ' ',
+            singleQuotes: false
+        }).replace(/\n/g, '');
 
-        /*
-          {
-            preFrequency: HOUR
-            operation: SUM
+        // FIXME тестовые данные, надо убрать
+        const dataSetTemplates: string = `[{
+            preFrequency: HOUR,
+            operation: SUM,
             dataSource1: {
-                type: SINGLE
-                name: "kpi-traffic"
+                type: SINGLE,
+                name: "kpi-traffic",
                 metric: {
-                  name: "value"
+                    name: "value"
                 }
             }
-          },
-         */
-        // FIXME
-        const dataSetTemplates: Array<{
-            preFrequency: Frequency,
-            operation: Operation,
-            dataSource1: SingleDataSource | AggregationDataSource
-        }> = [];
+        }, {
+            preFrequency: DAY,
+            operation: SUM,
+            dataSource1: {
+                type: SINGLE,
+                name: "kpi-traffic",
+                metric: {
+                    name: "value_2",
+                    expression: "value / count"
+                }
+            }
+        }, {
+            preFrequency: HOUR,
+            operation: SUM,
+            dataSource1: {
+                type: SINGLE,
+                name: "kpi-traffic",
+                metric: {
+                    name: "value_3",
+                    expression: "count / value"
+                }
+            }
+        }]`;
+
         return {
             operationName: null,
             variables: {},
@@ -219,11 +245,9 @@ export class DataProvider {
                 {getTableData(
                     server: "${server}"
                     dataSet: {
-                        ${period}
+                        ${this.getPeriod(dataSet)}
                         frequency: ${dataSet.frequency}
-                        operation: ${dataSet.operation}
-                        dataSource1: ${dataSource}
-                        dimensions: ${dimensions}
+                        dimensions: ${dimensionsJson}
                         dataSetTemplates: ${dataSetTemplates}
                     }
                 ){
@@ -245,8 +269,7 @@ export class DataProvider {
                 {getReport(
                     server: "${server}"
                     dataSet: {
-                        from: "${dataSet.from}"
-                        to: "${dataSet.to}"
+                        ${this.getPeriod(dataSet)},
                         frequency: ${dataSet.frequency}
                         preFrequency: ${dataSet.preFrequency}
                         operation: ${dataSet.operation}
@@ -274,8 +297,7 @@ export class DataProvider {
                 {getStatic(
                     server: "${server}",
                     dataSet: {
-                        from: "${dataSet.from}"
-                        to: "${dataSet.to}"
+                        ${this.getPeriod(dataSet)}
                         frequency: ${dataSet.frequency}
                         preFrequency: ${dataSet.preFrequency}
                         operation: ${dataSet.operation}

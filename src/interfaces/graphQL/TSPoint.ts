@@ -1,7 +1,8 @@
 /**
  * Возвращаемые данные для dataSource SingleTimeSeries
  */
-import {DimensionUnit, OrganizationUnit} from "./";
+import {DimensionUnit} from "./dimensionUnit";
+import {OrganizationUnit} from "./organizationUnit";
 
 export interface TSPoint {
     dimensions?: DimensionUnit[];

@@ -1,5 +1,4 @@
 import {ISettings} from "../ISettings";
-import {ServerType} from "../../models/types";
 
 /**
  * Settings для всего виджета

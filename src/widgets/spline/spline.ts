@@ -22,7 +22,7 @@ import {
 import {Chart} from '../../models/Chart';
 import {TimeSeriesData, TimeSeriesHelper} from '../../helpers/timeSeries.helper';
 import {YAxisTypes} from "../../models/types";
-import {TSPoint} from "../../interfaces/template/TSPoint";
+import {TSPoint} from "../../interfaces/graphQL/TSPoint";
 
 export class Spline extends Chart {
     getVariables(): IWidgetVariables {

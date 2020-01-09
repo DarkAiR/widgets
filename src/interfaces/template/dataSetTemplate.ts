@@ -1,11 +1,10 @@
 import {ViewType, ChartType, Frequency, Operation} from './../../models/types';
-import {SingleDataSource} from "./singleDataSource";
-import {AggregationDataSource} from "./aggregationDataSource";
 import {DataSetSettings} from "./dataSetSettings";
+import {DataSource} from "../graphQL";
 
 export interface DataSetTemplate {
-    dataSource1: SingleDataSource | AggregationDataSource;          // описание источника данных для dataSet'a.
-    dataSource2?: SingleDataSource | AggregationDataSource | null;  // второй источник данных используется для STATIC и REPORT представления
+    dataSource1: DataSource;                // описание источника данных для dataSet'a.
+    dataSource2?: DataSource | null;        // второй источник данных используется для STATIC и REPORT представления
     viewType: ViewType;                     // тип виджета (должен совпадать со значением в WidgetTemplate)
     chartType: ChartType;                   // тип отрисовки данных из данного источника
     from: string | null;                    // дата начала выборки 'YYYY-mm-dd'

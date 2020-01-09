@@ -4,3 +4,4 @@ export * from "./ISettings";
 export * from "./IWidgetVariables";
 export * from "./INameValue";
 export * from "./template";
+export * from './graphQL';

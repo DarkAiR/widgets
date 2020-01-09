@@ -1,7 +1,8 @@
 /**
  * Возвращаемые данные для dataSource "Static"
  */
-import {DimensionUnit, OrganizationUnit} from "./";
+import {DimensionUnit} from "./dimensionUnit";
+import {OrganizationUnit} from "./organizationUnit";
 
 export interface Point {
     dimensions: DimensionUnit[];
