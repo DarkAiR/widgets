@@ -1,5 +1,4 @@
-import {ISettings} from "../../interfaces";
+import {ISettings, WidgetTemplateSettings} from "../../interfaces";
 
-export interface ReportSettings extends ISettings {
-
+export interface ReportSettings extends WidgetTemplateSettings {
 }

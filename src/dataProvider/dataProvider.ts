@@ -171,17 +171,14 @@ public async getTemplate(templateId: string): Promise<WidgetTemplate> {
 
     private serializeTableGQL(dataSet: DataSetTemplate, server: ServerType): IGqlRequest | null {
         let dataSource = '{}';
-        let orgUnits: Array<string> = [];
+        let dimensions: DimensionFilter[] = [];
         switch (dataSet.dataSource1.type) {
             case "SINGLE":
                 const singleDataSource: SingleDataSource = dataSet.dataSource1 as SingleDataSource;
-                dataSource = (new serializers.SingleDataSourceSerializer()).serialize(
+                dataSource = (new serializers.TableDataSourceSerializer()).serialize(
                     singleDataSource
                 );
-                const filter: DimensionFilter = singleDataSource.dimensions.find(
-                    (v: DimensionFilter) => v.name === 'organizationUnit'
-                );
-                orgUnits = filter ? filter.values : [];
+                dimensions = singleDataSource.dimensions;
                 break;
 
             case "AGGREGATION":
@@ -191,13 +188,6 @@ public async getTemplate(templateId: string): Promise<WidgetTemplate> {
                 break;
         }
 
-        const dimensions: DimensionFilter[] = [];
-        dimensions.push({
-            name: "organizationUnit",
-            expression: "organizationUnit",
-            values: orgUnits,
-            groupBy: true
-        });
         const dimensionsJson: string = stringifyObject(dimensions, {
             indent: ' ',
             singleQuotes: false

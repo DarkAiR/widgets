@@ -2,9 +2,10 @@ import s from "../../styles/_all.less";
 import w from "./table.less";
 
 import {
+    DimensionFilter,
     DimensionUnit,
     IChartData,
-    IWidgetVariables, MetricUnit,
+    IWidgetVariables, MetricUnit, SingleDataSource,
     TSPoint
 } from "../../interfaces";
 import {TableSettings} from "./tableSettings";

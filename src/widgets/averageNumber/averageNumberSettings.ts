@@ -1,4 +1,4 @@
-import {ISettings} from "../../interfaces";
+import {ISettings, WidgetTemplateSettings} from "../../interfaces";
 
-export interface AverageNumberSettings extends ISettings {
+export interface AverageNumberSettings extends WidgetTemplateSettings {
 }
