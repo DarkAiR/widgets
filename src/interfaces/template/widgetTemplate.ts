@@ -12,7 +12,7 @@ export interface WidgetTemplate {
                                             // каждый item - это json DataSetTemplate
     settings?: WidgetTemplateSettings;
     _links: {
-        self?: {
+        self: {
             href: string;
         }
     };

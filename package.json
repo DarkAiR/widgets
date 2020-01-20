@@ -1,26 +1,10 @@
 {
   "scripts": {
-<<<<<<< Updated upstream
     "dev": "npm run lint  &&  SET \"NODE_ENV=dev\"  &&  webpack --display-error-details --config webpack.dev.js",
     "build": "npm run lint  &&  SET \"NODE_ENV=prod\"  &&  webpack --config webpack.prod.js",
     "dev-watch": "npm run lint  &&  webpack --display-error-details --config webpack.dev.js --watch --progress",
     "postversion": "npm run build  &&  copy package-lib.json lib\\package.json /Y && npm publish lib",
     "lint": "tslint -p tsconfig.json"
-=======
-<<<<<<< Updated upstream
-    "dev": "SET \"NODE_ENV=dev\"  &&  webpack --display-error-details --config webpack.dev.js",
-    "build": "SET \"NODE_ENV=prod\"  &&  webpack --config webpack.prod.js",
-    "postversion": "copy package-lib.json lib\\package.json /Y && npm publish lib",
-    "lint": "echo \"No lint\" && exit 1"
-=======
-    "dev": "npm run lint  &&  SET \"NODE_ENV=dev\"  &&  webpack --display-error-details --config webpack.dev.js",
-    "build": "npm run lint  &&  SET \"NODE_ENV=prod\"  &&  webpack --config webpack.prod.js",
-    "build_mac": "npm run lint  &&  export \"NODE_ENV=prod\"  &&  webpack --config webpack.prod.js",
-    "dev-watch": "npm run lint  &&  webpack --display-error-details --config webpack.dev.js --watch --progress",
-    "postversion": "npm run build  &&  copy package-lib.json lib\\package.json /Y && npm publish lib",
-    "lint": "tslint -p tsconfig.json"
->>>>>>> Stashed changes
->>>>>>> Stashed changes
   },
   "name": "abc-charts",
   "license": "MIT",
