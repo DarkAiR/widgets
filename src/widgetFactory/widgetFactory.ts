@@ -39,6 +39,7 @@ export class WidgetFactory {
         });
     }
 
+<<<<<<< Updated upstream
     runWithSource(config: WidgetConfig, template: WidgetTemplate): Promise<IChart> {
         return new Promise((resolve, reject) => {
             if (!config.element) {
@@ -54,6 +55,40 @@ export class WidgetFactory {
             });
             return this.createWidget(innerConfig, template);
         });
+=======
+<<<<<<< Updated upstream
+    runWithSource(config: WidgetConfig, template: WidgetTemplate): void {
+        if (!config.element) {
+            console.error('Required field "element" is not specified');
+            return;
+        }
+=======
+    private createWidget(config: WidgetConfigInner, template: WidgetTemplate): Promise<IChart> {
+        const widgetsArr: WidgetsArr = {
+            "SPLINE": () => widgets.Spline,
+            "AVERAGE_NUMBER": () => widgets.AverageNumber,
+            "SOLID_GAUGE": () => widgets.SolidGauge,
+            "INDICATORS_TABLE": () => widgets.IndicatorsTable,
+            "TABLE": () => widgets.Table,
+            "REPORT": () => widgets.Report,
+            "STATIC": () => widgets.Static,
+            "SEARCH_BAR": () => widgets.SearchBar,
+            "KPI": () => widgets.KPI,
+            "AWESOME": () => widgets.Awesome,
+            "AVATAR": () => widgets.Avatar
+        };
+        const promise = new Promise<IChart>((resolve, reject) => {
+            this.dataProvider.parseTemplate(template).then((data: IChartData) => {
+                let widget: IChart = null;
+                if (!widgetsArr[template.widgetType]) {
+                    console.error('Not supported');
+                    reject();
+                }
+>>>>>>> Stashed changes
+
+        this.dataProvider = new DataProvider(config.apiUrl);
+        this.createWidget(config, template);
+>>>>>>> Stashed changes
     }
 
     private createWidget(config: WidgetConfigInner, template: WidgetTemplate): Promise<IChart> {

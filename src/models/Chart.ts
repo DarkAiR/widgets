@@ -6,6 +6,15 @@ import {EventBusWrapper, EventBus, EventBusEvent} from 'goodteditor-event-bus';
 
 const hogan = require('hogan.js');
 
+<<<<<<< Updated upstream
+=======
+<<<<<<< Updated upstream
+export abstract class Chart {
+    protected resize(element: HTMLElement, callback: ResizeFunction) {
+        if (element) {
+            this.resizeObserve(element, callback);
+=======
+>>>>>>> Stashed changes
 export abstract class Chart implements IChart {
     protected config: WidgetConfigInner = null;
     private resizeObserver: ResizeObserver = null;
@@ -118,7 +127,12 @@ export abstract class Chart implements IChart {
             colorStyle = '';
             className = defClassName;
         } else {
+<<<<<<< Updated upstream
             colorStyle = 'color: ' + color;
+=======
+            colorStyle = 'color: ' + color + ';';
+>>>>>>> Stashed changes
+>>>>>>> Stashed changes
         }
         return {color, colorStyle, className};
     }
