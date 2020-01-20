@@ -8,12 +8,12 @@ export interface Paddings {
 // Типы виджетов
 // Каждый тип виджета может поддерживать определенное число различный viewType
 export type WidgetType = 'SPLINE' | 'AVERAGE_NUMBER' | 'SOLID_GAUGE' | 'INDICATORS_TABLE' | 'TABLE'
-     | 'REPORT' | 'STATIC' | 'SEARCH_BAR';
+     | 'REPORT' | 'STATIC' | 'SEARCH_BAR' | 'KPI' | 'AWESOME' | 'AVATAR';
 
 // Типы отображения виджетов. Именно от них формируются запросы в graphQL.
 export type ViewType = 'STATIC' | 'DYNAMIC' | 'REPORT' | 'TABLE';     // | 'DISTRIBUTION' | 'PROFILE' | 'MAP';
 
-export type ChartType = 'LINE' | 'HISTOGRAM' | 'SCATTER';
+export type ChartType = 'LINE' | 'HISTOGRAM' | 'SCATTER' | 'COMPARED_FACT' | 'COMPARED_PLAN';
 export type YAxisTypes = 'left' | 'right';
 export type MethodType = 'MAPE' | 'MAE' | 'coverage' | 'utilization';
 export type ServerType = 'druid' | 'qlik';

@@ -118,7 +118,7 @@ export abstract class Chart implements IChart {
             colorStyle = '';
             className = defClassName;
         } else {
-            colorStyle = 'color: ' + color;
+            colorStyle = 'color: ' + color + ';';
         }
         return {color, colorStyle, className};
     }
