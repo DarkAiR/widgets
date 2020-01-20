@@ -6,3 +6,6 @@ export * from './spline';
 export * from './table';
 export * from './searchBar';
 export * from './static';
+export * from './KPI';
+export * from './awesome';
+export * from './avatar';
