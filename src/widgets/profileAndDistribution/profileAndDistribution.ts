@@ -20,9 +20,9 @@ export class ProfileAndDistribution extends Chart {
     }
 
     run(data: IChartData): void {
-        console.log('%cProfile run', 'color: #ab0d05');
+        console.log('%cProfileOrDistribution run', 'color: #ab0d05');
         const settings = <ProfileAndDistributionSettings>data.settings;
-        console.log("DATAAAAA", data);
+
         const str = `
             <div class='${s['widget']}  ${w['widget']}'>
                 <div class='${w['row']}'>
@@ -40,9 +40,7 @@ export class ProfileAndDistribution extends Chart {
         const optionsData = this.getData(data.data as ProfilePoint[][]);
 
         const options = {
-            xAxis: {
-                max: optionsData.xAxisMaxValue
-            },
+            xAxis: {data: optionsData.xAxisValues},
             yAxis: {},
             series: optionsData.series
         };
@@ -56,17 +54,10 @@ export class ProfileAndDistribution extends Chart {
         };
     }
 
-    private getMaxValue(first: number, second: number): number {
-        if (first > second) {
-            return first;
-        } else if (second > first) {
-            return second;
-        }
-    }
-
     private getData(data: ProfilePoint[][]) {
         const series: Object[] = [];
-        let xAxisMaxValue: number = 0;
+        const xAxisValues: Array<number> = [];
+
         data.forEach((item: ProfilePoint[]) => {
             const seriesData = {
                 symbolSize: 20,
@@ -75,16 +66,16 @@ export class ProfileAndDistribution extends Chart {
             };
 
             item.forEach((obj: ProfilePoint) => {
-                xAxisMaxValue = this.getMaxValue(xAxisMaxValue, obj.xposition);
-                seriesData.data.push([obj.xposition, obj.value]);
+                xAxisValues.push(obj.xposition);
+                seriesData.data.push(obj.value);
             });
 
             series.push(seriesData);
         });
 
         return {
-            series: series,
-            xAxisMaxValue: xAxisMaxValue + 1
+            xAxisValues: xAxisValues,
+            series: series
         };
     }
 }

@@ -82,10 +82,8 @@ export class WidgetFactory {
                 }
 
                 widget = new (widgetsArr[template.widgetType]())(config);
-                console.log('DRUGAIDATAAA', data);
                 widget.run(data);
                 // if (process.env.NODE_ENV === 'development') {
-                console.log("CONFIIIIIIIIIG", config);
                 this.addVersion(config);
                 // }
                 resolve(widget);

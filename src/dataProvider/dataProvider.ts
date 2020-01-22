@@ -67,7 +67,6 @@ public async getTemplate(templateId: string): Promise<WidgetTemplate> {
             settings: _get(template, 'settings', {})
         };
         // Заполняем обязательные поля, если они пустые или их нет
-        console.log("TEMPALTETITLE", template.title);
         const title = _get(template, 'settings.title', '') || template.title;
         if (!_get(data.settings, 'title')) {
             data.settings.title = title;
@@ -99,7 +98,6 @@ public async getTemplate(templateId: string): Promise<WidgetTemplate> {
         // Асинхронно загружаем все данные
         await Promise.all(promises);
 
-        console.log('Load template data', data.data);
         return data;
     }
 
