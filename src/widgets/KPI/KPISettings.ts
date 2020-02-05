@@ -1,10 +1,4 @@
-import {ISettings} from "../../interfaces";
-// import {ServerType} from "../models/types";
+import {WidgetTemplateSettings} from "../../interfaces";
 
-export interface KPISettings extends ISettings {
-    /* title: string;
-    server: ServerType;
-
-    value1Style: string;
-    value2Style: string; */
+export interface KPISettings extends WidgetTemplateSettings {
 }

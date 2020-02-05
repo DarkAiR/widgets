@@ -1,5 +1,4 @@
-import {ISettings} from "../../interfaces";
+import {ISettings, WidgetTemplateSettings} from "../../interfaces";
 
-export interface AwesomeSettings extends ISettings {
-    title: string;
+export interface AwesomeSettings extends WidgetTemplateSettings {
 }
