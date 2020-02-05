@@ -9,3 +9,4 @@ export * from './static';
 export * from './KPI';
 export * from './awesome';
 export * from './avatar';
+export * from './profileAndDistribution';

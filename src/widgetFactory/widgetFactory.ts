@@ -68,7 +68,10 @@ export class WidgetFactory {
             "SEARCH_BAR": () => widgets.SearchBar,
             "KPI": () => widgets.KPI,
             "AWESOME": () => widgets.Awesome,
-            "AVATAR": () => widgets.Avatar
+            "AVATAR": () => widgets.Avatar,
+            "PROFILE": () => widgets.ProfileAndDistribution,
+            "DISTRIBUTION": () => widgets.ProfileAndDistribution
+
         };
         const promise = new Promise<IChart>((resolve, reject) => {
             this.dataProvider.parseTemplate(template).then((data: IChartData) => {

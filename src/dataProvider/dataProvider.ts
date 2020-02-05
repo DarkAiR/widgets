@@ -9,6 +9,7 @@ import {
     TSPoint,
     ReportPoint,
     Point,
+    ProfilePoint,
     AggregationDataSource, TableRow, DimensionFilter
 } from "../interfaces";
 import {serializers} from '.';
@@ -58,7 +59,7 @@ public async getTemplate(templateId: string): Promise<WidgetTemplate> {
         }
         const data: IChartData = {
             from: template.dataSets[0].from,
-            to: template.dataSets[0].from,
+            to: template.dataSets[0].to,
             frequency: template.dataSets[0].frequency,
             preFrequency: template.dataSets[0].preFrequency,
             dataSets: template.dataSets,
@@ -86,12 +87,17 @@ public async getTemplate(templateId: string): Promise<WidgetTemplate> {
                 case 'TABLE':
                     data.data[idx] = await this.loadTableData(item, template.server);
                     break;
+                case "PROFILE":
+                    data.data[idx] = await this.loadProfileData(item, template.server);
+                    break;
+                case "DISTRIBUTION":
+                    data.data[idx] = await this.loadDistribution(item, template.server);
+                    break;
             }
         });
         // Асинхронно загружаем все данные
         await Promise.all(promises);
 
-        console.log('Load template data', data.data);
         return data;
     }
 
@@ -126,6 +132,22 @@ public async getTemplate(templateId: string): Promise<WidgetTemplate> {
         return await axios.post(this.gqlLink, this.serializeStaticGQL(dataSet, server))
             .then(
                 response => _get(response.data, 'data.getStatic', []),
+                error => { throw error; }
+            );
+    }
+
+    private async loadProfileData(dataSet: DataSetTemplate, server: ServerType): Promise<ProfilePoint[]> {
+        return await axios.post(this.gqlLink, this.serializeProfileGQL(dataSet, server))
+            .then(
+                response => _get(response.data, 'data.getProfile', []),
+                error => { throw error; }
+            );
+    }
+
+    private async loadDistribution(dataSet: DataSetTemplate, server: ServerType): Promise<ProfilePoint[]> {
+        return await axios.post(this.gqlLink, this.serializeDistributionGQL(dataSet, server))
+            .then(
+                response => _get(response.data, 'data.getDistribution', []),
                 error => { throw error; }
             );
     }
@@ -297,6 +319,53 @@ public async getTemplate(templateId: string): Promise<WidgetTemplate> {
                 ){
                     xValue
                     yValue
+                }}`
+        };
+    }
+
+    private serializeProfileGQL(dataSet: DataSetTemplate, server: ServerType): IGqlRequest | null {
+        const serializer = new serializers.ProfileDataSourceSerializer();
+        const dataSource1 = serializer.serialize(dataSet.dataSource1 as SingleDataSource);
+        return {
+            operationName: null,
+            variables: {},
+            query: `
+                {getProfile(
+                    server: "${server}",
+                    dataSet: {
+                        ${this.getPeriod(dataSet)}
+                        frequency: ${dataSet.frequency}
+                        preFrequency: ${dataSet.preFrequency}
+                        operation: ${dataSet.operation}
+                        dataSource1: ${dataSource1}
+                    }
+                ){
+                    value
+                    xposition
+                }}`
+        };
+    }
+
+    private serializeDistributionGQL(dataSet: DataSetTemplate, server: ServerType): IGqlRequest | null {
+        const serializer = new serializers.DistributionDataSourceSerializer();
+        const dataSource1 = serializer.serialize(dataSet.dataSource1 as SingleDataSource);
+        return {
+            operationName: null,
+            variables: {},
+            query: `
+                {getDistribution(
+                    server: "${server}",
+                    dataSet: {
+                        ${this.getPeriod(dataSet)}
+                        frequency: ${dataSet.frequency}
+                        preFrequency: ${dataSet.preFrequency}
+                        operation: ${dataSet.operation}
+                        dataSource1: ${dataSource1}
+                        numberOfBeans: ${dataSet.numberOfBeans}
+                    }
+                ){
+                    value
+                    xposition
                 }}`
         };
     }
