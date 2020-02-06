@@ -14,6 +14,7 @@ import {
 } from "../interfaces";
 import {serializers} from '.';
 import * as stringifyObject from 'stringify-object';
+import {IObject} from "../interfaces/IObject";
 
 const axios = require('axios');
 
@@ -73,7 +74,7 @@ public async getTemplate(templateId: string): Promise<WidgetTemplate> {
         }
 
         // NOTE: idx - Сохраняем порядок dataSet
-        const promises = template.dataSets.map(async (item, idx) => {
+        const promises = template.dataSets.map(async (item: DataSetTemplate, idx: number) => {
             switch (item.viewType) {
                 case "DYNAMIC":
                     data.data[idx] = await this.loadDynamicData(item, template.server);
@@ -107,48 +108,48 @@ public async getTemplate(templateId: string): Promise<WidgetTemplate> {
     private async loadDynamicData(dataSet: DataSetTemplate, server: ServerType): Promise<TSPoint[]> {
         return await axios.post(this.gqlLink, this.serializeDynamicGQL(dataSet, server))
             .then(
-                response => _get(response.data, 'data.getSingleTimeSeries', []),
-                error => { throw error; }
+                (response: IObject) => _get(response.data, 'data.getSingleTimeSeries', []),
+                (error: Error) => { throw error; }
             );
     }
 
     private async loadTableData(dataSet: DataSetTemplate, server: ServerType): Promise<TableRow[]> {
         return await axios.post(this.gqlLink, this.serializeTableGQL(dataSet, server))
             .then(
-                response => _get(response.data, 'data.getTableData', []),
-                error => { throw error; }
+                (response: IObject) => _get(response.data, 'data.getTableData', []),
+                (error: Error) => { throw error; }
             );
     }
 
     private async loadReportData(dataSet: DataSetTemplate, server: ServerType): Promise<ReportPoint> {
         return await axios.post(this.gqlLink, this.serializeReportGQL(dataSet, server))
             .then(
-                response => _get(response.data, 'data.getReport', []),
-                error => { throw error; }
+                (response: IObject) => _get(response.data, 'data.getReport', []),
+                (error: Error) => { throw error; }
             );
     }
 
     private async loadStaticData(dataSet: DataSetTemplate, server: ServerType): Promise<Point[]> {
         return await axios.post(this.gqlLink, this.serializeStaticGQL(dataSet, server))
             .then(
-                response => _get(response.data, 'data.getStatic', []),
-                error => { throw error; }
+                (response: IObject) => _get(response.data, 'data.getStatic', []),
+                (error: Error) => { throw error; }
             );
     }
 
     private async loadProfileData(dataSet: DataSetTemplate, server: ServerType): Promise<ProfilePoint[]> {
         return await axios.post(this.gqlLink, this.serializeProfileGQL(dataSet, server))
             .then(
-                response => _get(response.data, 'data.getProfile', []),
-                error => { throw error; }
+                (response: IObject) => _get(response.data, 'data.getProfile', []),
+                (error: Error) => { throw error; }
             );
     }
 
     private async loadDistribution(dataSet: DataSetTemplate, server: ServerType): Promise<ProfilePoint[]> {
         return await axios.post(this.gqlLink, this.serializeDistributionGQL(dataSet, server))
             .then(
-                response => _get(response.data, 'data.getDistribution', []),
-                error => { throw error; }
+                (response: IObject) => _get(response.data, 'data.getDistribution', []),
+                (error: Error) => { throw error; }
             );
     }
 

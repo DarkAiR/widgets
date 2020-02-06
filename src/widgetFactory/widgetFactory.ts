@@ -1,4 +1,4 @@
-import {IChart, IChartData, WidgetTemplate} from "../interfaces";
+import {IChart, IChartData, RejectFunc, ResolveFunc, WidgetTemplate} from "../interfaces";
 import {DataProvider} from "../dataProvider";
 import * as widgets from "../widgets";
 import {WidgetConfig, WidgetConfigInner} from "../models/widgetConfig";
@@ -13,7 +13,7 @@ export class WidgetFactory {
     dataProvider: DataProvider = null;
 
     run(config: WidgetConfig): Promise<IChart> {
-        return new Promise((resolve, reject) => {
+        return new Promise((resolve: ResolveFunc, reject: RejectFunc) => {
             if (!config.element) {
                 console.error('Required field "element" is not specified');
                 reject();
@@ -25,7 +25,7 @@ export class WidgetFactory {
             resolve();
         }).then(() => {
             this.dataProvider = new DataProvider(config.apiUrl);
-            return new Promise<IChart>((resolve) => {
+            return new Promise<IChart>((resolve: ResolveFunc<IChart>) => {
                 this.dataProvider
                     .getTemplate(config.templateId)
                     .then((template: WidgetTemplate) => {
@@ -40,7 +40,7 @@ export class WidgetFactory {
     }
 
     runWithSource(config: WidgetConfig, template: WidgetTemplate): Promise<IChart> {
-        return new Promise((resolve, reject) => {
+        return new Promise((resolve: ResolveFunc, reject: RejectFunc) => {
             if (!config.element) {
                 console.error('Required field "element" is not specified');
                 reject();
@@ -67,13 +67,12 @@ export class WidgetFactory {
             "STATIC": () => widgets.Static,
             "SEARCH_BAR": () => widgets.SearchBar,
             "KPI": () => widgets.KPI,
-            "AWESOME": () => widgets.Awesome,
             "AVATAR": () => widgets.Avatar,
             "PROFILE": () => widgets.ProfileAndDistribution,
             "DISTRIBUTION": () => widgets.ProfileAndDistribution
 
         };
-        const promise = new Promise<IChart>((resolve, reject) => {
+        const promise = new Promise<IChart>((resolve: ResolveFunc<IChart>, reject: RejectFunc) => {
             this.dataProvider.parseTemplate(template).then((data: IChartData) => {
                 let widget: IChart = null;
                 if (!widgetsArr[template.widgetType]) {
@@ -87,8 +86,8 @@ export class WidgetFactory {
                 this.addVersion(config);
                 // }
                 resolve(widget);
-            }).catch(error => {
-                // Ловим ошибку (например 500), чтобы виджеты не зависти в состоянии loading
+            }).catch((error: Error) => {
+                // Ловим ошибку (например 500), чтобы виджеты не зависли в состоянии loading
                 console.error(error);
                 reject();
             });

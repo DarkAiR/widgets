@@ -26,7 +26,7 @@ export class SolidGauge extends Chart {
         const percentToLength = magicLengthOfSvgPath * (percent / 100);
         const sdo = magicLengthOfSvgPath - percentToLength > 0 ? magicLengthOfSvgPath - percentToLength : 0;
 
-        const getCurrentValueFZ = (v, isSmall) => {
+        const getCurrentValueFZ = (v: number, isSmall: boolean) => {
             const length = v.toString().length;
             if (!isSmall) {
                 switch (length) {
@@ -83,7 +83,7 @@ export class SolidGauge extends Chart {
         `;
         this.config.element.innerHTML = str;
 
-        this.onResize = (width, height) => {
+        this.onResize = (width: number, height: number) => {
             const widget = this.config.element.querySelector('.solidGauge-widget');
             const currentValue = this.config.element.querySelector('.solidGauge-current-value');
 

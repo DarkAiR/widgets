@@ -49,14 +49,17 @@ export class ProfileAndDistribution extends Chart {
         const myChart = echarts.init(el);
         myChart.setOption(options);
 
-        this.onResize = (width, height) => {
+        this.onResize = (width: number, height: number) => {
             myChart.resize();
         };
     }
 
-    private getData(data: ProfilePoint[][]) {
+    private getData(data: ProfilePoint[][]): {
+        xAxisValues: number[],
+        series: Object[]
+    } {
         const series: Object[] = [];
-        const xAxisValues: Array<number> = [];
+        const xAxisValues: number[] = [];
 
         data.forEach((item: ProfilePoint[]) => {
             const seriesData = {

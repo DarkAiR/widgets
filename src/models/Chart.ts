@@ -61,7 +61,7 @@ export abstract class Chart implements IChart {
 
         // Подписаться на resize
         if (this.config.element) {
-            this.resizeObserver = new ResizeObserver(entries => {
+            this.resizeObserver = new ResizeObserver((entries: ResizeObserverEntry[]) => {
                 const entry: ResizeObserverEntry = entries[0];
                 this.onResize.bind(this).call(this, entry.contentRect.width, entry.contentRect.height);
             });
@@ -91,7 +91,7 @@ export abstract class Chart implements IChart {
     /**
      * Добавить переменную для управления виджетом извне
      */
-    protected addVar(res: IWidgetVariables) {
+    protected addVar(res: IWidgetVariables): Function {
         let sortIndex = 0;
         return (dataSourceIndex: number, name: string, description: string, hint: string) => {
             res[name + (dataSourceIndex === 0 ? '' : ' ' + dataSourceIndex)] = {

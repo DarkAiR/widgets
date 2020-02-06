@@ -53,14 +53,14 @@ export class Static extends Chart {
         const myChart = echarts.init(el);
         myChart.setOption(options);
 
-        this.onResize = (width, height) => {
+        this.onResize = (width: number, height: number) => {
             myChart.resize();
         };
     }
 
     private getSeries(data: Point[][]): Object[] {
         const series: Object[] = [];
-        data.forEach((item: Point[], index) => {
+        data.forEach((item: Point[], index: number) => {
             const seriesData = {
                 symbolSize: 20,
                 data: [],

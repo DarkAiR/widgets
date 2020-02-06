@@ -8,7 +8,7 @@ export interface Paddings {
 // Типы виджетов
 // Каждый тип виджета может поддерживать определенное число различный viewType
 export type WidgetType = 'SPLINE' | 'AVERAGE_NUMBER' | 'SOLID_GAUGE' | 'INDICATORS_TABLE' | 'TABLE'
-     | 'REPORT' | 'STATIC' | 'SEARCH_BAR' | 'KPI' | 'AWESOME' | 'AVATAR' | 'DISTRIBUTION' | 'PROFILE';
+     | 'REPORT' | 'STATIC' | 'SEARCH_BAR' | 'KPI' | 'AVATAR' | 'DISTRIBUTION' | 'PROFILE';
 
 // Типы отображения виджетов. Именно от них формируются запросы в graphQL.
 export type ViewType = 'STATIC' | 'DYNAMIC' | 'REPORT' | 'TABLE' | 'DISTRIBUTION' | 'PROFILE'; // | 'MAP'

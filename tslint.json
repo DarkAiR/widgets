@@ -13,6 +13,7 @@
     },
     "eofline": true,
     "forin": true,
+    "function-constructor": true,
     "import-blacklist": [
       true,
       "rxjs/Rx"
@@ -89,7 +90,14 @@
     "semicolon": [true, "always"],
     "static-this": true,
     "triple-equals": [true, "allow-null-check"],
-    "typedef": [true, "parameter", "property-declaration", "member-variable-declaration"],
+    "typedef": [
+      true,
+      "arrow-parameter",
+      "call-signature",
+      "member-variable-declaration",
+      "parameter",
+      "property-declaration"
+    ],
     "typedef-whitespace": [
       true,
       {

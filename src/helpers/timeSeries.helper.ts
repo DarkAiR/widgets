@@ -12,7 +12,7 @@ export class TimeSeriesHelper {
      */
     static convertTimeSeriesToData(data: TSPoint[][]): TimeSeriesData {
         const valuesArr: Array<number[]> = [];
-        _forEach(data, (dataValues: TSPoint[], idx) => {
+        _forEach(data, (dataValues: TSPoint[], idx: number) => {
             _forEach(dataValues, (v: TSPoint) => {
                 if (valuesArr[v.localDateTime] === undefined) {
                     valuesArr[v.localDateTime] = [];

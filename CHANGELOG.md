@@ -27,3 +27,6 @@
 - табличный виджет поддерживает много dimensions
 - добавлены виджеты KPI, awesome и avatar
  
+##### 0.6.5 2020-02-05
+- Awesome перенесен в Spline
+- добавлен ProfileAndDistribution

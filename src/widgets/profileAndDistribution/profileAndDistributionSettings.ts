@@ -1,5 +1,4 @@
-import {ISettings} from "../../interfaces";
+import {WidgetTemplateSettings} from "../../interfaces";
 
-export interface ProfileAndDistributionSettings extends ISettings {
-    title: string;
+export interface ProfileAndDistributionSettings extends WidgetTemplateSettings {
 }

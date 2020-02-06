@@ -9,6 +9,7 @@ import * as hammer from 'hammerjs';
 import {Chart} from "../../models/Chart";
 import {TimeSeriesData, TimeSeriesHelper} from "../../helpers/timeSeries.helper";
 import {TSPoint} from "../../interfaces/graphQL/TSPoint";
+import {IObject} from "../../interfaces/IObject";
 
 type MetricsStatus = 'normal' | 'warning' | 'error';
 
@@ -25,7 +26,7 @@ export class IndicatorsTable extends Chart {
 
         let startOffs = 0;
         mc.get('pan').set({ direction: hammer.DIRECTION_HORIZONTAL });
-        mc.on("panstart panleft panright", ev => {
+        mc.on("panstart panleft panright", (ev: IObject) => {
             const contEl = _head(this.config.element.getElementsByClassName(w['cont']));
             switch (ev.type) {
                 case 'panstart':
@@ -42,7 +43,7 @@ export class IndicatorsTable extends Chart {
                             newCoord = 0;
                         }
                         let width = 0;
-                        _forEach(contEl.children, v => { width += v.offsetWidth; });
+                        _forEach(contEl.children, (v: HTMLElement) => { width += v.offsetWidth; });
                         if (newCoord + width < contEl.parentElement.offsetWidth) {
                             newCoord = contEl.parentElement.offsetWidth - width;
                         }
