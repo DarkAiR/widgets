@@ -112,12 +112,12 @@ export class Spline extends Chart {
         // FIXME: Глобальные стили не надо
         // globalSettings
         // background: transparent; border-radius: 5px; padding: 10px; box-shadow: 0 1px 2px 0.5px rgba(0,0,0,.25);
-        // const globalSettings = _get(data.dataSets[0].settings, 'globalSettings', {});
-        // for (const k in globalSettings) {
-        //     if (globalSettings[k] !== undefined) {
-        //         options[k] = globalSettings[k];
-        //     }
-        // }
+        const globalSettings = _get(data.dataSets[0].settings, 'globalSettings', {});
+        for (const k in globalSettings) {
+            if (globalSettings[k] !== undefined) {
+                options[k] = globalSettings[k];
+            }
+        }
 
         // FIXME: Нельзя открывать прямой доступ к внутренним настройкам визуализатора виджета, т.к. способ рендера может поменяться
         //        Необходимо переделать на мепинг из настроек xAxisSettings в eCharts
@@ -126,12 +126,12 @@ export class Spline extends Chart {
         // axisTick: {show: false}
         // axisLabel: {formatter: "{value}.04.2019", color: "rgba(50,50,50,.6)"}
         // splitLine: {show: false}
-        // const xAxisSettings = _get(data.dataSets[0].settings, 'xAxisSettings', {});
-        // for (const k in xAxisSettings) {
-        //     if (xAxisSettings[k] !== undefined) {
-        //         options.xAxis[k] = xAxisSettings[k];
-        //     }
-        // }
+        const xAxisSettings = _get(data.dataSets[0].settings, 'xAxisSettings', {});
+        for (const k in xAxisSettings) {
+            if (xAxisSettings[k] !== undefined) {
+                options.xAxis[k] = xAxisSettings[k];
+            }
+        }
 
         const el = this.config.element.getElementsByClassName(w['chart'])[0];
         const myChart = echarts.init(el);

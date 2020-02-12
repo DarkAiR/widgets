@@ -30,3 +30,6 @@
 ##### 0.6.5 2020-02-05
 - Awesome перенесен в Spline
 - добавлен ProfileAndDistribution
+
+##### 0.6.6 2020-02-12
+- в Spline восстановлены стили из Awesome
