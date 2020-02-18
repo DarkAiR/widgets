@@ -10,15 +10,19 @@ export class ProfileDataSourceSerializer implements ISerializer {
             singleQuotes: false
         }).replace(/\n/g, '');
 
-        const res = `
+        let expression = _get(dataSource.metric, 'expression', dataSource.metric.name);
+        if (!_isEmpty(expression)) {
+            expression = expression.replace(/([\"\\])/gm, '\\$1');
+        }
+
+        return `{
             type: ${dataSource.type},
             name: "${dataSource.name}",
             dimensions: ${dimensionsJson},
             metric: {
                 name: "${dataSource.metric.name}",
-                expression: "${(dataSource.metric.expression || '')}"
-            }`;
-
-        return '{' + res + '}';
+                expression: "${expression}",
+            }
+        }`;
     }
 }

@@ -18,11 +18,11 @@ export class SingleDataSourceSerializer implements ISerializer {
         return `{
             type: ${dataSource.type},
             name: "${dataSource.name}",
+            dimensions: ${dimensionsJson},
             metric: {
                 name: "${dataSource.metric.name}",
                 expression: "${expression}",
-            },
-            dimensions: ${dimensionsJson}
+            }
         }`;
     }
 }

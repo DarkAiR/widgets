@@ -44,7 +44,7 @@ export class DataProvider {
         return period;
     }
 
-public async getTemplate(templateId: string): Promise<WidgetTemplate> {
+    public async getTemplate(templateId: string): Promise<WidgetTemplate> {
         try {
             const response = await axios.get(this.templatesLink + '/' + templateId);
             console.log('Load template', response.data);

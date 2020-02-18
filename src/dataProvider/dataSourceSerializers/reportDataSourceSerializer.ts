@@ -10,18 +10,19 @@ export class ReportDataSourceSerializer implements ISerializer {
             singleQuotes: false
         }).replace(/\n/g, '');
 
-        let res = `
+        let expression = _get(dataSource.metric, 'expression', dataSource.metric.name);
+        if (!_isEmpty(expression)) {
+            expression = expression.replace(/([\"\\])/gm, '\\$1');
+        }
+
+        return `{
             type: ${dataSource.type},
             name: "${dataSource.name}",
-            dimensions: ${dimensionsJson}`;
-
-        if (dataSource.metric) {
-            res += `,
+            dimensions: ${dimensionsJson},
             metric: {
                 name: "${dataSource.metric.name}",
-                expression: "${_get(dataSource.metric, 'expression', dataSource.metric.name)}"
-            }`;
-        }
-        return '{' + res + '}';
+                expression: "${expression}",
+            }
+        }`;
     }
 }
