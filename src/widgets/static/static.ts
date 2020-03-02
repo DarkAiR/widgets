@@ -25,8 +25,8 @@ export class Static extends Chart {
     }
 
     run(data: IChartData): void {
-        console.log('%cStatic run', 'color: #ab0d05');
         const settings = <StaticSettings>data.settings;
+        console.log('Static settings: ', settings);
 
         const str = `
             <div class='${s['widget']}  ${w['widget']}'>

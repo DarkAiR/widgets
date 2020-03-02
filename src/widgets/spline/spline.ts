@@ -37,8 +37,8 @@ export class Spline extends Chart {
     }
 
     run(data: IChartData): void {
-        console.log('%cSpline run', 'color: #b080ff');
         const settings = <SplineSettings>data.settings;
+        console.log('Spline settings: ', settings);
 
         // FIXME: Внешние стили нельзя использовать
         const globalCardSets = _get(data.dataSets[0].settings, 'globalCardSettings', '');
@@ -209,10 +209,6 @@ export class Spline extends Chart {
             });
         }
         return series;
-    }
-
-    private f(): number {
-        return;
     }
 
     // FIXME Переписать, убрать все кастомные стили и классы

@@ -20,8 +20,8 @@ export class ProfileAndDistribution extends Chart {
     }
 
     run(data: IChartData): void {
-        console.log('%cProfileOrDistribution run', 'color: #ab0d05');
         const settings = <ProfileAndDistributionSettings>data.settings;
+        console.log('ProfileOrDistribution settings: ', settings);
 
         const str = `
             <div class='${s['widget']}  ${w['widget']}'>

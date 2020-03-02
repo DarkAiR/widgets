@@ -14,19 +14,27 @@ import {IObject} from "../../interfaces/IObject";
 type MetricsStatus = 'normal' | 'warning' | 'error';
 
 export class IndicatorsTable extends Chart {
+    // tslint:disable:no-any
+    private mc: any = null;
+
     getVariables(): IWidgetVariables {
         return {};
+    }
+
+    destroy(): void {
+        this.mc.off("panstart panleft panright");
+        super.destroy();
     }
 
     run(data: IChartData): void {
         const settings = <IndicatorsTableSettings>data.settings;
         console.log('IndicatorsTableConfig settings: ', settings);
 
-        const mc = hammer(this.config.element);
+        this.mc = hammer(this.config.element);
 
         let startOffs = 0;
-        mc.get('pan').set({ direction: hammer.DIRECTION_HORIZONTAL });
-        mc.on("panstart panleft panright", (ev: IObject) => {
+        this.mc.get('pan').set({ direction: hammer.DIRECTION_HORIZONTAL });
+        this.mc.on("panstart panleft panright", (ev: IObject) => {
             const contEl = _head(this.config.element.getElementsByClassName(w['cont']));
             switch (ev.type) {
                 case 'panstart':

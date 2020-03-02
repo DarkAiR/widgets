@@ -1,53 +1,35 @@
 @import (reference) '../../../node_modules/goodt-framework-css/src/_params.less';
 @import (reference) '../../styles/theme.less';
 
+@max-width: 328px;
+@max-height: 200px;
+@numbers-height: 20px;
+
 .widget {
     position: relative;
     text-align: center;
+    font-size: calc(100% / unit(@font-size));       // Базовый размер шрифта относительно родительского, от него через em будут считаться дочерние шрифты
 
-    &__small {
-        .info {
-            top: 43%;
-        }
-
-        .current-value {
-            line-height: 1;
-        }
-
-        .title {
-            font-size: 10px;
-            line-height: 2;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        .icon {
-            top: 18px;
-            width: 24px;
-            height: 24px;
-            left: calc(50% - 12px);
-
-            &:before {
-                font-size: 14px;
-            }
-        }
+    .widget-inner {
+        font-size: 100%;        // Calculated font size
     }
 }
+
 .chart {
     position: relative;
-    height: ~"calc(100% + 20px)";
-    display: inline-block;
-    padding-bottom: 20px;
-    overflow: hidden;
     width: 100%;
-    max-width: 328px;
+    height: ~"calc(100% + 20px)";
+    max-width: @max-width;
+    max-height: @max-height;
+    display: inline-block;
+    padding-bottom: @numbers-height;
+    overflow: hidden;
 
     .value {
         color: #999;
         position: absolute;
         bottom: 5px;
-        font-size: 13px;
+        font-size: 13px;        // Здесь пока не надо em
 
         &.minValue {
             left: 0;
@@ -59,35 +41,51 @@
 }
 
 .info {
+    @info-width: 220px;
+    @info-left: @info-width / 2;
+    @info-top: unit(90px / @max-height);
+
     color: #333;
     position: absolute;
-    width: 220px;
+    width: @info-width;
     text-align: center;
-    top: 90px;
-    left: ~'calc(50% - 110px)';
+    left: ~"calc(50% - @{info-left})";
+    top: ~"calc(@{info-top} * 100%)";
     right: 0;
 }
 
 .current-value {
-    font-size: 56px;
-    line-height: 56px;
+    font-size: 56em;
+    line-height: 1;
     font-weight: bold;
 }
 
 .title {
-    font-size: 16px;
-    line-height: 24px;
+    font-size: unit(@font-size, em);
+    line-height: 1.5;
 }
 
 .icon {
+    @icon-size: 48px;
+    @icon-left: unit(@icon-size / 2 / @max-width);
+    @icon-top: unit(32px / @max-height);
+    @icon-width: unit(@icon-size / @max-width);
+    @icon-height: unit(@icon-size / @max-height);
+
     position: absolute;
-    top: 32px;
-    width: 48px;
-    height: 48px;
+    left: ~"calc(50% - @{icon-left} * 100%)";
+    top: ~"calc(@{icon-top} * 100%)";
+    width: ~"calc(@{icon-width} * 100%)";
+    height: ~"calc(@{icon-height} * 100%)";
+    max-width: @icon-size;
+    max-height: @icon-size;
     display: flex;
     align-items: center;
     justify-content: center;
     background-color: #fdf4da;
-    border-radius: 48px;
-    left: ~'calc(50% - 24px)';
+    border-radius: 50%;
+
+    &:before {
+        font-size: 24em;
+    }
 }
