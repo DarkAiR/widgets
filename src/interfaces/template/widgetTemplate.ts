@@ -1,6 +1,6 @@
-import {DataSetTemplate} from './dataSetTemplate';
-import {ViewType, WidgetType, MethodType, ServerType} from "../../models/types";
+import {ViewType, WidgetType, ServerType} from "../../models/types";
 import {WidgetTemplateSettings} from "./widgetTemplateSettings";
+import { DataSet } from './dataSet';
 
 export interface WidgetTemplate {
     id: string | null;                      // ID шаблона (может быть null)
@@ -8,8 +8,8 @@ export interface WidgetTemplate {
     widgetType: WidgetType;                 // Тип виджета
     viewType: ViewType;                     // Тип отображения
     server: ServerType;                     // Тип сервера
-    dataSets: DataSetTemplate[];            // набор данных, каждый item описывает один набор данных, для одного графика/отчета
-                                            // каждый item - это json DataSetTemplate
+    dataSets: DataSet[];                    // набор данных, каждый item описывает один набор данных, для одного графика/отчета
+                                            // каждый item - это json DataSet
     settings?: WidgetTemplateSettings;
     _links: {
         self?: {

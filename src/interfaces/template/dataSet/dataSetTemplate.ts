@@ -1,6 +1,6 @@
-import {ViewType, ChartType, Frequency, Operation} from './../../models/types';
+import {ViewType, ChartType, Frequency, Operation} from './../../../models/types';
 import {DataSetSettings} from "./dataSetSettings";
-import {DataSource} from "../graphQL";
+import {DataSource} from "../../graphQL";
 
 export interface DataSetTemplate {
     dataSource1: DataSource;                // описание источника данных для dataSet'a.

@@ -1,16 +1,15 @@
 import {get as _get} from 'lodash';
 import {IGqlRequest} from "./IGqlRequest";
-import {Frequency, Operation, ServerType} from "../models/types";
+import {ServerType, ViewType} from "../models/types";
 import {
-    DataSetTemplate,
     IChartData,
     SingleDataSource,
     WidgetTemplate,
-    TSPoint,
-    ReportPoint,
-    Point,
-    ProfilePoint,
-    AggregationDataSource, TableRow, DimensionFilter
+    AggregationDataSource,
+    DataSet,
+    DataSetTemplate,
+    JoinDataSetTemplate,
+    TimeSeriesDataSetShort
 } from "../interfaces";
 import {serializers} from '.';
 import * as stringifyObject from 'stringify-object';
@@ -33,17 +32,6 @@ export class DataProvider {
         this.apiUrl = apiUrl;
     }
 
-    private getPeriod(dataSet: DataSetTemplate): string {
-        let period = '';
-        if (dataSet.period) {
-            period = `period: "${dataSet.period}"`;
-        } else {
-            period = `from: "${dataSet.from}"
-                      to: "${dataSet.to}"`;
-        }
-        return period;
-    }
-
     public async getTemplate(templateId: string): Promise<WidgetTemplate> {
         try {
             const response = await axios.get(this.templatesLink + '/' + templateId);
@@ -59,10 +47,6 @@ export class DataProvider {
             return null;
         }
         const data: IChartData = {
-            from: template.dataSets[0].from,
-            to: template.dataSets[0].to,
-            frequency: template.dataSets[0].frequency,
-            preFrequency: template.dataSets[0].preFrequency,
             dataSets: template.dataSets,
             data: [],
             settings: _get(template, 'settings', {})
@@ -73,84 +57,50 @@ export class DataProvider {
             data.settings.title = title;
         }
 
-        // NOTE: idx - Сохраняем порядок dataSet
-        const promises = template.dataSets.map(async (item: DataSetTemplate, idx: number) => {
-            switch (item.viewType) {
-                case "DYNAMIC":
-                    data.data[idx] = await this.loadDynamicData(item, template.server);
-                    break;
-                case "REPORT":
-                    data.data[idx] = await this.loadReportData(item, template.server);
-                    break;
-                case "STATIC":
-                    data.data[idx] = await this.loadStaticData(item, template.server);
-                    break;
-                case 'TABLE':
-                    data.data[idx] = await this.loadTableData(item, template.server);
-                    break;
-                case "PROFILE":
-                    data.data[idx] = await this.loadProfileData(item, template.server);
-                    break;
-                case "DISTRIBUTION":
-                    data.data[idx] = await this.loadDistribution(item, template.server);
-                    break;
+        const loadData: Record<ViewType, {
+            serializeFunc: Function,
+            resultProp: string,
+        }> = {
+            'DYNAMIC': {
+                serializeFunc: this.serializeDynamicGQL,
+                resultProp: 'data.getSingleTimeSeries'
+            },
+            'STATIC': {
+                serializeFunc: this.serializeStaticGQL,
+                resultProp: 'data.getStatic'
+            },
+            'REPORT': {
+                serializeFunc: this.serializeReportGQL,
+                resultProp: 'data.getReport'
+            },
+            'TABLE': {
+                serializeFunc: this.serializeTableGQL,
+                resultProp: 'data.getTableData'
+            },
+            'DISTRIBUTION': {
+                serializeFunc: this.serializeDistributionGQL,
+                resultProp: 'data.getDistribution'
+            },
+            'PROFILE': {
+                serializeFunc: this.serializeProfileGQL,
+                resultProp: 'data.getProfile'
             }
+        };
+
+        // NOTE: idx - Сохраняем порядок dataSet
+        const promises = template.dataSets.map(async (item: DataSet, idx: number) => {
+            data.data[idx] = await axios.post(
+                this.gqlLink,
+                loadData[item.viewType].serializeFunc.call(this, item, template.server)     // Выбор типа item автоматически в фции сериализации
+            ).then(
+                    (response: IObject) => _get(response.data, loadData[item.viewType].resultProp, []),
+                    (error: Error) => { throw error; }
+                );
         });
         // Асинхронно загружаем все данные
         await Promise.all(promises);
 
         return data;
-    }
-
-    /**
-     * Загрузка данных для шаблона
-     */
-    private async loadDynamicData(dataSet: DataSetTemplate, server: ServerType): Promise<TSPoint[]> {
-        return await axios.post(this.gqlLink, this.serializeDynamicGQL(dataSet, server))
-            .then(
-                (response: IObject) => _get(response.data, 'data.getSingleTimeSeries', []),
-                (error: Error) => { throw error; }
-            );
-    }
-
-    private async loadTableData(dataSet: DataSetTemplate, server: ServerType): Promise<TableRow[]> {
-        return await axios.post(this.gqlLink, this.serializeTableGQL(dataSet, server))
-            .then(
-                (response: IObject) => _get(response.data, 'data.getTableData', []),
-                (error: Error) => { throw error; }
-            );
-    }
-
-    private async loadReportData(dataSet: DataSetTemplate, server: ServerType): Promise<ReportPoint> {
-        return await axios.post(this.gqlLink, this.serializeReportGQL(dataSet, server))
-            .then(
-                (response: IObject) => _get(response.data, 'data.getReport', []),
-                (error: Error) => { throw error; }
-            );
-    }
-
-    private async loadStaticData(dataSet: DataSetTemplate, server: ServerType): Promise<Point[]> {
-        return await axios.post(this.gqlLink, this.serializeStaticGQL(dataSet, server))
-            .then(
-                (response: IObject) => _get(response.data, 'data.getStatic', []),
-                (error: Error) => { throw error; }
-            );
-    }
-
-    private async loadProfileData(dataSet: DataSetTemplate, server: ServerType): Promise<ProfilePoint[]> {
-        return await axios.post(this.gqlLink, this.serializeProfileGQL(dataSet, server))
-            .then(
-                (response: IObject) => _get(response.data, 'data.getProfile', []),
-                (error: Error) => { throw error; }
-            );
-    }
-
-    private async loadDistribution(dataSet: DataSetTemplate, server: ServerType): Promise<ProfilePoint[]> {
-        return await axios.post(this.gqlLink, this.serializeDistributionGQL(dataSet, server))
-            .then(
-                (response: IObject) => _get(response.data, 'data.getDistribution', []),
-                (error: Error) => { throw error; }
-            );
     }
 
     private serializeDynamicGQL(dataSet: DataSetTemplate, server: ServerType): IGqlRequest | null {
@@ -192,64 +142,72 @@ export class DataProvider {
         };
     }
 
-    private serializeTableGQL(dataSet: DataSetTemplate, server: ServerType): IGqlRequest | null {
-        let dataSource = '{}';
-        let dimensions: DimensionFilter[] = [];
-        switch (dataSet.dataSource1.type) {
-            case "SINGLE":
-                const singleDataSource: SingleDataSource = dataSet.dataSource1 as SingleDataSource;
-                dataSource = (new serializers.TableDataSourceSerializer()).serialize(
-                    singleDataSource
-                );
-                dimensions = singleDataSource.dimensions;
-                break;
+    private serializeTableGQL(dataSet: JoinDataSetTemplate, server: ServerType): IGqlRequest | null {
+        const dataSetArr: string[] = [];
 
-            case "AGGREGATION":
-                dataSource = (new serializers.AggregationDataSourceSerializer()).serialize(
-                    dataSet.dataSource1 as AggregationDataSource
-                );
-                break;
-        }
+        dataSet.dataSetTemplates.forEach((v: TimeSeriesDataSetShort) => {
+            let dataSource = '{}';
+            switch (v.dataSource1.type) {
+                case "SINGLE":
+                    dataSource = (new serializers.TableDataSourceSerializer()).serialize(
+                        v.dataSource1 as SingleDataSource
+                    );
+                    break;
 
-        const dimensionsJson: string = stringifyObject(dimensions, {
+                case "AGGREGATION":
+                    dataSource = (new serializers.AggregationDataSourceSerializer()).serialize(
+                        v.dataSource1 as AggregationDataSource
+                    );
+                    break;
+            }
+            dataSetArr.push(`{
+                preFrequency: ${v.preFrequency},
+                operation: ${v.operation},
+                dataSource1: ${dataSource}
+            }`);
+        });
+
+        const dimensionsJson: string = stringifyObject(dataSet.dimensions, {
             indent: ' ',
             singleQuotes: false
         }).replace(/\n/g, '');
 
+        const dataSetTemplates: string = `[${dataSetArr.join(',')}]`;
+
         // FIXME тестовые данные, надо убрать
-        const dataSetTemplates: string = `[{
-            preFrequency: HOUR,
-            operation: SUM,
-            dataSource1: {
-                type: SINGLE,
-                name: "kpi-traffic",
-                metric: {
-                    name: "value"
-                }
-            }
-        }, {
-            preFrequency: DAY,
-            operation: SUM,
-            dataSource1: {
-                type: SINGLE,
-                name: "kpi-traffic",
-                metric: {
-                    name: "value_2",
-                    expression: "value / count"
-                }
-            }
-        }, {
-            preFrequency: HOUR,
-            operation: SUM,
-            dataSource1: {
-                type: SINGLE,
-                name: "kpi-traffic",
-                metric: {
-                    name: "value_3",
-                    expression: "count / value"
-                }
-            }
-        }]`;
+        // const dataSetTemplates: string = `[{
+        //     preFrequency: HOUR,
+        //     operation: SUM,
+        //     dataSource1: {
+        //         type: SINGLE,
+        //         name: "kpi-traffic",
+        //         metric: {
+        //             name: "value"
+        //         }
+        //     }
+        // }, {
+        //     preFrequency: DAY,
+        //     operation: SUM,
+        //     dataSource1: {
+        //         type: SINGLE,
+        //         name: "kpi-traffic",
+        //         metric: {
+        //             name: "value_2",
+        //             expression: "value / count"
+        //         }
+        //     }
+        // }, {
+        //     preFrequency: HOUR,
+        //     operation: SUM,
+        //     dataSource1: {
+        //         type: SINGLE,
+        //         name: "kpi-traffic",
+        //         metric: {
+        //             name: "value_3",
+        //             expression: "count / value"
+        //         }
+        //     }
+        // }]`;
 
         return {
             operationName: null,
@@ -369,5 +327,16 @@ export class DataProvider {
                     xposition
                 }}`
         };
+    }
+
+    private getPeriod(dataSet: DataSet): string {
+        let period = '';
+        if (dataSet.period) {
+            period = `period: "${dataSet.period}"`;
+        } else {
+            period = `from: "${dataSet.from}"
+                      to: "${dataSet.to}"`;
+        }
+        return period;
     }
 }

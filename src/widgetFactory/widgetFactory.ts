@@ -1,4 +1,4 @@
-import {IChart, IChartData, RejectFunc, ResolveFunc, WidgetTemplate} from "../interfaces";
+import {DataSet, IChart, IChartData, JoinDataSetTemplate, RejectFunc, ResolveFunc, WidgetTemplate} from "../interfaces";
 import {DataProvider} from "../dataProvider";
 import * as widgets from "../widgets";
 import {WidgetConfig, WidgetConfigInner} from "../models/widgetConfig";
@@ -29,6 +29,8 @@ export class WidgetFactory {
                 this.dataProvider
                     .getTemplate(config.templateId)
                     .then((template: WidgetTemplate) => {
+                        this.fixTemplate(template);
+
                         const innerConfig: WidgetConfigInner = Object.assign(config, {
                             dataProvider: this.dataProvider,
                             template: template
@@ -40,6 +42,8 @@ export class WidgetFactory {
     }
 
     runWithSource(config: WidgetConfig, template: WidgetTemplate): Promise<IChart> {
+        this.fixTemplate(template);
+
         return new Promise((resolve: ResolveFunc, reject: RejectFunc) => {
             if (!config.element) {
                 console.error('Required field "element" is not specified');
@@ -65,7 +69,6 @@ export class WidgetFactory {
             "TABLE": () => widgets.Table,
             "REPORT": () => widgets.Report,
             "STATIC": () => widgets.Static,
-            "SEARCH_BAR": () => widgets.SearchBar,
             "KPI": () => widgets.KPI,
             "AVATAR": () => widgets.Avatar,
             "PROFILE": () => widgets.ProfileAndDistribution,
@@ -93,6 +96,18 @@ export class WidgetFactory {
             });
         });
         return promise;
+    }
+
+    /**
+     * Исправление входных данных виджета, т.к. бек не всегда хранит то, что надо
+     */
+    private fixTemplate(template: WidgetTemplate): void {
+        if (template.widgetType === 'TABLE') {
+            // FIXME: Удалить, когда viewType появится в JoinDataSetTemplate
+            template.dataSets.forEach((dataSet: JoinDataSetTemplate) => {
+                dataSet.viewType = template.viewType;       // Добавляем viewType в dataSet
+            });
+        }
     }
 
     private addVersion(config: WidgetConfigInner): void {

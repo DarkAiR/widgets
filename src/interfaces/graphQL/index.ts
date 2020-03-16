@@ -12,4 +12,4 @@ export * from './reportItem';
 export * from './reportPoint';
 export * from './TSPoint';
 export * from './tableRow';
-
+export * from './timeSeriesDataSetShort';

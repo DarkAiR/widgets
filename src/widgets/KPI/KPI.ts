@@ -12,6 +12,8 @@ export class KPI extends Chart {
     }
 
     run(data: IChartData): void {
+        // tslint:disable: max-line-length
+/**
         const settings = <KPISettings>data.settings;
         console.log('KPIChart settings: ', settings);
 
@@ -89,16 +91,6 @@ export class KPI extends Chart {
             </div>
         `;
         this.config.element.innerHTML = str;
-
-        const currElement: HTMLElement = this.config.element.querySelector(`.${w['curr']}`);
-        const prevElement: HTMLElement = this.config.element.querySelector(`.${w['prev']}`);
-        if (currElement) {
-            currElement.addEventListener('click', () => {
-                this.config.eventBus.trigger('EVENT_W2_TO_W1', {value: valueMain});
-            });
-            prevElement.addEventListener('click', () => {
-                this.config.eventBus.trigger('EVENT_W1_TO_W2', {value: valueSub});
-            });
-        }
+ */
     }
 }

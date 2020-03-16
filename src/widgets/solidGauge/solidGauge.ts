@@ -5,6 +5,7 @@ import {IChartData, IWidgetVariables} from "../../interfaces";
 import {SolidGaugeSettings} from "./solidGaugeSettings";
 import {get as _get} from "lodash";
 import {Chart} from "../../models/Chart";
+import {TypeGuardsHelper} from "../../helpers/typeGuards.helper";
 
 export class SolidGauge extends Chart {
     getVariables(): IWidgetVariables {
@@ -15,41 +16,43 @@ export class SolidGauge extends Chart {
         const settings = <SolidGaugeSettings>data.settings;
         console.log('SolidGauge settings: ', settings);
 
-        const maxValue = _get(data, 'data[1][0].value', 0);
-        const currValue = _get(data, 'data[0][0].value', 0);
+        if (TypeGuardsHelper.dataSetsIsDataSetTemplate(data.dataSets)) {
+            const maxValue = _get(data, 'data[1][0].value', 0);
+            const currValue = _get(data, 'data[0][0].value', 0);
 
-        const color = this.getColor(data.dataSets[0].settings, 'color-yellow');
-        const maxColor = this.getColor(data.dataSets[1].settings, 'color-grey');
+            const color = this.getColor(data.dataSets[0].settings, 'color-yellow');
+            const maxColor = this.getColor(data.dataSets[1].settings, 'color-grey');
 
-        const percent = currValue / maxValue * 100;
-        const magicLengthOfSvgPath = 503.3096923828125;
-        const percentToLength = magicLengthOfSvgPath * (percent / 100);
-        const sdo = magicLengthOfSvgPath - percentToLength > 0 ? magicLengthOfSvgPath - percentToLength : 0;
-        const fontSize = this.getFontSize(currValue);
+            const percent = currValue / maxValue * 100;
+            const magicLengthOfSvgPath = 503.3096923828125;
+            const percentToLength = magicLengthOfSvgPath * (percent / 100);
+            const sdo = magicLengthOfSvgPath - percentToLength > 0 ? magicLengthOfSvgPath - percentToLength : 0;
+            const fontSize = this.getFontSize(currValue);
 
-        const output = this.renderTemplate({
-            fontSize,
-            currValue,
-            title: settings.title,
-            icon: settings.icon,
-            maxColor: maxColor.color,
-            color: color.color,
-            magicLengthOfSvgPath,
-            sdo,
-            maxValue
-        });
-        this.config.element.innerHTML = output;
+            const output = this.renderTemplate({
+                fontSize,
+                currValue,
+                title: settings.title,
+                icon: settings.icon,
+                maxColor: maxColor.color,
+                color: color.color,
+                magicLengthOfSvgPath,
+                sdo,
+                maxValue
+            });
+            this.config.element.innerHTML = output;
 
-        this.onResize = (width: number, height: number) => {
-            const widgetInner = this.config.element.querySelector('.solidGauge-widget-inner');
-            const chart = this.config.element.querySelector('.solidGauge-chart');
-            let maxWidth = getComputedStyle(chart)["max-width"];
-            if (maxWidth === undefined) {
-                maxWidth = '1px';
-            }
-            const fontScale = chart.clientWidth / parseInt(maxWidth, 10) * 100;
-            widgetInner.setAttribute('style', `font-size: ${fontScale}%`);
-        };
+            this.onResize = (width: number, height: number) => {
+                const widgetInner = this.config.element.querySelector('.solidGauge-widget-inner');
+                const chart = this.config.element.querySelector('.solidGauge-chart');
+                let maxWidth = getComputedStyle(chart)["max-width"];
+                if (maxWidth === undefined) {
+                    maxWidth = '1px';
+                }
+                const fontScale = chart.clientWidth / parseInt(maxWidth, 10) * 100;
+                widgetInner.setAttribute('style', `font-size: ${fontScale}%`);
+            };
+        }
     }
 
     getFontSize(v: number): string {

@@ -1,5 +1,5 @@
 import {ISerializer} from "./ISerializer";
-import {DataSetTemplate, SingleDataSource} from "../../interfaces";
+import {SingleDataSource} from "../../interfaces";
 import * as stringifyObject from 'stringify-object';
 import {get as _get, isEmpty as _isEmpty} from 'lodash';
 

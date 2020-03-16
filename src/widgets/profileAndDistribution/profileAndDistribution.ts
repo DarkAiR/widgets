@@ -4,11 +4,8 @@ import echarts from 'echarts';
 import {EventBusEvent} from 'goodteditor-event-bus';
 
 import {
-    DataSetTemplate,
     IChartData,
-    INameValue,
-    IWidgetVariables,
-    SingleDataSource
+    IWidgetVariables
 } from '../../interfaces';
 import {ProfileAndDistributionSettings} from './profileAndDistributionSettings';
 import {Chart} from '../../models/Chart';
@@ -21,7 +18,7 @@ export class ProfileAndDistribution extends Chart {
 
     run(data: IChartData): void {
         const settings = <ProfileAndDistributionSettings>data.settings;
-        console.log('ProfileOrDistribution settings: ', settings);
+        console.log('ProfileAndDistribution settings: ', settings);
 
         const str = `
             <div class='${s['widget']}  ${w['widget']}'>

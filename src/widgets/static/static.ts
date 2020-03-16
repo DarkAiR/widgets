@@ -4,18 +4,10 @@ import echarts from 'echarts';
 import {EventBusEvent} from 'goodteditor-event-bus';
 
 import {
-    DataSetTemplate,
     IChartData,
-    INameValue,
     IWidgetVariables,
-    SingleDataSource
 } from '../../interfaces';
 import {StaticSettings} from './staticSettings';
-import {
-    get as _get, set as _set,
-    forEach as _forEach,
-    defaultTo as _defaultTo
-} from 'lodash';
 import {Chart} from '../../models/Chart';
 import {Point} from '../../interfaces';
 

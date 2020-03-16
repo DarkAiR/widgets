@@ -1,5 +1,5 @@
-import {ISettings} from "../ISettings";
-import {YAxisTypes} from "../../models/types";
+import {ISettings} from "../../ISettings";
+import {YAxisTypes} from "../../../models/types";
 
 /**
  * Settings для источника данных

@@ -2,7 +2,7 @@ import s from '../../styles/_all.less';
 import w from './spline.less';
 import echarts from 'echarts';
 import {
-    DataSetTemplate,
+    DataSet,
     IChartData,
     IWidgetVariables,
     SingleDataSource
@@ -18,20 +18,23 @@ import {Chart} from '../../models/Chart';
 import {TimeSeriesData, TimeSeriesHelper} from '../../helpers/timeSeries.helper';
 import {YAxisTypes} from "../../models/types";
 import {TSPoint} from "../../interfaces/graphQL/TSPoint";
+import {TypeGuardsHelper} from "../../helpers/typeGuards.helper";
 
 export class Spline extends Chart {
     getVariables(): IWidgetVariables {
         const res: IWidgetVariables = {};
         const addVar = this.addVar(res);
-        _forEach(this.config.template.dataSets, (v: DataSetTemplate, idx: number) => {
-            const nameStr: string = v.dataSource1.type === 'SINGLE'  ? '(' + (<SingleDataSource>v.dataSource1).name + ')' : '';
-            addVar(idx, 'period', 'Период', `${nameStr}: формат см. документацию по template-api`);
-            addVar(idx, 'start date', 'Начало выборки', `${nameStr}: YYYY-mm-dd`);
-            addVar(idx, 'finish date', 'Окончание выборки', `${nameStr}: YYYY-mm-dd`);
-            addVar(idx, 'view type', 'Тип отображения', `${nameStr}: LINE | HISTOGRAM`);
-            addVar(idx, 'frequency', 'Частота конечной агрегации', `${nameStr}: YEAR | MONTH | WEEK | DAY | HOUR | ALL`);
-            addVar(idx, 'pre frequency', 'Частота выборки для которой выполняется операция, указанная в operation', `${nameStr}: YEAR | MONTH | WEEK | DAY | HOUR | ALL`);
-            addVar(idx, 'operation', 'операция, которую необходимо выполнить при агрегации из preFrequency во frequency', `${nameStr}: SUM | AVG | MIN | MAX | DIVIDE`);
+        _forEach(this.config.template.dataSets, (v: DataSet, idx: number) => {
+            if (TypeGuardsHelper.isDataSetTemplate(v)) {
+                const nameStr: string = v.dataSource1.type === 'SINGLE' ? '(' + (<SingleDataSource>v.dataSource1).name + ')' : '';
+                addVar(idx, 'period', 'Период', `${nameStr}: формат см. документацию по template-api`);
+                addVar(idx, 'start date', 'Начало выборки', `${nameStr}: YYYY-mm-dd`);
+                addVar(idx, 'finish date', 'Окончание выборки', `${nameStr}: YYYY-mm-dd`);
+                addVar(idx, 'view type', 'Тип отображения', `${nameStr}: LINE | HISTOGRAM`);
+                addVar(idx, 'frequency', 'Частота конечной агрегации', `${nameStr}: YEAR | MONTH | WEEK | DAY | HOUR | ALL`);
+                addVar(idx, 'pre frequency', 'Частота выборки для которой выполняется операция, указанная в operation', `${nameStr}: YEAR | MONTH | WEEK | DAY | HOUR | ALL`);
+                addVar(idx, 'operation', 'операция, которую необходимо выполнить при агрегации из preFrequency во frequency', `${nameStr}: SUM | AVG | MIN | MAX | DIVIDE`);
+            }
         });
         return res;
     }
@@ -40,107 +43,109 @@ export class Spline extends Chart {
         const settings = <SplineSettings>data.settings;
         console.log('Spline settings: ', settings);
 
-        // FIXME: Внешние стили нельзя использовать
-        const globalCardSets = _get(data.dataSets[0].settings, 'globalCardSettings', '');
-        const titleSets = _get(data.dataSets[0].settings, 'titleSettings', '');
+        if (TypeGuardsHelper.dataSetsIsDataSetTemplate(data.dataSets)) {
+            // FIXME: Внешние стили нельзя использовать
+            const globalCardSets = _get(data.dataSets[0].settings, 'globalCardSettings', '');
+            const titleSets = _get(data.dataSets[0].settings, 'titleSettings', '');
 
-        const str = `
-            <div class='${s['widget']}  ${w['widget']}' style="${globalCardSets}">
-                <div class='${w['row']}'>
-                    <div class="${w['title']}" style="${titleSets}">
-                        ${settings.title}
+            const str = `
+                <div class='${s['widget']}  ${w['widget']}' style="${globalCardSets}">
+                    <div class='${w['row']}'>
+                        <div class="${w['title']}" style="${titleSets}">
+                            ${settings.title}
+                        </div>
+                    </div>
+                    <div class='${w['row']} ${w['chart']}'>
                     </div>
                 </div>
-                <div class='${w['row']} ${w['chart']}'>
-                </div>
-            </div>
-        `;
-        this.config.element.innerHTML = str;
+            `;
+            this.config.element.innerHTML = str;
 
-        const timeSeriesData: TimeSeriesData = TimeSeriesHelper.convertTimeSeriesToData(data.data as TSPoint[][]);
+            const timeSeriesData: TimeSeriesData = TimeSeriesHelper.convertTimeSeriesToData(data.data as TSPoint[][]);
 
-        // Конвертируем из строковых дат в дни месяца
-        const axisData = _map(timeSeriesData.dates, (v: string) => new Date(v).getDate());
-        // Вычисляем количество левых и правых осей
-        const axisOffsets = this.calcAxisOffsets(data);
+            // Конвертируем из строковых дат в дни месяца
+            const axisData = _map(timeSeriesData.dates, (v: string) => new Date(v).getDate());
+            // Вычисляем количество левых и правых осей
+            const axisOffsets = this.calcAxisOffsets(data);
 
-        const classicSeries: Object[] = this.getClassicSeries(data, timeSeriesData);
-        const comparedSeries: Object[] = this.getComparedSeries(data, timeSeriesData);
-        const series = classicSeries.concat(comparedSeries);
-        const yaxis: Object[] = this.getYAxis(data, timeSeriesData, axisOffsets.offsets);
+            const classicSeries: Object[] = this.getClassicSeries(data, timeSeriesData);
+            const comparedSeries: Object[] = this.getComparedSeries(data, timeSeriesData);
+            const series = classicSeries.concat(comparedSeries);
+            const yaxis: Object[] = this.getYAxis(data, timeSeriesData, axisOffsets.offsets);
 
-        const options = {
-            grid: {
-                top: '10px',
-                bottom: '20px',
-                // right: axisOffsets.rightAxisAmount ? (axisOffsets.rightAxisAmount * 50) + 'px' : '10px',
-                // left: axisOffsets.leftAxisAmount ? (axisOffsets.leftAxisAmount * 50) + 'px' : '10px',
-                right: axisOffsets.rightAxisAmount ? (axisOffsets.rightAxisAmount * 10) : 0,
-                left: axisOffsets.leftAxisAmount ? (axisOffsets.leftAxisAmount * 10) : 0,
-                containLabel: true
-            },
-            xAxis: {
-                type: 'category',
-                boundaryGap: this.hasHistogram(data),
-                // Цифры
-                axisLabel: {
-                    color: '#b4b4b4',
-                    fontSize: 12
+            const options = {
+                grid: {
+                    top: '10px',
+                    bottom: '20px',
+                    // right: axisOffsets.rightAxisAmount ? (axisOffsets.rightAxisAmount * 50) + 'px' : '10px',
+                    // left: axisOffsets.leftAxisAmount ? (axisOffsets.leftAxisAmount * 50) + 'px' : '10px',
+                    right: axisOffsets.rightAxisAmount ? (axisOffsets.rightAxisAmount * 10) : 0,
+                    left: axisOffsets.leftAxisAmount ? (axisOffsets.leftAxisAmount * 10) : 0,
+                    containLabel: true
                 },
-                // Сетка
-                splitLine: {
-                    show: true,
-                    lineStyle: {
-                        color: '#e9e9e9',
-                        width: 1,
-                        type: 'dashes'
-                    }
+                xAxis: {
+                    type: 'category',
+                    boundaryGap: this.hasHistogram(data),
+                    // Цифры
+                    axisLabel: {
+                        color: '#b4b4b4',
+                        fontSize: 12
+                    },
+                    // Сетка
+                    splitLine: {
+                        show: true,
+                        lineStyle: {
+                            color: '#e9e9e9',
+                            width: 1,
+                            type: 'dashes'
+                        }
+                    },
+                    data: axisData
                 },
-                data: axisData
-            },
-            yAxis: yaxis,
-            tooltip: {
-                axisPointer: {
-                    show: true,
-                    type: 'line',
+                yAxis: yaxis,
+                tooltip: {
+                    axisPointer: {
+                        show: true,
+                        type: 'line',
+                    },
+                    formatter: '{c0}'
                 },
-                formatter: '{c0}'
-            },
-            series: series
-        };
+                series: series
+            };
 
-        // FIXME: Глобальные стили не надо
-        // globalSettings
-        // background: transparent; border-radius: 5px; padding: 10px; box-shadow: 0 1px 2px 0.5px rgba(0,0,0,.25);
-        const globalSettings = _get(data.dataSets[0].settings, 'globalSettings', {});
-        for (const k in globalSettings) {
-            if (globalSettings[k] !== undefined) {
-                options[k] = globalSettings[k];
+            // FIXME: Глобальные стили не надо
+            // globalSettings
+            // background: transparent; border-radius: 5px; padding: 10px; box-shadow: 0 1px 2px 0.5px rgba(0,0,0,.25);
+            const globalSettings = _get(data.dataSets[0].settings, 'globalSettings', {});
+            for (const k in globalSettings) {
+                if (globalSettings[k] !== undefined) {
+                    options[k] = globalSettings[k];
+                }
             }
-        }
 
-        // FIXME: Нельзя открывать прямой доступ к внутренним настройкам визуализатора виджета, т.к. способ рендера может поменяться
-        //        Необходимо переделать на мепинг из настроек xAxisSettings в eCharts
-        //        Правильным решением будет сделать универсальные настройки для изменения цвета/толщины линии/и т.п.
-        // axisLine: {show: false}
-        // axisTick: {show: false}
-        // axisLabel: {formatter: "{value}.04.2019", color: "rgba(50,50,50,.6)"}
-        // splitLine: {show: false}
-        const xAxisSettings = _get(data.dataSets[0].settings, 'xAxisSettings', {});
-        for (const k in xAxisSettings) {
-            if (xAxisSettings[k] !== undefined) {
-                options.xAxis[k] = xAxisSettings[k];
+            // FIXME: Нельзя открывать прямой доступ к внутренним настройкам визуализатора виджета, т.к. способ рендера может поменяться
+            //        Необходимо переделать на мепинг из настроек xAxisSettings в eCharts
+            //        Правильным решением будет сделать универсальные настройки для изменения цвета/толщины линии/и т.п.
+            // axisLine: {show: false}
+            // axisTick: {show: false}
+            // axisLabel: {formatter: "{value}.04.2019", color: "rgba(50,50,50,.6)"}
+            // splitLine: {show: false}
+            const xAxisSettings = _get(data.dataSets[0].settings, 'xAxisSettings', {});
+            for (const k in xAxisSettings) {
+                if (xAxisSettings[k] !== undefined) {
+                    options.xAxis[k] = xAxisSettings[k];
+                }
             }
+
+            const el = this.config.element.getElementsByClassName(w['chart'])[0];
+            const myChart = echarts.init(el);
+            myChart.setOption(options);
+
+            this.onResize = (width: number, height: number): void => {
+                myChart.resize();
+            };
+            this.onEventBus = this.onEventBusFunc.bind(this);
         }
-
-        const el = this.config.element.getElementsByClassName(w['chart'])[0];
-        const myChart = echarts.init(el);
-        myChart.setOption(options);
-
-        this.onResize = (width: number, height: number): void => {
-            myChart.resize();
-        };
-        this.onEventBus = this.onEventBusFunc.bind(this);
     }
 
     /**
@@ -151,23 +156,25 @@ export class Spline extends Chart {
         leftAxisAmount: number,
         rightAxisAmount: number
     } {
-        const axisArray: Array<{left: number, right: number}> = [];
-        let leftAxis = 0;
-        let rightAxis = 0;
-        for (let idx = 0; idx < data.data.length; idx++) {
-            const axisPos: YAxisTypes = _get(data.dataSets[idx].settings, 'yAxis', 'left');
-            switch (axisPos) {
-                case "left":
-                    axisArray[idx] = {left: (leftAxis * 50), right: 0};
-                    leftAxis++;
-                    break;
-                case "right":
-                    axisArray[idx] = {left: 0, right: (rightAxis * 50)};
-                    rightAxis++;
-                    break;
+        if (TypeGuardsHelper.dataSetsIsDataSetTemplate(data.dataSets)) {
+            const axisArray: Array<{ left: number, right: number }> = [];
+            let leftAxis = 0;
+            let rightAxis = 0;
+            for (let idx = 0; idx < data.data.length; idx++) {
+                const axisPos: YAxisTypes = _get(data.dataSets[idx].settings, 'yAxis', 'left');
+                switch (axisPos) {
+                    case "left":
+                        axisArray[idx] = {left: (leftAxis * 50), right: 0};
+                        leftAxis++;
+                        break;
+                    case "right":
+                        axisArray[idx] = {left: 0, right: (rightAxis * 50)};
+                        rightAxis++;
+                        break;
+                }
             }
+            return {offsets: axisArray, leftAxisAmount: leftAxis, rightAxisAmount: rightAxis};
         }
-        return {offsets: axisArray, leftAxisAmount: leftAxis, rightAxisAmount: rightAxis};
     }
 
     /**
@@ -176,37 +183,39 @@ export class Spline extends Chart {
     private getClassicSeries(data: IChartData, timeSeriesData: TimeSeriesData): Object[] {
         const series: Object[] = [];
 
-        for (let idx = 0; idx < data.data.length; idx++) {
-            const currColor = this.getColor(data.dataSets[idx].settings, 'color-yellow');
-            let seriesData = {};
-            switch (data.dataSets[idx].chartType) {
-                case "LINE":
-                    seriesData = this.getLineSeries(idx, currColor.color);
-                    break;
-                case "HISTOGRAM":
-                    seriesData = this.getHistogramSeries(idx, currColor.color);
-                    break;
-                default:
-                    continue;
-            }
-
-            // FIXME: Та же проблема, как в FIXME выше, мы разрешаем кому-то снаружи лезть напрямую в наш рендер
-            // name: "Продажи"
-            // tooltip: {formatter: "{a}<br>{b}.04.2019: {c} тыс. руб."}
-            // label: {show: true, formatter: "{c}", position: "inside", color: "rgba(50,50,50,.6)"}
-            // z: 0
-            const seriesSettings = _get(data.dataSets[idx].settings, 'seriesSettings', {});
-            for (const k in seriesSettings) {
-                if (seriesSettings[k] !== undefined) {
-                    seriesData[k] = seriesSettings[k];
+        if (TypeGuardsHelper.dataSetsIsDataSetTemplate(data.dataSets)) {
+            for (let idx = 0; idx < data.data.length; idx++) {
+                const currColor = this.getColor(data.dataSets[idx].settings, 'color-yellow');
+                let seriesData = {};
+                switch (data.dataSets[idx].chartType) {
+                    case "LINE":
+                        seriesData = this.getLineSeries(idx, currColor.color);
+                        break;
+                    case "HISTOGRAM":
+                        seriesData = this.getHistogramSeries(idx, currColor.color);
+                        break;
+                    default:
+                        continue;
                 }
-            }
 
-            series.push({
-                data: timeSeriesData.values[idx],
-                yAxisIndex: idx,
-                ...seriesData
-            });
+                // FIXME: Та же проблема, как в FIXME выше, мы разрешаем кому-то снаружи лезть напрямую в наш рендер
+                // name: "Продажи"
+                // tooltip: {formatter: "{a}<br>{b}.04.2019: {c} тыс. руб."}
+                // label: {show: true, formatter: "{c}", position: "inside", color: "rgba(50,50,50,.6)"}
+                // z: 0
+                const seriesSettings = _get(data.dataSets[idx].settings, 'seriesSettings', {});
+                for (const k in seriesSettings) {
+                    if (seriesSettings[k] !== undefined) {
+                        seriesData[k] = seriesSettings[k];
+                    }
+                }
+
+                series.push({
+                    data: timeSeriesData.values[idx],
+                    yAxisIndex: idx,
+                    ...seriesData
+                });
+            }
         }
         return series;
     }
@@ -214,152 +223,154 @@ export class Spline extends Chart {
     // FIXME Переписать, убрать все кастомные стили и классы
     private getComparedSeries(data: IChartData, timeSeriesData: TimeSeriesData): Object[] {
         const series: Object[] = [];
-        let factData = [];
-        let factProps = {};
-        let factOpts = {};
 
-        let planData = [];
-        let planProps = {};
-        let planOpts = {};
+        if (TypeGuardsHelper.dataSetsIsDataSetTemplate(data.dataSets)) {
+            let factData = [];
+            let factProps = {};
+            let factOpts = {};
 
-        // const overData = [];
-        let overProps = {};
-        let overOpts = {};
-        let overColor = '';
+            let planData = [];
+            let planProps = {};
+            let planOpts = {};
 
-        let underProps = {};
-        let underOpts = {};
-        let underColor = '';
+            // const overData = [];
+            let overProps = {};
+            let overOpts = {};
+            let overColor = '';
 
-        let mainColor = '';
+            let underProps = {};
+            let underOpts = {};
+            let underColor = '';
 
-        let comparedFlag = false;
+            let mainColor = '';
 
-        for (let idx = 0; idx < data.data.length; idx++) {
-            const currColor = this.getColor(data.dataSets[idx].settings, 'color-yellow');
-            switch (data.dataSets[idx].chartType) {
-                case "COMPARED_PLAN":
-                    planData = timeSeriesData.values[idx];
-                    planProps = _get(data.dataSets[idx].settings, 'seriesSettings', {});
-                    planOpts = this.getComparedHistogramSeries(0, currColor.color);
-                    overProps = _get(data.dataSets[idx].settings, 'overSettings', {});
-                    overOpts = this.getComparedHistogramSeries(0, currColor.color);
-                    overColor = _get(data.dataSets[idx].settings, 'overColor', {});
+            let comparedFlag = false;
 
-                    underProps = _get(data.dataSets[idx].settings, 'underSettings', {});
-                    underOpts = this.getComparedHistogramSeries(0, currColor.color);
-                    underColor = _get(data.dataSets[idx].settings, 'underColor', {});
+            for (let idx = 0; idx < data.data.length; idx++) {
+                const currColor = this.getColor(data.dataSets[idx].settings, 'color-yellow');
+                switch (data.dataSets[idx].chartType) {
+                    case "COMPARED_PLAN":
+                        planData = timeSeriesData.values[idx];
+                        planProps = _get(data.dataSets[idx].settings, 'seriesSettings', {});
+                        planOpts = this.getComparedHistogramSeries(0, currColor.color);
+                        overProps = _get(data.dataSets[idx].settings, 'overSettings', {});
+                        overOpts = this.getComparedHistogramSeries(0, currColor.color);
+                        overColor = _get(data.dataSets[idx].settings, 'overColor', {});
 
-                    mainColor = _get(data.dataSets[idx].settings, 'mainColor', {});
+                        underProps = _get(data.dataSets[idx].settings, 'underSettings', {});
+                        underOpts = this.getComparedHistogramSeries(0, currColor.color);
+                        underColor = _get(data.dataSets[idx].settings, 'underColor', {});
 
-                    comparedFlag = true;
-                    continue;
-                case "COMPARED_FACT":
-                    factData = timeSeriesData.values[idx];
-                    factProps = _get(data.dataSets[idx].settings, 'seriesSettings', {});
-                    factOpts = this.getComparedHistogramSeries(0, currColor.color);
-                    comparedFlag = true;
-                    continue;
-                default:
-                    continue;
+                        mainColor = _get(data.dataSets[idx].settings, 'mainColor', {});
+
+                        comparedFlag = true;
+                        continue;
+                    case "COMPARED_FACT":
+                        factData = timeSeriesData.values[idx];
+                        factProps = _get(data.dataSets[idx].settings, 'seriesSettings', {});
+                        factOpts = this.getComparedHistogramSeries(0, currColor.color);
+                        comparedFlag = true;
+                        continue;
+                    default:
+                        continue;
+                }
             }
-        }
 
-        if (!comparedFlag) {
-            return series;
-        }
-
-        for (const a in factProps) {
-            if (factProps[a] !== undefined) {
-                factOpts[a] = factProps[a];
+            if (!comparedFlag) {
+                return series;
             }
-        }
 
-        for (const b in planProps) {
-            if (planProps[b] !== undefined) {
-                planOpts[b] = planProps[b];
+            for (const a in factProps) {
+                if (factProps[a] !== undefined) {
+                    factOpts[a] = factProps[a];
+                }
             }
-        }
 
-        for (const c in overProps) {
-            if (overProps[c] !== undefined) {
-                overOpts[c] = overProps[c];
+            for (const b in planProps) {
+                if (planProps[b] !== undefined) {
+                    planOpts[b] = planProps[b];
+                }
             }
-        }
 
-        for (const c in underProps) {
-            if (underProps[c] !== undefined) {
-                underOpts[c] = underProps[c];
+            for (const c in overProps) {
+                if (overProps[c] !== undefined) {
+                    overOpts[c] = overProps[c];
+                }
             }
-        }
 
-        const dates = _map(timeSeriesData.dates, (v: string) => new Date(v).getDate());
-
-        for (let i = 0; i < timeSeriesData.dates.length; i++) {
-            const overValue = factData[i] - planData[i];
-            const underValue = planData[i] - factData[i];
-            const currTime = dates[i];
-            if (overValue > 0) {
-                // удаляем бар факта
-                factOpts['data'].push({
-                    value: [currTime, 0],
-                    name: currTime,
-                    itemStyle: {
-                        barBorderRadius: [500, 500, 0, 0]
-                    }
-                });
-
-                planOpts['data'].push({
-                    value: [currTime, planData[i]],
-                    name: currTime,
-                    itemStyle: {
-                        barBorderRadius: [0, 0, 0, 0]
-                    }
-                });
-
-                // добавляем over
-                overOpts['data'].push({
-                    value: [currTime, overValue],
-                    name: currTime,
-                    itemStyle: {
-                        barBorderRadius: [500, 500, 0, 0],
-                        color: overColor
-                    }
-                });
-            } else {
-                // логика при недостатке
-                // fact
-                factOpts['data'].push({
-                    value: [currTime, factData[i]],
-                    name: currTime,
-                    itemStyle: {
-                        barBorderRadius: [500, 500, 0, 0]
-                    }
-                });
-
-                // plan
-                planOpts['data'].push({
-                    value: [currTime, 0],
-                    name: currTime,
-                    itemStyle: {
-                        barBorderRadius: [0, 0, 0, 0]
-                    }
-                });
-
-                // over
-                underOpts['data'].push({
-                    value: [currTime, underValue],
-                    name: currTime,
-                    itemStyle: {
-                        barBorderRadius: [500, 500, 0, 0],
-                        color: underColor
-                    }
-                });
+            for (const c in underProps) {
+                if (underProps[c] !== undefined) {
+                    underOpts[c] = underProps[c];
+                }
             }
+
+            const dates = _map(timeSeriesData.dates, (v: string) => new Date(v).getDate());
+
+            for (let i = 0; i < timeSeriesData.dates.length; i++) {
+                const overValue = factData[i] - planData[i];
+                const underValue = planData[i] - factData[i];
+                const currTime = dates[i];
+                if (overValue > 0) {
+                    // удаляем бар факта
+                    factOpts['data'].push({
+                        value: [currTime, 0],
+                        name: currTime,
+                        itemStyle: {
+                            barBorderRadius: [500, 500, 0, 0]
+                        }
+                    });
+
+                    planOpts['data'].push({
+                        value: [currTime, planData[i]],
+                        name: currTime,
+                        itemStyle: {
+                            barBorderRadius: [0, 0, 0, 0]
+                        }
+                    });
+
+                    // добавляем over
+                    overOpts['data'].push({
+                        value: [currTime, overValue],
+                        name: currTime,
+                        itemStyle: {
+                            barBorderRadius: [500, 500, 0, 0],
+                            color: overColor
+                        }
+                    });
+                } else {
+                    // логика при недостатке
+                    // fact
+                    factOpts['data'].push({
+                        value: [currTime, factData[i]],
+                        name: currTime,
+                        itemStyle: {
+                            barBorderRadius: [500, 500, 0, 0]
+                        }
+                    });
+
+                    // plan
+                    planOpts['data'].push({
+                        value: [currTime, 0],
+                        name: currTime,
+                        itemStyle: {
+                            barBorderRadius: [0, 0, 0, 0]
+                        }
+                    });
+
+                    // over
+                    underOpts['data'].push({
+                        value: [currTime, underValue],
+                        name: currTime,
+                        itemStyle: {
+                            barBorderRadius: [500, 500, 0, 0],
+                            color: underColor
+                        }
+                    });
+                }
+            }
+
+            series.push(factOpts, planOpts, overOpts, underOpts);
         }
-
-        series.push(factOpts, planOpts, overOpts, underOpts);
-
         return series;
     }
 
@@ -373,98 +384,100 @@ export class Spline extends Chart {
     ): Object[] {
         const yaxis: Object[] = [];
 
-        for (let idx = 0; idx < data.data.length; idx++) {
-            if (!_get(data.dataSets[idx].settings, 'createYAxis', true)) {
-                continue;
-            }
-            let count = 0;
-            const valueArray: number[] = [];
-            if (data.dataSets[idx].settings.yAxisInds !== undefined && data.dataSets[idx].settings.yAxisInds.length > 0) {
-                for (const v of data.dataSets[idx].settings.yAxisInds) {
-                    timeSeriesData.values[v].forEach((item: number) => {
+        if (TypeGuardsHelper.dataSetsIsDataSetTemplate(data.dataSets)) {
+            for (let idx = 0; idx < data.data.length; idx++) {
+                if (!_get(data.dataSets[idx].settings, 'createYAxis', true)) {
+                    continue;
+                }
+                let count = 0;
+                const valueArray: number[] = [];
+                if (data.dataSets[idx].settings.yAxisInds !== undefined && data.dataSets[idx].settings.yAxisInds.length > 0) {
+                    for (const v of data.dataSets[idx].settings.yAxisInds) {
+                        timeSeriesData.values[v].forEach((item: number) => {
+                            if (item !== undefined) {
+                                valueArray.push(item);
+                            }
+                        });
+                        count += timeSeriesData.values[v].length;
+                    }
+                } else {
+                    timeSeriesData.values[idx].forEach((item: number) => {
                         if (item !== undefined) {
                             valueArray.push(item);
                         }
                     });
-                    count += timeSeriesData.values[v].length;
+                    count += timeSeriesData.values[idx].length;
                 }
-            } else {
-                timeSeriesData.values[idx].forEach((item: number) => {
-                    if (item !== undefined) {
-                        valueArray.push(item);
+
+                const negativeMirror = data.dataSets[idx].settings.negativeMirror || false;
+
+                valueArray.forEach((v: number, i: number, arr: number[]) => arr[i] = Math.abs(v));
+
+                const maxDataValue: string = Math.max(...valueArray) + '';
+                const higherBorder: string = this.roundHB(maxDataValue);
+                const finalHB = this.magicRound(higherBorder) < Math.ceil(+maxDataValue)
+                    ? this.magicRound(this.roundHB(String(Math.ceil(+maxDataValue))))
+                    : this.magicRound(higherBorder);
+
+
+                // Часть логики из сплайна
+                const pos: YAxisTypes = _get(data.dataSets[idx].settings, 'yAxis', 'left');
+                const currColor = this.getColor(data.dataSets[idx].settings, 'color-grey');
+
+                let offset = 0;
+                switch (pos) {
+                    case "left":
+                        offset = axisOffsets[idx].left;
+                        break;
+                    case "right":
+                        offset = axisOffsets[idx].right;
+                        break;
+                }
+
+                const rotate: number = (finalHB < 10000)
+                    ? 0
+                    : (finalHB < 100000 ? 30 : 90);
+
+                const yAxisTemplate = {
+                    type: 'value',
+                    position: pos,
+                    min: negativeMirror ? (0 - finalHB) + '' : '0',
+                    max: finalHB + '',
+                    offset: offset,
+                    splitNumber: negativeMirror ? 6 : 3,
+                    minInterval: finalHB / 3 + '',
+                    maxInterval: finalHB / 3 + '',
+                    // Цифры
+                    axisLabel: {
+                        color: currColor.color,
+                        fontSize: 12/*,
+                        rotate: rotate*/
+                    },
+                    // Настройки оси
+                    axisLine: {
+                        lineStyle: {
+                            color: currColor.color
+                        }
+                    },
+                    // Сетка
+                    splitLine: {
+                        lineStyle: {
+                            color: '#e9e9e9',
+                            width: 1,
+                            type: 'solid'
+                        }
                     }
-                });
-                count += timeSeriesData.values[idx].length;
-            }
+                };
 
-            const negativeMirror = data.dataSets[idx].settings.negativeMirror || false;
-
-            valueArray.forEach((v: number, i: number, arr: number[]) => arr[i] = Math.abs(v));
-
-            const maxDataValue: string = Math.max(...valueArray) + '';
-            const higherBorder: string = this.roundHB(maxDataValue);
-            const finalHB = this.magicRound(higherBorder) < Math.ceil(+maxDataValue)
-                ? this.magicRound(this.roundHB(String(Math.ceil(+maxDataValue))))
-                : this.magicRound(higherBorder);
-
-
-            // Часть логики из сплайна
-            const pos: YAxisTypes = _get(data.dataSets[idx].settings, 'yAxis', 'left');
-            const currColor = this.getColor(data.dataSets[idx].settings, 'color-grey');
-
-            let offset = 0;
-            switch (pos) {
-                case "left":
-                    offset = axisOffsets[idx].left;
-                    break;
-                case "right":
-                    offset = axisOffsets[idx].right;
-                    break;
-            }
-
-            const rotate: number = (finalHB < 10000)
-                ? 0
-                : (finalHB < 100000 ? 30 : 90);
-
-            const yAxisTemplate = {
-                type: 'value',
-                position: pos,
-                min: negativeMirror ? (0 - finalHB) + '' : '0',
-                max: finalHB + '',
-                offset: offset,
-                splitNumber: negativeMirror ? 6 : 3,
-                minInterval: finalHB / 3 + '',
-                maxInterval: finalHB / 3 + '',
-                // Цифры
-                axisLabel: {
-                    color: currColor.color,
-                    fontSize: 12/*,
-                    rotate: rotate*/
-                },
-                // Настройки оси
-                axisLine: {
-                    lineStyle: {
-                        color: currColor.color
-                    }
-                },
-                // Сетка
-                splitLine: {
-                    lineStyle: {
-                        color: '#e9e9e9',
-                        width: 1,
-                        type: 'solid'
+                // FIXME: Внешние настройки не должны напрямую менять внутренние настройки конкретного рендера, только через мепинг
+                const yAxisSettings = _get(data.dataSets[idx].settings, 'yAxisSettings', {});
+                for (const k in yAxisSettings) {
+                    if (yAxisSettings[k] !== undefined) {
+                        yAxisTemplate[k] = yAxisSettings[k];
                     }
                 }
-            };
-
-            // FIXME: Внешние настройки не должны напрямую менять внутренние настройки конкретного рендера, только через мепинг
-            const yAxisSettings = _get(data.dataSets[idx].settings, 'yAxisSettings', {});
-            for (const k in yAxisSettings) {
-                if (yAxisSettings[k] !== undefined) {
-                    yAxisTemplate[k] = yAxisSettings[k];
-                }
+                yaxis.push(yAxisTemplate);
             }
-            yaxis.push(yAxisTemplate);
         }
         return yaxis;
     }
@@ -531,9 +544,11 @@ export class Spline extends Chart {
      * Для них необходимо изменить вид графика
      */
     private hasHistogram(data: IChartData): boolean {
-        for (let idx = 0; idx < data.data.length; idx++) {
-            if (data.dataSets[idx].chartType === 'HISTOGRAM') {
-                return true;
+        if (TypeGuardsHelper.dataSetsIsDataSetTemplate(data.dataSets)) {
+            for (let idx = 0; idx < data.data.length; idx++) {
+                if (data.dataSets[idx].chartType === 'HISTOGRAM') {
+                    return true;
+                }
             }
         }
         return false;

@@ -1,5 +1,5 @@
 import {ISerializer} from "./ISerializer";
-import {DataSetTemplate, SingleDataSource} from "../../interfaces";
+import {SingleDataSource} from "../../interfaces";
 import * as stringifyObject from 'stringify-object';
 import {get as _get, isEmpty as _isEmpty} from 'lodash';
 
@@ -18,7 +18,6 @@ export class TableDataSourceSerializer implements ISerializer {
         return `{
             type: ${dataSource.type},
             name: "${dataSource.name}",
-            dimensions: ${dimensionsJson},
             metric: {
                 name: "${dataSource.metric.name}",
                 expression: "${expression}",

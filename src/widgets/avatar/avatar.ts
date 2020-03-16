@@ -12,6 +12,7 @@ export class Avatar extends Chart {
     }
 
     run(data: IChartData): void {
+/**
         const settings = <AvatarSettings>data.settings;
         console.log('AvatarChart settings: ', settings);
 
@@ -131,16 +132,6 @@ export class Avatar extends Chart {
         `;
 
         this.config.element.innerHTML = wrapper;
-
-        const currElement: HTMLElement = this.config.element.querySelector(`.${w['curr']}`);
-        const prevElement: HTMLElement = this.config.element.querySelector(`.${w['prev']}`);
-        if (currElement) {
-            currElement.addEventListener('click', () => {
-                this.config.eventBus.trigger('EVENT_W2_TO_W1', {value: fio});
-            });
-            prevElement.addEventListener('click', () => {
-                this.config.eventBus.trigger('EVENT_W1_TO_W2', {value: func});
-            });
-        }
+*/
     }
 }
