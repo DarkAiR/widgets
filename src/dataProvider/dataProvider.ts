@@ -5,7 +5,6 @@ import {
     IChartData,
     SingleDataSource,
     WidgetTemplate,
-    AggregationDataSource,
     DataSet,
     DataSetTemplate,
     JoinDataSetTemplate,
@@ -14,6 +13,7 @@ import {
 import {serializers} from '.';
 import * as stringifyObject from 'stringify-object';
 import {IObject} from "../interfaces/IObject";
+import {TypeGuardsHelper} from "../helpers";
 
 const axios = require('axios');
 
@@ -93,9 +93,9 @@ export class DataProvider {
                 this.gqlLink,
                 loadData[item.viewType].serializeFunc.call(this, item, template.server)     // Выбор типа item автоматически в фции сериализации
             ).then(
-                    (response: IObject) => _get(response.data, loadData[item.viewType].resultProp, []),
-                    (error: Error) => { throw error; }
-                );
+                (response: IObject) => _get(response.data, loadData[item.viewType].resultProp, []),
+                (error: Error) => { throw error; }
+            );
         });
         // Асинхронно загружаем все данные
         await Promise.all(promises);
@@ -105,18 +105,11 @@ export class DataProvider {
 
     private serializeDynamicGQL(dataSet: DataSetTemplate, server: ServerType): IGqlRequest | null {
         let dataSource = '{}';
-        switch (dataSet.dataSource1.type) {
-            case "SINGLE":
-                dataSource = (new serializers.SingleDataSourceSerializer()).serialize(
-                    dataSet.dataSource1 as SingleDataSource
-                );
-                break;
-
-            case "AGGREGATION":
-                dataSource = (new serializers.AggregationDataSourceSerializer()).serialize(
-                    dataSet.dataSource1 as AggregationDataSource
-                );
-                break;
+        if (TypeGuardsHelper.isSingleDataSource(dataSet.dataSource1)) {
+            dataSource = (new serializers.SingleDataSourceSerializer()).serialize(dataSet.dataSource1);
+        }
+        if (TypeGuardsHelper.isAggregationDataSource(dataSet.dataSource1)) {
+            dataSource = (new serializers.AggregationDataSourceSerializer()).serialize(dataSet.dataSource1);
         }
 
         // NOTE: Типизировать возвращаемые данные не получится, т.к. не все поля являются строками
@@ -147,19 +140,13 @@ export class DataProvider {
 
         dataSet.dataSetTemplates.forEach((v: TimeSeriesDataSetShort) => {
             let dataSource = '{}';
-            switch (v.dataSource1.type) {
-                case "SINGLE":
-                    dataSource = (new serializers.TableDataSourceSerializer()).serialize(
-                        v.dataSource1 as SingleDataSource
-                    );
-                    break;
-
-                case "AGGREGATION":
-                    dataSource = (new serializers.AggregationDataSourceSerializer()).serialize(
-                        v.dataSource1 as AggregationDataSource
-                    );
-                    break;
+            if (TypeGuardsHelper.isSingleDataSource(v.dataSource1)) {
+                dataSource = (new serializers.TableDataSourceSerializer()).serialize(v.dataSource1);
             }
+            if (TypeGuardsHelper.isAggregationDataSource(v.dataSource1)) {
+                dataSource = (new serializers.AggregationDataSourceSerializer()).serialize(v.dataSource1);
+            }
+
             // viewType = DYNAMIC, нужен для правильной работы серверной части
             dataSetArr.push(`{
                 viewType: 'DYNAMIC',
@@ -175,41 +162,6 @@ export class DataProvider {
         }).replace(/\n/g, '');
 
         const dataSetTemplates: string = `[${dataSetArr.join(',')}]`;
-
-        // FIXME тестовые данные, надо убрать
-        // const dataSetTemplates: string = `[{
-        //     preFrequency: HOUR,
-        //     operation: SUM,
-        //     dataSource1: {
-        //         type: SINGLE,
-        //         name: "kpi-traffic",
-        //         metric: {
-        //             name: "value"
-        //         }
-        //     }
-        // }, {
-        //     preFrequency: DAY,
-        //     operation: SUM,
-        //     dataSource1: {
-        //         type: SINGLE,
-        //         name: "kpi-traffic",
-        //         metric: {
-        //             name: "value_2",
-        //             expression: "value / count"
-        //         }
-        //     }
-        // }, {
-        //     preFrequency: HOUR,
-        //     operation: SUM,
-        //     dataSource1: {
-        //         type: SINGLE,
-        //         name: "kpi-traffic",
-        //         metric: {
-        //             name: "value_3",
-        //             expression: "count / value"
-        //         }
-        //     }
-        // }]`;
 
         return {
             operationName: null,

@@ -53,3 +53,7 @@
 
 ##### 0.7.2 / 2020-03-23
 - из TimeSeriesDataSetShort удален viewType, он перенесен на уровень dataProvider
+
+##### 0.7.3 / 2020-03-25
+- Визуализация виджета Table
+- Проверки на single/aggregation data source сделаны через type guard

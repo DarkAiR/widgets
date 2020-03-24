@@ -2,17 +2,16 @@ import s from "../../styles/_all.less";
 import w from "./table.less";
 
 import {
-    DimensionFilter,
-    DimensionUnit,
-    IChartData,
-    IWidgetVariables, MetricUnit, SingleDataSource,
-    TSPoint
+    IChartData, INameValue,
+    IWidgetVariables, JoinDataSetTemplate, TableRow, TimeSeriesDataSetShort
 } from "../../interfaces";
 import {TableSettings} from "./tableSettings";
-import {get as _get, head as _head, forEach as _forEach} from "lodash";
+import * as _get from "lodash/get";
+import * as _map from "lodash/map";
+import * as _keyBy from "lodash/keyBy";
+import * as _keys from "lodash/keys";
 import {Chart} from "../../models/Chart";
-
-type MetricsStatus = 'normal' | 'warning' | 'error';
+import {TypeGuardsHelper} from "../../helpers";
 
 export class Table extends Chart {
     getVariables(): IWidgetVariables {
@@ -23,29 +22,45 @@ export class Table extends Chart {
         const settings = <TableSettings>data.settings;
         console.log('TableConfig settings: ', settings);
 
-        const dataByDataSources: TSPoint[][] = data.data as TSPoint[][];
+        const dataByDataSources: TableRow[][] = data.data as TableRow[][];
 
-        // FIXME: Берем только первый источник, а надо все
-        const points: TSPoint[] = _get(dataByDataSources, 0, []);
-        const dimensions: DimensionUnit[] = _get(points, '0.dimensions', []);
-        const metrics: MetricUnit[] = _get(points, '0.metrics', []);
+        // NOTE: Для таблицы существует только один источник, если его нет, то это Exception
+        const points: TableRow[] = dataByDataSources[0];
+        const dimensions: string[] = _map((data.dataSets[0] as JoinDataSetTemplate).dimensions, 'name');
+        const metrics: string[] = (data.dataSets[0] as JoinDataSetTemplate).dataSetTemplates.map(
+            (v: TimeSeriesDataSetShort) => {
+                if (TypeGuardsHelper.isSingleDataSource(v.dataSource1)) {
+                    return v.dataSource1.metric.name;
+                }
+                return '';
+            }
+        );
 
-        console.log('points', points);
-        console.log('dimensions', dimensions);
+        // Готовим данные, формируем общий список метрик
+        const header: string[] = [
+            'Date',
+            ...dimensions,
+            ...metrics
+        ];
+        const rows: Array<{cols: INameValue<string>[]}> = points.map((v: TableRow) => {
+            const row = [];
+            const pointDimensionsName: string = _keyBy(v.dimensions, 'name');
+            const pointMetricsName: string = _keyBy(v.metrics, 'name');
 
-        // Конвертируем даты
-        _forEach(points, (v: TSPoint) => {
-            v.localDateTime = new Date(v.localDateTime).toLocaleDateString();
+            row.push({name: 'localDateTime', value: new Date(v.localDateTime).toLocaleDateString()});   // Конвертируем даты
+            dimensions.forEach((dimName: string) => {
+                row.push({name: dimName, value: _get(pointDimensionsName[dimName], 'value', '')});
+            });
+            metrics.forEach((metricName: string) => {
+                row.push({name: metricName, value: _get(pointMetricsName[metricName], 'value', '')});
+            });
+            return {cols: row};
         });
 
-        // 1.       localDateTime
-        // 2...N-1  dimensions
-        // N        value
         this.config.element.innerHTML = this.renderTemplate({
             title: settings.title,
-            dimensions,
-            metrics,
-            points
+            header,
+            rows
         });
     }
 
@@ -56,66 +71,24 @@ export class Table extends Chart {
                 <table class="${s['table']} ${s['w-100']}">
                 <thead>
                     <tr>
-                        <th class="${s['table-w-auto']}">
-                            <div class="${w['title']}">localDateTime</div>
-                        </th>
-                        {{#dimensions}}
-                            <th>
-                                <div class="${w['title']}">{{name}}</div>
-                            </th>
-                        {{/dimensions}}
-                        {{#metrics}}
+                        {{#header}}
                             <th class="${s['table-w-auto']}">
-                                <div class="${w['title']}">{{name}}</div>
+                                <div class="${w['title']}">{{.}}</div>
                             </th>
-                        {{/metrics}}
+                        {{/header}}
                     </tr>
                 </thead>
                 <tbody>
-                    {{#points}}
+                    {{#rows}}
                     <tr>
-                        <td>{{localDateTime}}</td>
-                        {{#dimensions}}
+                        {{#cols}}
                             <td>{{value}}</td>
-                        {{/dimensions}}
-                        {{#metrics}}
-                            <td>{{value}}</td>
-                        {{/metrics}}
+                        {{/cols}}
                     </tr>
-                    {{/points}}
+                    {{/rows}}
                 </tbody>
                 </table>
             </div>
         `;
-    }
-
-    /**
-     * Устанавливает общий статус исходя из процентов
-     * @param status предыдущий статус
-     * @param percents значение в процентах
-     */
-    private getMetricsStatus(status: MetricsStatus, percents: number): MetricsStatus {
-        // пороги индикации для показателей
-        const tmpStatus = percents < 80
-            ? 'error'
-            : (percents < 90
-                ? 'warning'
-                : 'normal'
-            );
-        // console.log('getMetricsStatus', percents, tmpStatus);
-        if (tmpStatus === 'error') {
-            return 'error';
-        }
-        if (tmpStatus === 'warning' && status !== 'error') {
-            return 'warning';
-        }
-        if (tmpStatus === 'normal' && status === 'normal') {
-            return 'normal';
-        }
-        return status;
-    }
-
-    private checkBit(v: number, bitPos: number): boolean {
-        return (v & (2 ** bitPos)) !== 0;
     }
 }
