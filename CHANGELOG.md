@@ -47,3 +47,9 @@
 - обобщены вызовы graphql методов, удалены методы вида loadStaticData
 - закомментрированы виджеты KPI и avatar
 - удален SearchBar
+
+##### 0.7.1 / 2020-03-20
+- в TimeSeriesDataSetShort добавлен viewType для совместимости с беком
+
+##### 0.7.2 / 2020-03-23
+- из TimeSeriesDataSetShort удален viewType, он перенесен на уровень dataProvider

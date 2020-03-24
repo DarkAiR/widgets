@@ -160,7 +160,9 @@ export class DataProvider {
                     );
                     break;
             }
+            // viewType = DYNAMIC, нужен для правильной работы серверной части
             dataSetArr.push(`{
+                viewType: 'DYNAMIC',
                 preFrequency: ${v.preFrequency},
                 operation: ${v.operation},
                 dataSource1: ${dataSource}

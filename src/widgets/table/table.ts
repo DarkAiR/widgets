@@ -41,17 +41,18 @@ export class Table extends Chart {
         // 1.       localDateTime
         // 2...N-1  dimensions
         // N        value
-        const output = this.renderTemplate({
+        this.config.element.innerHTML = this.renderTemplate({
+            title: settings.title,
             dimensions,
             metrics,
             points
         });
-        this.config.element.innerHTML = output;
     }
 
     getTemplate(): string {
         return `
             <div class='${s["widget"]}'>
+                <h4>{{title}}</h4>
                 <table class="${s['table']} ${s['w-100']}">
                 <thead>
                     <tr>
