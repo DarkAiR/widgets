@@ -3,7 +3,6 @@ import w from "./averageNumber.less";
 import {config as widgetConfig} from "./config";
 
 import {IChartData, IWidgetVariables} from "../../interfaces";
-import {AverageNumberSettings} from "./averageNumberSettings";
 import {get as _get} from "lodash";
 import {Chart} from "../../models/Chart";
 import {TypeGuardsHelper} from "../../helpers/typeGuards.helper";
@@ -14,9 +13,6 @@ export class AverageNumber extends Chart {
     }
 
     run(data: IChartData): void {
-        const settings = <AverageNumberSettings>data.settings;
-        console.log('AverageNumber settings: ', settings);
-
         if (TypeGuardsHelper.dataSetsIsDataSetTemplate(data.dataSets)) {
             const currValue = _get(data.data[0], '[0].value', 0);
             const prevValue = _get(data.data[1], '[0].value', 0);
@@ -29,7 +25,7 @@ export class AverageNumber extends Chart {
                     <div class='${s["row"]}'>
                         <div class='${s["col"]} ${s["col-100"]}'>
                             <div class="${w['title']}">
-                                ${this.getWidgetSetting(widgetConfig, settings, 'title')}
+                                ${this.getWidgetSetting(widgetConfig, data.settings, 'title')}
                             </div>
                         </div>
                     </div>

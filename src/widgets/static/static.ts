@@ -3,12 +3,10 @@ import w from './static.less';
 import {config as widgetConfig} from "./config";
 
 import echarts from 'echarts';
-import {EventBusEvent} from 'goodteditor-event-bus';
 import {
     IChartData,
     IWidgetVariables,
 } from '../../interfaces';
-import {StaticSettings} from './staticSettings';
 import {Chart} from '../../models/Chart';
 import {Point} from '../../interfaces';
 
@@ -18,14 +16,11 @@ export class Static extends Chart {
     }
 
     run(data: IChartData): void {
-        const settings = <StaticSettings>data.settings;
-        console.log('Static settings: ', settings);
-
         const str = `
             <div class='${s['widget']}  ${w['widget']}'>
                 <div class='${w['row']}'>
                     <div class="${w['title']}">
-                        ${this.getWidgetSetting(widgetConfig, settings, 'title')}
+                        ${this.getWidgetSetting(widgetConfig, data.settings, 'title')}
                     </div>
                 </div>
                 <div class='${w['row']} ${w['chart']}'>

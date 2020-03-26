@@ -6,7 +6,6 @@ import {
     IChartData, INameValue,
     IWidgetVariables, JoinDataSetTemplate, TableRow, TimeSeriesDataSetShort
 } from "../../interfaces";
-import {TableSettings} from "./tableSettings";
 import * as _get from "lodash/get";
 import * as _map from "lodash/map";
 import * as _keyBy from "lodash/keyBy";
@@ -19,9 +18,6 @@ export class Table extends Chart {
     }
 
     run(data: IChartData): void {
-        const settings = <TableSettings>data.settings;
-        console.log('TableConfig settings: ', settings);
-
         const dataByDataSources: TableRow[][] = data.data as TableRow[][];
 
         // NOTE: Для таблицы существует только один источник, если его нет, то это Exception
@@ -58,7 +54,7 @@ export class Table extends Chart {
         });
 
         this.config.element.innerHTML = this.renderTemplate({
-            title: this.getWidgetSetting(widgetConfig, settings, 'title'),
+            title: this.getWidgetSetting(widgetConfig, data.settings, 'title'),
             header,
             rows
         });

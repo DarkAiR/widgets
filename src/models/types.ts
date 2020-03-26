@@ -25,4 +25,4 @@ export type DataSourceType = 'SINGLE' | 'AGGREGATION';
 export type ArithmeticOperation = 'SUM' | 'SUBTRACT' | 'MULTIPLY' | 'DIVIDE';
 
 // Типы полей настроек для виджетов
-export type WidgetSettingsTypes = 'string' | 'number' | 'boolean' | 'color' | 'axis' | 'nameValue';
+export type WidgetSettingsTypes = 'string' | 'number' | 'boolean' | 'color' | 'axis' | 'nameValue[]';

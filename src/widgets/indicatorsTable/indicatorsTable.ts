@@ -3,7 +3,6 @@ import w from "./indicatorsTable.less";
 import {config as widgetConfig} from "./config";
 
 import {IChartData, IWidgetVariables} from "../../interfaces";
-import {IndicatorsTableSettings} from "./indicatorsTableSettings";
 import {get as _get, head as _head, forEach as _forEach} from "lodash";
 import * as moment from 'moment';
 import * as hammer from 'hammerjs';
@@ -28,9 +27,6 @@ export class IndicatorsTable extends Chart {
     }
 
     run(data: IChartData): void {
-        const settings = <IndicatorsTableSettings>data.settings;
-        console.log('IndicatorsTableConfig settings: ', settings);
-
         this.mc = hammer(this.config.element);
 
         let startOffs = 0;

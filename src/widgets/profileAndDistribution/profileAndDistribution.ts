@@ -7,7 +7,6 @@ import {
     IChartData,
     IWidgetVariables
 } from '../../interfaces';
-import {ProfileAndDistributionSettings} from './profileAndDistributionSettings';
 import {Chart} from '../../models/Chart';
 import {ProfilePoint} from '../../interfaces';
 
@@ -17,14 +16,11 @@ export class ProfileAndDistribution extends Chart {
     }
 
     run(data: IChartData): void {
-        const settings = <ProfileAndDistributionSettings>data.settings;
-        console.log('ProfileAndDistribution settings: ', settings);
-
         const str = `
             <div class='${s['widget']}  ${w['widget']}'>
                 <div class='${w['row']}'>
                     <div class="${w['title']}">
-                        ${this.getWidgetSetting(widgetConfig, settings, 'title')}
+                        ${this.getWidgetSetting(widgetConfig, data.settings, 'title')}
                     </div>
                 </div>
                 <div class='${w['row']} ${w['chart']}'>

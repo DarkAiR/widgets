@@ -13,9 +13,6 @@ export class KPI extends Chart {
     run(data: IChartData): void {
         // tslint:disable: max-line-length
 /**
-        const settings = <KPISettings>data.settings;
-        console.log('KPIChart settings: ', settings);
-
         let valueMain;
         const valueMainColor = this.getColor(widgetConfig, data.dataSets[0].settings, 'color-yellow');
         const style1 = valueMainColor.colorStyle + _get(data.dataSets[0].settings, 'valueStyle', '');
@@ -73,7 +70,7 @@ export class KPI extends Chart {
                 <div class='${s["row"]}' style="height:fit-content;">
                     <div class='${s["col"]}'>
                         <div class="${w['title']}" style='${titleStyle}'>
-                            ${this.getWidgetSetting(widgetConfig, settings, 'title')}
+                            ${this.getWidgetSetting(widgetConfig, data.settings, 'title')}
                         </div>
                     </div>
                 </div>

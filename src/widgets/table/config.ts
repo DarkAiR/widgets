@@ -14,12 +14,12 @@ export const config: IWidgetConfigurationDescription = {
         settings: [
             {
                 name: "dimensionsNames",
-                type: "nameValue",
+                type: "nameValue[]",
                 default: []
             },
             {
                 name: "metricNames",
-                type: "nameValue",
+                type: "nameValue[]",
                 default: []
             }
         ]

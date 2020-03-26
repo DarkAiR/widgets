@@ -9,7 +9,6 @@ import {
     IWidgetVariables,
     SingleDataSource,
 } from '../../interfaces';
-import {SplineSettings} from './splineSettings';
 import {
     get as _get,
     set as _set,
@@ -43,9 +42,6 @@ export class Spline extends Chart {
 
 
     run(data: IChartData): void {
-        const settings = <SplineSettings>data.settings;
-        console.log('Spline settings: ', settings);
-
         if (TypeGuardsHelper.dataSetsIsDataSetTemplate(data.dataSets)) {
             // FIXME: Внешние стили нельзя использовать
             const globalCardSets = _get(data.dataSets[0].settings, 'globalCardSettings', '');
@@ -55,7 +51,7 @@ export class Spline extends Chart {
                 <div class='${s['widget']}  ${w['widget']}' style="${globalCardSets}">
                     <div class='${w['row']}'>
                         <div class="${w['title']}" style="${titleSets}">
-                            ${this.getWidgetSetting(widgetConfig, settings, 'title')}
+                            ${this.getWidgetSetting(widgetConfig, data.settings, 'title')}
                         </div>
                     </div>
                     <div class='${w['row']} ${w['chart']}'>

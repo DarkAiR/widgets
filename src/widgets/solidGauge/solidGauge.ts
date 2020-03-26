@@ -3,7 +3,6 @@ import w from "./solidGauge.less";
 import {config as widgetConfig} from "./config";
 
 import {IChartData, IWidgetVariables} from "../../interfaces";
-import {SolidGaugeSettings} from "./solidGaugeSettings";
 import {get as _get} from "lodash";
 import {Chart} from "../../models/Chart";
 import {TypeGuardsHelper} from "../../helpers/typeGuards.helper";
@@ -14,9 +13,6 @@ export class SolidGauge extends Chart {
     }
 
     run(data: IChartData): void {
-        const settings = <SolidGaugeSettings>data.settings;
-        console.log('SolidGauge settings: ', settings);
-
         if (TypeGuardsHelper.dataSetsIsDataSetTemplate(data.dataSets)) {
             const maxValue = _get(data, 'data[1][0].value', 0);
             const currValue = _get(data, 'data[0][0].value', 0);
@@ -33,8 +29,8 @@ export class SolidGauge extends Chart {
             const output = this.renderTemplate({
                 fontSize,
                 currValue,
-                title: this.getWidgetSetting(widgetConfig, settings, 'title'),
-                icon: this.getWidgetSetting(widgetConfig, settings, 'icon'),
+                title: this.getWidgetSetting(widgetConfig, data.settings, 'title'),
+                icon: this.getWidgetSetting(widgetConfig, data.settings, 'icon'),
                 maxColor: maxColor.color,
                 color: color.color,
                 magicLengthOfSvgPath,

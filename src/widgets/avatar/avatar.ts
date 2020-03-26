@@ -3,7 +3,6 @@ import w from "./avatar.less";
 import {config as widgetConfig} from "./config";
 
 import {IChart, IChartData, IWidgetVariables} from "../../interfaces";
-import {AvatarSettings} from "./avatarSettings";
 import {get as _get} from "lodash";
 import {Chart} from "../../models/Chart";
 
@@ -14,9 +13,6 @@ export class Avatar extends Chart {
 
     run(data: IChartData): void {
 /**
-        const settings = <AvatarSettings>data.settings;
-        console.log('AvatarChart settings: ', settings);
-
         let fio;
         const fioColor = this.getColor(widgetConfig, data.dataSets[0].settings, 'color-yellow');
         const fioStyle = fioColor.colorStyle + _get(data.dataSets[0].settings, 'fioStyle', '');

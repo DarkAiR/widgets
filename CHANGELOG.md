@@ -66,3 +66,5 @@
 - typescript@3.7.2
 - из dataProvider убрано автоматическое заполнение settings.title
 - в Chart добавлены методы получения настроек
+- удалены все классы настроек виджетов кроме WidgetTemplateSettings
+? удалить WidgetTemplateSettings
