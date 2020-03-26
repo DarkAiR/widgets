@@ -1,9 +1,8 @@
-import {DataSet, IChart, IChartData, JoinDataSetTemplate, RejectFunc, ResolveFunc, WidgetTemplate} from "../interfaces";
+import {IChart, IChartData, JoinDataSetTemplate, RejectFunc, ResolveFunc, WidgetTemplate, IWidgetConfigurationDescription} from "../interfaces";
 import {DataProvider} from "../dataProvider";
 import * as widgets from "../widgets";
 import {WidgetConfig, WidgetConfigInner} from "../models/widgetConfig";
 import { WidgetType } from '../models/types';
-import {Chart} from "../models/Chart";
 
 declare var __VERSION__: string;
 
@@ -11,6 +10,30 @@ type WidgetsArr = Record<WidgetType, Function>;
 
 export class WidgetFactory {
     dataProvider: DataProvider = null;
+
+    static loadWidgetConfig(widgetType: WidgetType): Promise<IWidgetConfigurationDescription> {
+        const widgetTypeToImport: Record<WidgetType, () => Promise<{config: IWidgetConfigurationDescription}>> = {
+            'SPLINE':           () => import('./../widgets/spline/config'),
+            'AVERAGE_NUMBER':   () => import('./../widgets/averageNumber/config'),
+            'SOLID_GAUGE':      () => import('./../widgets/solidGauge/config'),
+            'INDICATORS_TABLE': () => import('./../widgets/indicatorsTable/config'),
+            'TABLE':            () => import('./../widgets/table/config'),
+            'REPORT':           () => import('./../widgets/report/config'),
+            'STATIC':           () => import('./../widgets/static/config'),
+            'KPI':              () => import('./../widgets/KPI/config'),
+            'AVATAR':           () => import('./../widgets/avatar/config'),
+            'DISTRIBUTION':     () => import('./../widgets/profileAndDistribution/config'),
+            'PROFILE':          () => import('./../widgets/profileAndDistribution/config'),
+        };
+        return new Promise((resolve: ResolveFunc, reject: RejectFunc) => {
+            if (!widgetTypeToImport[widgetType]) {
+                reject();
+            }
+            widgetTypeToImport[widgetType]().then(
+                (v: {config: IWidgetConfigurationDescription}) => resolve(v.config)
+            ).catch(reject);
+        });
+    }
 
     run(config: WidgetConfig): Promise<IChart> {
         return new Promise((resolve: ResolveFunc, reject: RejectFunc) => {
@@ -62,17 +85,17 @@ export class WidgetFactory {
 
     private createWidget(config: WidgetConfigInner, template: WidgetTemplate): Promise<IChart> {
         const widgetsArr: WidgetsArr = {
-            "SPLINE": () => widgets.Spline,
-            "AVERAGE_NUMBER": () => widgets.AverageNumber,
-            "SOLID_GAUGE": () => widgets.SolidGauge,
-            "INDICATORS_TABLE": () => widgets.IndicatorsTable,
-            "TABLE": () => widgets.Table,
-            "REPORT": () => widgets.Report,
-            "STATIC": () => widgets.Static,
-            "KPI": () => widgets.KPI,
-            "AVATAR": () => widgets.Avatar,
-            "PROFILE": () => widgets.ProfileAndDistribution,
-            "DISTRIBUTION": () => widgets.ProfileAndDistribution
+            "SPLINE":           () => widgets.Spline.Spline,
+            "AVERAGE_NUMBER":   () => widgets.AverageNumber.AverageNumber,
+            "SOLID_GAUGE":      () => widgets.SolidGauge.SolidGauge,
+            "INDICATORS_TABLE": () => widgets.IndicatorsTable.IndicatorsTable,
+            "TABLE":            () => widgets.Table.Table,
+            "REPORT":           () => widgets.Report.Report,
+            "STATIC":           () => widgets.Static.Static,
+            "KPI":              () => widgets.KPI.KPI,
+            "AVATAR":           () => widgets.Avatar.Avatar,
+            "PROFILE":          () => widgets.ProfileAndDistribution.ProfileAndDistribution,
+            "DISTRIBUTION":     () => widgets.ProfileAndDistribution.ProfileAndDistribution
 
         };
         const promise = new Promise<IChart>((resolve: ResolveFunc<IChart>, reject: RejectFunc) => {

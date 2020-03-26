@@ -1,5 +1,6 @@
 import s from "../../styles/_all.less";
 import w from "./solidGauge.less";
+import {config as widgetConfig} from "./config";
 
 import {IChartData, IWidgetVariables} from "../../interfaces";
 import {SolidGaugeSettings} from "./solidGaugeSettings";
@@ -20,8 +21,8 @@ export class SolidGauge extends Chart {
             const maxValue = _get(data, 'data[1][0].value', 0);
             const currValue = _get(data, 'data[0][0].value', 0);
 
-            const color = this.getColor(data.dataSets[0].settings, 'color-yellow');
-            const maxColor = this.getColor(data.dataSets[1].settings, 'color-grey');
+            const color = this.getColor(widgetConfig, data.dataSets[0].settings, 'color-yellow');
+            const maxColor = this.getColor(widgetConfig, data.dataSets[1].settings, 'color-grey');
 
             const percent = currValue / maxValue * 100;
             const magicLengthOfSvgPath = 503.3096923828125;
@@ -32,8 +33,8 @@ export class SolidGauge extends Chart {
             const output = this.renderTemplate({
                 fontSize,
                 currValue,
-                title: settings.title,
-                icon: settings.icon,
+                title: this.getWidgetSetting(widgetConfig, settings, 'title'),
+                icon: this.getWidgetSetting(widgetConfig, settings, 'icon'),
                 maxColor: maxColor.color,
                 color: color.color,
                 magicLengthOfSvgPath,

@@ -23,3 +23,6 @@ export type Frequency = 'YEAR' | 'MONTH' | 'WEEK' | 'DAY' | 'HOUR' | 'ALL';
 export type Operation = 'SUM' | 'AVG' | 'MIN' | 'MAX';
 export type DataSourceType = 'SINGLE' | 'AGGREGATION';
 export type ArithmeticOperation = 'SUM' | 'SUBTRACT' | 'MULTIPLY' | 'DIVIDE';
+
+// Типы полей настроек для виджетов
+export type WidgetSettingsTypes = 'string' | 'number' | 'boolean' | 'color' | 'axis' | 'nameValue';

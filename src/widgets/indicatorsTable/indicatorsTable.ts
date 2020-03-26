@@ -1,5 +1,6 @@
 import s from "../../styles/_all.less";
 import w from "./indicatorsTable.less";
+import {config as widgetConfig} from "./config";
 
 import {IChartData, IWidgetVariables} from "../../interfaces";
 import {IndicatorsTableSettings} from "./indicatorsTableSettings";

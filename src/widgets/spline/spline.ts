@@ -1,11 +1,13 @@
 import s from '../../styles/_all.less';
 import w from './spline.less';
+import {config as widgetConfig} from "./config";
+
 import echarts from 'echarts';
 import {
     DataSet,
     IChartData,
     IWidgetVariables,
-    SingleDataSource
+    SingleDataSource,
 } from '../../interfaces';
 import {SplineSettings} from './splineSettings';
 import {
@@ -39,6 +41,7 @@ export class Spline extends Chart {
         return res;
     }
 
+
     run(data: IChartData): void {
         const settings = <SplineSettings>data.settings;
         console.log('Spline settings: ', settings);
@@ -52,7 +55,7 @@ export class Spline extends Chart {
                 <div class='${s['widget']}  ${w['widget']}' style="${globalCardSets}">
                     <div class='${w['row']}'>
                         <div class="${w['title']}" style="${titleSets}">
-                            ${settings.title}
+                            ${this.getWidgetSetting(widgetConfig, settings, 'title')}
                         </div>
                     </div>
                     <div class='${w['row']} ${w['chart']}'>
@@ -161,7 +164,7 @@ export class Spline extends Chart {
             let leftAxis = 0;
             let rightAxis = 0;
             for (let idx = 0; idx < data.data.length; idx++) {
-                const axisPos: YAxisTypes = _get(data.dataSets[idx].settings, 'yAxis', 'left');
+                const axisPos: YAxisTypes = this.getDataSetSettings(widgetConfig, data.dataSets[idx].settings, 'yAxis');
                 switch (axisPos) {
                     case "left":
                         axisArray[idx] = {left: (leftAxis * 50), right: 0};
@@ -185,7 +188,7 @@ export class Spline extends Chart {
 
         if (TypeGuardsHelper.dataSetsIsDataSetTemplate(data.dataSets)) {
             for (let idx = 0; idx < data.data.length; idx++) {
-                const currColor = this.getColor(data.dataSets[idx].settings, 'color-yellow');
+                const currColor = this.getColor(widgetConfig, data.dataSets[idx].settings, 'color-yellow');
                 let seriesData = {};
                 switch (data.dataSets[idx].chartType) {
                     case "LINE":
@@ -247,7 +250,7 @@ export class Spline extends Chart {
             let comparedFlag = false;
 
             for (let idx = 0; idx < data.data.length; idx++) {
-                const currColor = this.getColor(data.dataSets[idx].settings, 'color-yellow');
+                const currColor = this.getColor(widgetConfig, data.dataSets[idx].settings, 'color-yellow');
                 switch (data.dataSets[idx].chartType) {
                     case "COMPARED_PLAN":
                         planData = timeSeriesData.values[idx];
@@ -421,8 +424,8 @@ export class Spline extends Chart {
 
 
                 // Часть логики из сплайна
-                const pos: YAxisTypes = _get(data.dataSets[idx].settings, 'yAxis', 'left');
-                const currColor = this.getColor(data.dataSets[idx].settings, 'color-grey');
+                const pos: YAxisTypes = this.getDataSetSettings(widgetConfig, data.dataSets[idx].settings, 'yAxis');
+                const currColor = this.getColor(widgetConfig, data.dataSets[idx].settings, 'color-grey');
 
                 let offset = 0;
                 switch (pos) {

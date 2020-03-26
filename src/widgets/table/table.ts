@@ -1,5 +1,6 @@
 import s from "../../styles/_all.less";
 import w from "./table.less";
+import {config as widgetConfig} from "./config";
 
 import {
     IChartData, INameValue,
@@ -9,7 +10,6 @@ import {TableSettings} from "./tableSettings";
 import * as _get from "lodash/get";
 import * as _map from "lodash/map";
 import * as _keyBy from "lodash/keyBy";
-import * as _keys from "lodash/keys";
 import {Chart} from "../../models/Chart";
 import {TypeGuardsHelper} from "../../helpers";
 
@@ -58,7 +58,7 @@ export class Table extends Chart {
         });
 
         this.config.element.innerHTML = this.renderTemplate({
-            title: settings.title,
+            title: this.getWidgetSetting(widgetConfig, settings, 'title'),
             header,
             rows
         });

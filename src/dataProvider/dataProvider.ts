@@ -51,11 +51,6 @@ export class DataProvider {
             data: [],
             settings: _get(template, 'settings', {})
         };
-        // Заполняем обязательные поля, если они пустые или их нет
-        const title = _get(template, 'settings.title', '') || template.title;
-        if (!_get(data.settings, 'title')) {
-            data.settings.title = title;
-        }
 
         const loadData: Record<ViewType, {
             serializeFunc: Function,

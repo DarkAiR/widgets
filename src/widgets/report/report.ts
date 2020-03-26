@@ -1,5 +1,6 @@
 import s from "../../styles/_all.less";
 import w from "./report.less";
+import {config as widgetConfig} from "./config";
 
 import {IChartData, IWidgetVariables} from "../../interfaces";
 import {ReportSettings} from "./reportSettings";
@@ -18,11 +19,11 @@ export class Report extends Chart {
 
         if (TypeGuardsHelper.dataSetsIsDataSetTemplate(data.dataSets)) {
             const value = _get(data, 'data[0].items[0].value', 0);
-            const currColor = this.getColor(data.dataSets[0].settings, 'color-yellow');
+            const currColor = this.getColor(widgetConfig, data.dataSets[0].settings, 'color-yellow');
 
             const str = `
                 <div class='${s["widget"]} ${w["widget"]}'>
-                    <div class='${w["title"]}'>${settings.title}</div>
+                    <div class='${w["title"]}'>${this.getWidgetSetting(widgetConfig, settings, 'title')}</div>
                     <div class='${w["value"]} ${w[currColor.className]}' style='${currColor.colorStyle}'>${value}</div>
                 </div>
             `;

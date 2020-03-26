@@ -59,7 +59,7 @@
     "style-loader": "^0.23.1",
     "svg-url-loader": "^3.0.1",
     "ts-loader": "^5.4.5",
-    "typescript": "^3.6.2",
+    "typescript": "^3.7.2",
     "typings-for-css-modules-loader": "^1.7.0",
     "uglifycss-loader": "^1.0.2",
     "uglifyjs-webpack-plugin": "^2.2.0",

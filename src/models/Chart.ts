@@ -1,6 +1,12 @@
 import {get as _get, set as _set, forEach as _forEach, defaultTo as _defaultTo} from 'lodash';
 import ResizeObserver from 'resize-observer-polyfill';
-import {DataSetSettings, IChart, IChartData, IWidgetVariables} from "../interfaces";
+import {
+    DataSetSettings,
+    IChart,
+    IChartData, IWidgetConfigurationDescription,
+    IWidgetConfigurationDescriptionItem,
+    IWidgetVariables, WidgetTemplateSettings
+} from "../interfaces";
 import {WidgetConfigInner} from "./widgetConfig";
 import {EventBusWrapper, EventBus, EventBusEvent} from 'goodteditor-event-bus';
 
@@ -21,8 +27,11 @@ export abstract class Chart implements IChart {
 
     // Обработчик изменения размера
     onResize: (width: number, height: number) => void = (w, h) => {};
-    // Обработчки сообщений от шины
-    // true - если необходима перерисовка
+
+    /**
+     * Обработчик сообщений от шины
+     * @return true - если необходима перерисовка
+     */
     onEventBus: (varName: string, value: string, dataSourceId: number) => boolean = (...args) => false;
 
     constructor(config: WidgetConfigInner) {
@@ -103,14 +112,63 @@ export abstract class Chart implements IChart {
     }
 
     /**
+     * Возвращает настройку из сеттингов виджета
+     * @param config конфигурация виджета
+     * @param settings Объект с настройками
+     * @param name название поля
+     * @param def если требуется указать значение, отличное от default указанного в конфиге
+     */
+    protected getWidgetSetting<T = any>(
+        config: IWidgetConfigurationDescription,
+        settings: WidgetTemplateSettings,
+        name: string,
+        def: T = null
+    ): T {
+        const item = config.settings.find((v: IWidgetConfigurationDescriptionItem) => v.name === name);
+        if (!item) {
+            // NOTE: Вот именно так! сразу бьем по рукам за попытку обратиться к недокументированному параметру
+            throw new Error(`Attempt to get an undescribed parameter <${name}>`);
+        }
+        // Если параметр описан, но не пришел в настройках, выставляем default
+        return _get(settings, name, def !== null ? def : item.default);
+    }
+
+    /**
+     * Возвращает настройку из датасета
+     * @param config конфигурация виджета
+     * @param settings Объект с настройками
+     * @param name название поля
+     * @param def если требуется указать значение, отличное от default указанного в конфиге
+     */
+    protected getDataSetSettings<T = any>(
+        config: IWidgetConfigurationDescription,
+        settings: DataSetSettings,
+        name: string,
+        def: T = null
+    ): T {
+        const item = config.dataSet.settings.find((v: IWidgetConfigurationDescriptionItem) => v.name === name);
+        if (!item) {
+            // NOTE: Вот именно так! сразу бьем по рукам за попытку обратиться к недокументированному параметру
+            throw new Error(`Attempt to get an undescribed parameter <${name}>`);
+        }
+        // Если параметр описан, но не пришел в настройках, выставляем default
+        return _get(settings, name, def !== null ? def : item.default);
+    }
+
+    /**
      * Возвращает строку стилей и имя класса
      * Оба значения можно использовать как есть в виде class=`${className}` style=`${colorStyle}`
      * @return Всегда возвращает валидный цвет для подстановки
      */
-    protected getColor(settings: DataSetSettings, defClassName: string, defColor: string = '#000'): {
+    protected getColor(
+        config: IWidgetConfigurationDescription,
+        settings: DataSetSettings,
+        defClassName: string,
+        defColor: string = '#000'
+    ): {
         color: string, colorStyle: string, className: string
     } {
-        let color: string = _get(settings, 'color', '');
+        let color: string = this.getDataSetSettings(config, settings, 'color');
         let colorStyle: string = '';
         let className: string = '';
         if (!color) {
@@ -118,7 +176,7 @@ export abstract class Chart implements IChart {
             colorStyle = '';
             className = defClassName;
         } else {
-            colorStyle = 'color: ' + color + ';';
+            colorStyle = `color: ${color};`;
         }
         return {color, colorStyle, className};
     }

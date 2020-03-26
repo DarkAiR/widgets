@@ -1,4 +1,4 @@
-import {ISettings, WidgetTemplateSettings} from "../../interfaces";
+import {WidgetTemplateSettings} from "../../interfaces";
 
 export interface SolidGaugeSettings extends WidgetTemplateSettings {
     icon: string;

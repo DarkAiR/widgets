@@ -1,9 +1,8 @@
 import s from "../../styles/_all.less";
 import w from "./KPI.less";
+import {config as widgetConfig} from "./config";
 
-import {IChart, IChartData, IWidgetVariables} from "../../interfaces";
-import {KPISettings} from "./KPISettings";
-import {get as _get} from "lodash";
+import {IChartData, IWidgetVariables} from "../../interfaces";
 import {Chart} from "../../models/Chart";
 
 export class KPI extends Chart {
@@ -18,7 +17,7 @@ export class KPI extends Chart {
         console.log('KPIChart settings: ', settings);
 
         let valueMain;
-        const valueMainColor = this.getColor(data.dataSets[0].settings, 'color-yellow');
+        const valueMainColor = this.getColor(widgetConfig, data.dataSets[0].settings, 'color-yellow');
         const style1 = valueMainColor.colorStyle + _get(data.dataSets[0].settings, 'valueStyle', '');
         const backStyle = _get(data.dataSets[0].settings, 'globalSets', '');
         const titleStyle = _get(data.dataSets[0].settings, 'titleSets', '');
@@ -40,7 +39,7 @@ export class KPI extends Chart {
                 valueSub = _get(data.data[1], '[0].value', 0);
             }
 
-            valueSubColor = this.getColor(data.dataSets[1].settings, 'color-grey');
+            valueSubColor = this.getColor(widgetConfig, data.dataSets[1].settings, 'color-grey');
             style2 = valueSubColor.colorStyle + _get(data.dataSets[1].settings, 'valueStyle', '');
 
 
@@ -74,7 +73,7 @@ export class KPI extends Chart {
                 <div class='${s["row"]}' style="height:fit-content;">
                     <div class='${s["col"]}'>
                         <div class="${w['title']}" style='${titleStyle}'>
-                            ${settings.title}
+                            ${this.getWidgetSetting(widgetConfig, settings, 'title')}
                         </div>
                     </div>
                 </div>

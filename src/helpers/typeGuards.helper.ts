@@ -2,6 +2,9 @@ import {DataSet, DataSetTemplate, JoinDataSetTemplate} from "../interfaces/templ
 import {AggregationDataSource, DataSource, SingleDataSource} from "../interfaces/graphQL";
 
 export class TypeGuardsHelper {
+    /**
+     * Проверяем, что все элементы dataSets являются DataSetTemplate
+     */
     static dataSetsIsDataSetTemplate(dataSets: DataSet[]): dataSets is DataSetTemplate[] {
         return dataSets.every((v: DataSet) => v.viewType !== 'TABLE');
     }

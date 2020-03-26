@@ -1,8 +1,8 @@
 import s from '../../styles/_all.less';
 import w from './profileAndDistribution.less';
-import echarts from 'echarts';
-import {EventBusEvent} from 'goodteditor-event-bus';
+import {config as widgetConfig} from "./config";
 
+import echarts from 'echarts';
 import {
     IChartData,
     IWidgetVariables
@@ -24,7 +24,7 @@ export class ProfileAndDistribution extends Chart {
             <div class='${s['widget']}  ${w['widget']}'>
                 <div class='${w['row']}'>
                     <div class="${w['title']}">
-                        ${settings.title}
+                        ${this.getWidgetSetting(widgetConfig, settings, 'title')}
                     </div>
                 </div>
                 <div class='${w['row']} ${w['chart']}'>
