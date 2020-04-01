@@ -39,7 +39,7 @@
     "bootstrap": "^4.3.1",
     "css-loader": "^1.0.1",
     "d3": "^5.11.0",
-    "echarts": "^4.2.1",
+    "echarts": "^4.7.0",
     "goodt-framework-css": "^1.0.8",
     "goodteditor-event-bus": "^1.1.1",
     "hammerjs": "^2.0.8",
