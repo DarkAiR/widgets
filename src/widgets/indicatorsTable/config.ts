@@ -1,16 +1,14 @@
-import {IWidgetConfigurationDescription} from "../../interfaces";
+import {IWidgetInfo} from "../../interfaces";
+import {makeString} from "../../widgetInfo/settings/StringSetting";
+import {makeConfig} from "../../widgetInfo/WidgetInfoSetting";
 
-export const config: IWidgetConfigurationDescription = {
+export const config: IWidgetInfo = makeConfig({
     settings: [
-        {
-            name: "title",
-            type: "string",
-            default: ""
-        }
+        makeString('title', '')
     ],
     dataSet: {
         initAmount: 6,
         canAdd: false,
         settings: []
     }
-};
+});

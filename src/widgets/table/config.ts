@@ -1,27 +1,18 @@
-import {IWidgetConfigurationDescription} from "../../interfaces";
+import {IWidgetInfo} from "../../interfaces";
+import {makeConfig} from "../../widgetInfo/WidgetInfoSetting";
+import {makeString} from "../../widgetInfo/settings/StringSetting";
+import {makeNameValueArray} from "../../widgetInfo/settings/NameValueArraySetting";
 
-export const config: IWidgetConfigurationDescription = {
+export const config: IWidgetInfo = makeConfig({
     settings: [
-        {
-            name: "title",
-            type: "string",
-            default: ""
-        }
+        makeString('title', '')
     ],
     dataSet: {
         initAmount: 1,
         canAdd: true,
         settings: [
-            {
-                name: "dimensionsNames",
-                type: "nameValue[]",
-                default: []
-            },
-            {
-                name: "metricNames",
-                type: "nameValue[]",
-                default: []
-            }
+            makeNameValueArray('dimensionsNames', []),
+            makeNameValueArray('metricNames', [])
         ]
     }
-};
+});

@@ -59,12 +59,21 @@
 - Проверки на single/aggregation data source сделаны через type guard
 
 ##### 0.8.0 / 2020-03-27
-- В каждый виждет добавлен config.ts для описания конфигурации виджета
+###### Настройки
+- Сделаны настройки виджетов
+- В каждый виждет добавлен config.ts для описания конфигурации виджета + функции для создания конфига (статическая типизация) 
 - Добавлен метод WidgetFactory::loadWidgetConfig для загрузки конфигурации виджета в среду интеграции
 - Виджеты и конфиги изолированы в отдельные namespaces чтобы можно было давать одинаковые названия классам конфигурации
-- tsconfig переведен на module=esnext
-- typescript@3.7.2
 - из dataProvider убрано автоматическое заполнение settings.title
 - в Chart добавлены методы получения настроек
-- удалены все классы настроек виджетов кроме WidgetTemplateSettings
-? удалить WidgetTemplateSettings
+- удалены все классы настроек (WidgetTemplateSettings и DataSetSettings) виджетов
+- для YAxisTypes добавлен массив значений YAxisTypesValues, чтобы можно было использовать в качестве значений в настройках 
+###### Виджеты
+- убран класс [icon-] из IndicatorsTable, который вылазил в глобальный scope
+- spline переведен на шаблоны
+- учитывается groupBy в table
+###### TypeScript
+- tsconfig переведен на module=esnext, targer=es2018
+- typescript@3.7.2
+- prefer-const + рефакторинг ошибок
+

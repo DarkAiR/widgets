@@ -3,11 +3,13 @@ import w from "./table.less";
 import {config as widgetConfig} from "./config";
 
 import {
+    DimensionFilter,
     IChartData, INameValue,
     IWidgetVariables, JoinDataSetTemplate, TableRow, TimeSeriesDataSetShort
 } from "../../interfaces";
 import * as _get from "lodash/get";
 import * as _map from "lodash/map";
+import * as _filter from "lodash/filter";
 import * as _keyBy from "lodash/keyBy";
 import {Chart} from "../../models/Chart";
 import {TypeGuardsHelper} from "../../helpers";
@@ -22,7 +24,10 @@ export class Table extends Chart {
 
         // NOTE: Для таблицы существует только один источник, если его нет, то это Exception
         const points: TableRow[] = dataByDataSources[0];
-        const dimensions: string[] = _map((data.dataSets[0] as JoinDataSetTemplate).dimensions, 'name');
+        const dimensions: string[] = _map(
+            _filter((data.dataSets[0] as JoinDataSetTemplate).dimensions, (v: DimensionFilter) => v.groupBy),
+            'name'
+        );
         const metrics: string[] = (data.dataSets[0] as JoinDataSetTemplate).dataSetTemplates.map(
             (v: TimeSeriesDataSetShort) => {
                 if (TypeGuardsHelper.isSingleDataSource(v.dataSource1)) {

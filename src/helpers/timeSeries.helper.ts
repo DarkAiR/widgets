@@ -9,11 +9,16 @@ export interface TimeSeriesData {
 export class TimeSeriesHelper {
     /**
      * Конвертирует данные TimeSeries в массив дат и массив значений
+     * @return {
+     *     dates: [dateTime]
+     *     values: [dateSetIndex][values]
+     * }
+     * При этом dates.length === values[dateSetIndex].length
      */
     static convertTimeSeriesToData(data: TSPoint[][]): TimeSeriesData {
         const valuesArr: Array<number[]> = [];
-        _forEach(data, (dataValues: TSPoint[], idx: number) => {
-            _forEach(dataValues, (v: TSPoint) => {
+        data.forEach((dataValues: TSPoint[], idx: number) => {
+            dataValues.forEach((v: TSPoint) => {
                 if (valuesArr[v.localDateTime] === undefined) {
                     valuesArr[v.localDateTime] = [];
                 }

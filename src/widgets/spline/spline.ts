@@ -9,12 +9,11 @@ import {
     IWidgetVariables,
     SingleDataSource,
 } from '../../interfaces';
-import {
-    get as _get,
-    set as _set,
-    map as _map,
-    forEach as _forEach
-} from 'lodash';
+import * as _get from 'lodash/get';
+import * as _set from 'lodash/set';
+import * as _map from 'lodash/map';
+import * as _forEach from 'lodash/forEach';
+import * as _toPairs from 'lodash/toPairs';
 import {Chart} from '../../models/Chart';
 import {TimeSeriesData, TimeSeriesHelper} from '../../helpers/timeSeries.helper';
 import {YAxisTypes} from "../../models/types";
@@ -47,23 +46,8 @@ export class Spline extends Chart {
             const globalCardSets = _get(data.dataSets[0].settings, 'globalCardSettings', '');
             const titleSets = _get(data.dataSets[0].settings, 'titleSettings', '');
 
-            const str = `
-                <div class='${s['widget']}  ${w['widget']}' style="${globalCardSets}">
-                    <div class='${w['row']}'>
-                        <div class="${w['title']}" style="${titleSets}">
-                            ${this.getWidgetSetting(widgetConfig, data.settings, 'title')}
-                        </div>
-                    </div>
-                    <div class='${w['row']} ${w['chart']}'>
-                    </div>
-                </div>
-            `;
-            this.config.element.innerHTML = str;
-
             const timeSeriesData: TimeSeriesData = TimeSeriesHelper.convertTimeSeriesToData(data.data as TSPoint[][]);
 
-            // Конвертируем из строковых дат в дни месяца
-            const axisData = _map(timeSeriesData.dates, (v: string) => new Date(v).getDate());
             // Вычисляем количество левых и правых осей
             const axisOffsets = this.calcAxisOffsets(data);
 
@@ -87,6 +71,10 @@ export class Spline extends Chart {
                     boundaryGap: this.hasHistogram(data),
                     // Цифры
                     axisLabel: {
+                        formatter: (value: string) => {
+                            const date: Date = new Date(value);
+                            return ['0' + date.getDate(), '0' + (date.getMonth() + 1)].map((v: string) => v.slice(-2)).join('.');
+                        },
                         color: '#b4b4b4',
                         fontSize: 12
                     },
@@ -99,7 +87,7 @@ export class Spline extends Chart {
                             type: 'dashes'
                         }
                     },
-                    data: axisData
+                    data: timeSeriesData.dates
                 },
                 yAxis: yaxis,
                 tooltip: {
@@ -135,6 +123,12 @@ export class Spline extends Chart {
                     options.xAxis[k] = xAxisSettings[k];
                 }
             }
+
+            this.config.element.innerHTML = this.renderTemplate({
+                title: this.getWidgetSetting(widgetConfig, data.settings, 'title'),
+                titleSets,
+                globalCardSets
+            });
 
             const el = this.config.element.getElementsByClassName(w['chart'])[0];
             const myChart = echarts.init(el);
@@ -692,5 +686,19 @@ export class Spline extends Chart {
                 break;
         }
         return needReload;
+    }
+
+    getTemplate(): string {
+        return `
+                <div class='${s['widget']}  ${w['widget']}' style="{{globalCardSets}}">
+                    <div class='${w['row']}'>
+                        <div class="${w['title']}" style="{{titleSets}}">
+                            {{title}}
+                        </div>
+                    </div>
+                    <div class='${w['row']} ${w['chart']}'>
+                    </div>
+                </div>
+            `;
     }
 }

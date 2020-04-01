@@ -17,7 +17,7 @@ module.exports = function(pathDir) {
         ), "");
     };
 
-    var context = glob.sync('*/', {
+    const context = glob.sync('*/', {
         cwd: pathDir
     });
     const widgets = {};

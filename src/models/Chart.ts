@@ -1,14 +1,13 @@
-import {get as _get, set as _set, forEach as _forEach, defaultTo as _defaultTo} from 'lodash';
+import {get as _get, forEach as _forEach, defaultTo as _defaultTo} from 'lodash';
 import ResizeObserver from 'resize-observer-polyfill';
 import {
-    DataSetSettings,
     IChart,
-    IChartData, IWidgetConfigurationDescription,
-    IWidgetConfigurationDescriptionItem,
-    IWidgetVariables, WidgetTemplateSettings
+    IChartData, ISettings, IWidgetInfo,
+    IWidgetVariables
 } from "../interfaces";
 import {WidgetConfigInner} from "./widgetConfig";
 import {EventBusWrapper, EventBus, EventBusEvent} from 'goodteditor-event-bus';
+import {WidgetInfoSettingsItem} from "../widgetInfo/types";
 
 const hogan = require('hogan.js');
 
@@ -116,21 +115,20 @@ export abstract class Chart implements IChart {
      * @param config конфигурация виджета
      * @param settings Объект с настройками
      * @param name название поля
-     * @param def если требуется указать значение, отличное от default указанного в конфиге
+     * @return возвращает значение того типа, к которому присваиваевается результат, поэтому нужен тип T
      */
     protected getWidgetSetting<T = any>(
-        config: IWidgetConfigurationDescription,
-        settings: WidgetTemplateSettings,
-        name: string,
-        def: T = null
+        config: IWidgetInfo,
+        settings: ISettings,
+        name: string
     ): T {
-        const item = config.settings.find((v: IWidgetConfigurationDescriptionItem) => v.name === name);
+        const item = config.settings.find((v: WidgetInfoSettingsItem) => v.name === name);
         if (!item) {
             // NOTE: Вот именно так! сразу бьем по рукам за попытку обратиться к недокументированному параметру
             throw new Error(`Attempt to get an undescribed parameter <${name}>`);
         }
         // Если параметр описан, но не пришел в настройках, выставляем default
-        return _get(settings, name, def !== null ? def : item.default);
+        return _get(settings, name, item.default);
     }
 
     /**
@@ -138,21 +136,20 @@ export abstract class Chart implements IChart {
      * @param config конфигурация виджета
      * @param settings Объект с настройками
      * @param name название поля
-     * @param def если требуется указать значение, отличное от default указанного в конфиге
+     * @return возвращает значение того типа, к которому присваиваевается результат, поэтому нужен тип T
      */
     protected getDataSetSettings<T = any>(
-        config: IWidgetConfigurationDescription,
-        settings: DataSetSettings,
-        name: string,
-        def: T = null
+        config: IWidgetInfo,
+        settings: ISettings,
+        name: string
     ): T {
-        const item = config.dataSet.settings.find((v: IWidgetConfigurationDescriptionItem) => v.name === name);
+        const item = config.dataSet.settings.find((v: WidgetInfoSettingsItem) => v.name === name);
         if (!item) {
             // NOTE: Вот именно так! сразу бьем по рукам за попытку обратиться к недокументированному параметру
             throw new Error(`Attempt to get an undescribed parameter <${name}>`);
         }
         // Если параметр описан, но не пришел в настройках, выставляем default
-        return _get(settings, name, def !== null ? def : item.default);
+        return _get(settings, name, item.default);
     }
 
     /**
@@ -161,8 +158,8 @@ export abstract class Chart implements IChart {
      * @return Всегда возвращает валидный цвет для подстановки
      */
     protected getColor(
-        config: IWidgetConfigurationDescription,
-        settings: DataSetSettings,
+        config: IWidgetInfo,
+        settings: ISettings,
         defClassName: string,
         defColor: string = '#000'
     ): {

@@ -6,7 +6,7 @@
     "sourceMap": true,
     "declaration": true,
     "module": "esnext",
-    "target": "esnext",
+    "target": "es2018",
     "moduleResolution": "node",
     // "emitDecoratorMetadata": true,
     "experimentalDecorators": true,

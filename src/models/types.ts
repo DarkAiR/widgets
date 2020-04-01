@@ -14,7 +14,11 @@ export type WidgetType = 'SPLINE' | 'AVERAGE_NUMBER' | 'SOLID_GAUGE' | 'INDICATO
 export type ViewType = 'STATIC' | 'DYNAMIC' | 'REPORT' | 'TABLE' | 'DISTRIBUTION' | 'PROFILE'; // | 'MAP'
 
 export type ChartType = 'LINE' | 'HISTOGRAM' | 'SCATTER' | 'COMPARED_FACT' | 'COMPARED_PLAN';
-export type YAxisTypes = 'left' | 'right';
+
+// NOTE: Нельзя через enum, т.к. они не экспортируются, поэтому через массив значений + type
+export const YAxisTypesValues = ['left', 'right'] as const;   // Создаем массив допустимых значений
+export type YAxisTypes = typeof YAxisTypesValues[number];
+
 export type MethodType = 'MAPE' | 'MAE' | 'coverage' | 'utilization';
 export type ServerType = 'druid' | 'qlik';
 
@@ -23,6 +27,3 @@ export type Frequency = 'YEAR' | 'MONTH' | 'WEEK' | 'DAY' | 'HOUR' | 'ALL';
 export type Operation = 'SUM' | 'AVG' | 'MIN' | 'MAX';
 export type DataSourceType = 'SINGLE' | 'AGGREGATION';
 export type ArithmeticOperation = 'SUM' | 'SUBTRACT' | 'MULTIPLY' | 'DIVIDE';
-
-// Типы полей настроек для виджетов
-export type WidgetSettingsTypes = 'string' | 'number' | 'boolean' | 'color' | 'axis' | 'nameValue[]';

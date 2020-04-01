@@ -1,6 +1,6 @@
 import {ViewType, ChartType, Frequency, Operation} from './../../../models/types';
-import {DataSetSettings} from "./dataSetSettings";
 import {DataSource} from "../../graphQL";
+import {ISettings} from "../../ISettings";
 
 export interface DataSetTemplate {
     dataSource1: DataSource;                // описание источника данных для dataSet'a.
@@ -24,5 +24,5 @@ export interface DataSetTemplate {
     numberOfBeans?: number;                 // количество столбцов (используется только для DISTRIBUTION)
     methods?: string[] | null;
 
-    settings?: DataSetSettings;             // Настройки конкретных источников данных
+    settings?: ISettings;                   // Настройки конкретных источников данных
 }

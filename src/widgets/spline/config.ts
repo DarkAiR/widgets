@@ -1,27 +1,22 @@
-import {IWidgetConfigurationDescription} from "../../interfaces";
+import {INameValue, IWidgetInfo} from "../../interfaces";
+import {YAxisTypes, YAxisTypesValues} from "../../models/types";
+import {makeConfig} from "../../widgetInfo/WidgetInfoSetting";
+import {makeString} from "../../widgetInfo/settings/StringSetting";
+import {makeList} from "../../widgetInfo/settings/ListSetting";
+import {makeColor} from "../../widgetInfo/settings/ColorSetting";
 
-export const config: IWidgetConfigurationDescription = {
+export const config: IWidgetInfo = makeConfig({
     settings: [
-        {
-            name: "title",
-            type: "string",
-            default: ""
-        }
+        makeString('title', ''),
     ],
     dataSet: {
         initAmount: 1,
         canAdd: true,
         settings: [
-            {
-                name: "color",
-                type: "color",
-                default: null
-            },
-            {
-                name: "yAxis",
-                type: "axis",
-                default: "left"
-            }
+            makeColor('color', null),
+            makeList<YAxisTypes>('yAxis', 'left', YAxisTypesValues.map(
+                (v: YAxisTypes): INameValue<typeof v> => ({name: v, value: v})
+            ))
         ]
     }
-};
+});

@@ -1,4 +1,4 @@
-import {IChart, IChartData, JoinDataSetTemplate, RejectFunc, ResolveFunc, WidgetTemplate, IWidgetConfigurationDescription} from "../interfaces";
+import {IChart, IChartData, JoinDataSetTemplate, RejectFunc, ResolveFunc, WidgetTemplate, IWidgetInfo} from "../interfaces";
 import {DataProvider} from "../dataProvider";
 import * as widgets from "../widgets";
 import {WidgetConfig, WidgetConfigInner} from "../models/widgetConfig";
@@ -11,8 +11,8 @@ type WidgetsArr = Record<WidgetType, Function>;
 export class WidgetFactory {
     dataProvider: DataProvider = null;
 
-    static loadWidgetConfig(widgetType: WidgetType): Promise<IWidgetConfigurationDescription> {
-        const widgetTypeToImport: Record<WidgetType, () => Promise<{config: IWidgetConfigurationDescription}>> = {
+    static loadWidgetConfig(widgetType: WidgetType): Promise<IWidgetInfo> {
+        const widgetTypeToImport: Record<WidgetType, () => Promise<{config: IWidgetInfo}>> = {
             'SPLINE':           () => import('./../widgets/spline/config'),
             'AVERAGE_NUMBER':   () => import('./../widgets/averageNumber/config'),
             'SOLID_GAUGE':      () => import('./../widgets/solidGauge/config'),
@@ -30,7 +30,7 @@ export class WidgetFactory {
                 reject();
             }
             widgetTypeToImport[widgetType]().then(
-                (v: {config: IWidgetConfigurationDescription}) => resolve(v.config)
+                (v: {config: IWidgetInfo}) => resolve(v.config)
             ).catch(reject);
         });
     }
@@ -139,7 +139,7 @@ export class WidgetFactory {
         config.element.style.position = 'relative';
         versionElement.style.position = 'absolute';
         versionElement.style.right = '0px';
-        versionElement.style.bottom = '0px';
+        versionElement.style.top = '0px';
         versionElement.style.fontSize = '.5em';
         versionElement.style.opacity = '.4';
         versionElement.innerHTML = 'v' + __VERSION__;

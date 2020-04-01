@@ -1,22 +1,17 @@
-import {IWidgetConfigurationDescription} from "../../interfaces";
+import {IWidgetInfo} from "../../interfaces";
+import {makeString} from "../../widgetInfo/settings/StringSetting";
+import {makeColor} from "../../widgetInfo/settings/ColorSetting";
+import {makeConfig} from "../../widgetInfo/WidgetInfoSetting";
 
-export const config: IWidgetConfigurationDescription = {
+export const config: IWidgetInfo = makeConfig({
     settings: [
-        {
-            name: "title",
-            type: "string",
-            default: ""
-        }
+        makeString('title', '')
     ],
     dataSet: {
         initAmount: 1,
         canAdd: true,
         settings: [
-            {
-                name: "color",
-                type: "color",
-                default: null
-            }
+            makeColor('color', null)
         ]
     }
-};
+});
