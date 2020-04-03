@@ -4,7 +4,7 @@ import {config as widgetConfig} from "./config";
 
 import {
     DimensionFilter,
-    IChartData, INameValue,
+    IChartData, INameValue, ISettings,
     IWidgetVariables, JoinDataSetTemplate, TableRow, TimeSeriesDataSetShort
 } from "../../interfaces";
 import * as _get from "lodash/get";
@@ -23,53 +23,69 @@ export class Table extends Chart {
         const dataByDataSources: TableRow[][] = data.data as TableRow[][];
 
         // NOTE: Для таблицы существует только один источник, если его нет, то это Exception
-        const points: TableRow[] = dataByDataSources[0];
-        const dimensions: string[] = _map(
-            _filter((data.dataSets[0] as JoinDataSetTemplate).dimensions, (v: DimensionFilter) => v.groupBy),
-            'name'
-        );
-        const metrics: string[] = (data.dataSets[0] as JoinDataSetTemplate).dataSetTemplates.map(
-            (v: TimeSeriesDataSetShort) => {
-                if (TypeGuardsHelper.isSingleDataSource(v.dataSource1)) {
-                    return v.dataSource1.metric.name;
+        if (TypeGuardsHelper.isJoinDataSetTemplate(data.dataSets[0])) {
+            const dataSet: JoinDataSetTemplate = data.dataSets[0];
+            const settings: ISettings = dataSet.settings ?? {};
+            const points: TableRow[] = dataByDataSources[0];
+
+            const dimensions: string[] = _map(
+                _filter(dataSet.dimensions, (v: DimensionFilter) => v.groupBy),
+                'name'
+            );
+
+            const metrics: string[] = dataSet.dataSetTemplates.map(
+                (v: TimeSeriesDataSetShort) => {
+                    if (TypeGuardsHelper.isSingleDataSource(v.dataSource1)) {
+                        return v.dataSource1.metric.name;
+                    }
+                    return '';
                 }
-                return '';
+            );
+
+            // Готовим данные, формируем общий список метрик
+            const header: string[] = this.mapToNames([
+                'Date',
+                ...dimensions,
+                ...metrics
+            ], this.getDataSetSettings(widgetConfig, settings, 'columnNames'));
+            const rows: Array<{cols: INameValue<string>[]}> = points.map((v: TableRow) => {
+                const row = [];
+                const pointDimensionsName: string = _keyBy(v.dimensions, 'name');
+                const pointMetricsName: string = _keyBy(v.metrics, 'name');
+
+                row.push({name: 'localDateTime', value: new Date(v.localDateTime).toLocaleDateString()});   // Конвертируем даты
+                dimensions.forEach((dimName: string) => {
+                    row.push({name: dimName, value: _get(pointDimensionsName[dimName], 'value', '')});
+                });
+                metrics.forEach((metricName: string) => {
+                    row.push({name: metricName, value: _get(pointMetricsName[metricName], 'value', '')});
+                });
+                return {cols: row};
+            });
+
+            this.config.element.innerHTML = this.renderTemplate({
+                title: this.getWidgetSetting(widgetConfig, data.settings, 'title'),
+                header,
+                rows
+            });
+        }
+    }
+
+    private mapToNames(src: string[], arr: INameValue[]): string[] {
+        arr.forEach((v: INameValue) => {
+            const idx: number = src.findIndex((srcValue: string) => srcValue === v.name);
+            if (idx !== -1) {
+                src[idx] = v.value;
             }
-        );
-
-        // Готовим данные, формируем общий список метрик
-        const header: string[] = [
-            'Date',
-            ...dimensions,
-            ...metrics
-        ];
-        const rows: Array<{cols: INameValue<string>[]}> = points.map((v: TableRow) => {
-            const row = [];
-            const pointDimensionsName: string = _keyBy(v.dimensions, 'name');
-            const pointMetricsName: string = _keyBy(v.metrics, 'name');
-
-            row.push({name: 'localDateTime', value: new Date(v.localDateTime).toLocaleDateString()});   // Конвертируем даты
-            dimensions.forEach((dimName: string) => {
-                row.push({name: dimName, value: _get(pointDimensionsName[dimName], 'value', '')});
-            });
-            metrics.forEach((metricName: string) => {
-                row.push({name: metricName, value: _get(pointMetricsName[metricName], 'value', '')});
-            });
-            return {cols: row};
         });
-
-        this.config.element.innerHTML = this.renderTemplate({
-            title: this.getWidgetSetting(widgetConfig, data.settings, 'title'),
-            header,
-            rows
-        });
+        return src;
     }
 
     getTemplate(): string {
         return `
             <div class='${s["widget"]}'>
                 <h4>{{title}}</h4>
-                <table class="${s['table']} ${s['w-100']}">
+                <table class="${s['table']} ${s['w-100']} ${w['table']}">
                 <thead>
                     <tr>
                         {{#header}}

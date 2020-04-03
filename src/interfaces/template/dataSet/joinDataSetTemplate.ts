@@ -1,5 +1,6 @@
 import {Frequency, ViewType} from './../../../models/types';
 import {DimensionFilter, TimeSeriesDataSetShort} from "../../graphQL";
+import {ISettings} from "../../ISettings";
 
 export interface JoinDataSetTemplate {
     viewType: ViewType;                     // тип виджета (должен совпадать со значением в WidgetTemplate)
@@ -11,4 +12,5 @@ export interface JoinDataSetTemplate {
     frequency: Frequency;                   // частота конечной аггрегации
     dimensions: DimensionFilter[];          // набор фильтров по полям (применим только для SINGLE)
     dataSetTemplates: TimeSeriesDataSetShort[]; // Список dataSet
+    settings?: ISettings;                   // Настройки конкретных источников данных
 }

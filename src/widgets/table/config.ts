@@ -1,4 +1,4 @@
-import {IWidgetInfo} from "../../interfaces";
+import {INameValue, IWidgetInfo} from "../../interfaces";
 import {makeConfig} from "../../widgetInfo/WidgetInfoSetting";
 import {makeString} from "../../widgetInfo/settings/StringSetting";
 import {makeNameValueArray} from "../../widgetInfo/settings/NameValueArraySetting";
@@ -11,8 +11,7 @@ export const config: IWidgetInfo = makeConfig({
         initAmount: 1,
         canAdd: true,
         settings: [
-            makeNameValueArray('dimensionsNames', []),
-            makeNameValueArray('metricNames', [])
+            makeNameValueArray('columnNames', <INameValue[]>[])
         ]
     }
 });

@@ -4,11 +4,12 @@
 
 import {BaseSetting} from "./BaseSetting";
 import {SettingFunc} from "../types";
+import {INameValue} from "../../interfaces";
 
-export interface NameValueArraySetting extends BaseSetting<[]> {
+export interface NameValueArraySetting extends BaseSetting<INameValue[]> {
 }
 
-export function makeNameValueArray(name: string, def: []): SettingFunc {
+export function makeNameValueArray(name: string, def: INameValue[]): SettingFunc {
     return (): NameValueArraySetting => ({
         name,
         type: 'nameValueArray',

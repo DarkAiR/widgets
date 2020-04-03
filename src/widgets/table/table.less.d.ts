@@ -1,4 +1,5 @@
 export interface ITableLess {
+  'table': string;
   'title': string;
 }
 
