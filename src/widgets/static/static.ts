@@ -48,7 +48,7 @@ export class Static extends Chart {
 
     private getSeries(data: Point[][]): Object[] {
         const series: Object[] = [];
-        data.forEach((item: Point[], index: number) => {
+        data.forEach((item: Point[]) => {
             const seriesData = {
                 symbolSize: 20,
                 data: [],

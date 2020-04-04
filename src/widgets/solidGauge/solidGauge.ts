@@ -5,7 +5,7 @@ import {config as widgetConfig} from "./config";
 import {IChartData, IWidgetVariables} from "../../interfaces";
 import {get as _get} from "lodash";
 import {Chart} from "../../models/Chart";
-import {TypeGuardsHelper} from "../../helpers/typeGuards.helper";
+import {TypeGuardsHelper} from "../../helpers";
 
 export class SolidGauge extends Chart {
     getVariables(): IWidgetVariables {
@@ -40,8 +40,8 @@ export class SolidGauge extends Chart {
             this.config.element.innerHTML = output;
 
             this.onResize = (width: number, height: number) => {
-                const widgetInner = this.config.element.querySelector('.solidGauge-widget-inner');
-                const chart = this.config.element.querySelector('.solidGauge-chart');
+                const widgetInner = this.config.element.getElementsByClassName(w['widget-inner'])[0];
+                const chart = this.config.element.getElementsByClassName(w['chart'])[0];
                 let maxWidth = getComputedStyle(chart)["max-width"];
                 if (maxWidth === undefined) {
                     maxWidth = '1px';

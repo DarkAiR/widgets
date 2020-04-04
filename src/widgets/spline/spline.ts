@@ -13,12 +13,11 @@ import * as _get from 'lodash/get';
 import * as _set from 'lodash/set';
 import * as _map from 'lodash/map';
 import * as _forEach from 'lodash/forEach';
-import * as _toPairs from 'lodash/toPairs';
 import {Chart} from '../../models/Chart';
-import {TimeSeriesData, TimeSeriesHelper} from '../../helpers/timeSeries.helper';
+import {TimeSeriesData, TimeSeriesHelper} from '../../helpers';
 import {YAxisTypes} from "../../models/types";
-import {TSPoint} from "../../interfaces/graphQL/TSPoint";
-import {TypeGuardsHelper} from "../../helpers/typeGuards.helper";
+import {TSPoint} from "../../interfaces/graphQL";
+import {TypeGuardsHelper} from "../../helpers";
 
 export class Spline extends Chart {
     getVariables(): IWidgetVariables {
@@ -105,8 +104,10 @@ export class Spline extends Chart {
             // background: transparent; border-radius: 5px; padding: 10px; box-shadow: 0 1px 2px 0.5px rgba(0,0,0,.25);
             const globalSettings = _get(data.dataSets[0].settings, 'globalSettings', {});
             for (const k in globalSettings) {
-                if (globalSettings[k] !== undefined) {
-                    options[k] = globalSettings[k];
+                if (globalSettings.hasOwnProperty(k)) {
+                    if (globalSettings[k] !== undefined) {
+                        options[k] = globalSettings[k];
+                    }
                 }
             }
 
@@ -119,8 +120,10 @@ export class Spline extends Chart {
             // splitLine: {show: false}
             const xAxisSettings = _get(data.dataSets[0].settings, 'xAxisSettings', {});
             for (const k in xAxisSettings) {
-                if (xAxisSettings[k] !== undefined) {
-                    options.xAxis[k] = xAxisSettings[k];
+                if (xAxisSettings.hasOwnProperty(k)) {
+                    if (xAxisSettings[k] !== undefined) {
+                        options.xAxis[k] = xAxisSettings[k];
+                    }
                 }
             }
 
@@ -198,8 +201,10 @@ export class Spline extends Chart {
                 // z: 0
                 const seriesSettings = _get(data.dataSets[idx].settings, 'seriesSettings', {});
                 for (const k in seriesSettings) {
-                    if (seriesSettings[k] !== undefined) {
-                        seriesData[k] = seriesSettings[k];
+                    if (seriesSettings.hasOwnProperty(k)) {
+                        if (seriesSettings[k] !== undefined) {
+                            seriesData[k] = seriesSettings[k];
+                        }
                     }
                 }
 
@@ -257,15 +262,13 @@ export class Spline extends Chart {
                         mainColor = _get(data.dataSets[idx].settings, 'mainColor', {});
 
                         comparedFlag = true;
-                        continue;
+                        break;
                     case "COMPARED_FACT":
                         factData = timeSeriesData.values[idx];
                         factProps = _get(data.dataSets[idx].settings, 'seriesSettings', {});
                         factOpts = this.getComparedHistogramSeries(0, currColor.color);
                         comparedFlag = true;
-                        continue;
-                    default:
-                        continue;
+                        break;
                 }
             }
 
@@ -427,9 +430,9 @@ export class Spline extends Chart {
                         break;
                 }
 
-                const rotate: number = (finalHB < 10000)
-                    ? 0
-                    : (finalHB < 100000 ? 30 : 90);
+                // const rotate: number = (finalHB < 10000)
+                //     ? 0
+                //     : (finalHB < 100000 ? 30 : 90);
 
                 const yAxisTemplate = {
                     type: 'value',
@@ -465,8 +468,10 @@ export class Spline extends Chart {
                 // FIXME: Внешние настройки не должны напрямую менять внутренние настройки конкретного рендера, только через мепинг
                 const yAxisSettings = _get(data.dataSets[idx].settings, 'yAxisSettings', {});
                 for (const k in yAxisSettings) {
-                    if (yAxisSettings[k] !== undefined) {
-                        yAxisTemplate[k] = yAxisSettings[k];
+                    if (yAxisSettings.hasOwnProperty(k)) {
+                        if (yAxisSettings[k] !== undefined) {
+                            yAxisTemplate[k] = yAxisSettings[k];
+                        }
                     }
                 }
                 yaxis.push(yAxisTemplate);
@@ -626,7 +631,7 @@ export class Spline extends Chart {
         return {
             type: 'bar',
             xAxisIndex: 0,
-            нAxisIndex: idx,
+            yAxisIndex: idx,
             z: 1,
             seriesLayoutBy: 'column',
             stack: 'stackMeBabyOneMoreTime',

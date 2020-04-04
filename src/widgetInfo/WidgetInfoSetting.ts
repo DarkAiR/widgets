@@ -1,6 +1,6 @@
 // Элемент настроек
 import {IWidgetInfo} from "./IWidgetInfo";
-import {WidgetInfoSettingsItem, SettingFunc, WidgetInfoSettings} from "./types";
+import {SettingFunc, WidgetInfoSettings} from "./types";
 
 /**
  * Создание конфига для экспорта

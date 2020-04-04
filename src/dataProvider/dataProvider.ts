@@ -279,13 +279,9 @@ export class DataProvider {
     }
 
     private getPeriod(dataSet: DataSet): string {
-        let period = '';
-        if (dataSet.period) {
-            period = `period: "${dataSet.period}"`;
-        } else {
-            period = `from: "${dataSet.from}"
-                      to: "${dataSet.to}"`;
-        }
-        return period;
+        return dataSet.period
+            ? `period: "${dataSet.period}"`
+            : `from: "${dataSet.from}"
+               to: "${dataSet.to}"`;
     }
 }

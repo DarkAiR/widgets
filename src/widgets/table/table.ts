@@ -48,7 +48,7 @@ export class Table extends Chart {
                 ...dimensions,
                 ...metrics
             ], this.getDataSetSettings(widgetConfig, settings, 'columnNames'));
-            const rows: Array<{cols: INameValue<string>[]}> = points.map((v: TableRow) => {
+            const rows: Array<{cols: INameValue[]}> = points.map((v: TableRow) => {
                 const row = [];
                 const pointDimensionsName: string = _keyBy(v.dimensions, 'name');
                 const pointMetricsName: string = _keyBy(v.metrics, 'name');
