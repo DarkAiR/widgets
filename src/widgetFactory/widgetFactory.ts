@@ -1,7 +1,7 @@
-import {IChart, IChartData, JoinDataSetTemplate, RejectFunc, ResolveFunc, WidgetTemplate, IWidgetInfo} from "../interfaces";
+import {IChart, IChartData, RejectFunc, ResolveFunc, WidgetTemplate, IWidgetInfo} from "../interfaces";
 import {DataProvider} from "../dataProvider";
 import * as widgets from "../widgets";
-import {WidgetConfig, WidgetConfigInner} from "../models/widgetConfig";
+import {WidgetConfig, WidgetConfigInner} from "..";
 import { WidgetType } from '../models/types';
 
 declare var __VERSION__: string;
@@ -94,15 +94,14 @@ export class WidgetFactory {
             "DISTRIBUTION":     () => widgets.ProfileAndDistribution.ProfileAndDistribution
 
         };
-        const promise = new Promise<IChart>((resolve: ResolveFunc<IChart>, reject: RejectFunc) => {
+        return new Promise<IChart>((resolve: ResolveFunc<IChart>, reject: RejectFunc) => {
             this.dataProvider.parseTemplate(template).then((data: IChartData) => {
-                let widget: IChart = null;
                 if (!widgetsArr[template.widgetType]) {
                     console.error('Not supported');
                     reject();
                 }
 
-                widget = new (widgetsArr[template.widgetType]())(config);
+                const widget: IChart = new (widgetsArr[template.widgetType]())(config);
                 widget.run(data);
                 // if (process.env.NODE_ENV === 'development') {
                 this.addVersion(config);
@@ -114,7 +113,6 @@ export class WidgetFactory {
                 reject();
             });
         });
-        return promise;
     }
 
     private addVersion(config: WidgetConfigInner): void {

@@ -63,7 +63,7 @@ export abstract class Chart implements IChart {
                 }
             });
             if (needReload) {
-                this.redraw();
+                this.redraw().then();
             }
         });
 
@@ -125,7 +125,7 @@ export abstract class Chart implements IChart {
         const item = config.settings.find((v: WidgetInfoSettingsItem) => v.name === name);
         if (!item) {
             // NOTE: Вот именно так! сразу бьем по рукам за попытку обратиться к недокументированному параметру
-            throw new Error(`Attempt to get an undescribed parameter <${name}>`);
+            throw new Error(`Attempt to get an undescribed parameter ${name}`);
         }
         // Если параметр описан, но не пришел в настройках, выставляем default
         return _get(settings, name, item.default);
@@ -146,7 +146,7 @@ export abstract class Chart implements IChart {
         const item = config.dataSet.settings.find((v: WidgetInfoSettingsItem) => v.name === name);
         if (!item) {
             // NOTE: Вот именно так! сразу бьем по рукам за попытку обратиться к недокументированному параметру
-            throw new Error(`Attempt to get an undescribed parameter <${name}>`);
+            throw new Error(`Attempt to get an undescribed parameter ${name}`);
         }
         // Если параметр описан, но не пришел в настройках, выставляем default
         return _get(settings, name, item.default);
@@ -170,7 +170,6 @@ export abstract class Chart implements IChart {
         let className: string = '';
         if (!color) {
             color = defColor;
-            colorStyle = '';
             className = defClassName;
         } else {
             colorStyle = `color: ${color};`;

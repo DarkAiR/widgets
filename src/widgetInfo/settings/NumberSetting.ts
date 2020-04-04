@@ -1,12 +1,14 @@
 import {BaseSetting} from "./BaseSetting";
 import {SettingFunc} from "../types";
 
-export interface NumberSetting extends BaseSetting<number> {
+type DefaultType = number;
+
+export interface NumberSetting extends BaseSetting<DefaultType> {
     min: number;
     max: number;
 }
 
-export function makeNumber(name: string, def: number, data: {min: number, max: number} = null): SettingFunc {
+export function makeNumber(name: string, def: DefaultType, data: {min: number, max: number} = null): SettingFunc {
     return (): NumberSetting => ({
         name,
         type: 'number',

@@ -86,22 +86,6 @@ module.exports = (env) => {
                     }
                 }]
             }, {
-                // test: /\.(scss|sass)$/,
-                // use: [{
-                //     loader: 'style-loader'
-                // }, {
-                //     // css-loader + создание .d.ts для нормального импорта стилей в код
-                //     loader: 'typings-for-css-modules-loader',
-                //     options: Object.assign(stylesOptions, {
-                //         camelCase: true
-                //     })
-                // }, {
-                //     loader: 'sass-loader',
-                //     options: {
-                //         sourceMap: process.env.NODE_ENV === 'dev',
-                //     }
-                // }]
-            }, {
                 // Для загрузки svg для иконок
                 // test: /\.svg/,
                 // use: {

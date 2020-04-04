@@ -5,10 +5,10 @@ import {get as _get, isEmpty as _isEmpty} from 'lodash';
 
 export class TableDataSourceSerializer implements ISerializer {
     serialize(dataSource: SingleDataSource): string {
-        const dimensionsJson: string = stringifyObject(dataSource.dimensions, {
-            indent: ' ',
-            singleQuotes: false
-        }).replace(/\n/g, '');
+        // const dimensionsJson: string = stringifyObject(dataSource.dimensions, {
+        //     indent: ' ',
+        //     singleQuotes: false
+        // }).replace(/\n/g, '');
 
         let expression = _get(dataSource.metric, 'expression', dataSource.metric.name);
         if (!_isEmpty(expression)) {

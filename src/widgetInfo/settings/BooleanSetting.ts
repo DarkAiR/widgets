@@ -1,10 +1,12 @@
 import {BaseSetting} from "./BaseSetting";
 import {SettingFunc} from "../types";
 
-export interface BooleanSetting extends BaseSetting<boolean> {
+type DefaultType = boolean;
+
+export interface BooleanSetting extends BaseSetting<DefaultType> {
 }
 
-export function makeBoolean(name: string, def: boolean): SettingFunc {
+export function makeBoolean(name: string, def: DefaultType): SettingFunc {
     return (): BooleanSetting => ({
         name,
         type: 'boolean',

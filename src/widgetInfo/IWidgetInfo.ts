@@ -15,12 +15,3 @@ export interface IWidgetInfo<T = void> {
         settings: T extends void ? WidgetInfoSettings: T;      // Настройки датасетов
     };
 }
-
-const c: IWidgetInfo = {
-    settings: null,
-    dataSet: {
-        initAmount: 0,
-        canAdd: true,
-        settings: null
-    }
-};

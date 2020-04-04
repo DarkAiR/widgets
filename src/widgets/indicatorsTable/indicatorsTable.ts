@@ -7,8 +7,8 @@ import {get as _get, head as _head, forEach as _forEach} from "lodash";
 import * as moment from 'moment';
 import * as hammer from 'hammerjs';
 import {Chart} from "../../models/Chart";
-import {TimeSeriesData, TimeSeriesHelper} from "../../helpers/timeSeries.helper";
-import {TSPoint} from "../../interfaces/graphQL/TSPoint";
+import {TimeSeriesData, TimeSeriesHelper} from "../../helpers";
+import {TSPoint} from "../../interfaces/graphQL";
 import {IObject} from "../../interfaces/IObject";
 
 type MetricsStatus = 'normal' | 'warning' | 'error';

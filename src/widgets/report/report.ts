@@ -5,7 +5,7 @@ import {config as widgetConfig} from "./config";
 import {IChartData, IWidgetVariables} from "../../interfaces";
 import {get as _get} from "lodash";
 import {Chart} from "../../models/Chart";
-import {TypeGuardsHelper} from "../../helpers/typeGuards.helper";
+import {TypeGuardsHelper} from "../../helpers";
 
 export class Report extends Chart {
     getVariables(): IWidgetVariables {
