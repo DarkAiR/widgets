@@ -1,10 +1,12 @@
 import {BaseSetting} from "./BaseSetting";
 import {SettingFunc} from "../types";
 
-export interface ColorSetting extends BaseSetting<string> {
+type DefaultType = string;
+
+export interface ColorSetting extends BaseSetting<DefaultType> {
 }
 
-export function makeColor(name: string, def: string): SettingFunc {
+export function makeColor(name: string, def: DefaultType): SettingFunc {
     return (): ColorSetting => ({
         name,
         type: 'color',

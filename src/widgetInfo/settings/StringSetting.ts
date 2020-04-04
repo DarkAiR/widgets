@@ -1,10 +1,12 @@
 import {BaseSetting} from "./BaseSetting";
 import {SettingFunc} from "../types";
 
-export interface StringSetting extends BaseSetting<string> {
+type DefaultType = string;
+
+export interface StringSetting extends BaseSetting<DefaultType> {
 }
 
-export function makeString(name: string, def: string): SettingFunc {
+export function makeString(name: string, def: DefaultType): SettingFunc {
     return (): StringSetting => ({
         name,
         type: 'string',

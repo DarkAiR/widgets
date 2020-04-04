@@ -17,8 +17,8 @@ import {WidgetInfoSettingsItem, SettingFunc, WidgetInfoSettings} from "./types";
  *     ]
  */
 export function makeConfig(cfg: IWidgetInfo<SettingFunc[]>): IWidgetInfo {
-    const mainSettings: WidgetInfoSettings =  cfg.settings.map((v: () => WidgetInfoSettingsItem) => v());
-    const dataSetSettings: WidgetInfoSettings = cfg.dataSet.settings.map((v: () => WidgetInfoSettingsItem) => v());
+    const mainSettings: WidgetInfoSettings =  cfg.settings.map((v: SettingFunc) => v());
+    const dataSetSettings: WidgetInfoSettings = cfg.dataSet.settings.map((v: SettingFunc) => v());
     return Object.assign(
         {},
         cfg, {settings: mainSettings},

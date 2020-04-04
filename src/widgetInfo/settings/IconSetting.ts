@@ -1,10 +1,12 @@
 import {SettingFunc} from "../types";
-import {StringSetting} from "./StringSetting";
+import {BaseSetting} from "./BaseSetting";
 
-export interface IconSetting extends StringSetting {
+type DefaultType = string;
+
+export interface IconSetting extends BaseSetting<DefaultType> {
 }
 
-export function makeIcon(name: string, def: string): SettingFunc {
+export function makeIcon(name: string, def: DefaultType): SettingFunc {
     return (): IconSetting => ({
         name,
         type: 'icon',
