@@ -1,10 +1,10 @@
 import s from "../../styles/_all.less";
 import w from "./table.less";
-import {config as widgetConfig} from "./config";
+import {settings as widgetSettings} from "./settings";
 
 import {
     DimensionFilter,
-    IChartData, INameValue, ISettings,
+    IChartData, INameValue, ISettings, IWidgetSettings,
     IWidgetVariables, JoinDataSetTemplate, TableRow, TimeSeriesDataSetShort
 } from "../../interfaces";
 import * as _get from "lodash/get";
@@ -19,7 +19,13 @@ export class Table extends Chart {
         return {};
     }
 
-    run(data: IChartData): void {
+    getSettings(): IWidgetSettings {
+        return widgetSettings;
+    }
+
+    run(): void {
+        const data: IChartData = this.chartData;
+
         const dataByDataSources: TableRow[][] = data.data as TableRow[][];
 
         // NOTE: Для таблицы существует только один источник, если его нет, то это Exception
@@ -47,7 +53,7 @@ export class Table extends Chart {
                 'Date',
                 ...dimensions,
                 ...metrics
-            ], this.getDataSetSettings(widgetConfig, settings, 'columnNames'));
+            ], this.getDataSetSettings(settings, 'columnNames'));
             const rows: Array<{cols: INameValue[]}> = points.map((v: TableRow) => {
                 const row = [];
                 const pointDimensionsName: string = _keyBy(v.dimensions, 'name');
@@ -64,7 +70,7 @@ export class Table extends Chart {
             });
 
             this.config.element.innerHTML = this.renderTemplate({
-                title: this.getWidgetSetting(widgetConfig, data.settings, 'title'),
+                title: this.getWidgetSetting(data.settings, 'title'),
                 header,
                 rows
             });

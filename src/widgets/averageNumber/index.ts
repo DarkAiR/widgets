@@ -1,2 +1,2 @@
 export * from "./averageNumber";
-export * from "./config";
+export * from "./settings";

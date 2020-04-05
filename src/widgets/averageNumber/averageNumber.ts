@@ -1,8 +1,8 @@
 import s from "../../styles/_all.less";
 import w from "./averageNumber.less";
-import {config as widgetConfig} from "./config";
+import {settings as widgetSettings} from "./settings";
 
-import {IChartData, IWidgetVariables} from "../../interfaces";
+import {IChartData, IWidgetSettings, IWidgetVariables} from "../../interfaces";
 import {get as _get} from "lodash";
 import {Chart} from "../../models/Chart";
 import {TypeGuardsHelper} from "../../helpers";
@@ -12,20 +12,26 @@ export class AverageNumber extends Chart {
         return {};
     }
 
-    run(data: IChartData): void {
+    getSettings(): IWidgetSettings {
+        return widgetSettings;
+    }
+
+    run(): void {
+        const data: IChartData = this.chartData;
+
         if (TypeGuardsHelper.dataSetsIsDataSetTemplate(data.dataSets)) {
             const currValue = _get(data.data[0], '[0].value', 0);
             const prevValue = _get(data.data[1], '[0].value', 0);
 
-            const currColor = this.getColor(widgetConfig, data.dataSets[0].settings, 'color-yellow');
-            const prevColor = this.getColor(widgetConfig, data.dataSets[1].settings, 'color-grey');
+            const currColor = this.getColor(data.dataSets[0].settings, 'color-yellow');
+            const prevColor = this.getColor(data.dataSets[1].settings, 'color-grey');
 
             const str = `
                 <div class='${s["widget"]}'>
                     <div class='${s["row"]}'>
                         <div class='${s["col"]} ${s["col-100"]}'>
                             <div class="${w['title']}">
-                                ${this.getWidgetSetting(widgetConfig, data.settings, 'title')}
+                                ${this.getWidgetSetting(data.settings, 'title')}
                             </div>
                         </div>
                     </div>

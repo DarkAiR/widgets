@@ -1,2 +1,2 @@
 export * from "./table";
-export * from "./config";
+export * from "./settings";

@@ -1,8 +1,8 @@
 import s from "../../styles/_all.less";
 import w from "./avatar.less";
-import {config as widgetConfig} from "./config";
+import {settings as widgetSettings} from "./settings";
 
-import {IChart, IChartData, IWidgetVariables} from "../../interfaces";
+import {IChart, IChartData, IWidgetSettings, IWidgetVariables} from "../../interfaces";
 import {get as _get} from "lodash";
 import {Chart} from "../../models/Chart";
 
@@ -11,10 +11,16 @@ export class Avatar extends Chart {
         return {};
     }
 
-    run(data: IChartData): void {
+    getSettings(): IWidgetSettings {
+        return widgetSettings;
+    }
+
+    run(): void {
 /**
+         const data: IChartData = this.chartData;
+
         let fio;
-        const fioColor = this.getColor(widgetConfig, data.dataSets[0].settings, 'color-yellow');
+        const fioColor = this.getColor(data.dataSets[0].settings, 'color-yellow');
         const fioStyle = fioColor.colorStyle + _get(data.dataSets[0].settings, 'fioStyle', '');
         const backStyle = _get(data.dataSets[0].settings, 'globalSets', '');
 
@@ -39,7 +45,7 @@ export class Avatar extends Chart {
                 func = _get(data.data[2], '[0].value', 0);
             }
 
-            funcColor = this.getColor(widgetConfig, data.dataSets[2].settings, 'color-grey');
+            funcColor = this.getColor(data.dataSets[2].settings, 'color-grey');
             funcStyle = funcColor.colorStyle + _get(data.dataSets[2].settings, 'funcStyle', '');
 
 

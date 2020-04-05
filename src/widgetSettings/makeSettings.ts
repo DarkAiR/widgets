@@ -1,11 +1,11 @@
 // Элемент настроек
-import {IWidgetInfo} from "./IWidgetInfo";
-import {SettingFunc, WidgetInfoSettings} from "./types";
+import {IWidgetSettings} from "./IWidgetSettings";
+import {SettingFunc, WidgetSettingsArray} from "./types";
 
 /**
  * Создание конфига для экспорта
  * Все это нужно для того, чтобы можно было задавать конфиг строго в виде:
- * makeConfig({
+ * makeSettings({
  *     settings: [
  *         makeYourType(name, def)
  *     ]
@@ -16,12 +16,13 @@ import {SettingFunc, WidgetInfoSettings} from "./types";
  *         {name: 'ttt', type: 'string', default: def}      <-- здесь можно указать любые другие поля, что недопустимо
  *     ]
  */
-export function makeConfig(cfg: IWidgetInfo<SettingFunc[]>): IWidgetInfo {
-    const mainSettings: WidgetInfoSettings =  cfg.settings.map((v: SettingFunc) => v());
-    const dataSetSettings: WidgetInfoSettings = cfg.dataSet.settings.map((v: SettingFunc) => v());
+export function makeSettings(cfg: IWidgetSettings<SettingFunc[]>): IWidgetSettings {
+    const mainSettings: WidgetSettingsArray =  cfg.settings.map((v: SettingFunc) => v());
+    const dataSetSettings: WidgetSettingsArray = cfg.dataSet.settings.map((v: SettingFunc) => v());
     return Object.assign(
         {},
-        cfg, {settings: mainSettings},
+        cfg,
+        {settings: mainSettings},
         {dataSet: Object.assign({}, cfg.dataSet, {settings: dataSetSettings})}
     );
 }

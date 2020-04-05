@@ -1,8 +1,9 @@
-import {IChart, IChartData, RejectFunc, ResolveFunc, WidgetTemplate, IWidgetInfo} from "../interfaces";
+import {IChart, IChartData, RejectFunc, ResolveFunc, WidgetTemplate, IWidgetSettings} from "../interfaces";
 import {DataProvider} from "../dataProvider";
 import * as widgets from "../widgets";
 import {WidgetConfig, WidgetConfigInner} from "..";
 import { WidgetType } from '../models/types';
+import {Chart} from "../models/Chart";
 
 declare var __VERSION__: string;
 
@@ -11,26 +12,26 @@ type WidgetsArr = Record<WidgetType, Function>;
 export class WidgetFactory {
     dataProvider: DataProvider = null;
 
-    static loadWidgetConfig(widgetType: WidgetType): Promise<IWidgetInfo> {
-        const widgetTypeToImport: Record<WidgetType, () => Promise<{config: IWidgetInfo}>> = {
-            'SPLINE':           () => import('./../widgets/spline/config'),
-            'AVERAGE_NUMBER':   () => import('./../widgets/averageNumber/config'),
-            'SOLID_GAUGE':      () => import('./../widgets/solidGauge/config'),
-            'INDICATORS_TABLE': () => import('./../widgets/indicatorsTable/config'),
-            'TABLE':            () => import('./../widgets/table/config'),
-            'REPORT':           () => import('./../widgets/report/config'),
-            'STATIC':           () => import('./../widgets/static/config'),
-            'KPI':              () => import('./../widgets/KPI/config'),
-            'AVATAR':           () => import('./../widgets/avatar/config'),
-            'DISTRIBUTION':     () => import('./../widgets/profileAndDistribution/config'),
-            'PROFILE':          () => import('./../widgets/profileAndDistribution/config'),
+    static loadWidgetConfig(widgetType: WidgetType): Promise<IWidgetSettings> {
+        const widgetTypeToImport: Record<WidgetType, () => Promise<{settings: IWidgetSettings}>> = {
+            'SPLINE':           () => import('../widgets/spline/settings'),
+            'AVERAGE_NUMBER':   () => import('../widgets/averageNumber/settings'),
+            'SOLID_GAUGE':      () => import('../widgets/solidGauge/settings'),
+            'INDICATORS_TABLE': () => import('../widgets/indicatorsTable/settings'),
+            'TABLE':            () => import('../widgets/table/settings'),
+            'REPORT':           () => import('../widgets/report/settings'),
+            'STATIC':           () => import('../widgets/static/settings'),
+            'KPI':              () => import('../widgets/KPI/settings'),
+            'AVATAR':           () => import('../widgets/avatar/settings'),
+            'DISTRIBUTION':     () => import('../widgets/profileAndDistribution/settings'),
+            'PROFILE':          () => import('../widgets/profileAndDistribution/settings'),
         };
         return new Promise((resolve: ResolveFunc, reject: RejectFunc) => {
             if (!widgetTypeToImport[widgetType]) {
                 reject();
             }
             widgetTypeToImport[widgetType]().then(
-                (v: {config: IWidgetInfo}) => resolve(v.config)
+                (v: {settings: IWidgetSettings}) => resolve(v.settings)
             ).catch(reject);
         });
     }
@@ -101,12 +102,10 @@ export class WidgetFactory {
                     reject();
                 }
 
-                const widget: IChart = new (widgetsArr[template.widgetType]())(config);
-                widget.run(data);
-                // if (process.env.NODE_ENV === 'development') {
+                const widget: Chart = new (widgetsArr[template.widgetType]())(config);
+                widget.create(data);
                 this.addVersion(config);
-                // }
-                resolve(widget);
+                resolve(widget as IChart);
             }).catch((error: Error) => {
                 // Ловим ошибку (например 500), чтобы виджеты не зависли в состоянии loading
                 console.error(error);
@@ -116,6 +115,9 @@ export class WidgetFactory {
     }
 
     private addVersion(config: WidgetConfigInner): void {
+        // if (process.env.NODE_ENV !== 'development') {
+        //     return;
+        // }
         const versionElement = document.createElement('div');
 
         config.element.style.position = 'relative';

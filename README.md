@@ -30,6 +30,7 @@ Less/Scss:
 ```
 
 Running WidgetFactory for drawing widget from template.
+Also you can use Promise for receiving signals about complete of loading widget or errors.
 
 For example:
 ```
@@ -38,18 +39,11 @@ config.templateId = 'TEMPLATE_ID';
 config.element = document.getElementById('ELEMENT_ID');
 config.apiUrl = 'YOUR GRAPHQL API';     // Optional
 config.eventBus = <EventBusWrapper>
-this.widgetFactory.run(config);
-```
-
-Also you can use Promise for receiving signals about complete of loading widget or errors.
-
-For example:
-```
 this.widgetFactory.run(config).then(
     (widget: IChart) => complete,
     () => error
 );
-``` 
+```
 
 Interface IChart has method for getting available variables for EventBus:
 ```
@@ -95,7 +89,7 @@ Don't forget local link will be reset after any npm-operations in your package.
   ⎣ index.ts
   ⎣ <widgetName>.ts
   ⎣ <widgetName>.less
-  ⎣ config.ts
+  ⎣ settings.ts
 ```
 Уникальное имя файла нужно для того, чтобы имена классов собирались изолировано.
 
@@ -134,7 +128,7 @@ private createWidget(...) {
 
 *Реализация метода ```run``` не регламентирована ничем, кроме CodeStyle, и каждый виджет может быть написан с использованием уникальных для него подходов (нр, HTML-верстка, SVG, echarts и т.д.).*
 
-###### run(...)
+###### run()
 Запуск виджета.  
 Принимает конфигуратор с DOM-элементом, куда записывает результат своей работы.
 
@@ -156,6 +150,10 @@ getVariables(): IWidgetVariables {
 } 
 ```
 
+##### getSettings: IWidgetSettings
+Возвращает настройки конкретного виджета для доступа в базовом классе.
+Сделано через метод, чтобы нельзя было забыть про возврат этих значений (нр, в противовес вызову super.run())
+
 ###### getTemplate(): string | null
 Получить шаблон. Если не перегружена (null), то шаблонизатор не используется.
 
@@ -171,7 +169,7 @@ getVariables(): IWidgetVariables {
 
 Файл стилей, который будет собран в изолированное пространство css-классов, исходя из уникальности имени файла.
  
-##### ```config.ts```
+##### ```settings.ts```
 
 Файл с настройками, уникальными для конкретного виджета.
 См. ниже "Добавление нового типа настройки"
@@ -233,12 +231,12 @@ export function makeBoolean(name: string, label: string, def: DefaultType): Sett
 }
 ```
 
-Пример конфигурации ```widgets\<MyWidget>\config.ts```:   
-*Примечание: Конфиг задается через функции makeConfig и make<MySetting>, чтобы гарантировать правильность структуры данных.
+Пример конфигурации ```widgets\<MyWidget>\settings.ts```:   
+*Примечание: Конфиг задается через функции makeSettings и make<MySetting>, чтобы гарантировать правильность структуры данных.
 Например, чтобы избежать попыток записать в конфиг несуществующие переменные foo и boo: ```settings: [ {name, value, foo, boo} ]```* 
 
 ```
-export const config: IWidgetInfo = makeConfig({
+export const settings: IWidgetInfo = makeSettings({
     settings: [
         makeString('title', ''),
     ],

@@ -1,2 +1,2 @@
 export * from "./spline";
-export * from "./config";
+export * from "./settings";

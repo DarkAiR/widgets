@@ -1,10 +1,10 @@
 import s from '../../styles/_all.less';
 import w from './profileAndDistribution.less';
-import {config as widgetConfig} from "./config";
+import {settings as widgetSettings} from "./settings";
 
 import echarts from 'echarts';
 import {
-    IChartData,
+    IChartData, IWidgetSettings,
     IWidgetVariables
 } from '../../interfaces';
 import {Chart} from '../../models/Chart';
@@ -15,12 +15,18 @@ export class ProfileAndDistribution extends Chart {
         return {};
     }
 
-    run(data: IChartData): void {
+    getSettings(): IWidgetSettings {
+        return widgetSettings;
+    }
+
+    run(): void {
+        const data: IChartData = this.chartData;
+
         const str = `
             <div class='${s['widget']}  ${w['widget']}'>
                 <div class='${w['row']}'>
                     <div class="${w['title']}">
-                        ${this.getWidgetSetting(widgetConfig, data.settings, 'title')}
+                        ${this.getWidgetSetting(data.settings, 'title')}
                     </div>
                 </div>
                 <div class='${w['row']} ${w['chart']}'>

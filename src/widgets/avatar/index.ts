@@ -1,2 +1,2 @@
 export * from "./avatar";
-export * from "./config";
+export * from "./settings";

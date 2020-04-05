@@ -1,6 +1,6 @@
 import s from "../../styles/_all.less";
 import w from "./KPI.less";
-import {config as widgetConfig} from "./config";
+import {settings as widgetSettings} from "./settings";
 
 // TODO: Удалить, когда выкинем кастомные стили
 import * as _getFromLodash from 'lodash/get';
@@ -9,7 +9,7 @@ function _get<T>(settings: ISettings, path: string, def: T): T {
     return _getFromLodash(settings, path, def);
 }
 
-import {IChartData, ISettings, IWidgetVariables} from "../../interfaces";
+import {IChartData, ISettings, IWidgetSettings, IWidgetVariables} from "../../interfaces";
 import {Chart} from "../../models/Chart";
 import {TypeGuardsHelper} from "../../helpers";
 
@@ -18,11 +18,15 @@ export class KPI extends Chart {
         return {};
     }
 
-    run(data: IChartData): void {
-        // tslint:disable: max-line-length
+    getSettings(): IWidgetSettings {
+        return widgetSettings;
+    }
+
+    run(): void {
+        const data: IChartData = this.chartData;
 
         if (TypeGuardsHelper.dataSetsIsDataSetTemplate(data.dataSets)) {
-            const valueMainColor = this.getColor(widgetConfig, data.dataSets[0].settings, 'color-yellow');
+            const valueMainColor = this.getColor(data.dataSets[0].settings, 'color-yellow');
             const style1 = valueMainColor.colorStyle + _get(data.dataSets[0].settings, 'valueStyle', '');
             const backStyle = _get(data.dataSets[0].settings, 'globalSets', '');
             const titleStyle = _get(data.dataSets[0].settings, 'titleSets', '');
@@ -45,7 +49,7 @@ export class KPI extends Chart {
                     ? _get(data.dataSets[1].settings, 'subValue', '')
                     : _get(data.data[1], '[0].value', 0);
 
-                const valueSubColor = this.getColor(widgetConfig, data.dataSets[1].settings, 'color-grey');
+                const valueSubColor = this.getColor(data.dataSets[1].settings, 'color-grey');
                 const style2 = valueSubColor.colorStyle + _get(data.dataSets[1].settings, 'valueStyle', '');
                 value2str = `
                     <div class='${w['sub']} ${w['text']} ${w[valueSubColor.className]} ${s["col-vbot"]}' style='${style2}'>
@@ -75,7 +79,7 @@ export class KPI extends Chart {
                     <div class='${s["row"]}' style="height:fit-content;">
                         <div class='${s["col"]}'>
                             <div class="${w['title']}" style='${titleStyle}'>
-                                ${this.getWidgetSetting(widgetConfig, data.settings, 'title')}
+                                ${this.getWidgetSetting(data.settings, 'title')}
                             </div>
                         </div>
                     </div>

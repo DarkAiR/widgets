@@ -1,2 +1,2 @@
 export * from "./solidGauge";
-export * from "./config";
+export * from "./settings";

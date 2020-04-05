@@ -1,2 +1,2 @@
 export * from "./KPI";
-export * from "./config";
+export * from "./settings";
