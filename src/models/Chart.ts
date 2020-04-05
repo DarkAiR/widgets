@@ -7,7 +7,8 @@ import {
 } from "../interfaces";
 import {WidgetConfigInner} from "./widgetConfig";
 import {EventBusWrapper, EventBus, EventBusEvent} from 'goodteditor-event-bus';
-import {WidgetSettingsItem} from "../widgetSettings/types";
+import {WidgetSettingsArray, WidgetSettingsItem} from "../widgetSettings/types";
+import {SettingsArraySetting} from "../widgetSettings/settings";
 
 const hogan = require('hogan.js');
 
@@ -127,44 +128,61 @@ export abstract class Chart implements IChart {
         };
     }
 
+    private getSettingByPath(config: WidgetSettingsArray, parts: string[]): WidgetSettingsItem {
+        if (!parts.length) {
+            return null;
+        }
+        const item = config.find((v: WidgetSettingsItem) => v.name === parts[0]);
+        if (!item) {
+            return null;
+        }
+        if (parts.length === 1) {
+            return item;
+        }
+        if ((item as SettingsArraySetting).settings === undefined) {
+            return item;
+        }
+        return this.getSettingByPath((item as SettingsArraySetting).settings, parts.slice(1 - parts.length));
+    }
+
     /**
      * Возвращает настройку из сеттингов виджета
      * @param config конфигурация виджета
      * @param settings Объект с настройками
-     * @param name название поля
-     * @return возвращает значение того типа, к которому присваиваевается результат, поэтому нужен тип T
+     * @param path название поля
+     * @return возвращает значение того типа, к которому присваивается результат, поэтому нужен тип T
      */
     protected getWidgetSetting<T = any>(
         settings: ISettings,
-        name: string
+        path: string
     ): T {
-        const item = this.widgetSettings.settings.find((v: WidgetSettingsItem) => v.name === name);
+        const item: WidgetSettingsItem = this.getSettingByPath(this.widgetSettings.settings, path.split('.'));
         if (!item) {
             // NOTE: Вот именно так! сразу бьем по рукам за попытку обратиться к недокументированному параметру
-            throw new Error(`Attempt to get an undescribed parameter ${name}`);
+            throw new Error(`Attempt to get an undescribed parameter ${path}`);
         }
         // Если параметр описан, но не пришел в настройках, выставляем default
-        return _get(settings, name, item.default);
+        return _get(settings, path, item.default);
     }
 
     /**
      * Возвращает настройку из датасета
      * @param config конфигурация виджета
      * @param settings Объект с настройками
-     * @param name название поля
-     * @return возвращает значение того типа, к которому присваиваевается результат, поэтому нужен тип T
+     * @param path название поля
+     * @return возвращает значение того типа, к которому присваивается результат, поэтому нужен тип T
      */
     protected getDataSetSettings<T = any>(
         settings: ISettings,
-        name: string
+        path: string
     ): T {
-        const item = this.widgetSettings.dataSet.settings.find((v: WidgetSettingsItem) => v.name === name);
+        const item: WidgetSettingsItem = this.getSettingByPath(this.widgetSettings.dataSet.settings, path.split('.'));
         if (!item) {
             // NOTE: Вот именно так! сразу бьем по рукам за попытку обратиться к недокументированному параметру
-            throw new Error(`Attempt to get an undescribed parameter ${name}`);
+            throw new Error(`Attempt to get an undescribed parameter ${path}`);
         }
         // Если параметр описан, но не пришел в настройках, выставляем default
-        return _get(settings, name, item.default);
+        return _get(settings, path, item.default);
     }
 
     /**
