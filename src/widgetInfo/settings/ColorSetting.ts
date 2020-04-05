@@ -6,9 +6,10 @@ type DefaultType = string;
 export interface ColorSetting extends BaseSetting<DefaultType> {
 }
 
-export function makeColor(name: string, def: DefaultType): SettingFunc {
+export function makeColor(name: string, label: string, def: DefaultType): SettingFunc {
     return (): ColorSetting => ({
         name,
+        label,
         type: 'color',
         default: def
     });

@@ -8,9 +8,10 @@ export interface NumberSetting extends BaseSetting<DefaultType> {
     max: number;
 }
 
-export function makeNumber(name: string, def: DefaultType, data: {min: number, max: number} = null): SettingFunc {
+export function makeNumber(name: string, label: string, def: DefaultType, data: {min: number, max: number} = null): SettingFunc {
     return (): NumberSetting => ({
         name,
+        label,
         type: 'number',
         default: def,
         min: data?.min ?? null,

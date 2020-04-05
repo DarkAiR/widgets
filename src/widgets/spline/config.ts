@@ -5,22 +5,26 @@ import {makeString} from "../../widgetInfo/settings/StringSetting";
 import {makeList} from "../../widgetInfo/settings/ListSetting";
 import {makeColor} from "../../widgetInfo/settings/ColorSetting";
 import {makeSettingsArray} from "../../widgetInfo/settings/SettingsArraySetting";
+import {makeNumber} from "../../widgetInfo/settings/NumberSetting";
+import {makeBoolean} from "../../widgetInfo/settings/BooleanSetting";
 
 export const config: IWidgetInfo = makeConfig({
     settings: [
-        makeString('title', '')
+        makeString('title', 'Заголовок', '')
     ],
     dataSet: {
         initAmount: 1,
         canAdd: true,
         settings: [
-            makeColor('color', null),
-            makeList<YAxisTypes>('yAxis', 'left', YAxisTypesValues.map(
+            makeColor('color', ' Цвет', null),
+            makeList<YAxisTypes>('yAxis', 'Положение оси', 'left', YAxisTypesValues.map(
                 (v: YAxisTypes): INameValue<typeof v> => ({name: v, value: v})
             )),
-            makeSettingsArray('array1', [
-                makeString('str1', 'string1'),
-                makeString('str2', 'string2'),
+            makeSettingsArray('labelFormat', 'Формат вывода значений', [
+                makeString('delimiter', 'Разделитель', '.'),
+                makeNumber('precision', 'Точность в знаках', 2),
+                makeString('measure', 'Единица измерения', ''),
+                makeBoolean('showMeasure', 'Показывать единицу изменения', false)
             ])
         ]
     }
