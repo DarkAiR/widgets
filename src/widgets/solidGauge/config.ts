@@ -6,14 +6,14 @@ import {makeIcon} from "../../widgetInfo/settings/IconSetting";
 
 export const config: IWidgetInfo = makeConfig({
     settings: [
-        makeString('title', ''),
-        makeIcon('icon', '')
+        makeString('title', 'Заголовок', ''),
+        makeIcon('icon', 'Иконка', '')
     ],
     dataSet: {
         initAmount: 2,
         canAdd: false,
         settings: [
-            makeColor('color', null)
+            makeColor('color', ' Цвет', null)
         ]
     }
 });

@@ -5,13 +5,13 @@ import {makeConfig} from "../../widgetInfo/WidgetInfoSetting";
 
 export const config: IWidgetInfo = makeConfig({
     settings: [
-        makeString('title', '')
+        makeString('title', 'Заголовок', '')
     ],
     dataSet: {
         initAmount: 2,
         canAdd: false,
         settings: [
-            makeColor('color', null)
+            makeColor('color', ' Цвет', null)
         ]
     }
 });

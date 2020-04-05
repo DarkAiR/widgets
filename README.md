@@ -222,10 +222,11 @@ export interface MyTypeSetting extends BaseSetting<DefaultType> {
 
 >>> 2. дописываем интерфейс настройки MyTypeSetting к общему WidgetInfoSettingsItem в types.ts
 
-export function makeBoolean(name: string, def: DefaultType): SettingFunc {
+export function makeBoolean(name: string, label: string, def: DefaultType): SettingFunc {
     // Через функцию, чтобы гарантировать правильность структуры setting 
     return (): BooleanSetting => ({
         name,
+        label,
         type: 'boolean',        >>> 3. Определяем новый тип настройки
         default: def
     });

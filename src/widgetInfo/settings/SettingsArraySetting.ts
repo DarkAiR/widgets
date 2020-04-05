@@ -8,7 +8,7 @@ export interface SettingsArraySetting extends BaseSetting<DefaultType> {
     settings: WidgetInfoSettings;
 }
 
-export function makeSettingsArray(name: string, settings: SettingFunc[]): SettingFunc {
+export function makeSettingsArray(name: string, label: string, settings: SettingFunc[]): SettingFunc {
     const defSettings: DefaultType = {};
     settings.forEach((v: SettingFunc) => {
         const setting: WidgetInfoSettingsItem = v();
@@ -17,6 +17,7 @@ export function makeSettingsArray(name: string, settings: SettingFunc[]): Settin
 
     return (): SettingsArraySetting => ({
         name,
+        label,
         type: 'settingsArray',
         default: defSettings,
         settings: settings.map((v: SettingFunc) => v())

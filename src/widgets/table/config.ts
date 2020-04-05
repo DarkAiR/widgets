@@ -5,13 +5,13 @@ import {makeNameValueArray} from "../../widgetInfo/settings/NameValueArraySettin
 
 export const config: IWidgetInfo = makeConfig({
     settings: [
-        makeString('title', '')
+        makeString('title', 'Заголовок', '')
     ],
     dataSet: {
         initAmount: 1,
         canAdd: true,
         settings: [
-            makeNameValueArray('columnNames', <INameValue[]>[])
+            makeNameValueArray('columnNames', 'Названия колонок', <INameValue[]>[])
         ]
     }
 });

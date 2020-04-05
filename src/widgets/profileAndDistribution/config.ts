@@ -4,7 +4,7 @@ import {makeConfig} from "../../widgetInfo/WidgetInfoSetting";
 
 export const config: IWidgetInfo = makeConfig({
     settings: [
-        makeString('title', '')
+        makeString('title', 'Заголовок', '')
     ],
     dataSet: {
         initAmount: 1,
