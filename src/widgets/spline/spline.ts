@@ -600,7 +600,7 @@ export class Spline extends Chart {
             stack: null,
             seriesLayoutBy: 'column',
             showSymbol: true,
-            symbolSize: 30,
+            symbolSize: 4,
 
             color: color.hex,                   // Основной цвет
             itemStyle: {
@@ -649,9 +649,9 @@ export class Spline extends Chart {
             },
             label: {
                 show: false,
-                position: 'top',
+                position: 'inside',
                 distance: 0,
-                rotate: -Math.PI / 2,
+                rotate: 90,
                 backgroundColor: '',
                 borderColor: '',
                 borderWidth: 1,
