@@ -6,4 +6,4 @@ export * from "./INameValue";
 export * from "./template";
 export * from './graphQL';
 export * from './promise';
-export * from '../widgetInfo/IWidgetInfo';
+export * from '../widgetSettings/IWidgetSettings';

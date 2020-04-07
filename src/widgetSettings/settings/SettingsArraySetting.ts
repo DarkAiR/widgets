@@ -1,17 +1,17 @@
 import {BaseSetting} from "./BaseSetting";
-import {SettingFunc, WidgetInfoSettings, WidgetInfoSettingsItem} from "../types";
+import {SettingFunc, WidgetSettingsArray, WidgetSettingsItem} from "../types";
 import {ISettings} from "../../interfaces";
 
 type DefaultType = ISettings;
 
 export interface SettingsArraySetting extends BaseSetting<DefaultType> {
-    settings: WidgetInfoSettings;
+    settings: WidgetSettingsArray;
 }
 
 export function makeSettingsArray(name: string, label: string, settings: SettingFunc[]): SettingFunc {
     const defSettings: DefaultType = {};
     settings.forEach((v: SettingFunc) => {
-        const setting: WidgetInfoSettingsItem = v();
+        const setting: WidgetSettingsItem = v();
         defSettings[setting.name] = setting.default;
     });
 

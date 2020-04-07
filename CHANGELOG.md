@@ -100,5 +100,20 @@
 - исправлены ошибки цикла for..in в spline
 - удалены ненужные sass-файлы и sass-loader
 
-##### 0.8.6 / ??
+##### 0.8.6 / 2020-04-06
+- в spline добавлено поле lineStyle.type
+- переименованы:
+    - widgets\..\config.ts -> widgets\..\settings.ts
+    - makeConfig() -> makeSettings()
+    - WidgetInfoSettingsItem -> WidgetSettingsItem
+    - WidgetSettings -> WidgetSettingsArray
+    - IWidgetInfo -> IWidgetSettings
+    - WidgetInfoSettings.ts -> makeSettings.ts
 - добавлены текстовые названия для каждой настройки виджета (label)
+- исправлен тип operation в AggregationDataSource
+- исправлен тип methods в DataSetTemplate
+- из интерфейсе IChart удалено описание метода run()
+- переписан процесс создания виджета, добавлены методы получения настроек getSettings(), из метода run() удалены входные параметры
+- widgetSettings и chartData теперь хранятся в базовом классе Chart, а не пробрасываются между методами
+- в \widgetSettings и \widgetSettings\settings добавлены index.ts для упрощения доступа
+- обновлен README.md 

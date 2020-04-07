@@ -1,8 +1,8 @@
 import s from "../../styles/_all.less";
 import w from "./indicatorsTable.less";
-import {config as widgetConfig} from "./config";
+import {settings as widgetSettings} from "./settings";
 
-import {IChartData, IWidgetVariables} from "../../interfaces";
+import {IChartData, IWidgetSettings, IWidgetVariables} from "../../interfaces";
 import {get as _get, head as _head, forEach as _forEach} from "lodash";
 import * as moment from 'moment';
 import * as hammer from 'hammerjs';
@@ -21,12 +21,18 @@ export class IndicatorsTable extends Chart {
         return {};
     }
 
+    getSettings(): IWidgetSettings {
+        return widgetSettings;
+    }
+
     destroy(): void {
         this.mc.off("panstart panleft panright");
         super.destroy();
     }
 
-    run(data: IChartData): void {
+    run(): void {
+        const data: IChartData = this.chartData;
+
         this.mc = hammer(this.config.element);
 
         let startOffs = 0;

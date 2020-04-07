@@ -1,2 +1,2 @@
 export * from "./profileAndDistribution";
-export * from "./config";
+export * from "./settings";

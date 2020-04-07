@@ -2,24 +2,29 @@ import {get as _get, forEach as _forEach, defaultTo as _defaultTo} from 'lodash'
 import ResizeObserver from 'resize-observer-polyfill';
 import {
     IChart,
-    IChartData, ISettings, IWidgetInfo,
+    IChartData, ISettings, IWidgetSettings,
     IWidgetVariables
 } from "../interfaces";
 import {WidgetConfigInner} from "./widgetConfig";
 import {EventBusWrapper, EventBus, EventBusEvent} from 'goodteditor-event-bus';
-import {WidgetInfoSettingsItem} from "../widgetInfo/types";
+import {WidgetSettingsArray, WidgetSettingsItem} from "../widgetSettings/types";
+import {SettingsArraySetting} from "../widgetSettings/settings";
 
 const hogan = require('hogan.js');
 
 export abstract class Chart implements IChart {
-    protected config: WidgetConfigInner = null;
+    protected config: WidgetConfigInner = null;         // Конфигурация для создания виджета
+    protected widgetSettings: IWidgetSettings = null;   // Информация о настройках виджета
+    protected chartData: IChartData = null;             // Данные, пришедшие из graphQL
+
     private resizeObserver: ResizeObserver = null;
 
     // tslint:disable: no-any
-    private template: any = null;                   // Скомпилированный шаблон
+    private readonly template: any = null;              // Скомпилированный шаблон
 
-    abstract run(data: IChartData): void;           // Запуск виджета
-    abstract getVariables(): IWidgetVariables;      // Получить переменные для общения по шине
+    abstract run(): void;                               // Запуск виджета
+    abstract getSettings(): IWidgetSettings;            // Получить настройки виджета
+    abstract getVariables(): IWidgetVariables;          // Получить переменные для общения по шине
 
     // Получить шаблон. Если не перегружена (null), то шаблонизатор не используется
     getTemplate(): string | null { return null; }
@@ -32,6 +37,9 @@ export abstract class Chart implements IChart {
      * @return true - если необходима перерисовка
      */
     onEventBus: (varName: string, value: string, dataSourceId: number) => boolean = (...args) => false;
+
+
+
 
     constructor(config: WidgetConfigInner) {
         this.config = config;
@@ -87,12 +95,22 @@ export abstract class Chart implements IChart {
     }
 
     /**
+     * Создание виджета
+     */
+    readonly create = (data: IChartData): void => {
+        this.widgetSettings = this.getSettings();
+        this.chartData = data;
+        this.run();
+    }
+
+    /**
      * Перерисовать виджет с текущими данными
      */
     async redraw(): Promise<void> {
         this.config.dataProvider.parseTemplate(this.config.template)
             .then((templateData: IChartData) => {
-                this.run(templateData);
+                this.chartData = templateData;
+                this.run();
             });
     }
 
@@ -110,46 +128,61 @@ export abstract class Chart implements IChart {
         };
     }
 
+    private getSettingByPath(config: WidgetSettingsArray, parts: string[]): WidgetSettingsItem {
+        if (!parts.length) {
+            return null;
+        }
+        const item = config.find((v: WidgetSettingsItem) => v.name === parts[0]);
+        if (!item) {
+            return null;
+        }
+        if (parts.length === 1) {
+            return item;
+        }
+        if ((item as SettingsArraySetting).settings === undefined) {
+            return item;
+        }
+        return this.getSettingByPath((item as SettingsArraySetting).settings, parts.slice(1 - parts.length));
+    }
+
     /**
      * Возвращает настройку из сеттингов виджета
      * @param config конфигурация виджета
      * @param settings Объект с настройками
-     * @param name название поля
-     * @return возвращает значение того типа, к которому присваиваевается результат, поэтому нужен тип T
+     * @param path название поля
+     * @return возвращает значение того типа, к которому присваивается результат, поэтому нужен тип T
      */
     protected getWidgetSetting<T = any>(
-        config: IWidgetInfo,
         settings: ISettings,
-        name: string
+        path: string
     ): T {
-        const item = config.settings.find((v: WidgetInfoSettingsItem) => v.name === name);
+        const item: WidgetSettingsItem = this.getSettingByPath(this.widgetSettings.settings, path.split('.'));
         if (!item) {
             // NOTE: Вот именно так! сразу бьем по рукам за попытку обратиться к недокументированному параметру
-            throw new Error(`Attempt to get an undescribed parameter ${name}`);
+            throw new Error(`Attempt to get an undescribed parameter ${path}`);
         }
         // Если параметр описан, но не пришел в настройках, выставляем default
-        return _get(settings, name, item.default);
+        return _get(settings, path, item.default);
     }
 
     /**
      * Возвращает настройку из датасета
      * @param config конфигурация виджета
      * @param settings Объект с настройками
-     * @param name название поля
-     * @return возвращает значение того типа, к которому присваиваевается результат, поэтому нужен тип T
+     * @param path название поля
+     * @return возвращает значение того типа, к которому присваивается результат, поэтому нужен тип T
      */
     protected getDataSetSettings<T = any>(
-        config: IWidgetInfo,
         settings: ISettings,
-        name: string
+        path: string
     ): T {
-        const item = config.dataSet.settings.find((v: WidgetInfoSettingsItem) => v.name === name);
+        const item: WidgetSettingsItem = this.getSettingByPath(this.widgetSettings.dataSet.settings, path.split('.'));
         if (!item) {
             // NOTE: Вот именно так! сразу бьем по рукам за попытку обратиться к недокументированному параметру
-            throw new Error(`Attempt to get an undescribed parameter ${name}`);
+            throw new Error(`Attempt to get an undescribed parameter ${path}`);
         }
         // Если параметр описан, но не пришел в настройках, выставляем default
-        return _get(settings, name, item.default);
+        return _get(settings, path, item.default);
     }
 
     /**
@@ -158,14 +191,13 @@ export abstract class Chart implements IChart {
      * @return Всегда возвращает валидный цвет для подстановки
      */
     protected getColor(
-        config: IWidgetInfo,
         settings: ISettings,
         defClassName: string,
         defColor: string = '#000'
     ): {
         color: string, colorStyle: string, className: string
     } {
-        let color: string = this.getDataSetSettings(config, settings, 'color');
+        let color: string = this.getDataSetSettings(settings, 'color');
         let colorStyle: string = '';
         let className: string = '';
         if (!color) {

@@ -1,4 +1,4 @@
-import {ViewType, ChartType, Frequency, Operation} from '../../../models/types';
+import {ViewType, ChartType, Frequency, Operation, MethodType} from '../../../models/types';
 import {DataSource} from "../../graphQL";
 import {ISettings} from "../../ISettings";
 
@@ -22,7 +22,7 @@ export interface DataSetTemplate {
     operation: Operation;                   // операция, которую необходимо выполнить при агрегации из preFrequency во frequency
     axis: number;                           // номер оси, на которую накладывается график
     numberOfBeans?: number;                 // количество столбцов (используется только для DISTRIBUTION)
-    methods?: string[] | null;
+    methods?: MethodType[] | null;
 
     settings?: ISettings;                   // Настройки конкретных источников данных
 }

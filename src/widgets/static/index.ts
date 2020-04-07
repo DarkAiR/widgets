@@ -1,2 +1,2 @@
 export * from "./static";
-export * from "./config";
+export * from "./settings";

@@ -1,2 +1,2 @@
 export * from "./report";
-export * from "./config";
+export * from "./settings";

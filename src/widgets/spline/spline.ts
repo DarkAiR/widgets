@@ -1,11 +1,12 @@
 import s from '../../styles/_all.less';
 import w from './spline.less';
-import {config as widgetConfig} from "./config";
+import {settings as widgetSettings} from "./settings";
 
 import echarts from 'echarts';
 import {
     DataSet,
     IChartData,
+    IWidgetSettings,
     IWidgetVariables,
     SingleDataSource,
 } from '../../interfaces';
@@ -38,8 +39,13 @@ export class Spline extends Chart {
         return res;
     }
 
+    getSettings(): IWidgetSettings {
+        return widgetSettings;
+    }
 
-    run(data: IChartData): void {
+    run(): void {
+        const data: IChartData = this.chartData;
+
         if (TypeGuardsHelper.dataSetsIsDataSetTemplate(data.dataSets)) {
             // FIXME: Внешние стили нельзя использовать
             const globalCardSets = _get(data.dataSets[0].settings, 'globalCardSettings', '');
@@ -48,12 +54,12 @@ export class Spline extends Chart {
             const timeSeriesData: TimeSeriesData = TimeSeriesHelper.convertTimeSeriesToData(data.data as TSPoint[][]);
 
             // Вычисляем количество левых и правых осей
-            const axisOffsets = this.calcAxisOffsets(data);
+            const axisOffsets = this.calcAxisOffsets();
 
-            const classicSeries: Object[] = this.getClassicSeries(data, timeSeriesData);
-            const comparedSeries: Object[] = this.getComparedSeries(data, timeSeriesData);
+            const classicSeries: Object[] = this.getClassicSeries(timeSeriesData);
+            const comparedSeries: Object[] = this.getComparedSeries(timeSeriesData);
             const series = classicSeries.concat(comparedSeries);
-            const yaxis: Object[] = this.getYAxis(data, timeSeriesData, axisOffsets.offsets);
+            const yaxis: Object[] = this.getYAxis(timeSeriesData, axisOffsets.offsets);
 
             const options = {
                 grid: {
@@ -67,7 +73,7 @@ export class Spline extends Chart {
                 },
                 xAxis: {
                     type: 'category',
-                    boundaryGap: this.hasHistogram(data),
+                    boundaryGap: this.hasHistogram(),
                     // Цифры
                     axisLabel: {
                         formatter: (value: string) => {
@@ -128,7 +134,7 @@ export class Spline extends Chart {
             }
 
             this.config.element.innerHTML = this.renderTemplate({
-                title: this.getWidgetSetting(widgetConfig, data.settings, 'title'),
+                title: this.getWidgetSetting(data.settings, 'title'),
                 titleSets,
                 globalCardSets
             });
@@ -147,17 +153,17 @@ export class Spline extends Chart {
     /**
      * Вычисляем смещения левых и правых осей
      */
-    private calcAxisOffsets(data: IChartData): {
+    private calcAxisOffsets(): {
         offsets: Array<{ left: number, right: number }>,
         leftAxisAmount: number,
         rightAxisAmount: number
     } {
-        if (TypeGuardsHelper.dataSetsIsDataSetTemplate(data.dataSets)) {
+        if (TypeGuardsHelper.dataSetsIsDataSetTemplate(this.chartData.dataSets)) {
             const axisArray: Array<{ left: number, right: number }> = [];
             let leftAxis = 0;
             let rightAxis = 0;
-            for (let idx = 0; idx < data.data.length; idx++) {
-                const axisPos: YAxisTypes = this.getDataSetSettings(widgetConfig, data.dataSets[idx].settings, 'yAxis');
+            for (let idx = 0; idx < this.chartData.data.length; idx++) {
+                const axisPos: YAxisTypes = this.getDataSetSettings(this.chartData.dataSets[idx].settings, 'yAxis');
                 switch (axisPos) {
                     case "left":
                         axisArray[idx] = {left: (leftAxis * 50), right: 0};
@@ -176,12 +182,13 @@ export class Spline extends Chart {
     /**
      * Получить данные для серий
      */
-    private getClassicSeries(data: IChartData, timeSeriesData: TimeSeriesData): Object[] {
+    private getClassicSeries(timeSeriesData: TimeSeriesData): Object[] {
+        const data: IChartData = this.chartData;
         const series: Object[] = [];
 
         if (TypeGuardsHelper.dataSetsIsDataSetTemplate(data.dataSets)) {
             for (let idx = 0; idx < data.data.length; idx++) {
-                const currColor = this.getColor(widgetConfig, data.dataSets[idx].settings, 'color-yellow');
+                const currColor = this.getColor(data.dataSets[idx].settings, 'color-yellow');
                 let seriesData = {};
                 switch (data.dataSets[idx].chartType) {
                     case "LINE":
@@ -219,7 +226,8 @@ export class Spline extends Chart {
     }
 
     // FIXME Переписать, убрать все кастомные стили и классы
-    private getComparedSeries(data: IChartData, timeSeriesData: TimeSeriesData): Object[] {
+    private getComparedSeries(timeSeriesData: TimeSeriesData): Object[] {
+        const data: IChartData = this.chartData;
         const series: Object[] = [];
 
         if (TypeGuardsHelper.dataSetsIsDataSetTemplate(data.dataSets)) {
@@ -245,7 +253,7 @@ export class Spline extends Chart {
             let comparedFlag = false;
 
             for (let idx = 0; idx < data.data.length; idx++) {
-                const currColor = this.getColor(widgetConfig, data.dataSets[idx].settings, 'color-yellow');
+                const currColor = this.getColor(data.dataSets[idx].settings, 'color-yellow');
                 switch (data.dataSets[idx].chartType) {
                     case "COMPARED_PLAN":
                         planData = timeSeriesData.values[idx];
@@ -374,10 +382,10 @@ export class Spline extends Chart {
      * Получить данные для осей
      */
     private getYAxis(
-        data: IChartData,
         timeSeriesData: TimeSeriesData,
         axisOffsets: Array<{left: number, right: number}>
     ): Object[] {
+        const data: IChartData = this.chartData;
         const yaxis: Object[] = [];
 
         if (TypeGuardsHelper.dataSetsIsDataSetTemplate(data.dataSets)) {
@@ -417,8 +425,8 @@ export class Spline extends Chart {
 
 
                 // Часть логики из сплайна
-                const pos: YAxisTypes = this.getDataSetSettings(widgetConfig, data.dataSets[idx].settings, 'yAxis');
-                const currColor = this.getColor(widgetConfig, data.dataSets[idx].settings, 'color-grey');
+                const pos: YAxisTypes = this.getDataSetSettings(data.dataSets[idx].settings, 'yAxis');
+                const currColor = this.getColor(data.dataSets[idx].settings, 'color-grey');
 
                 let offset = 0;
                 switch (pos) {
@@ -541,7 +549,8 @@ export class Spline extends Chart {
      * Проверяем, есть ли среди графиков гистограммы
      * Для них необходимо изменить вид графика
      */
-    private hasHistogram(data: IChartData): boolean {
+    private hasHistogram(): boolean {
+        const data: IChartData = this.chartData;
         if (TypeGuardsHelper.dataSetsIsDataSetTemplate(data.dataSets)) {
             for (let idx = 0; idx < data.data.length; idx++) {
                 if (data.dataSets[idx].chartType === 'HISTOGRAM') {
@@ -565,7 +574,7 @@ export class Spline extends Chart {
             lineStyle: {
                 shadowBlur: 2,
                 shadowColor: 'rgba(0, 0, 0, 0.3)',
-                type: 'solid',
+                type: this.getDataSetSettings(this.chartData.dataSets[idx].settings, 'lineStyle.type'),
                 width: 2,
                 color
             },
