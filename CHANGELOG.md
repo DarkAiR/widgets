@@ -117,3 +117,6 @@
 - widgetSettings и chartData теперь хранятся в базовом классе Chart, а не пробрасываются между методами
 - в \widgetSettings и \widgetSettings\settings добавлены index.ts для упрощения доступа
 - обновлен README.md 
+
+##### 0.8.7 / 2020-04-07
+- отображение настроек lineFormat

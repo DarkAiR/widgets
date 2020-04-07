@@ -4,7 +4,7 @@ import {settings as widgetSettings} from "./settings";
 
 import {
     DimensionFilter,
-    IChartData, INameValue, ISettings, IWidgetSettings,
+    IChartData, INameValue, ISettings,
     IWidgetVariables, JoinDataSetTemplate, TableRow, TimeSeriesDataSetShort
 } from "../../interfaces";
 import * as _get from "lodash/get";
@@ -13,6 +13,7 @@ import * as _filter from "lodash/filter";
 import * as _keyBy from "lodash/keyBy";
 import {Chart} from "../../models/Chart";
 import {TypeGuardsHelper} from "../../helpers";
+import {IWidgetSettings} from "../../widgetSettings";
 
 export class Table extends Chart {
     getVariables(): IWidgetVariables {

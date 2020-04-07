@@ -2,7 +2,7 @@ import s from "../../styles/_all.less";
 import w from "./indicatorsTable.less";
 import {settings as widgetSettings} from "./settings";
 
-import {IChartData, IWidgetSettings, IWidgetVariables} from "../../interfaces";
+import {IChartData, IWidgetVariables} from "../../interfaces";
 import {get as _get, head as _head, forEach as _forEach} from "lodash";
 import * as moment from 'moment';
 import * as hammer from 'hammerjs';
@@ -10,6 +10,7 @@ import {Chart} from "../../models/Chart";
 import {TimeSeriesData, TimeSeriesHelper} from "../../helpers";
 import {TSPoint} from "../../interfaces/graphQL";
 import {IObject} from "../../interfaces/IObject";
+import {IWidgetSettings} from "../../widgetSettings";
 
 type MetricsStatus = 'normal' | 'warning' | 'error';
 

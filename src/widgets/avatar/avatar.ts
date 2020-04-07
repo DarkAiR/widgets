@@ -2,9 +2,10 @@ import s from "../../styles/_all.less";
 import w from "./avatar.less";
 import {settings as widgetSettings} from "./settings";
 
-import {IChart, IChartData, IWidgetSettings, IWidgetVariables} from "../../interfaces";
+import {IChart, IChartData, IWidgetVariables} from "../../interfaces";
 import {get as _get} from "lodash";
 import {Chart} from "../../models/Chart";
+import {IWidgetSettings} from "../../widgetSettings";
 
 export class Avatar extends Chart {
     getVariables(): IWidgetVariables {
