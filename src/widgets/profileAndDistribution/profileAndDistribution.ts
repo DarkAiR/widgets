@@ -4,11 +4,12 @@ import {settings as widgetSettings} from "./settings";
 
 import echarts from 'echarts';
 import {
-    IChartData, IWidgetSettings,
+    IChartData,
     IWidgetVariables
 } from '../../interfaces';
 import {Chart} from '../../models/Chart';
 import {ProfilePoint} from '../../interfaces';
+import {IWidgetSettings} from "../../widgetSettings";
 
 export class ProfileAndDistribution extends Chart {
     getVariables(): IWidgetVariables {

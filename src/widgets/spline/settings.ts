@@ -1,6 +1,5 @@
-import {INameValue, IWidgetSettings} from "../../interfaces";
+import {IWidgetSettings, makeSettings} from "../../widgetSettings";
 import {LineType, LineTypeValues, YAxisTypes, YAxisTypesValues} from "../../models/types";
-import {makeSettings} from "../../widgetSettings";
 import {makeBoolean, makeColor, makeList, makeNumber, makeSettingsArray, makeString} from "../../widgetSettings/settings";
 
 export const settings: IWidgetSettings = makeSettings({
@@ -20,7 +19,8 @@ export const settings: IWidgetSettings = makeSettings({
                 makeString('delimiter', 'Разделитель', '.'),
                 makeNumber('precision', 'Точность в знаках', 2),
                 makeString('measure', 'Единица измерения', ''),
-                makeBoolean('showMeasure', 'Показывать единицу изменения', false)
+                makeBoolean('showMeasure', 'Показывать единицу изменения', false),
+                makeBoolean('show', 'Показывать значение', false)
             ])
         ]
     }

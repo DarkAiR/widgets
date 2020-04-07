@@ -2,13 +2,14 @@ import {get as _get, forEach as _forEach, defaultTo as _defaultTo} from 'lodash'
 import ResizeObserver from 'resize-observer-polyfill';
 import {
     IChart,
-    IChartData, ISettings, IWidgetSettings,
+    IChartData, ISettings,
     IWidgetVariables
 } from "../interfaces";
 import {WidgetConfigInner} from "./widgetConfig";
 import {EventBusWrapper, EventBus, EventBusEvent} from 'goodteditor-event-bus';
-import {WidgetSettingsArray, WidgetSettingsItem} from "../widgetSettings/types";
+import {IWidgetSettings} from "../widgetSettings";
 import {SettingsArraySetting} from "../widgetSettings/settings";
+import {WidgetSettingsArray, WidgetSettingsItem} from "../widgetSettings/types";
 
 const hogan = require('hogan.js');
 
@@ -147,7 +148,6 @@ export abstract class Chart implements IChart {
 
     /**
      * Возвращает настройку из сеттингов виджета
-     * @param config конфигурация виджета
      * @param settings Объект с настройками
      * @param path название поля
      * @return возвращает значение того типа, к которому присваивается результат, поэтому нужен тип T
@@ -167,7 +167,6 @@ export abstract class Chart implements IChart {
 
     /**
      * Возвращает настройку из датасета
-     * @param config конфигурация виджета
      * @param settings Объект с настройками
      * @param path название поля
      * @return возвращает значение того типа, к которому присваивается результат, поэтому нужен тип T

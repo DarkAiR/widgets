@@ -9,9 +9,10 @@ function _get<T>(settings: ISettings, path: string, def: T): T {
     return _getFromLodash(settings, path, def);
 }
 
-import {IChartData, ISettings, IWidgetSettings, IWidgetVariables} from "../../interfaces";
+import {IChartData, ISettings, IWidgetVariables} from "../../interfaces";
 import {Chart} from "../../models/Chart";
 import {TypeGuardsHelper} from "../../helpers";
+import {IWidgetSettings} from "../../widgetSettings";
 
 export class KPI extends Chart {
     getVariables(): IWidgetVariables {

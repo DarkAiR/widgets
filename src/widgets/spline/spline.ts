@@ -5,8 +5,7 @@ import {settings as widgetSettings} from "./settings";
 import echarts from 'echarts';
 import {
     DataSet,
-    IChartData,
-    IWidgetSettings,
+    IChartData, ISettings,
     IWidgetVariables,
     SingleDataSource,
 } from '../../interfaces';
@@ -19,6 +18,7 @@ import {TimeSeriesData, TimeSeriesHelper} from '../../helpers';
 import {YAxisTypes} from "../../models/types";
 import {TSPoint} from "../../interfaces/graphQL";
 import {TypeGuardsHelper} from "../../helpers";
+import {IWidgetSettings} from "../../widgetSettings";
 
 export class Spline extends Chart {
     getVariables(): IWidgetVariables {
@@ -188,7 +188,9 @@ export class Spline extends Chart {
 
         if (TypeGuardsHelper.dataSetsIsDataSetTemplate(data.dataSets)) {
             for (let idx = 0; idx < data.data.length; idx++) {
-                const currColor = this.getColor(data.dataSets[idx].settings, 'color-yellow');
+                const dataSetSettings: ISettings = data.dataSets[idx].settings;
+
+                const currColor = this.getColor(dataSetSettings, 'color-yellow');
                 let seriesData = {};
                 switch (data.dataSets[idx].chartType) {
                     case "LINE":
@@ -202,11 +204,15 @@ export class Spline extends Chart {
                 }
 
                 // FIXME: Та же проблема, как в FIXME выше, мы разрешаем кому-то снаружи лезть напрямую в наш рендер
-                // name: "Продажи"
-                // tooltip: {formatter: "{a}<br>{b}.04.2019: {c} тыс. руб."}
-                // label: {show: true, formatter: "{c}", position: "inside", color: "rgba(50,50,50,.6)"}
+                // symbolSize: 8
+                // name: "Эффективность"
+                // tooltip: {formatter: "{a}<br>{b}.04.2019: {c}%"}
+                // label: {show: true, formatter: "{c}%", color: "rgba(255,255,255,.6)"}
+                // color: "rgba(255,255,255,.3)"
+                // lineStyle: {type: "dotted", color: "rgba(255,255,255,.3)"}
+                // areaStyle: {color: {type: "linear", x: 0, y: 0, x2: 0, y2: 1,…}}
                 // z: 0
-                const seriesSettings = _get(data.dataSets[idx].settings, 'seriesSettings', {});
+                const seriesSettings = _get(dataSetSettings, 'seriesSettings', {});
                 for (const k in seriesSettings) {
                     if (seriesSettings.hasOwnProperty(k)) {
                         if (seriesSettings[k] !== undefined) {
@@ -215,6 +221,26 @@ export class Spline extends Chart {
                     }
                 }
 
+                // См. https://echarts.apache.org/en/option.html#series-line.label.formatter
+                const getSetting = <T>(path: string): T => this.getDataSetSettings<T>(dataSetSettings, path); // tslint:disable-line:no-any
+                const showLabelFormat = getSetting<boolean>("labelFormat.show");
+                const delimiter = getSetting<string>('labelFormat.delimiter') || '.';
+                const precision = getSetting<number>('labelFormat.precision') || 0;
+                Object.assign(seriesData['label'], {
+                    show: showLabelFormat,
+                    formatter: (params: Object | []): string => {
+                        let value = params['value'];
+                        if (showLabelFormat) {
+                            const v = parseFloat(value);
+                            const integer = v !== NaN ? ((v + '').split('.')[0] ?? '') : '';
+                            const fraction = v !== NaN ? ((v + '').split('.')[1] ?? '') : '';
+                            value = integer + delimiter + fraction.padEnd(precision, '0');
+                        }
+                        return value + (getSetting<boolean>('labelFormat.showMeasure')
+                            ? getSetting<string>('labelFormat.measure')
+                            : '');
+                    }
+                });
                 series.push({
                     data: timeSeriesData.values[idx],
                     yAxisIndex: idx,
@@ -579,18 +605,16 @@ export class Spline extends Chart {
                 color
             },
             label: {
-                normal: {
-                    show: false,
-                    color: 'auto',
-                    position: 'top',
-                    distance: 0,
-                    rotate: 0,
-                    backgroundColor: '',
-                    borderColor: '',
-                    borderWidth: 1,
-                    padding: [3, 5, 3, 5],
-                    borderRadius: [1, 1, 1, 1]
-                }
+                show: false,
+                color: color,
+                position: 'top',
+                distance: 0,
+                rotate: 0,
+                backgroundColor: '',
+                borderColor: '',
+                borderWidth: 1,
+                padding: [3, 5, 3, 5],
+                borderRadius: [1, 1, 1, 1]
             },
             animation: true,
             animationEasing: 'cubicOut',
@@ -616,18 +640,16 @@ export class Spline extends Chart {
                 color,
             },
             label: {
-                normal: {
-                    show: false,
-                    color: 'white',
-                    position: 'inside',
-                    distance: 0,
-                    rotate: 0,
-                    backgroundColor: '',
-                    borderColor: '',
-                    borderWidth: 1,
-                    padding: [3, 5, 3, 5],
-                    borderRadius: [1, 1, 1, 1]
-                }
+                show: false,
+                color: color,
+                position: 'inside',
+                distance: 0,
+                rotate: 0,
+                backgroundColor: '',
+                borderColor: '',
+                borderWidth: 1,
+                padding: [3, 5, 3, 5],
+                borderRadius: [1, 1, 1, 1]
             },
             animation: true,
             animationDelay: 0,
