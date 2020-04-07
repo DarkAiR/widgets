@@ -5,7 +5,7 @@ import {settings as widgetSettings} from "./settings";
 import echarts from 'echarts';
 import {
     DataSet,
-    IChartData, ISettings,
+    IChartData, IColor, ISettings,
     IWidgetVariables,
     SingleDataSource,
 } from '../../interfaces';
@@ -194,10 +194,10 @@ export class Spline extends Chart {
                 let seriesData = {};
                 switch (data.dataSets[idx].chartType) {
                     case "LINE":
-                        seriesData = this.getLineSeries(idx, currColor.color);
+                        seriesData = this.getLineSeries(idx, currColor);
                         break;
                     case "HISTOGRAM":
-                        seriesData = this.getHistogramSeries(idx, currColor.color);
+                        seriesData = this.getHistogramSeries(idx, currColor);
                         break;
                     default:
                         continue;
@@ -207,9 +207,9 @@ export class Spline extends Chart {
                 // symbolSize: 8
                 // name: "Эффективность"
                 // tooltip: {formatter: "{a}<br>{b}.04.2019: {c}%"}
-                // label: {show: true, formatter: "{c}%", color: "rgba(255,255,255,.6)"}
-                // color: "rgba(255,255,255,.3)"
-                // lineStyle: {type: "dotted", color: "rgba(255,255,255,.3)"}
+                // + label: {show: true, formatter: "{c}%", color: "rgba(255,255,255,.6)"}
+                // + color: "rgba(255,255,255,.3)"
+                // + lineStyle: {type: "dotted", color: "rgba(255,255,255,.3)"}
                 // areaStyle: {color: {type: "linear", x: 0, y: 0, x2: 0, y2: 1,…}}
                 // z: 0
                 const seriesSettings = _get(dataSetSettings, 'seriesSettings', {});
@@ -221,26 +221,6 @@ export class Spline extends Chart {
                     }
                 }
 
-                // См. https://echarts.apache.org/en/option.html#series-line.label.formatter
-                const getSetting = <T>(path: string): T => this.getDataSetSettings<T>(dataSetSettings, path); // tslint:disable-line:no-any
-                const showLabelFormat = getSetting<boolean>("labelFormat.show");
-                const delimiter = getSetting<string>('labelFormat.delimiter') || '.';
-                const precision = getSetting<number>('labelFormat.precision') || 0;
-                Object.assign(seriesData['label'], {
-                    show: showLabelFormat,
-                    formatter: (params: Object | []): string => {
-                        let value = params['value'];
-                        if (showLabelFormat) {
-                            const v = parseFloat(value);
-                            const integer = v !== NaN ? ((v + '').split('.')[0] ?? '') : '';
-                            const fraction = v !== NaN ? ((v + '').split('.')[1] ?? '') : '';
-                            value = integer + delimiter + fraction.padEnd(precision, '0');
-                        }
-                        return value + (getSetting<boolean>('labelFormat.showMeasure')
-                            ? getSetting<string>('labelFormat.measure')
-                            : '');
-                    }
-                });
                 series.push({
                     data: timeSeriesData.values[idx],
                     yAxisIndex: idx,
@@ -279,28 +259,30 @@ export class Spline extends Chart {
             let comparedFlag = false;
 
             for (let idx = 0; idx < data.data.length; idx++) {
+                const dataSetSettings: ISettings = data.dataSets[idx].settings;
+
                 const currColor = this.getColor(data.dataSets[idx].settings, 'color-yellow');
                 switch (data.dataSets[idx].chartType) {
                     case "COMPARED_PLAN":
                         planData = timeSeriesData.values[idx];
-                        planProps = _get(data.dataSets[idx].settings, 'seriesSettings', {});
-                        planOpts = this.getComparedHistogramSeries(0, currColor.color);
-                        overProps = _get(data.dataSets[idx].settings, 'overSettings', {});
-                        overOpts = this.getComparedHistogramSeries(0, currColor.color);
-                        overColor = _get(data.dataSets[idx].settings, 'overColor', {});
+                        planProps = _get(dataSetSettings, 'seriesSettings', {});
+                        planOpts = this.getComparedHistogramSeries(0, currColor);
+                        overProps = _get(dataSetSettings, 'overSettings', {});
+                        overOpts = this.getComparedHistogramSeries(0, currColor);
+                        overColor = _get(dataSetSettings, 'overColor', {});
 
-                        underProps = _get(data.dataSets[idx].settings, 'underSettings', {});
-                        underOpts = this.getComparedHistogramSeries(0, currColor.color);
-                        underColor = _get(data.dataSets[idx].settings, 'underColor', {});
+                        underProps = _get(dataSetSettings, 'underSettings', {});
+                        underOpts = this.getComparedHistogramSeries(0, currColor);
+                        underColor = _get(dataSetSettings, 'underColor', {});
 
-                        mainColor = _get(data.dataSets[idx].settings, 'mainColor', {});
+                        mainColor = _get(dataSetSettings, 'mainColor', {});
 
                         comparedFlag = true;
                         break;
                     case "COMPARED_FACT":
                         factData = timeSeriesData.values[idx];
-                        factProps = _get(data.dataSets[idx].settings, 'seriesSettings', {});
-                        factOpts = this.getComparedHistogramSeries(0, currColor.color);
+                        factProps = _get(dataSetSettings, 'seriesSettings', {});
+                        factOpts = this.getComparedHistogramSeries(0, currColor);
                         comparedFlag = true;
                         break;
                 }
@@ -416,13 +398,15 @@ export class Spline extends Chart {
 
         if (TypeGuardsHelper.dataSetsIsDataSetTemplate(data.dataSets)) {
             for (let idx = 0; idx < data.data.length; idx++) {
-                if (!_get(data.dataSets[idx].settings, 'createYAxis', true)) {
+                const dataSetSettings: ISettings = data.dataSets[idx].settings;
+
+                if (!_get(dataSetSettings, 'createYAxis', true)) {
                     continue;
                 }
                 let count = 0;
                 const valueArray: number[] = [];
-                if (data.dataSets[idx].settings.yAxisInds !== undefined && data.dataSets[idx].settings.yAxisInds.length > 0) {
-                    for (const v of data.dataSets[idx].settings.yAxisInds) {
+                if (dataSetSettings.yAxisInds !== undefined && dataSetSettings.yAxisInds.length > 0) {
+                    for (const v of dataSetSettings.yAxisInds) {
                         timeSeriesData.values[v].forEach((item: number) => {
                             if (item !== undefined) {
                                 valueArray.push(item);
@@ -439,7 +423,7 @@ export class Spline extends Chart {
                     count += timeSeriesData.values[idx].length;
                 }
 
-                const negativeMirror = data.dataSets[idx].settings.negativeMirror || false;
+                const negativeMirror = dataSetSettings.negativeMirror || false;
 
                 valueArray.forEach((v: number, i: number, arr: number[]) => arr[i] = Math.abs(v));
 
@@ -451,8 +435,8 @@ export class Spline extends Chart {
 
 
                 // Часть логики из сплайна
-                const pos: YAxisTypes = this.getDataSetSettings(data.dataSets[idx].settings, 'yAxis');
-                const currColor = this.getColor(data.dataSets[idx].settings, 'color-grey');
+                const pos: YAxisTypes = this.getDataSetSettings(dataSetSettings, 'yAxis');
+                const currColor = this.getColor(dataSetSettings, 'color-grey');
 
                 let offset = 0;
                 switch (pos) {
@@ -479,14 +463,14 @@ export class Spline extends Chart {
                     maxInterval: finalHB / 3 + '',
                     // Цифры
                     axisLabel: {
-                        color: currColor.color,
+                        color: currColor.hex,
                         fontSize: 12/*,
                         rotate: rotate*/
                     },
                     // Настройки оси
                     axisLine: {
                         lineStyle: {
-                            color: currColor.color
+                            color: currColor.hex
                         }
                     },
                     // Сетка
@@ -500,7 +484,7 @@ export class Spline extends Chart {
                 };
 
                 // FIXME: Внешние настройки не должны напрямую менять внутренние настройки конкретного рендера, только через мепинг
-                const yAxisSettings = _get(data.dataSets[idx].settings, 'yAxisSettings', {});
+                const yAxisSettings = _get(dataSetSettings, 'yAxisSettings', {});
                 for (const k in yAxisSettings) {
                     if (yAxisSettings.hasOwnProperty(k)) {
                         if (yAxisSettings[k] !== undefined) {
@@ -587,26 +571,50 @@ export class Spline extends Chart {
         return false;
     }
 
-    private getLineSeries(idx: number, color: string): Object {
-        return {
+    /*
+     * Порядок определения цветов
+        color - главный
+        itemStyle: {
+            color: '#ff0000' (заливка, маркеры, линия, подписи)
+            opacity: (маркеры и подписи)
+        }
+        lineStyle: {
+            opacity: (линия)
+            color: (линия)
+        },
+        label: {
+            color: (подписи)
+        },
+        areaLabel: {
+            opacity: (заливка)
+            color: (заливка)
+        }
+     */
+    private getLineSeries(idx: number, color: IColor): Object {
+        return this.applySettings(idx, {
             type: 'line',
             smooth: true,
             forComparing: 0,
             xAxisIndex: 0,
             yAxisIndex: idx,
-            z: 10,
             stack: null,
             seriesLayoutBy: 'column',
+            showSymbol: true,
+            symbolSize: 30,
+
+            color: color.hex,                   // Основной цвет
+            itemStyle: {
+                opacity: color.opacity          // Прозрачность влияет на весь подписи + метки
+            },
             lineStyle: {
                 shadowBlur: 2,
                 shadowColor: 'rgba(0, 0, 0, 0.3)',
                 type: this.getDataSetSettings(this.chartData.dataSets[idx].settings, 'lineStyle.type'),
                 width: 2,
-                color
+                opacity: color.opacity,         // Прозрачность линии
             },
             label: {
                 show: false,
-                color: color,
                 position: 'top',
                 distance: 0,
                 rotate: 0,
@@ -623,25 +631,55 @@ export class Spline extends Chart {
             animationDurationUpdate: 1000,
             animationDelay: 0,
             animationDelayUpdate: 0,
-            showSymbol: true,
             connectNulls: true
-        };
+        });
     }
 
-    private getHistogramSeries(idx: number, color: string): Object {
-        return {
+    private getHistogramSeries(idx: number, color: IColor): Object {
+        return this.applySettings(idx, {
             name: 'bar ' + idx,
             type: 'bar',
             xAxisIndex: 0,
             yAxisIndex: idx,
-            z: 1,
             seriesLayoutBy: 'column',
+
+            color: color.hex,                   // Основной цвет
             itemStyle: {
-                color,
+                opacity: color.opacity          // Прозрачность влияет на весь подписи + метки
             },
             label: {
                 show: false,
-                color: color,
+                position: 'top',
+                distance: 0,
+                rotate: -Math.PI / 2,
+                backgroundColor: '',
+                borderColor: '',
+                borderWidth: 1,
+                padding: [3, 5, 3, 5],
+                borderRadius: [1, 1, 1, 1]
+            },
+            animation: true,
+            animationDelay: 0,
+            animationDelayUpdate: 0,
+            showSymbol: true
+        });
+    }
+
+    private getComparedHistogramSeries(idx: number, color: IColor): Object {
+        return this.applySettings(idx, {
+            type: 'bar',
+            xAxisIndex: 0,
+            yAxisIndex: idx,
+            seriesLayoutBy: 'column',
+            stack: 'stackCompared',
+
+            color: color.hex,                   // Основной цвет
+            itemStyle: {
+                opacity: color.opacity          // Прозрачность влияет на весь подписи + метки
+            },
+            label: {
+                show: false,
+                color: color.hexWithAlpha,
                 position: 'inside',
                 distance: 0,
                 rotate: 0,
@@ -654,38 +692,37 @@ export class Spline extends Chart {
             animation: true,
             animationDelay: 0,
             animationDelayUpdate: 0,
-            showSymbol: true
-        };
-    }
-
-    private getComparedHistogramSeries(idx: number, color: string): Object {
-        return {
-            type: 'bar',
-            xAxisIndex: 0,
-            yAxisIndex: idx,
-            z: 1,
-            seriesLayoutBy: 'column',
-            stack: 'stackMeBabyOneMoreTime',
-            label: {
-                normal: {
-                    show: false,
-                    color: 'white',
-                    position: 'inside',
-                    distance: 0,
-                    rotate: 0,
-                    backgroundColor: '',
-                    borderColor: '',
-                    borderWidth: 1,
-                    padding: [3, 5, 3, 5],
-                    borderRadius: [1, 1, 1, 1]
-                }
-            },
-            animation: true,
-            animationDelay: 0,
-            animationDelayUpdate: 0,
             showSymbol: true,
             data: []
+        });
+    }
+
+    private applySettings(idx: number, seriesData: Object): Object {
+        const getSetting = <T>(path: string): T => this.getDataSetSettings<T>(this.chartData.dataSets[idx].settings, path);
+
+        // См. https://echarts.apache.org/en/option.html#series-line.label.formatter
+        const showLabelFormat = getSetting<boolean>("labelFormat.show");
+        const delimiter = getSetting<string>('labelFormat.delimiter') || '.';
+        const precision = getSetting<number>('labelFormat.precision') || 0;
+
+        const formatter = (params: Object | []): string => {
+            let value: string = params['value'] + '';
+            if (showLabelFormat) {
+                const v: number = parseFloat(value);
+                const integer: string = v !== NaN ? ((v + '').split('.')[0] ?? '') : '';
+                const fraction: string = v !== NaN ? ((v + '').split('.')[1] ?? '') : '';
+                value = integer + (precision === 0 ? '' : delimiter + fraction.padEnd(precision, '0'));
+            }
+            return value + (getSetting<boolean>('labelFormat.showMeasure')
+                ? getSetting<string>('labelFormat.measure')
+                : '');
         };
+
+        Object.assign(seriesData['label'], {
+            show: showLabelFormat,
+            formatter
+        });
+        return seriesData;
     }
 
     private onEventBusFunc(varName: string, value: string, dataSourceId: number): boolean {

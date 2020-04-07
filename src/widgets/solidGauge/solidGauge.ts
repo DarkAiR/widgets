@@ -38,8 +38,8 @@ export class SolidGauge extends Chart {
                 currValue,
                 title: this.getWidgetSetting(data.settings, 'title'),
                 icon: this.getWidgetSetting(data.settings, 'icon'),
-                maxColor: maxColor.color,
-                color: color.color,
+                maxColor: maxColor.hex,
+                color: color.hex,
                 magicLengthOfSvgPath,
                 sdo,
                 maxValue

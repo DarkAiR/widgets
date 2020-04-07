@@ -2,7 +2,7 @@ import {get as _get, forEach as _forEach, defaultTo as _defaultTo} from 'lodash'
 import ResizeObserver from 'resize-observer-polyfill';
 import {
     IChart,
-    IChartData, ISettings,
+    IChartData, IColor, IRgbaHex, ISettings,
     IWidgetVariables
 } from "../interfaces";
 import {WidgetConfigInner} from "./widgetConfig";
@@ -10,6 +10,7 @@ import {EventBusWrapper, EventBus, EventBusEvent} from 'goodteditor-event-bus';
 import {IWidgetSettings} from "../widgetSettings";
 import {SettingsArraySetting} from "../widgetSettings/settings";
 import {WidgetSettingsArray, WidgetSettingsItem} from "../widgetSettings/types";
+import {ColorHelper} from "../helpers";
 
 const hogan = require('hogan.js');
 
@@ -187,25 +188,25 @@ export abstract class Chart implements IChart {
     /**
      * Возвращает строку стилей и имя класса
      * Оба значения можно использовать как есть в виде class=`${className}` style=`${colorStyle}`
+     * По-умолчанию альфа-канал не используется, поэтому хранится в отдельных переменных
      * @return Всегда возвращает валидный цвет для подстановки
      */
     protected getColor(
         settings: ISettings,
         defClassName: string,
-        defColor: string = '#000'
-    ): {
-        color: string, colorStyle: string, className: string
-    } {
-        let color: string = this.getDataSetSettings(settings, 'color');
-        let colorStyle: string = '';
-        let className: string = '';
-        if (!color) {
-            color = defColor;
-            className = defClassName;
-        } else {
-            colorStyle = `color: ${color};`;
-        }
-        return {color, colorStyle, className};
+        defColor: string = '#000000'
+    ): IColor {
+        const colorSetting: string = this.getDataSetSettings(settings, 'color');
+        const rgbaHex: IRgbaHex = ColorHelper.parseHex(!colorSetting ? defColor : colorSetting);
+
+        const hex: string = '#' + rgbaHex.r + rgbaHex.g + rgbaHex.b;
+        const hexWithAlpha: string = hex + rgbaHex.a;
+
+        const style: string             = colorSetting ? `color: ${hex};`           : '';
+        const styleWithAlpha: string    = colorSetting ? `color: ${hexWithAlpha};`  : '';
+        const className: string         = colorSetting ? ''                         : defClassName;
+
+        return {hex, hexWithAlpha, style, styleWithAlpha, className, opacity: parseInt(rgbaHex.a, 16) / 255};
     }
 
     /**

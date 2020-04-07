@@ -38,24 +38,24 @@ export class AverageNumber extends Chart {
                     </div>
                     <div class='${s["row"]}'>
                         <div class='${w['curr']} ${w['num']} ${w[currColor.className]}  ${s["col"]} ${s["s-w-12-24"]} ${s["col-vmid"]}'
-                             style='${currColor.colorStyle}'
+                             style='${currColor.style}'
                         >
                             ${currValue}
                         </div>
                         <div class='${w['prev']} ${w['num']} ${w[prevColor.className]}  ${s["col"]} ${s["s-w-12-24"]} ${s["col-vmid"]}'
-                             style='${prevColor.colorStyle}'
+                             style='${prevColor.style}'
                         >
                             ${prevValue}
                         </div>
                     </div>
                     <div class='${s["row"]}'>
                         <div class='${w['curr']} ${w['text']} ${w[currColor.className]}  ${s["col"]} ${s["s-w-12-24"]}'
-                             style='${currColor.colorStyle}'
+                             style='${currColor.style}'
                         >
                             Текущие
                         </div>
                         <div class='${w['prev']} ${w['text']} ${w[prevColor.className]}  ${s["col"]} ${s["s-w-12-24"]}'
-                             style='${prevColor.colorStyle}'
+                             style='${prevColor.style}'
                         >
                             Предыдущие
                         </div>
