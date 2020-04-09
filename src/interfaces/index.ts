@@ -7,3 +7,4 @@ export * from "./template";
 export * from './graphQL';
 export * from './promise';
 export * from './IColor';
+export * from './IGradient';

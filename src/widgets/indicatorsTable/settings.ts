@@ -3,7 +3,7 @@ import {makeString} from "../../widgetSettings/settings";
 
 export const settings: IWidgetSettings = makeSettings({
     settings: [
-        makeString('title', 'Заголовок', '')
+        makeString('title', 'Заголовок')
     ],
     dataSet: {
         initAmount: 6,

@@ -6,3 +6,4 @@ export * from './NameValueArraySetting';
 export * from './NumberSetting';
 export * from './SettingsArraySetting';
 export * from './StringSetting';
+export * from './GradientSetting';

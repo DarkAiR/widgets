@@ -5,7 +5,7 @@ import {settings as widgetSettings} from "./settings";
 import echarts from 'echarts';
 import {
     DataSet,
-    IChartData, IColor, ISettings,
+    IChartData, IColor, IGradient, ISettings,
     IWidgetVariables,
     SingleDataSource,
 } from '../../interfaces';
@@ -13,6 +13,7 @@ import * as _get from 'lodash/get';
 import * as _set from 'lodash/set';
 import * as _map from 'lodash/map';
 import * as _forEach from 'lodash/forEach';
+import * as _merge from 'lodash/merge';
 import {Chart} from '../../models/Chart';
 import {TimeSeriesData, TimeSeriesHelper} from '../../helpers';
 import {YAxisTypes} from "../../models/types";
@@ -585,7 +586,7 @@ export class Spline extends Chart {
         label: {
             color: (подписи)
         },
-        areaLabel: {
+        areaStyle: {
             opacity: (заливка)
             color: (заливка)
         }
@@ -717,11 +718,52 @@ export class Spline extends Chart {
                 ? getSetting<string>('labelFormat.measure')
                 : '');
         };
-
-        Object.assign(seriesData['label'], {
-            show: showLabelFormat,
-            formatter
+        _merge(seriesData, {
+            label: {
+                show: showLabelFormat,
+                formatter
+            }
         });
+
+        if (getSetting<boolean>('areaStyle.show')) {
+            const gradient: IGradient = getSetting('areaStyle.fillColor');
+            let angle: number = gradient.rotate % 360;
+            if (angle < 0) {
+                angle = 360 + angle;
+            }
+            // Переводим угол в координаты градиента
+            const sin: number = Math.sin(angle / 180 * Math.PI) / 2;
+            const cos: number = Math.cos(angle / 180 * Math.PI) / 2;
+            let coords = [0, 0, 1, 0];
+            if (angle < 180) {
+                coords = [0.5 - cos, 0.5 - sin, 0.5 + cos, 0.5 + sin];
+            } else {
+                coords = [0.5 - cos, 0.5 + sin, 0.5 + cos, 0.5 - sin];
+            }
+            coords = coords.map((v: number) => +v.toFixed(2));
+            let colorsStart: number = 0;
+            const colorsOffs: number = gradient.colors.length <= 1 ? 1 : 1 / (gradient.colors.length - 1);
+            const colors: Object[] = gradient.colors.map((c: string) => {
+                const res: Object = {
+                    offset: colorsStart,
+                    color: c
+                };
+                colorsStart += colorsOffs;
+                return res;
+            });
+            _merge(seriesData, {
+                areaStyle: {
+                    color: {
+                        type: 'linear',
+                        x: coords[0],
+                        y: coords[1],
+                        x2: coords[2],
+                        y2: coords[3],
+                        colorStops: colors
+                    }
+                }
+            });
+        }
         return seriesData;
     }
 
