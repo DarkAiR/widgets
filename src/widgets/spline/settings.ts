@@ -23,11 +23,13 @@ export const settings: IWidgetSettings = makeSettings({
             makeSettingsArray('lineStyle', 'Стиль линии', [
                 makeList<LineType>('type', 'Тип', 'solid', LineTypeValues),
             ]),
-            makeSettingsArray('areaStyle', 'Стиль заливки', [
-                makeGradient('fillColor', 'Цвет заливки'),
+            makeSettingsArray('fill', 'Стиль заливки', [
+                makeGradient('color', 'Цвет заливки'),
                 makeBoolean('show', 'Показывать', false)
             ]),
-            makeSettingsArray('labelFormat', 'Формат вывода значений', [
+            makeSettingsArray('label', 'Формат вывода значений', [
+                makeColor('color', 'Цвет'),
+                makeNumber('fontSize', 'Размер шрифта', 12),
                 makeString('delimiter', 'Разделитель', '.'),
                 makeNumber('precision', 'Точность в знаках', 2),
                 makeString('measure', 'Единица измерения'),

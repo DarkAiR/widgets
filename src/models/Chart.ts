@@ -182,7 +182,7 @@ export abstract class Chart implements IChart {
             throw new Error(`Attempt to get an undescribed parameter ${path}`);
         }
         // Если параметр описан, но не пришел в настройках, выставляем default
-        return _get(settings, path, item.default);
+        return _get<T>(settings, path, item.default);
     }
 
     /**

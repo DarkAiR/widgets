@@ -16,7 +16,7 @@ import * as _forEach from 'lodash/forEach';
 import * as _merge from 'lodash/merge';
 import {Chart} from '../../models/Chart';
 import {TimeSeriesData, TimeSeriesHelper} from '../../helpers';
-import {YAxisTypes} from "../../models/types";
+import {ChartType, YAxisTypes} from "../../models/types";
 import {TSPoint} from "../../interfaces/graphQL";
 import {TypeGuardsHelper} from "../../helpers";
 import {IWidgetSettings} from "../../widgetSettings";
@@ -592,7 +592,7 @@ export class Spline extends Chart {
         }
      */
     private getLineSeries(idx: number, color: IColor): Object {
-        return this.applySettings(idx, {
+        return this.applySettings(idx, 'LINE', {
             type: 'line',
             smooth: true,
             forComparing: 0,
@@ -637,7 +637,7 @@ export class Spline extends Chart {
     }
 
     private getHistogramSeries(idx: number, color: IColor): Object {
-        return this.applySettings(idx, {
+        return this.applySettings(idx, 'HISTOGRAM', {
             name: 'bar ' + idx,
             type: 'bar',
             xAxisIndex: 0,
@@ -667,7 +667,7 @@ export class Spline extends Chart {
     }
 
     private getComparedHistogramSeries(idx: number, color: IColor): Object {
-        return this.applySettings(idx, {
+        return this.applySettings(idx, 'HISTOGRAM', {
             type: 'bar',
             xAxisIndex: 0,
             yAxisIndex: idx,
@@ -698,35 +698,43 @@ export class Spline extends Chart {
         });
     }
 
-    private applySettings(idx: number, seriesData: Object): Object {
+    private applySettings(idx: number, chartType: ChartType, seriesData: Object): Object {
         const getSetting = <T>(path: string): T => this.getDataSetSettings<T>(this.chartData.dataSets[idx].settings, path);
 
         // См. https://echarts.apache.org/en/option.html#series-line.label.formatter
-        const showLabelFormat = getSetting<boolean>("labelFormat.show");
-        const delimiter = getSetting<string>('labelFormat.delimiter') || '.';
-        const precision = getSetting<number>('labelFormat.precision') || 0;
+        if (getSetting<boolean>('label.show')) {
+            const delimiter: string = getSetting('label.delimiter') || '.';
+            const precision: number = getSetting('label.precision') || 0;
+            const measure = getSetting<boolean>('label.showMeasure')
+                ? getSetting<string>('label.measure')
+                : '';
 
-        const formatter = (params: Object | []): string => {
-            let value: string = params['value'] + '';
-            if (showLabelFormat) {
+            const formatter = (params: Object | []): string => {
+                let value: string = params['value'] + '';
                 const v: number = parseFloat(value);
                 const integer: string = v !== NaN ? ((v + '').split('.')[0] ?? '') : '';
                 const fraction: string = v !== NaN ? ((v + '').split('.')[1] ?? '') : '';
-                value = integer + (precision === 0 ? '' : delimiter + fraction.padEnd(precision, '0'));
-            }
-            return value + (getSetting<boolean>('labelFormat.showMeasure')
-                ? getSetting<string>('labelFormat.measure')
-                : '');
-        };
-        _merge(seriesData, {
-            label: {
-                show: showLabelFormat,
-                formatter
-            }
-        });
+                value = integer + (+precision === 0 ? '' : (delimiter + fraction.padEnd(precision, '0')));
+                return value + measure;
+            };
+            _merge(seriesData, {
+                label: {
+                    show: true,
+                    formatter,
+                    fontSize: getSetting<number>('label.fontSize'),
+                    color: getSetting<string>('label.color')
+                }
+            });
+        } else {
+            _merge(seriesData, {
+                label: {
+                    show: false
+                }
+            });
+        }
 
-        if (getSetting<boolean>('areaStyle.show')) {
-            const gradient: IGradient = getSetting('areaStyle.fillColor');
+        if (getSetting<boolean>('fill.show')) {
+            const gradient: IGradient = getSetting('fill.color');
             let angle: number = gradient.rotate % 360;
             if (angle < 0) {
                 angle = 360 + angle;
@@ -751,18 +759,31 @@ export class Spline extends Chart {
                 colorsStart += colorsOffs;
                 return res;
             });
-            _merge(seriesData, {
-                areaStyle: {
-                    color: {
-                        type: 'linear',
-                        x: coords[0],
-                        y: coords[1],
-                        x2: coords[2],
-                        y2: coords[3],
-                        colorStops: colors
-                    }
-                }
-            });
+            const color = {
+                type: 'linear',
+                x: coords[0],
+                y: coords[1],
+                x2: coords[2],
+                y2: coords[3],
+                colorStops: colors
+            };
+
+            switch (chartType) {
+                case 'LINE':
+                    _merge(seriesData, {
+                        areaStyle: {
+                            color
+                        }
+                    });
+                    break;
+                case 'HISTOGRAM':
+                    _merge(seriesData, {
+                        itemStyle: {
+                            color
+                        }
+                    });
+                    break;
+            }
         }
         return seriesData;
     }
