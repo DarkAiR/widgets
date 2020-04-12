@@ -10,4 +10,3 @@ import * as Avatar from './avatar';
 import * as ProfileAndDistribution from './profileAndDistribution';
 
 export {AverageNumber, IndicatorsTable, Report, SolidGauge, Spline, Table, Static, KPI, Avatar, ProfileAndDistribution};
-

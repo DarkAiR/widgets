@@ -32,7 +32,7 @@ export class AverageNumber extends Chart {
                     <div class='${s["row"]}'>
                         <div class='${s["col"]} ${s["col-100"]}'>
                             <div class="${w['title']}">
-                                ${this.getWidgetSetting(data.settings, 'title')}
+                                ${this.getWidgetSetting('title')}
                             </div>
                         </div>
                     </div>

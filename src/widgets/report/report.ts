@@ -26,7 +26,7 @@ export class Report extends Chart {
 
             const str = `
                 <div class='${s["widget"]} ${w["widget"]}'>
-                    <div class='${w["title"]}'>${this.getWidgetSetting(data.settings, 'title')}</div>
+                    <div class='${w["title"]}'>${this.getWidgetSetting('title')}</div>
                     <div class='${w["value"]} ${w[currColor.className]}' style='${currColor.style}'>${value}</div>
                 </div>
             `;

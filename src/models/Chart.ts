@@ -153,17 +153,22 @@ export abstract class Chart implements IChart {
      * @param path название поля
      * @return возвращает значение того типа, к которому присваивается результат, поэтому нужен тип T
      */
-    protected getWidgetSetting<T = any>(
-        settings: ISettings,
-        path: string
-    ): T {
-        const item: WidgetSettingsItem = this.getSettingByPath(this.widgetSettings.settings, path.split('.'));
-        if (!item) {
-            // NOTE: Вот именно так! сразу бьем по рукам за попытку обратиться к недокументированному параметру
-            throw new Error(`Attempt to get an undescribed parameter ${path}`);
+    protected getWidgetSetting<T = any>(...args: Array<ISettings | string>): T {
+        const f = ({settings, path}: {settings: ISettings, path: string}): T => {
+            const item: WidgetSettingsItem = this.getSettingByPath(this.widgetSettings.settings, path.split('.'));
+            if (!item) {
+                // NOTE: Вот именно так! сразу бьем по рукам за попытку обратиться к недокументированному параметру
+                throw new Error(`Attempt to get an undescribed parameter ${path}`);
+            }
+            // Если параметр описан, но не пришел в настройках, выставляем default
+            return _get(settings, path, item.default);
+        };
+
+        if (args[1] === undefined) {
+            return f({settings: this.chartData.settings, path: args[0] as string});
+        } else {
+            return f({settings: args[0] as ISettings, path: args[1] as string});
         }
-        // Если параметр описан, но не пришел в настройках, выставляем default
-        return _get(settings, path, item.default);
     }
 
     /**
@@ -172,10 +177,7 @@ export abstract class Chart implements IChart {
      * @param path название поля
      * @return возвращает значение того типа, к которому присваивается результат, поэтому нужен тип T
      */
-    protected getDataSetSettings<T = any>(
-        settings: ISettings,
-        path: string
-    ): T {
+    protected getDataSetSettings<T = any>(settings: ISettings, path: string): T {
         const item: WidgetSettingsItem = this.getSettingByPath(this.widgetSettings.dataSet.settings, path.split('.'));
         if (!item) {
             // NOTE: Вот именно так! сразу бьем по рукам за попытку обратиться к недокументированному параметру
