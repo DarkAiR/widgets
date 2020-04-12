@@ -6,8 +6,8 @@ export const settings: IWidgetSettings = makeSettings({
         ...commonSettings
     ],
     dataSet: {
-        initAmount: 1,
-        canAdd: true,
+        initDataSets: [{viewType: 'PROFILE'}],      // DISTRIBUTION
+        canAdd: false,
         settings: []
     }
 });

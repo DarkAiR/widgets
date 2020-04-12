@@ -23,7 +23,7 @@ export const settings: IWidgetSettings = makeSettings({
         makeNumber('axisGap', 'Расстояние между осями', 50),
     ],
     dataSet: {
-        initAmount: 1,
+        initDataSets: [{viewType: 'DYNAMIC'}],
         canAdd: true,
         settings: [
             makeColor('color', ' Цвет'),

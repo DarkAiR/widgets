@@ -7,7 +7,7 @@ export const settings: IWidgetSettings = makeSettings({
         ...commonSettings
     ],
     dataSet: {
-        initAmount: 1,
+        initDataSets: [{viewType: 'STATIC'}],
         canAdd: true,
         settings: [
             makeColor('color', ' Цвет'),

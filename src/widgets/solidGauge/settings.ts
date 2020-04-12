@@ -8,7 +8,7 @@ export const settings: IWidgetSettings = makeSettings({
         makeIcon('icon', 'Иконка', '')
     ],
     dataSet: {
-        initAmount: 2,
+        initDataSets: [{viewType: 'STATIC'}, {viewType: 'STATIC'}],
         canAdd: false,
         settings: [
             makeColor('color', ' Цвет')

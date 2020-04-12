@@ -6,7 +6,10 @@ export const settings: IWidgetSettings = makeSettings({
         ...commonSettings
     ],
     dataSet: {
-        initAmount: 6,
+        initDataSets: [
+            {viewType: 'STATIC'}, {viewType: 'STATIC'}, {viewType: 'STATIC'},
+            {viewType: 'STATIC'}, {viewType: 'STATIC'}, {viewType: 'STATIC'}
+        ],
         canAdd: false,
         settings: []
     }
