@@ -142,8 +142,9 @@
 - цвет метки
 - заливка в режиме histogram
 
-##### 0.8.12 / 2020-04-11
+##### 0.8.12 / 2020-04-13
 - из WidgetTemplate удален viewType
+- chartType перенесен из DataSetTemplate в DataSetTemplate::settings
 - вынесены общие настройки виджетов
 - в общие настройки добавлены внутренние отступы виджетов и расстояние между осями
 - в конфиг виджетов (settings.ts) вместо initAmount добавлен массив initDataSets

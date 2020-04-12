@@ -5,7 +5,9 @@ export * from "./typesGraphQL";
 export type WidgetType = 'SPLINE' | 'AVERAGE_NUMBER' | 'SOLID_GAUGE' | 'INDICATORS_TABLE' | 'TABLE'
      | 'REPORT' | 'STATIC' | 'KPI' | 'AVATAR' | 'DISTRIBUTION' | 'PROFILE';
 
-export type ChartType = 'LINE' | 'HISTOGRAM' | 'SCATTER' | 'COMPARED_FACT' | 'COMPARED_PLAN';
+// Вид графика для spline
+export const ChartTypeValues = ['LINE', 'HISTOGRAM', 'COMPARED_FACT', 'COMPARED_PLAN'] as const;
+export type ChartType = typeof ChartTypeValues[number];
 
 // Стиль линии графиков
 export const LineTypeValues = ['solid', 'dashed', 'dotted'] as const;
