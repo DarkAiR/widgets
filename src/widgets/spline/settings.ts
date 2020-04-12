@@ -1,5 +1,5 @@
 import {IWidgetSettings, makeSettings} from "../../widgetSettings";
-import {LineType, LineTypeValues, YAxisTypes, YAxisTypesValues} from "../../models/types";
+import {ChartType, ChartTypeValues, LineType, LineTypeValues, YAxisTypes, YAxisTypesValues} from "../../models/types";
 import {
     makeBoolean,
     makeColor,
@@ -23,10 +23,11 @@ export const settings: IWidgetSettings = makeSettings({
         makeNumber('axisGap', 'Расстояние между осями', 50),
     ],
     dataSet: {
-        initAmount: 1,
+        initDataSets: [{viewType: 'DYNAMIC'}],
         canAdd: true,
         settings: [
             makeColor('color', ' Цвет'),
+            makeList<ChartType>('chartType', 'Вид', 'LINE', ChartTypeValues),
             makeList<YAxisTypes>('yAxis', 'Положение оси', 'left', YAxisTypesValues),
             makeSettingsArray('lineStyle', 'Стиль линии', [
                 makeList<LineType>('type', 'Тип', 'solid', LineTypeValues),

@@ -1,4 +1,4 @@
-import {ViewType, ChartType, Frequency, Operation, MethodType} from '../../../models/types';
+import {ViewType, Frequency, Operation, MethodType} from '../../../models/types';
 import {DataSource} from "../../graphQL";
 import {ISettings} from "../../ISettings";
 
@@ -6,7 +6,6 @@ export interface DataSetTemplate {
     dataSource1: DataSource;                // описание источника данных для dataSet'a.
     dataSource2?: DataSource | null;        // второй источник данных используется для STATIC и REPORT представления
     viewType: ViewType;                     // тип виджета (должен совпадать со значением в WidgetTemplate)
-    chartType: ChartType;                   // тип отрисовки данных из данного источника
     from: string | null;                    // дата начала выборки 'YYYY-mm-dd'
     to: string | null;                      // дата окончания выборки 'YYYY-mm-dd'
     period?: string | null;                 // Это строка или НИЧЕГО, никаких null или пустых строк, просто не передавать period

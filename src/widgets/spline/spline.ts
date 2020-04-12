@@ -207,7 +207,7 @@ export class Spline extends Chart {
 
                 const currColor = this.getColor(dataSetSettings, 'color-yellow');
                 let seriesData = {};
-                switch (data.dataSets[idx].chartType) {
+                switch (this.getDataSetSettings<ChartType>(dataSetSettings, 'chartType')) {
                     case "LINE":
                         seriesData = this.getLineSeries(idx, currColor);
                         break;
@@ -276,8 +276,8 @@ export class Spline extends Chart {
             for (let idx = 0; idx < data.data.length; idx++) {
                 const dataSetSettings: ISettings = data.dataSets[idx].settings;
 
-                const currColor = this.getColor(data.dataSets[idx].settings, 'color-yellow');
-                switch (data.dataSets[idx].chartType) {
+                const currColor = this.getColor(dataSetSettings, 'color-yellow');
+                switch (this.getDataSetSettings<ChartType>(dataSetSettings, 'chartType')) {
                     case "COMPARED_PLAN":
                         planData = timeSeriesData.values[idx];
                         planProps = _get(dataSetSettings, 'seriesSettings', {});
@@ -584,7 +584,7 @@ export class Spline extends Chart {
         const data: IChartData = this.chartData;
         if (TypeGuardsHelper.dataSetsIsDataSetTemplate(data.dataSets)) {
             for (let idx = 0; idx < data.data.length; idx++) {
-                if (data.dataSets[idx].chartType === 'HISTOGRAM') {
+                if (this.getDataSetSettings<ChartType>(data.dataSets[idx].settings, 'chartType') === 'HISTOGRAM') {
                     return true;
                 }
             }
@@ -719,7 +719,7 @@ export class Spline extends Chart {
     }
 
     private applySettings(idx: number, chartType: ChartType, seriesData: Object): Object {
-        const getSetting = <T>(path: string): T => this.getDataSetSettings<T>(this.chartData.dataSets[idx].settings, path);
+        const getSetting = <T = void>(path: string): T => this.getDataSetSettings<T>(this.chartData.dataSets[idx].settings, path);
 
         // См. https://echarts.apache.org/en/option.html#series-line.label.formatter
         if (getSetting<boolean>('label.show')) {
@@ -827,9 +827,6 @@ export class Spline extends Chart {
                 break;
             case 'period':
                 setVar('period', value);
-                break;
-            case 'view type':
-                setVar('chartType', value);
                 break;
             case 'frequency':
                 setVar('frequency', value);

@@ -2,8 +2,13 @@ import {IRgbaHex} from "../interfaces";
 
 export class ColorHelper {
     static parseHex(hex: string): IRgbaHex {
-        if (hex.split('')[0] !== '#' || hex.length < 7) {
+        const h: string[] = hex.split('');
+        // 4 = #abc, 7 = #a1b2c3, 9 = #d4e5f680
+        if (h[0] !== '#' || ![4, 7, 9].includes(hex.length)) {
             throw new Error('Color is not a required hex ' + hex);
+        }
+        if (hex.length === 4) {
+            hex = `#${h[1]}${h[1]}${h[2]}${h[2]}${h[3]}${h[3]}`;    // #abc -> #aabbcc
         }
         const ahex: string[] = hex.substring(1, hex.length).match(/.{1,2}/g);
         return {r: ahex[0] ?? 'FF', g: ahex[1] ?? 'FF', b: ahex[2] ?? 'FF', a: ahex[3] ?? 'FF'};

@@ -153,7 +153,7 @@ export abstract class Chart implements IChart {
      * @param path название поля
      * @return возвращает значение того типа, к которому присваивается результат, поэтому нужен тип T
      */
-    protected getWidgetSetting<T = any>(...args: Array<ISettings | string>): T {
+    protected getWidgetSetting<T = void>(...args: Array<ISettings | string>): T {
         const f = ({settings, path}: {settings: ISettings, path: string}): T => {
             const item: WidgetSettingsItem = this.getSettingByPath(this.widgetSettings.settings, path.split('.'));
             if (!item) {
@@ -177,7 +177,7 @@ export abstract class Chart implements IChart {
      * @param path название поля
      * @return возвращает значение того типа, к которому присваивается результат, поэтому нужен тип T
      */
-    protected getDataSetSettings<T = any>(settings: ISettings, path: string): T {
+    protected getDataSetSettings<T = void>(settings: ISettings, path: string): T {
         const item: WidgetSettingsItem = this.getSettingByPath(this.widgetSettings.dataSet.settings, path.split('.'));
         if (!item) {
             // NOTE: Вот именно так! сразу бьем по рукам за попытку обратиться к недокументированному параметру
