@@ -36,8 +36,8 @@ export class SolidGauge extends Chart {
             const output = this.renderTemplate({
                 fontSize,
                 currValue,
-                title: this.getWidgetSetting(data.settings, 'title'),
-                icon: this.getWidgetSetting(data.settings, 'icon'),
+                title: this.getWidgetSetting('title'),
+                icon: this.getWidgetSetting('icon'),
                 maxColor: maxColor.hex,
                 color: color.hex,
                 magicLengthOfSvgPath,

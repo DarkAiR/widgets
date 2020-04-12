@@ -1,9 +1,9 @@
 import {IWidgetSettings, makeSettings} from "../../widgetSettings";
-import {makeString} from "../../widgetSettings/settings";
+import {commonSettings} from "../commonSettings";
 
 export const settings: IWidgetSettings = makeSettings({
     settings: [
-        makeString('title', 'Заголовок')
+        ...commonSettings
     ],
     dataSet: {
         initAmount: 1,

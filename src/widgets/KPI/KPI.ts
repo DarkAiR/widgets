@@ -83,7 +83,7 @@ export class KPI extends Chart {
                     <div class='${s["row"]}' style="height:fit-content;">
                         <div class='${s["col"]}'>
                             <div class="${w['title']}" style='${titleStyle}'>
-                                ${this.getWidgetSetting(data.settings, 'title')}
+                                ${this.getWidgetSetting('title')}
                             </div>
                         </div>
                     </div>

@@ -27,7 +27,7 @@ export class Static extends Chart {
             <div class='${s['widget']}  ${w['widget']}'>
                 <div class='${w['row']}'>
                     <div class="${w['title']}">
-                        ${this.getWidgetSetting(data.settings, 'title')}
+                        ${this.getWidgetSetting('title')}
                     </div>
                 </div>
                 <div class='${w['row']} ${w['chart']}'>

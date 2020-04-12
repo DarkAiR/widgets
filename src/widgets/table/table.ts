@@ -71,7 +71,7 @@ export class Table extends Chart {
             });
 
             this.config.element.innerHTML = this.renderTemplate({
-                title: this.getWidgetSetting(data.settings, 'title'),
+                title: this.getWidgetSetting('title'),
                 header,
                 rows
             });
