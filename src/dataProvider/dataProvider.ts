@@ -1,3 +1,4 @@
+import 'whatwg-fetch';
 import {get as _get} from 'lodash';
 import {IGqlRequest} from "./IGqlRequest";
 import {ServerType, ViewType} from "../models/types";
@@ -15,8 +16,6 @@ import * as stringifyObject from 'stringify-object';
 import {IObject} from "../interfaces/IObject";
 import {TypeGuardsHelper} from "../helpers";
 
-const axios = require('axios');
-
 export class DataProvider {
     private apiUrl: string;
 
@@ -33,13 +32,16 @@ export class DataProvider {
     }
 
     public async getTemplate(templateId: string): Promise<WidgetTemplate> {
-        try {
-            const response = await axios.get(this.templatesLink + '/' + templateId);
-            console.log('Load template', response.data);
-            return response.data;
-        } catch (error) {
-            console.error(_get(error, 'response.data.message'));
-        }
+        const response = await fetch(this.templatesLink + '/' + templateId)
+            .then((resp: Response) => {
+                if (!resp.ok) {
+                    throw new Error(resp.statusText);
+                }
+                return resp.json();
+            })
+            .catch((error: Error) => console.error(error.message));
+        console.log('Load template', response);
+        return response;
     }
 
     public async parseTemplate(template: WidgetTemplate): Promise<IChartData | null> {
@@ -84,13 +86,23 @@ export class DataProvider {
 
         // NOTE: idx - Сохраняем порядок dataSet
         const promises = template.dataSets.map(async (item: DataSet, idx: number) => {
-            data.data[idx] = await axios.post(
-                this.gqlLink,
-                loadData[item.viewType].serializeFunc.call(this, item, template.server)     // Выбор типа item автоматически в фции сериализации
-            ).then(
-                (response: IObject) => _get(response.data, loadData[item.viewType].resultProp, []),
-                (error: Error) => { throw error; }
-            );
+            data.data[idx] = await fetch(this.gqlLink, {
+                method: 'post',
+                body: JSON.stringify(
+                    loadData[item.viewType].serializeFunc.call(this, item, template.server)     // Выбор типа item автоматически в фции сериализации
+                ),
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+                .then((resp: Response) => {
+                    if (!resp.ok) {
+                        throw new Error(resp.statusText);
+                    }
+                    return resp.json();
+                })
+                .then((resp: IObject) => _get(resp, loadData[item.viewType].resultProp, []))
+                .catch((error: Error) => { throw error; });
         });
         // Асинхронно загружаем все данные
         await Promise.all(promises);

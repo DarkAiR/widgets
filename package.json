@@ -32,12 +32,10 @@
     "@babel/preset-react": "^7.0.0",
     "@mdi/font": "^4.2.95",
     "@types/node": "^11.13.20",
-    "axios": "^0.19.0",
     "babel-loader": "^7.1.5",
     "babel-plugin-syntax-dynamic-import": "^6.18.0",
     "bootstrap": "^4.3.1",
     "css-loader": "^1.0.1",
-    "d3": "^5.11.0",
     "echarts": "^4.7.0",
     "goodt-framework-css": "^1.0.8",
     "goodteditor-event-bus": "^1.1.1",
@@ -65,6 +63,7 @@
     "url-loader": "^2.1.0",
     "webpack-bundle-analyzer": "^3.4.1",
     "webpack-cli": "^3.3.7",
-    "webpack-merge": "^4.2.2"
+    "webpack-merge": "^4.2.2",
+    "whatwg-fetch": "^3.0.0"
   }
 }

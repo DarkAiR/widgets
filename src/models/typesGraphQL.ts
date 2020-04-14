@@ -3,7 +3,8 @@
  */
 
 // Типы отображения виджетов. Именно от них формируются запросы в graphQL.
-export type ViewType = 'STATIC' | 'DYNAMIC' | 'DISTRIBUTION' | 'PROFILE' | 'TABLE' | 'REPORT';
+export const ViewTypeValues = ['STATIC', 'DYNAMIC', 'DISTRIBUTION', 'PROFILE', 'TABLE', 'REPORT'] as const;
+export type ViewType = typeof ViewTypeValues[number];
 
 // Тип частоты
 export type Frequency = 'YEAR' | 'MONTH' | 'WEEK' | 'DAY' | 'HOUR' | 'ALL';
