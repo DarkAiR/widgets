@@ -26,6 +26,8 @@ module.exports = (env) => {
         entry: {
             "abc-charts":       path.resolve(__dirname, 'src', 'index.ts'),
             widgetFactory:      path.resolve(__dirname, 'src', 'widgetFactory', 'index.ts'),
+            dataProvider:       path.resolve(__dirname, 'src', 'dataProvider', 'dataProvider.ts'),
+            constants:          path.resolve(__dirname, 'src', 'models', 'constants.ts'),
             ...widgets
         },
         output: {
