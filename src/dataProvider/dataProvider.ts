@@ -154,9 +154,7 @@ export class DataProvider {
                 dataSource = (new serializers.AggregationDataSourceSerializer()).serialize(v.dataSource1);
             }
 
-            // viewType = DYNAMIC, нужен для правильной работы серверной части
             dataSetArr.push(`{
-                viewType: 'DYNAMIC',
                 preFrequency: ${v.preFrequency},
                 operation: ${v.operation},
                 dataSource1: ${dataSource}
