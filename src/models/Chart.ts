@@ -40,9 +40,6 @@ export abstract class Chart implements IChart {
      */
     onEventBus: (varName: string, value: string, dataSourceId: number) => boolean = (...args) => false;
 
-
-
-
     constructor(config: WidgetConfigInner) {
         this.config = config;
 
@@ -132,19 +129,29 @@ export abstract class Chart implements IChart {
 
     private getSettingByPath(config: WidgetSettingsArray, parts: string[]): WidgetSettingsItem {
         if (!parts.length) {
-            return null;
+            throw new Error('Path not found');
         }
-        const item = config.find((v: WidgetSettingsItem) => v.name === parts[0]);
+        let item = config.find((v: WidgetSettingsItem) => v.name === parts[0]);
         if (!item) {
-            return null;
+            throw new Error('Attempt to get not described parameter');
         }
         if (parts.length === 1) {
             return item;
         }
-        if ((item as SettingsArraySetting).settings === undefined) {
-            return item;
+        if ((item as SettingsArraySetting).settings !== undefined) {
+            let foundItem: WidgetSettingsItem = null;
+            const newParts = parts.slice(1 - parts.length);
+            (item as SettingsArraySetting).settings.some((cfgRow: WidgetSettingsArray) => {
+                try {
+                    foundItem = this.getSettingByPath(cfgRow, newParts);
+                    return true;
+                } catch (e) {
+                    return false;
+                }
+            });
+            item = foundItem;
         }
-        return this.getSettingByPath((item as SettingsArraySetting).settings, parts.slice(1 - parts.length));
+        return item;
     }
 
     /**
@@ -156,12 +163,7 @@ export abstract class Chart implements IChart {
     protected getWidgetSetting<T = void>(...args: Array<ISettings | string>): T {
         const f = ({settings, path}: {settings: ISettings, path: string}): T => {
             const item: WidgetSettingsItem = this.getSettingByPath(this.widgetSettings.settings, path.split('.'));
-            if (!item) {
-                // NOTE: Вот именно так! сразу бьем по рукам за попытку обратиться к недокументированному параметру
-                throw new Error(`Attempt to get an undescribed parameter ${path}`);
-            }
-            // Если параметр описан, но не пришел в настройках, выставляем default
-            return _get(settings, path, item.default);
+            return _get(settings, path, item.default);  // Если параметр описан, но не пришел в настройках, выставляем default
         };
 
         if (args[1] === undefined) {
@@ -179,12 +181,7 @@ export abstract class Chart implements IChart {
      */
     protected getDataSetSettings<T = void>(settings: ISettings, path: string): T {
         const item: WidgetSettingsItem = this.getSettingByPath(this.widgetSettings.dataSet.settings, path.split('.'));
-        if (!item) {
-            // NOTE: Вот именно так! сразу бьем по рукам за попытку обратиться к недокументированному параметру
-            throw new Error(`Attempt to get an undescribed parameter ${path}`);
-        }
-        // Если параметр описан, но не пришел в настройках, выставляем default
-        return _get<T>(settings, path, item.default);
+        return _get<T>(settings, path, item.default);   // Если параметр описан, но не пришел в настройках, выставляем default
     }
 
     /**

@@ -762,12 +762,7 @@ export class Spline extends Chart {
             // Переводим угол в координаты градиента
             const sin: number = Math.sin(angle / 180 * Math.PI) / 2;
             const cos: number = Math.cos(angle / 180 * Math.PI) / 2;
-            let coords = [0, 0, 1, 0];
-            if (angle < 180) {
-                coords = [0.5 - cos, 0.5 - sin, 0.5 + cos, 0.5 + sin];
-            } else {
-                coords = [0.5 - cos, 0.5 + sin, 0.5 + cos, 0.5 - sin];
-            }
+            let coords = [0.5 - cos, 0.5 - sin, 0.5 + cos, 0.5 + sin];
             coords = coords.map((v: number) => +v.toFixed(2));
             let colorsStart: number = 0;
             const colorsOffs: number = gradient.colors.length <= 1 ? 1 : 1 / (gradient.colors.length - 1);

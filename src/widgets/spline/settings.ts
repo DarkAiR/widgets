@@ -15,10 +15,13 @@ export const settings: IWidgetSettings = makeSettings({
     settings: [
         ...commonSettings,
         makeSettingsArray('paddings', 'Отступы графика', [
-            makeNumber('top', 'Сверху', 20),
-            makeNumber('bottom', 'Снизу', 20),
-            makeNumber('left', 'Слева', 0),
-            makeNumber('right', 'Справа', 0)
+            [
+                makeNumber('top', 'Сверху', 20),
+                makeNumber('bottom', 'Снизу', 20)
+            ], [
+                makeNumber('left', 'Слева', 0),
+                makeNumber('right', 'Справа', 0)
+            ]
         ]),
         makeNumber('axisGap', 'Расстояние между осями', 50),
     ],
@@ -30,20 +33,29 @@ export const settings: IWidgetSettings = makeSettings({
             makeList<ChartType>('chartType', 'Вид', 'LINE', ChartTypeValues),
             makeList<YAxisTypes>('yAxis', 'Положение оси', 'left', YAxisTypesValues),
             makeSettingsArray('lineStyle', 'Стиль линии', [
-                makeList<LineType>('type', 'Тип', 'solid', LineTypeValues),
+                [
+                    makeList<LineType>('type', 'Тип', 'solid', LineTypeValues)
+                ],
             ]),
             makeSettingsArray('fill', 'Стиль заливки', [
-                makeGradient('color', 'Цвет заливки'),
-                makeBoolean('show', 'Показывать', false)
+                [
+                    makeGradient('color', 'Цвет заливки'),
+                    makeBoolean('show', 'Показывать', false)
+                ]
             ]),
             makeSettingsArray('label', 'Формат вывода значений', [
-                makeColor('color', 'Цвет'),
-                makeNumber('fontSize', 'Размер шрифта', 12),
-                makeString('delimiter', 'Разделитель', '.'),
-                makeNumber('precision', 'Точность в знаках', 2),
-                makeString('measure', 'Единица измерения'),
-                makeBoolean('showMeasure', 'Показывать единицу изменения', false),
-                makeBoolean('show', 'Показывать значение', false)
+                [
+                    makeBoolean('show', 'Показывать значение', false)
+                ], [
+                    makeColor('color', 'Цвет'),
+                    makeNumber('fontSize', 'Размер шрифта', 12)
+                ], [
+                    makeString('delimiter', 'Разделитель', '.'),
+                    makeNumber('precision', 'Точность в знаках', 2)
+                ], [
+                    makeString('measure', 'Единица измерения'),
+                    makeBoolean('showMeasure', 'Показывать единицу изменения', false)
+                ]
             ])
         ]
     }
