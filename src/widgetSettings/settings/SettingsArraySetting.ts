@@ -9,7 +9,7 @@ export interface SettingsArraySetting extends BaseSetting<DefaultType> {
     collapse: boolean;      // Свернуто или развернуто по-умолчанию
 }
 
-export function makeSettingsArray(name: string, label: string, settings: Array<SettingFunc[]>, collapse: boolean = true): SettingFunc {
+export function makeSettingsArray(name: string, label: string, settings: Array<SettingFunc[]>, collapse: boolean = false): SettingFunc {
     const defSettings: DefaultType = {};
     settings.forEach((row: SettingFunc[]) => {
         row.forEach((v: SettingFunc) => {
