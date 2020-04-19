@@ -28,11 +28,12 @@ export const settings: IWidgetSettings = makeSettings({
         makeArray('axesY', 'Оси Y', [
             [
                 makeBoolean('show', 'Отображать', true),
-            ],
-            [
+            ], [
                 makeNumber('index', 'Номер оси', 1),
-                makeString('name', 'Название'),
-                makeColor('color', 'Цвет')
+                makeString('name', 'Название')
+            ], [
+                makeColor('color', 'Цвет'),
+                makeList<YAxisTypes>('position', 'Положение оси', 'left', YAxisTypesValues),
             ]
         ], {collapse: true})
     ],
@@ -42,7 +43,7 @@ export const settings: IWidgetSettings = makeSettings({
         settings: [
             makeColor('color', ' Цвет'),
             makeList<ChartType>('chartType', 'Вид', 'LINE', ChartTypeValues),
-            makeList<YAxisTypes>('yAxis', 'Положение оси', 'left', YAxisTypesValues),
+            makeNumber('axis', 'Номер оси', 1),
             makeSettingsGroup('lineStyle', 'Стиль линии', [
                 [
                     makeList<LineType>('type', 'Тип', 'solid', LineTypeValues)
