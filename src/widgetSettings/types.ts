@@ -8,7 +8,6 @@ import {
     GradientSetting,
     IconSetting,
     ListSetting,
-    NameValueArraySetting,
     NumberSetting,
     SettingsGroupSetting,
     StringSetting
@@ -18,7 +17,7 @@ export type SettingFunc = (...args: any) => WidgetSettingsItem;     // tslint:di
 
 // Типы настроек
 export type WidgetSettingsTypes = 'string' | 'number' | 'boolean' | 'list' | 'color' | 'gradient' | 'icon'
-    | 'nameValueArray' | 'settingsGroup' | 'array';
+    | 'settingsGroup' | 'array';
 
 // Обобщенная структура данных всех настроек
 // tslint:disable:no-any
@@ -28,7 +27,6 @@ export type WidgetSettingsItem =
     BooleanSetting |
     ListSetting<any> |
     ColorSetting |
-    NameValueArraySetting |
     IconSetting |
     GradientSetting |
     SettingsGroupSetting |

@@ -9,22 +9,21 @@ export interface ArraySetting extends BaseSetting<DefaultType> {
     collapse: boolean;      // Свернуто или развернуто по-умолчанию
 }
 
-export function makeArray(name: string, label: string, settings: Array<SettingFunc[]>, collapse: boolean = false): SettingFunc {
-    const defSettings: DefaultType = [{}];
-    settings.forEach((row: SettingFunc[]) => {
-        row.forEach((v: SettingFunc) => {
-            const setting: WidgetSettingsItem = v();
-            defSettings[0][setting.name] = setting.default;
-        });
-    });
+export function makeArray(
+    name: string,
+    label: string,
+    settings: Array<SettingFunc[]>,
+    data: {
+        collapse: boolean           // Сворачивание при инициализации
+    } = null
+): SettingFunc {
     return (): ArraySetting => ({
         name,
         label,
         type: 'array',
-        // default - обычный flat-объект
-        default: defSettings,
+        default: [],
         // settings - это массив из строк
         settings: settings.map((row: SettingFunc[]) => row.map((v: SettingFunc) => v())),
-        collapse
+        collapse: data?.collapse ?? false
     });
 }

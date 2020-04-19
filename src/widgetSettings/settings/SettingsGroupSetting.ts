@@ -9,7 +9,14 @@ export interface SettingsGroupSetting extends BaseSetting<DefaultType> {
     collapse: boolean;      // Свернуто или развернуто по-умолчанию
 }
 
-export function makeSettingsGroup(name: string, label: string, settings: Array<SettingFunc[]>, collapse: boolean = false): SettingFunc {
+export function makeSettingsGroup(
+    name: string,
+    label: string,
+    settings: Array<SettingFunc[]>,
+    data: {
+        collapse: boolean           // Сворачивание при инициализации
+    } = null
+): SettingFunc {
     const defSettings: DefaultType = {};
     settings.forEach((row: SettingFunc[]) => {
         row.forEach((v: SettingFunc) => {
@@ -25,6 +32,6 @@ export function makeSettingsGroup(name: string, label: string, settings: Array<S
         default: defSettings,
         // settings - это массив из строк
         settings: settings.map((row: SettingFunc[]) => row.map((v: SettingFunc) => v())),
-        collapse
+        collapse: data?.collapse ?? false
     });
 }

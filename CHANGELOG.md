@@ -166,3 +166,4 @@
 - исправлен угол градиента
 - SettingsArraySetting -> SettingsGroupSetting
 - добавлены настройки ArraySetting для произвольного массива
+- удален NameValueArray

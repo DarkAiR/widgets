@@ -2,7 +2,6 @@ export * from './BooleanSetting';
 export * from './ColorSetting';
 export * from './IconSetting';
 export * from './ListSetting';
-export * from './NameValueArraySetting';
 export * from './NumberSetting';
 export * from './SettingsGroupSetting';
 export * from './StringSetting';

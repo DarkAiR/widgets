@@ -23,7 +23,7 @@ export const settings: IWidgetSettings = makeSettings({
                 makeNumber('left', 'Слева', 0),
                 makeNumber('right', 'Справа', 0)
             ]
-        ], true),
+        ], {collapse: true}),
         makeNumber('axisYDistance', 'Расстояние между осями Y', 50),
         makeArray('axesY', 'Оси Y', [
             [
@@ -34,7 +34,7 @@ export const settings: IWidgetSettings = makeSettings({
                 makeString('name', 'Название'),
                 makeColor('color', 'Цвет')
             ]
-        ], true)
+        ], {collapse: true})
     ],
     dataSet: {
         initDataSets: [{viewType: 'DYNAMIC'}],
