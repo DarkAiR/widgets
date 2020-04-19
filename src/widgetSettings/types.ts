@@ -2,6 +2,7 @@
 
 // Тип функции, возвращающей описание настройки
 import {
+    ArraySetting,
     BooleanSetting,
     ColorSetting,
     GradientSetting,
@@ -9,14 +10,15 @@ import {
     ListSetting,
     NameValueArraySetting,
     NumberSetting,
-    SettingsArraySetting,
+    SettingsGroupSetting,
     StringSetting
 } from "./settings";
 
 export type SettingFunc = (...args: any) => WidgetSettingsItem;     // tslint:disable-line:no-any
 
 // Типы настроек
-export type WidgetSettingsTypes = 'string' | 'number' | 'boolean' | 'list' | 'color' | 'gradient' | 'nameValueArray' | 'icon' | 'settingsArray';
+export type WidgetSettingsTypes = 'string' | 'number' | 'boolean' | 'list' | 'color' | 'gradient' | 'icon'
+    | 'nameValueArray' | 'settingsGroup' | 'array';
 
 // Обобщенная структура данных всех настроек
 // tslint:disable:no-any
@@ -29,7 +31,8 @@ export type WidgetSettingsItem =
     NameValueArraySetting |
     IconSetting |
     GradientSetting |
-    SettingsArraySetting;
+    SettingsGroupSetting |
+    ArraySetting;
 // tslint:enable:no-any
 
 export type WidgetSettingsArray = WidgetSettingsItem[];

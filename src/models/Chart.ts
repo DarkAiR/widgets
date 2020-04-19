@@ -8,7 +8,7 @@ import {
 import {WidgetConfigInner} from "./widgetConfig";
 import {EventBusWrapper, EventBus, EventBusEvent} from 'goodteditor-event-bus';
 import {IWidgetSettings} from "../widgetSettings";
-import {SettingsArraySetting} from "../widgetSettings/settings";
+import {SettingsGroupSetting} from "../widgetSettings/settings";
 import {WidgetSettingsArray, WidgetSettingsItem} from "../widgetSettings/types";
 import {ColorHelper} from "../helpers";
 
@@ -138,10 +138,10 @@ export abstract class Chart implements IChart {
         if (parts.length === 1) {
             return item;
         }
-        if ((item as SettingsArraySetting).settings !== undefined) {
+        if ((item as SettingsGroupSetting).settings !== undefined) {
             let foundItem: WidgetSettingsItem = null;
             const newParts = parts.slice(1 - parts.length);
-            (item as SettingsArraySetting).settings.some((cfgRow: WidgetSettingsArray) => {
+            (item as SettingsGroupSetting).settings.some((cfgRow: WidgetSettingsArray) => {
                 try {
                     foundItem = this.getSettingByPath(cfgRow, newParts);
                     return true;

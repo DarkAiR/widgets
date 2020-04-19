@@ -73,7 +73,7 @@ export class Spline extends Chart {
             const yaxis: Object[] = this.getYAxis(timeSeriesData, axises.offsets);
             const containLabel: boolean = axises.leftAmount <= 1 && axises.rightAmount <= 1;    // Только для одиночных осей
 
-            const axisGap: number = this.getWidgetSetting('axisGap');
+            const axisYDistance: number = this.getWidgetSetting('axisYDistance');
 
             // NOTE: при containLabel=true ECharts правильно считает ширину отступа для нескольких осей,
             //       но не умеет располагать оси рядом, поэтому, при более чем одной оси, высчитываем отступы вручную
@@ -81,8 +81,8 @@ export class Spline extends Chart {
                 grid: {
                     top: +this.getWidgetSetting('paddings.top'),
                     bottom: +this.getWidgetSetting('paddings.bottom'),
-                    right: +this.getWidgetSetting('paddings.right') + (containLabel ? 0 : (axises.rightAmount * axisGap)),
-                    left: +this.getWidgetSetting('paddings.left') + (containLabel ? 0 : (axises.leftAmount * axisGap)),
+                    right: +this.getWidgetSetting('paddings.right') + (containLabel ? 0 : (axises.rightAmount * axisYDistance)),
+                    left: +this.getWidgetSetting('paddings.left') + (containLabel ? 0 : (axises.leftAmount * axisYDistance)),
                     containLabel: containLabel
                 },
                 xAxis: {
@@ -169,7 +169,7 @@ export class Spline extends Chart {
      */
     private calcAxisOffsets(): AxisesData {
         if (TypeGuardsHelper.dataSetsIsDataSetTemplate(this.chartData.dataSets)) {
-            const axisGap: number = this.getWidgetSetting('axisGap');
+            const axisYDistance: number = this.getWidgetSetting('axisYDistance');
             const axisArray: AxisOffsets = [];
             let leftAxis = 0;
             let rightAxis = 0;
@@ -177,11 +177,11 @@ export class Spline extends Chart {
                 const axisPos: YAxisTypes = this.getDataSetSettings(this.chartData.dataSets[idx].settings, 'yAxis');
                 switch (axisPos) {
                     case "left":
-                        axisArray[idx] = {left: (leftAxis * axisGap), right: 0};
+                        axisArray[idx] = {left: (leftAxis * axisYDistance), right: 0};
                         leftAxis++;
                         break;
                     case "right":
-                        axisArray[idx] = {left: 0, right: (rightAxis * axisGap)};
+                        axisArray[idx] = {left: 0, right: (rightAxis * axisYDistance)};
                         rightAxis++;
                         break;
                 }

@@ -1,12 +1,13 @@
 import {IWidgetSettings, makeSettings} from "../../widgetSettings";
 import {ChartType, ChartTypeValues, LineType, LineTypeValues, YAxisTypes, YAxisTypesValues} from "../../models/types";
 import {
+    makeArray,
     makeBoolean,
     makeColor,
     makeGradient,
     makeList,
     makeNumber,
-    makeSettingsArray,
+    makeSettingsGroup,
     makeString
 } from "../../widgetSettings/settings";
 import {commonSettings} from "../commonSettings";
@@ -14,7 +15,7 @@ import {commonSettings} from "../commonSettings";
 export const settings: IWidgetSettings = makeSettings({
     settings: [
         ...commonSettings,
-        makeSettingsArray('paddings', 'Отступы графика', [
+        makeSettingsGroup('paddings', 'Отступы графика', [
             [
                 makeNumber('top', 'Сверху', 20),
                 makeNumber('bottom', 'Снизу', 20)
@@ -22,8 +23,18 @@ export const settings: IWidgetSettings = makeSettings({
                 makeNumber('left', 'Слева', 0),
                 makeNumber('right', 'Справа', 0)
             ]
-        ]),
-        makeNumber('axisGap', 'Расстояние между осями', 50),
+        ], true),
+        makeNumber('axisYDistance', 'Расстояние между осями Y', 50),
+        makeArray('axesY', 'Оси Y', [
+            [
+                makeBoolean('show', 'Отображать', true),
+            ],
+            [
+                makeNumber('index', 'Номер оси', 1),
+                makeString('name', 'Название'),
+                makeColor('color', 'Цвет')
+            ]
+        ], true)
     ],
     dataSet: {
         initDataSets: [{viewType: 'DYNAMIC'}],
@@ -32,18 +43,18 @@ export const settings: IWidgetSettings = makeSettings({
             makeColor('color', ' Цвет'),
             makeList<ChartType>('chartType', 'Вид', 'LINE', ChartTypeValues),
             makeList<YAxisTypes>('yAxis', 'Положение оси', 'left', YAxisTypesValues),
-            makeSettingsArray('lineStyle', 'Стиль линии', [
+            makeSettingsGroup('lineStyle', 'Стиль линии', [
                 [
                     makeList<LineType>('type', 'Тип', 'solid', LineTypeValues)
                 ],
             ]),
-            makeSettingsArray('fill', 'Стиль заливки', [
+            makeSettingsGroup('fill', 'Стиль заливки', [
                 [
                     makeGradient('color', 'Цвет заливки'),
                     makeBoolean('show', 'Показывать', false)
                 ]
             ]),
-            makeSettingsArray('label', 'Формат вывода значений', [
+            makeSettingsGroup('label', 'Формат вывода значений', [
                 [
                     makeBoolean('show', 'Показывать значение', false)
                 ], [

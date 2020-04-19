@@ -11,11 +11,11 @@ type DefaultType = INameValue[];
 export interface NameValueArraySetting extends BaseSetting<DefaultType> {
 }
 
-export function makeNameValueArray(name: string, label: string, def: DefaultType = null): SettingFunc {
+export function makeNameValueArray(name: string, label: string): SettingFunc {
     return (): NameValueArraySetting => ({
         name,
         label,
         type: 'nameValueArray',
-        default: def ?? <INameValue[]>[]
+        default: []
     });
 }

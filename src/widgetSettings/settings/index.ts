@@ -4,6 +4,7 @@ export * from './IconSetting';
 export * from './ListSetting';
 export * from './NameValueArraySetting';
 export * from './NumberSetting';
-export * from './SettingsArraySetting';
+export * from './SettingsGroupSetting';
 export * from './StringSetting';
 export * from './GradientSetting';
+export * from './ArraySetting';
