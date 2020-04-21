@@ -13,22 +13,28 @@ import * as _get from 'lodash/get';
 import * as _set from 'lodash/set';
 import * as _map from 'lodash/map';
 import * as _forEach from 'lodash/forEach';
+import * as _fromPairs from 'lodash/fromPairs';
+import * as _findKey from 'lodash/findKey';
 import * as _merge from 'lodash/merge';
 import * as _flow from 'lodash/flow';
 import * as _min from 'lodash/min';
 import * as _max from 'lodash/max';
 import {Chart} from '../../models/Chart';
-import {TimeSeriesData, TimeSeriesHelper} from '../../helpers';
+import {ColorHelper, TimeSeriesData, TimeSeriesHelper} from '../../helpers';
 import {ChartType, YAxisTypes} from "../../models/types";
 import {TSPoint} from "../../interfaces/graphQL";
 import {TypeGuardsHelper} from "../../helpers";
 import {IWidgetSettings} from "../../widgetSettings";
+import {WidgetSettingsItem} from "../../widgetSettings/types";
 
-type AxisOffsets = Array<{ left: number, right: number }>;
-interface AxisesData {
-    offsets: AxisOffsets;
-    leftAmount: number;         // Количество осей слева
-    rightAmount: number;        // Количество осей справа
+interface AxesData {
+    name: string;
+    color: IColor;
+    position: YAxisTypes;
+    show: boolean;
+    max: number;
+    min: number;
+    axesToIndex: number[];
 }
 
 export class Spline extends Chart {
@@ -64,16 +70,18 @@ export class Spline extends Chart {
 
             const timeSeriesData: TimeSeriesData = TimeSeriesHelper.convertTimeSeriesToData(data.data as TSPoint[][]);
 
+            const axesData = this.getAxes(timeSeriesData);
+
             // Вычисляем количество левых и правых осей
-            const axises: AxisesData = this.calcAxisOffsets();
+            const leftAmount: number = axesData.axes.filter((v: Object) => (v['position'] as YAxisTypes) === 'left').length;
+            const rightAmount: number = axesData.axes.filter((v: Object) => (v['position'] as YAxisTypes) === 'right').length;
 
-            const classicSeries: Object[] = this.getClassicSeries(timeSeriesData);
-            const comparedSeries: Object[] = this.getComparedSeries(timeSeriesData);
+            const classicSeries: Object[] = this.getClassicSeries(timeSeriesData, axesData.axesToIndex);
+            const comparedSeries: Object[] = this.getComparedSeries(timeSeriesData, axesData.axesToIndex);
             const series = classicSeries.concat(comparedSeries);
-            const yaxis: Object[] = this.getYAxis(timeSeriesData, axises.offsets);
-            const containLabel: boolean = axises.leftAmount <= 1 && axises.rightAmount <= 1;    // Только для одиночных осей
+            const containLabel: boolean = leftAmount <= 1 && rightAmount <= 1;    // Только для одиночных осей
 
-            const axisGap: number = this.getWidgetSetting('axisGap');
+            const axisYDistance: number = this.getWidgetSetting('axisYDistance');
 
             // NOTE: при containLabel=true ECharts правильно считает ширину отступа для нескольких осей,
             //       но не умеет располагать оси рядом, поэтому, при более чем одной оси, высчитываем отступы вручную
@@ -81,8 +89,8 @@ export class Spline extends Chart {
                 grid: {
                     top: +this.getWidgetSetting('paddings.top'),
                     bottom: +this.getWidgetSetting('paddings.bottom'),
-                    right: +this.getWidgetSetting('paddings.right') + (containLabel ? 0 : (axises.rightAmount * axisGap)),
-                    left: +this.getWidgetSetting('paddings.left') + (containLabel ? 0 : (axises.leftAmount * axisGap)),
+                    right: +this.getWidgetSetting('paddings.right') + (containLabel ? 0 : (rightAmount * axisYDistance)),
+                    left: +this.getWidgetSetting('paddings.left') + (containLabel ? 0 : (leftAmount * axisYDistance)),
                     containLabel: containLabel
                 },
                 xAxis: {
@@ -108,7 +116,7 @@ export class Spline extends Chart {
                     },
                     data: timeSeriesData.dates
                 },
-                yAxis: yaxis,
+                yAxis: axesData.axes,
                 tooltip: {
                     axisPointer: {
                         show: true,
@@ -165,39 +173,9 @@ export class Spline extends Chart {
     }
 
     /**
-     * Вычисляем смещения левых и правых осей
-     */
-    private calcAxisOffsets(): AxisesData {
-        if (TypeGuardsHelper.dataSetsIsDataSetTemplate(this.chartData.dataSets)) {
-            const axisGap: number = this.getWidgetSetting('axisGap');
-            const axisArray: AxisOffsets = [];
-            let leftAxis = 0;
-            let rightAxis = 0;
-            for (let idx = 0; idx < this.chartData.data.length; idx++) {
-                const axisPos: YAxisTypes = this.getDataSetSettings(this.chartData.dataSets[idx].settings, 'yAxis');
-                switch (axisPos) {
-                    case "left":
-                        axisArray[idx] = {left: (leftAxis * axisGap), right: 0};
-                        leftAxis++;
-                        break;
-                    case "right":
-                        axisArray[idx] = {left: 0, right: (rightAxis * axisGap)};
-                        rightAxis++;
-                        break;
-                }
-            }
-            return {
-                offsets: axisArray,
-                leftAmount: leftAxis,
-                rightAmount: rightAxis
-            };
-        }
-    }
-
-    /**
      * Получить данные для серий
      */
-    private getClassicSeries(timeSeriesData: TimeSeriesData): Object[] {
+    private getClassicSeries(timeSeriesData: TimeSeriesData, axesToIndex: {[key: number]: number}): Object[] {
         const data: IChartData = this.chartData;
         const series: Object[] = [];
 
@@ -238,7 +216,7 @@ export class Spline extends Chart {
 
                 series.push({
                     data: timeSeriesData.values[idx],
-                    yAxisIndex: idx,
+                    yAxisIndex: axesToIndex[idx],
                     ...seriesData
                 });
             }
@@ -247,7 +225,7 @@ export class Spline extends Chart {
     }
 
     // FIXME Переписать, убрать все кастомные стили и классы
-    private getComparedSeries(timeSeriesData: TimeSeriesData): Object[] {
+    private getComparedSeries(timeSeriesData: TimeSeriesData, axesToIndex: {[key: number]: number}): Object[] {
         const data: IChartData = this.chartData;
         const series: Object[] = [];
 
@@ -281,14 +259,24 @@ export class Spline extends Chart {
                     case "COMPARED_PLAN":
                         planData = timeSeriesData.values[idx];
                         planProps = _get(dataSetSettings, 'seriesSettings', {});
-                        planOpts = this.getComparedHistogramSeries(0, currColor);
+                        planOpts = this.getComparedHistogramSeries(idx, currColor);
+                        _merge(planOpts, {
+                            yAxisIndex: axesToIndex[idx]
+                        });
+
                         overProps = _get(dataSetSettings, 'overSettings', {});
-                        overOpts = this.getComparedHistogramSeries(0, currColor);
                         overColor = _get(dataSetSettings, 'overColor', {});
+                        overOpts = this.getComparedHistogramSeries(idx, currColor);
+                        _merge(overOpts, {
+                            yAxisIndex: axesToIndex[idx]
+                        });
 
                         underProps = _get(dataSetSettings, 'underSettings', {});
-                        underOpts = this.getComparedHistogramSeries(0, currColor);
                         underColor = _get(dataSetSettings, 'underColor', {});
+                        underOpts = this.getComparedHistogramSeries(0, currColor);
+                        _merge(underOpts, {
+                            yAxisIndex: axesToIndex[idx]
+                        });
 
                         mainColor = _get(dataSetSettings, 'mainColor', {});
 
@@ -298,6 +286,10 @@ export class Spline extends Chart {
                         factData = timeSeriesData.values[idx];
                         factProps = _get(dataSetSettings, 'seriesSettings', {});
                         factOpts = this.getComparedHistogramSeries(0, currColor);
+                        _merge(factOpts, {
+                            yAxisIndex: axesToIndex[idx]
+                        });
+
                         comparedFlag = true;
                         break;
                 }
@@ -402,179 +394,122 @@ export class Spline extends Chart {
     }
 
     /**
+     * Получить настройку конкретной оси
+     */
+    private getAxisSetting<T>(axisName: string, varName: string, axisNumber: number): T {        // unknown, чтобы обязательно указывать тип
+        const axesData = this.getWidgetSetting<Object[]>(axisName);
+        const item: WidgetSettingsItem = this.getWidgetSettingByPath(this.widgetSettings.settings, [axisName, varName]);
+        const dataObj = axesData.find((v: Object) => +_get(v, 'index') === axisNumber);
+        if (dataObj !== undefined) {
+            return _get(dataObj, varName, item.default);
+        }
+        return item.default;
+    }
+
+    /**
      * Получить данные для осей
      */
-    private getYAxis(
-        timeSeriesData: TimeSeriesData,
-        axisOffsets: AxisOffsets
-    ): Object[] {
+    private getAxes(timeSeriesData: TimeSeriesData): {
+        axes: Object[],
+        axesToIndex: {[key: number]: number}
+    } {
         const data: IChartData = this.chartData;
-        const yaxis: Object[] = [];
+        const axesData: {[key: number]: AxesData} = {};
 
         if (TypeGuardsHelper.dataSetsIsDataSetTemplate(data.dataSets)) {
+            const axesY = this.getWidgetSetting<unknown[]>('axesY');
             for (let idx = 0; idx < data.data.length; idx++) {
                 const dataSetSettings: ISettings = data.dataSets[idx].settings;
 
-                // FIXME: Выпилить этот говнокод к хуям, весь функционал осей будет не здесь, а там, где должен быть
-                // if (!_get(dataSetSettings, 'createYAxis', true)) {
-                //     continue;
-                // }
-                // Этот код кладет нужные оси на одну и считает количество положеных значений
-                // let count = 0;
-                // const valueArray: number[] = [];
-                // if (dataSetSettings.yAxisInds !== undefined && dataSetSettings.yAxisInds.length > 0) {
-                //     for (const v of dataSetSettings.yAxisInds) {
-                //         timeSeriesData.values[v].forEach((item: number) => {
-                //             if (item !== undefined) {
-                //                 valueArray.push(item);
-                //             }
-                //         });
-                //         count += timeSeriesData.values[v].length;
-                //     }
-                // } else {
-                //     timeSeriesData.values[idx].forEach((item: number) => {
-                //         if (item !== undefined) {
-                //             valueArray.push(item);
-                //         }
-                //     });
-                //     count += timeSeriesData.values[idx].length;
-                // }
+                const axisNumber: number = +this.getDataSetSettings(dataSetSettings, 'axis');
 
-                // const negativeMirror = dataSetSettings.negativeMirror || false;
-
-                // valueArray.forEach((v: number, i: number, arr: number[]) => arr[i] = Math.abs(v));
-
-                // const maxDataValue: string = Math.max(...valueArray) + '';
-                // const higherBorder: string = this.roundHB(maxDataValue);
-                // const finalHB = this.magicRound(higherBorder) < Math.ceil(+maxDataValue)
-                //     ? this.magicRound(this.roundHB(String(Math.ceil(+maxDataValue))))
-                //     : this.magicRound(higherBorder);
-
-                const pos: YAxisTypes = this.getDataSetSettings(dataSetSettings, 'yAxis');
-                const currColor = this.getColor(dataSetSettings, 'color-grey');
-
-                const maxY: number = _max(timeSeriesData.values[idx]);
-                const minY: number = _flow(
+                const max: number = _max(timeSeriesData.values[idx]);
+                const min: number = _flow(
                     _min,
                     (v: number) => v > 0 ? 0 : v
                 )(timeSeriesData.values[idx]);
 
-                let offset = 0;
-                switch (pos) {
-                    case "left":
-                        offset = axisOffsets[idx].left;
-                        break;
-                    case "right":
-                        offset = axisOffsets[idx].right;
-                        break;
+                if (axesData[axisNumber] !== undefined) {
+                    axesData[axisNumber].min = _min([axesData[axisNumber].min, min]);
+                    axesData[axisNumber].max = _max([axesData[axisNumber].max, max]);
+                    axesData[axisNumber].axesToIndex.push(idx);
+                } else {
+                    const color: string = this.getAxisSetting('axesY', 'color', axisNumber) as string;
+                    axesData[axisNumber] = {
+                        name: this.getAxisSetting('axesY', 'name', axisNumber),
+                        color: ColorHelper.hexToColor(!color ? '#000000' : color, 'color-yellow'),
+                        position: this.getAxisSetting('axesY', 'position', axisNumber),
+                        show: this.getAxisSetting('axesY', 'show', axisNumber),
+                        max: max,
+                        min: min,
+                        axesToIndex: [idx]
+                    };
                 }
-
-                const yAxisTemplate = {
-                    type: 'value',
-                    position: pos,
-                    min: minY,                              // negativeMirror ? (0 - finalHB) + '' : '0',
-                    max: maxY,                              // finalHB + '',
-                    offset: offset,
-                    splitNumber: 3,                         // На сколько делить ось
-                    // minInterval: maxY / 3,                  // Минимальный размер интервала
-                    // maxInterval: maxY / 3,                  // Максимальный размер интервала
-                    // Цифры
-                    axisLabel: {
-                        color: currColor.hex,
-                        fontSize: 12
-                    },
-                    // Настройки оси
-                    axisLine: {
-                        lineStyle: {
-                            color: currColor.hex
-                        }
-                    },
-                    // Сетка
-                    splitLine: {
-                        lineStyle: {
-                            color: '#e9e9e9',
-                            width: 1,
-                            type: 'solid'
-                        }
-                    }
-                };
-
-                // FIXME: Внешние настройки не должны напрямую менять внутренние настройки конкретного рендера, только через мепинг
-                const yAxisSettings = _get(dataSetSettings, 'yAxisSettings', {});
-                for (const k in yAxisSettings) {
-                    if (yAxisSettings.hasOwnProperty(k)) {
-                        if (yAxisSettings[k] !== undefined) {
-                            yAxisTemplate[k] = yAxisSettings[k];
-                        }
-                    }
-                }
-                yaxis.push(yAxisTemplate);
             }
         }
-        return yaxis;
+
+        const axisYDistance: number = this.getWidgetSetting('axisYDistance');
+        let leftAxis = 0;
+        let rightAxis = 0;
+
+        const axes: Object[] = _map(axesData, (v: AxesData, k: number): Object => {
+            let offset = 0;
+            switch (v.position) {
+                case 'left':
+                    offset = leftAxis * axisYDistance;
+                    leftAxis++;
+                    break;
+                case 'right':
+                    offset = rightAxis * axisYDistance;
+                    rightAxis++;
+                    break;
+            }
+            return {
+                id: k,                                  // Записываем в id реальный индекс оси
+                type: 'value',
+                position: v.position,
+                min: v.min,
+                max: v.max,
+                offset: offset,
+                splitNumber: 3,                         // На сколько делить ось
+                // minInterval: maxY / 3,                  // Минимальный размер интервала
+                // maxInterval: maxY / 3,                  // Максимальный размер интервала
+                // Цифры
+                axisLabel: {
+                    color: v.color.hex,
+                    fontSize: 12
+                },
+                // Настройки оси
+                axisLine: {
+                    lineStyle: {
+                        color: v.color.hex
+                    }
+                },
+                // Сетка
+                splitLine: {
+                    lineStyle: {
+                        color: '#e9e9e9',
+                        width: 1,
+                        type: 'solid'
+                    }
+                }
+            };
+        });
+
+        // {1: {axesToIndex: [11,22]}, 2: {axesToIndex: [33]} => {11:0, 22:0, 33:1}
+        const axesToIndex: {[key: number]: number} = _merge(
+            ..._map(axesData, (v: AxesData, axisNumber: number) =>
+                _fromPairs( v.axesToIndex.map((dataSetIdx: number) => {
+                    return [dataSetIdx, _findKey(axes, (axesObj: Object) => axesObj['id'] === axisNumber) ?? 0];
+                }))
+            )
+        );
+
+        return {
+            axesToIndex,
+            axes
+        };
     }
-
-    /**
-     * Округление до сотен 12345 -> 12400, -12345 -> -12200
-     * FIXME: Не работает, выкинуть, ломается на -45
-     */
-    // private roundHB(possibleHB: string): string {
-    //     possibleHB = possibleHB.split('.')[0];
-    //     const isLong = possibleHB.length > 2;
-    //     const nulls = isLong ? 2 : possibleHB.length - 1;
-    //     let nullsStr = '';
-    //     for (let i = 0; i < nulls; i++) {
-    //         nullsStr += '0';
-    //     }
-    //     let firstSigns = '';
-    //     if (isLong) {
-    //         for (let i = 0; i < (possibleHB.length - 2); i++) {
-    //             firstSigns += possibleHB[i];
-    //         }
-    //         firstSigns = (Number(firstSigns) + 1) + '';
-    //     } else {
-    //         firstSigns = (Number(possibleHB[0]) + 1) + '';
-    //     }
-    //     return (possibleHB[0] + nullsStr) === possibleHB
-    //         ? possibleHB
-    //         : firstSigns + nullsStr;
-    // }
-
-    // FIXME даже знать не хочу для чего эта дрянь, в пизду ее
-    // private checkNums(num: string, lastMeaningDigitInd: number): string {
-    //     if (num[lastMeaningDigitInd] !== '10' || lastMeaningDigitInd === 0) {
-    //         return num;
-    //     }
-    //     if (lastMeaningDigitInd !== 0 && num[lastMeaningDigitInd] === '10') {
-    //         num = this.replaceAt(num, lastMeaningDigitInd, '0');
-    //         num = this.replaceAt(num, lastMeaningDigitInd - 1, String(Number(num[lastMeaningDigitInd - 1]) + 1));
-    //         return this.checkNums(num, lastMeaningDigitInd - 1);
-    //     }
-    //     return num;
-    // }
-
-    // FIXME: Нахуй этот понос
-    // private magicRound(v: string): number {
-    //     const num = Number(v);
-    //     if (isNaN(num)) {
-    //         return 0;
-    //     }
-    //     if (num % 3 === 0) {
-    //         return num;
-    //     }
-    //
-    //     const lastMeaningDigitInd = v.length > 2
-    //         ? v.length - 3
-    //         : v.length - 1;
-    //
-    //     v = this.replaceAt(v, lastMeaningDigitInd, String(Number(v[lastMeaningDigitInd]) + 1));
-    //     v = this.checkNums(v, lastMeaningDigitInd);
-    //     return this.magicRound(v);
-    // }
-    //
-    // private replaceAt(str: string, index: number, replacement: string): string {
-    //     return str.substr(0, index) + replacement + str.substr(index + replacement.length);
-    // }
 
     /**
      * Проверяем, есть ли среди графиков гистограммы
@@ -617,7 +552,6 @@ export class Spline extends Chart {
             smooth: true,
             forComparing: 0,
             xAxisIndex: 0,
-            yAxisIndex: idx,
             stack: null,
             seriesLayoutBy: 'column',
             showSymbol: true,
@@ -661,7 +595,6 @@ export class Spline extends Chart {
             name: 'bar ' + idx,
             type: 'bar',
             xAxisIndex: 0,
-            yAxisIndex: idx,
             seriesLayoutBy: 'column',
 
             color: color.hex,                   // Основной цвет
@@ -690,7 +623,6 @@ export class Spline extends Chart {
         return this.applySettings(idx, 'HISTOGRAM', {
             type: 'bar',
             xAxisIndex: 0,
-            yAxisIndex: idx,
             seriesLayoutBy: 'column',
             stack: 'stackCompared',
 
@@ -762,12 +694,7 @@ export class Spline extends Chart {
             // Переводим угол в координаты градиента
             const sin: number = Math.sin(angle / 180 * Math.PI) / 2;
             const cos: number = Math.cos(angle / 180 * Math.PI) / 2;
-            let coords = [0, 0, 1, 0];
-            if (angle < 180) {
-                coords = [0.5 - cos, 0.5 - sin, 0.5 + cos, 0.5 + sin];
-            } else {
-                coords = [0.5 - cos, 0.5 + sin, 0.5 + cos, 0.5 - sin];
-            }
+            let coords = [0.5 - cos, 0.5 - sin, 0.5 + cos, 0.5 + sin];
             coords = coords.map((v: number) => +v.toFixed(2));
             let colorsStart: number = 0;
             const colorsOffs: number = gradient.colors.length <= 1 ? 1 : 1 / (gradient.colors.length - 1);

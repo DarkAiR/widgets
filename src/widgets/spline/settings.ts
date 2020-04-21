@@ -1,12 +1,13 @@
 import {IWidgetSettings, makeSettings} from "../../widgetSettings";
 import {ChartType, ChartTypeValues, LineType, LineTypeValues, YAxisTypes, YAxisTypesValues} from "../../models/types";
 import {
+    makeArray,
     makeBoolean,
     makeColor,
     makeGradient,
     makeList,
     makeNumber,
-    makeSettingsArray,
+    makeSettingsGroup,
     makeString
 } from "../../widgetSettings/settings";
 import {commonSettings} from "../commonSettings";
@@ -14,13 +15,27 @@ import {commonSettings} from "../commonSettings";
 export const settings: IWidgetSettings = makeSettings({
     settings: [
         ...commonSettings,
-        makeSettingsArray('paddings', 'Отступы графика', [
-            makeNumber('top', 'Сверху', 20),
-            makeNumber('bottom', 'Снизу', 20),
-            makeNumber('left', 'Слева', 0),
-            makeNumber('right', 'Справа', 0)
-        ]),
-        makeNumber('axisGap', 'Расстояние между осями', 50),
+        makeSettingsGroup('paddings', 'Отступы графика', [
+            [
+                makeNumber('top', 'Сверху', 20),
+                makeNumber('bottom', 'Снизу', 20)
+            ], [
+                makeNumber('left', 'Слева', 0),
+                makeNumber('right', 'Справа', 0)
+            ]
+        ], {collapse: true}),
+        makeNumber('axisYDistance', 'Расстояние между осями Y', 50),
+        makeArray('axesY', 'Оси Y', [
+            [
+                makeBoolean('show', 'Отображать', true),
+            ], [
+                makeNumber('index', 'Номер оси', 1),
+                makeString('name', 'Название')
+            ], [
+                makeColor('color', 'Цвет'),
+                makeList<YAxisTypes>('position', 'Положение оси', 'left', YAxisTypesValues),
+            ]
+        ], {collapse: true})
     ],
     dataSet: {
         initDataSets: [{viewType: 'DYNAMIC'}],
@@ -28,22 +43,31 @@ export const settings: IWidgetSettings = makeSettings({
         settings: [
             makeColor('color', ' Цвет'),
             makeList<ChartType>('chartType', 'Вид', 'LINE', ChartTypeValues),
-            makeList<YAxisTypes>('yAxis', 'Положение оси', 'left', YAxisTypesValues),
-            makeSettingsArray('lineStyle', 'Стиль линии', [
-                makeList<LineType>('type', 'Тип', 'solid', LineTypeValues),
+            makeNumber('axis', 'Номер оси', 1),
+            makeSettingsGroup('lineStyle', 'Стиль линии', [
+                [
+                    makeList<LineType>('type', 'Тип', 'solid', LineTypeValues)
+                ],
             ]),
-            makeSettingsArray('fill', 'Стиль заливки', [
-                makeGradient('color', 'Цвет заливки'),
-                makeBoolean('show', 'Показывать', false)
+            makeSettingsGroup('fill', 'Стиль заливки', [
+                [
+                    makeGradient('color', 'Цвет заливки'),
+                    makeBoolean('show', 'Показывать', false)
+                ]
             ]),
-            makeSettingsArray('label', 'Формат вывода значений', [
-                makeColor('color', 'Цвет'),
-                makeNumber('fontSize', 'Размер шрифта', 12),
-                makeString('delimiter', 'Разделитель', '.'),
-                makeNumber('precision', 'Точность в знаках', 2),
-                makeString('measure', 'Единица измерения'),
-                makeBoolean('showMeasure', 'Показывать единицу изменения', false),
-                makeBoolean('show', 'Показывать значение', false)
+            makeSettingsGroup('label', 'Формат вывода значений', [
+                [
+                    makeBoolean('show', 'Показывать значение', false)
+                ], [
+                    makeColor('color', 'Цвет'),
+                    makeNumber('fontSize', 'Размер шрифта', 12)
+                ], [
+                    makeString('delimiter', 'Разделитель', '.'),
+                    makeNumber('precision', 'Точность в знаках', 2)
+                ], [
+                    makeString('measure', 'Единица измерения'),
+                    makeBoolean('showMeasure', 'Показывать единицу изменения', false)
+                ]
             ])
         ]
     }

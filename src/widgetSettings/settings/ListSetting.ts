@@ -5,7 +5,6 @@
 import {BaseSetting} from "./BaseSetting";
 import {SettingFunc} from "../types";
 import {INameValue} from "../../interfaces";
-import {YAxisTypes, YAxisTypesValues} from "../../models/types";
 
 export interface ListSetting<T> extends BaseSetting<T> {
     list: INameValue<T>[];

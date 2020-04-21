@@ -1,5 +1,5 @@
 import {IWidgetSettings, makeSettings} from "../../widgetSettings";
-import {makeNameValueArray} from "../../widgetSettings/settings";
+import {makeArray, makeString} from "../../widgetSettings/settings";
 import {commonSettings} from "../commonSettings";
 
 export const settings: IWidgetSettings = makeSettings({
@@ -10,7 +10,12 @@ export const settings: IWidgetSettings = makeSettings({
         initDataSets: [{viewType: 'TABLE'}],
         canAdd: true,
         settings: [
-            makeNameValueArray('columnNames', 'Названия колонок')
+            makeArray('columnNames', 'Названия колонок', [
+                [
+                    makeString('name', ''),
+                    makeString('value', '')
+                ]
+            ])
         ]
     }
 });
