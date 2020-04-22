@@ -1,7 +1,7 @@
 import {BaseSetting} from "./BaseSetting";
 import {SettingFunc} from "../types";
 
-type DefaultType = number;
+type DefaultType = number | '';
 
 export interface NumberSetting extends BaseSetting<DefaultType> {
     min: number;
