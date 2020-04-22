@@ -19,6 +19,7 @@ import * as _merge from 'lodash/merge';
 import * as _flow from 'lodash/flow';
 import * as _min from 'lodash/min';
 import * as _max from 'lodash/max';
+import * as _isEmpty from 'lodash/isEmpty';
 import {Chart} from '../../models/Chart';
 import {ColorHelper, TimeSeriesData, TimeSeriesHelper} from '../../helpers';
 import {ChartType, YAxisTypes} from "../../models/types";
@@ -66,7 +67,6 @@ export class Spline extends Chart {
         if (TypeGuardsHelper.dataSetsIsDataSetTemplate(data.dataSets)) {
             // FIXME: Внешние стили нельзя использовать
             const globalCardSets = _get(data.dataSets[0].settings, 'globalCardSettings', '');
-            const titleSets = _get(data.dataSets[0].settings, 'titleSettings', '');
 
             const timeSeriesData: TimeSeriesData = TimeSeriesHelper.convertTimeSeriesToData(data.data as TSPoint[][]);
 
@@ -155,9 +155,17 @@ export class Spline extends Chart {
                 }
             }
 
+            const titleStyle = [];
+            titleStyle.push(`color: ${this.getWidgetSetting('title.color')}`);
+            if (!_isEmpty(this.getWidgetSetting('title.size'))) {
+                titleStyle.push(`font-size: ${this.getWidgetSetting('title.size')}px`);
+            }
+            titleStyle.push(`text-align: ${this.getWidgetSetting('title.align')}`);
+
             this.config.element.innerHTML = this.renderTemplate({
-                title: this.getWidgetSetting('title'),
-                titleSets,
+                showTitle: this.getWidgetSetting('title.show'),
+                title: this.getWidgetSetting('title.name'),
+                titleStyle: titleStyle.join(';'),
                 globalCardSets
             });
 
@@ -771,11 +779,14 @@ export class Spline extends Chart {
     getTemplate(): string {
         return `
                 <div class='${s['widget']}  ${w['widget']}' style="{{globalCardSets}}">
+                    {{#showTitle}}
                     <div class='${w['row']}'>
-                        <div class="${w['title']}" style="{{titleSets}}">
+                        <div class="${w['title']}" style="{{titleStyle}}">
                             {{title}}
                         </div>
                     </div>
+                    {{/showTitle}}
+
                     <div class='${w['row']} ${w['chart']}'>
                     </div>
                 </div>
