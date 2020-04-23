@@ -1,5 +1,13 @@
 import {IWidgetSettings, makeSettings} from "../../widgetSettings";
-import {ChartType, ChartTypeValues, LineType, LineTypeValues, YAxisTypes, YAxisTypesValues} from "../../models/types";
+import {
+    ChartType,
+    ChartTypeValues,
+    LineType,
+    LineTypeValues, XAxisPos,
+    XAxisPosValues,
+    YAxisPos,
+    YAxisPosValues
+} from "../../models/types";
 import {
     makeArray,
     makeBoolean,
@@ -44,7 +52,19 @@ export const settings: IWidgetSettings = makeSettings({
                 makeString('name', 'Название')
             ], [
                 makeColor('color', 'Цвет'),
-                makeList<YAxisTypes>('position', 'Положение оси', 'left', YAxisTypesValues),
+                makeList<YAxisPos>('position', 'Положение оси', 'left', YAxisPosValues),
+            ]
+        ], {collapse: true}),
+        makeNumber('axisXDistance', 'Расстояние между осями X', 20),
+        makeArray('axesX', 'Оси X', [
+            [
+                makeBoolean('show', 'Отображать', true),
+            ], [
+                makeNumber('index', 'Номер оси', 1),
+                makeString('name', 'Название')
+            ], [
+                makeColor('color', 'Цвет'),
+                makeList<XAxisPos>('position', 'Положение оси', 'bottom', XAxisPosValues),
             ]
         ], {collapse: true})
     ],
@@ -54,7 +74,7 @@ export const settings: IWidgetSettings = makeSettings({
         settings: [
             makeColor('color', ' Цвет'),
             makeList<ChartType>('chartType', 'Вид', 'LINE', ChartTypeValues),
-            makeNumber('axis', 'Номер оси', 1),
+            makeNumber('axisY', 'Номер оси Y', 1),
             makeSettingsGroup('lineStyle', 'Стиль линии', [
                 [
                     makeList<LineType>('type', 'Тип', 'solid', LineTypeValues)
