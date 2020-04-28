@@ -4,10 +4,12 @@ import {
     ChartTypeValues,
     LineType,
     LineTypeValues,
-    XAxisPosValues,
     XAxisPos,
+    XAxisPosValues,
     YAxisPos,
-    YAxisPosValues
+    YAxisPosValues,
+    LegendPos,
+    LegendPosValues
 } from "../../models/types";
 import {
     makeArray,
@@ -77,12 +79,21 @@ export const settings: IWidgetSettings = makeSettings({
             ], [
                 makeBoolean('showTick', 'Отображать насечки', true)
             ]
+        ], {collapse: true}),
+        makeSettingsGroup('legend', 'Легенда', [
+            [
+                makeBoolean('show', 'Отображать', false)
+            ], [
+                makeList<LegendPos>('position', 'Расположение', 'bottom', LegendPosValues),
+                makeNumber('gap', 'Отступ от края', 0)
+            ]
         ], {collapse: true})
     ],
     dataSet: {
         initDataSets: [{viewType: 'DYNAMIC'}],
         canAdd: true,
         settings: [
+            makeString('name', 'Название'),
             makeColor('color', ' Цвет'),
             makeList<ChartType>('chartType', 'Вид', 'LINE', ChartTypeValues),
             makeNumber('axisY', 'Номер оси Y', 1),
