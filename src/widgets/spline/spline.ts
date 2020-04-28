@@ -16,11 +16,12 @@ import {
 } from 'lodash';
 import {Chart} from '../../models/Chart';
 import {TimeSeriesData, TimeSeriesHelper} from '../../helpers';
-import {ChartType, XAxisPos, YAxisPos} from "../../models/types";
+import {ChartType, LegendPos, XAxisPos, YAxisPos} from "../../models/types";
 import {TSPoint} from "../../interfaces/graphQL";
 import {TypeGuardsHelper} from "../../helpers";
 import {IWidgetSettings} from "../../widgetSettings";
 import {WidgetSettingsItem} from "../../widgetSettings/types";
+import {makeBoolean, makeList, makeNumber, makeString} from "../../widgetSettings/settings";
 
 interface XAxesData {
     name: string;
@@ -97,6 +98,8 @@ export class Spline extends Chart {
             const axisYDistance: number = this.getWidgetSetting('axisYDistance');
             const axisXDistance: number = this.getWidgetSetting('axisXDistance');
 
+            const legend: Object = this.getLegend();
+
             // NOTE: при containLabel=true ECharts правильно считает ширину отступа для нескольких осей,
             //       но не умеет располагать оси рядом, поэтому, при более чем одной оси, высчитываем отступы вручную
             const options = {
@@ -116,6 +119,7 @@ export class Spline extends Chart {
                     },
                     formatter: '{c0}'
                 },
+                legend: legend,
                 series: series
             };
 
@@ -203,7 +207,7 @@ export class Spline extends Chart {
 
                 // FIXME: Та же проблема, как в FIXME выше, мы разрешаем кому-то снаружи лезть напрямую в наш рендер
                 // symbolSize: 8
-                // name: "Эффективность"
+                // + name: "Эффективность"
                 // tooltip: {formatter: "{a}<br>{b}.04.2019: {c}%"}
                 // + label: {show: true, formatter: "{c}%", color: "rgba(255,255,255,.6)"}
                 // + color: "rgba(255,255,255,.3)"
@@ -706,6 +710,46 @@ export class Spline extends Chart {
         return false;
     }
 
+    private getLegend(): Object {
+        const align: LegendPos = this.getWidgetSetting('legend.position');
+        const gap: number = +this.getWidgetSetting('legend.gap');
+        let obj: ISettings = {};
+        switch (align) {
+            case "top":
+                obj = {
+                    orient: 'horizontal',
+                    top: gap,
+                };
+                break;
+            case "right":
+                obj = {
+                    orient: 'vertical',
+                    right: gap,
+                    top: 'middle'
+                };
+                break;
+            case "bottom":
+                obj = {
+                    orient: 'horizontal',
+                    bottom: gap,
+                };
+                break;
+            case "left":
+                obj = {
+                    orient: 'vertical',
+                    left: gap,
+                    top: 'middle'
+                };
+                break;
+        }
+        _merge(obj, {
+            show: this.getWidgetSetting('legend.show'),
+            type: 'plain',
+            align: 'left'
+        });
+        return obj;
+    }
+
     /*
      * Порядок определения цветов
         color - главный
@@ -771,7 +815,6 @@ export class Spline extends Chart {
 
     private getHistogramSeries(idx: number, color: IColor): Object {
         return this.applySettings(idx, 'HISTOGRAM', {
-            name: 'bar ' + idx,
             type: 'bar',
             xAxisIndex: 0,
             seriesLayoutBy: 'column',
@@ -829,9 +872,17 @@ export class Spline extends Chart {
         });
     }
 
+    /**
+     * Добавляем стандартные настройки для каждого dataSet
+     */
     private applySettings(idx: number, chartType: ChartType, seriesData: Object): Object {
         const getSetting = <T = void>(path: string): T => this.getDataSetSettings<T>(this.chartData.dataSets[idx].settings, path);
 
+        seriesData['name'] = getSetting('name') || ' ';     // Чтобы чтото отобразилось, нужно хотя бы пробел
+
+        /*
+            Настройки label
+         */
         // См. https://echarts.apache.org/en/option.html#series-line.label.formatter
         const label: ISettings = {       // tslint:disable-line:no-any
             show: getSetting<boolean>('label.show')
@@ -859,6 +910,9 @@ export class Spline extends Chart {
         }
         _merge(seriesData, {label: label});
 
+        /*
+            Настройки fill
+         */
         if (getSetting<boolean>('fill.show')) {
             const gradient: IGradient = getSetting('fill.color');
             let angle: number = gradient.rotate % 360;

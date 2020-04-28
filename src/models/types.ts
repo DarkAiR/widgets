@@ -22,5 +22,9 @@ export type XAxisPos = typeof XAxisPosValues[number];
 export const YAxisPosValues = ['left', 'right'] as const;   // Создаем массив допустимых значений для экспорта в конфиге
 export type YAxisPos = typeof YAxisPosValues[number];
 
+// Позиция легенды
+export const LegendPosValues = ['top', 'right', 'bottom', 'left'] as const;
+export type LegendPos = typeof LegendPosValues[number];
+
 export type MethodType = 'MAPE' | 'MAE' | 'coverage' | 'utilization';
 export type ServerType = 'druid' | 'qlik';
