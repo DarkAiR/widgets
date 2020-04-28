@@ -7,10 +7,7 @@ import {
     IChartData, INameValue, ISettings,
     IWidgetVariables, JoinDataSetTemplate, TableRow, TimeSeriesDataSetShort
 } from "../../interfaces";
-import * as _get from "lodash/get";
-import * as _map from "lodash/map";
-import * as _filter from "lodash/filter";
-import * as _keyBy from "lodash/keyBy";
+import {get as _get, map as _map, filter as _filter, keyBy as _keyBy} from "lodash";
 import {Chart} from "../../models/Chart";
 import {TypeGuardsHelper} from "../../helpers";
 import {IWidgetSettings} from "../../widgetSettings";

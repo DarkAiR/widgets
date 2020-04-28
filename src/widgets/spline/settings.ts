@@ -1,5 +1,14 @@
 import {IWidgetSettings, makeSettings} from "../../widgetSettings";
-import {ChartType, ChartTypeValues, LineType, LineTypeValues, YAxisTypes, YAxisTypesValues} from "../../models/types";
+import {
+    ChartType,
+    ChartTypeValues,
+    LineType,
+    LineTypeValues,
+    XAxisPosValues,
+    XAxisPos,
+    YAxisPos,
+    YAxisPosValues
+} from "../../models/types";
 import {
     makeArray,
     makeBoolean,
@@ -22,7 +31,7 @@ export const settings: IWidgetSettings = makeSettings({
             ], [
                 makeString('name', 'Заголовок')
             ], [
-                makeNumber('size', 'Размер шрифта', ''),
+                makeNumber('size', 'Размер шрифта', 14),
                 makeList<string>('align', 'Выравнивание', 'left', ['left', 'center', 'right'])
             ]
         ]),
@@ -39,12 +48,30 @@ export const settings: IWidgetSettings = makeSettings({
         makeArray('axesY', 'Оси Y', [
             [
                 makeBoolean('show', 'Отображать', true),
+                makeColor('color', 'Цвет'),
             ], [
                 makeNumber('index', 'Номер оси', 1),
-                makeString('name', 'Название')
+                makeList<YAxisPos>('position', 'Положение оси', 'left', YAxisPosValues),
             ], [
+                makeString('name', 'Подпись'),
+            ], [
+                makeColor('nameColor', 'Цвет подписи'),
+                makeNumber('nameGap', 'Отступ подписи', '')
+            ]
+        ], {collapse: true}),
+        makeNumber('axisXDistance', 'Расстояние между осями X', 20),
+        makeArray('axesX', 'Оси X', [
+            [
+                makeBoolean('show', 'Отображать', true),
                 makeColor('color', 'Цвет'),
-                makeList<YAxisTypes>('position', 'Положение оси', 'left', YAxisTypesValues),
+            ], [
+                makeNumber('index', 'Номер оси', 1),
+                makeList<XAxisPos>('position', 'Положение оси', 'bottom', XAxisPosValues),
+            ], [
+                makeString('name', 'Подпись'),
+            ], [
+                makeColor('nameColor', 'Цвет подписи'),
+                makeNumber('nameGap', 'Отступ подписи', '')
             ]
         ], {collapse: true})
     ],
@@ -54,7 +81,7 @@ export const settings: IWidgetSettings = makeSettings({
         settings: [
             makeColor('color', ' Цвет'),
             makeList<ChartType>('chartType', 'Вид', 'LINE', ChartTypeValues),
-            makeNumber('axis', 'Номер оси', 1),
+            makeNumber('axisY', 'Номер оси Y', 1),
             makeSettingsGroup('lineStyle', 'Стиль линии', [
                 [
                     makeList<LineType>('type', 'Тип', 'solid', LineTypeValues)
