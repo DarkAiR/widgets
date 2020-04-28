@@ -13,3 +13,4 @@ export * from './reportPoint';
 export * from './TSPoint';
 export * from './tableRow';
 export * from './timeSeriesDataSetShort';
+export * from './externalEntity';
