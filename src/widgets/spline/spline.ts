@@ -30,6 +30,7 @@ interface XAxesData {
     position: XAxisPos;
     show: boolean;
     axesToIndex: number[];
+    showTick: boolean;
 }
 
 interface YAxesData {
@@ -42,6 +43,7 @@ interface YAxesData {
     max: number;
     min: number;
     axesToIndex: number[];
+    showTick: boolean;
 }
 
 export class Spline extends Chart {
@@ -434,13 +436,14 @@ export class Spline extends Chart {
                 } else {
                     const color: string = this.getAxisSetting('axesX', 'color', axisNumber) as string;
                     axesData[axisNumber] = {
+                        show: this.getAxisSetting('axesX', 'show', axisNumber),
                         name: this.getAxisSetting('axesX', 'name', axisNumber),
                         nameGap: this.getAxisSetting('axesX', 'nameGap', axisNumber),
                         nameColor: this.getAxisSetting('axesX', 'nameColor', axisNumber),
                         color: color,
                         position: this.getAxisSetting('axesX', 'position', axisNumber),
-                        show: this.getAxisSetting('axesX', 'show', axisNumber),
-                        axesToIndex: [idx]
+                        axesToIndex: [idx],
+                        showTick: this.getAxisSetting('axesX', 'showTick', axisNumber),
                     };
                 }
             }
@@ -488,12 +491,10 @@ export class Spline extends Chart {
                 },
                 fontSize: 12
             };
-
             // Настройки оси
             const axisLine: ISettings = {
                 lineStyle: {}
             };
-
             if (!!axisData.color) {
                 axisLabel.color = axisData.color;
                 axisLine.lineStyle.color = axisData.color;
@@ -508,6 +509,10 @@ export class Spline extends Chart {
                 offset: offset,
                 axisLabel,
                 axisLine,
+                // Насечки на оси
+                axisTick: {
+                    show: axisData.showTick
+                },
                 // Сетка
                 splitLine: {
                     show: true,
@@ -574,15 +579,16 @@ export class Spline extends Chart {
                         color = this.getDataSetSettings(dataSetSettings, 'color');
                     }
                     axesData[axisNumber] = {
+                        show: this.getAxisSetting('axesY', 'show', axisNumber),
                         name: this.getAxisSetting('axesY', 'name', axisNumber),
                         nameGap: this.getAxisSetting('axesY', 'nameGap', axisNumber),
                         nameColor: this.getAxisSetting('axesY', 'nameColor', axisNumber),
                         color: color,
                         position: this.getAxisSetting('axesY', 'position', axisNumber),
-                        show: this.getAxisSetting('axesY', 'show', axisNumber),
                         max: max,
                         min: min,
-                        axesToIndex: [idx]
+                        axesToIndex: [idx],
+                        showTick: this.getAxisSetting('axesY', 'showTick', axisNumber),
                     };
                 }
             }
@@ -652,6 +658,10 @@ export class Spline extends Chart {
                 // maxInterval: maxY / 3,                  // Максимальный размер интервала
                 axisLabel,
                 axisLine,
+                // Насечки на оси
+                axisTick: {
+                    show: axisData.showTick
+                },
                 // Сетка
                 splitLine: {
                     lineStyle: {

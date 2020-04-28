@@ -57,6 +57,8 @@ export const settings: IWidgetSettings = makeSettings({
             ], [
                 makeColor('nameColor', 'Цвет подписи'),
                 makeNumber('nameGap', 'Отступ подписи', '')
+            ], [
+                makeBoolean('showTick', 'Отображать насечки', true)
             ]
         ], {collapse: true}),
         makeNumber('axisXDistance', 'Расстояние между осями X', 20),
@@ -72,6 +74,8 @@ export const settings: IWidgetSettings = makeSettings({
             ], [
                 makeColor('nameColor', 'Цвет подписи'),
                 makeNumber('nameGap', 'Отступ подписи', '')
+            ], [
+                makeBoolean('showTick', 'Отображать насечки', true)
             ]
         ], {collapse: true})
     ],
