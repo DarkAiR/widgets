@@ -1,4 +1,3 @@
-import {keys as _keys} from "lodash";
 import {TSPoint} from "../interfaces/graphQL";
 
 export interface TimeSeriesData {
@@ -16,29 +15,32 @@ export class TimeSeriesHelper {
      * При этом dates.length === values[dateSetIndex].length
      */
     static convertTimeSeriesToData(data: TSPoint[][]): TimeSeriesData {
-        const valuesArr: Array<number[]> = [];
+        interface IValue {
+            localDateTime: string;
+            values: number[];
+        }
+        let valuesArr: IValue[] = [];
         data.forEach((dataValues: TSPoint[], idx: number) => {
             dataValues.forEach((v: TSPoint) => {
-                if (valuesArr[v.localDateTime] === undefined) {
-                    valuesArr[v.localDateTime] = [];
+                let found: IValue = valuesArr.find((valueArrItem: IValue) => valueArrItem.localDateTime === v.localDateTime);
+                if (!found) {
+                    found = {localDateTime: v.localDateTime, values: []};
+                    valuesArr.push(found);
                 }
-                valuesArr[v.localDateTime][idx] = v.value;
+                found.values[idx] = v.value;
             });
         });
 
+        valuesArr = valuesArr.sort((a: IValue, b: IValue) => new Date(a.localDateTime).getTime() - new Date(b.localDateTime).getTime());
+
         const result: Array<number[]> = [];
         for (let idx = 0; idx < data.length; idx++) {
-            const arr: number[] = [];
-            // Вот такой странный обход массива, т.к. это по факту объект (forEach не заработает)
-            for (const v in valuesArr) {
-                if (valuesArr.hasOwnProperty(v)) {
-                    arr.push(valuesArr[v][idx]);
-                }
-            }
-            result[idx] = arr;
+            result[idx] = valuesArr.map(
+                (valueArrItem: IValue) => valueArrItem.values[idx]
+            );
         }
         return {
-            dates: _keys(valuesArr),
+            dates: valuesArr.map((v: IValue) => v.localDateTime),
             values: result
         };
     }

@@ -3,8 +3,9 @@ import {
     ChartType,
     ChartTypeValues,
     LineType,
-    LineTypeValues, XAxisPos,
+    LineTypeValues,
     XAxisPosValues,
+    XAxisPos,
     YAxisPos,
     YAxisPosValues
 } from "../../models/types";
@@ -30,7 +31,7 @@ export const settings: IWidgetSettings = makeSettings({
             ], [
                 makeString('name', 'Заголовок')
             ], [
-                makeNumber('size', 'Размер шрифта', ''),
+                makeNumber('size', 'Размер шрифта', 14),
                 makeList<string>('align', 'Выравнивание', 'left', ['left', 'center', 'right'])
             ]
         ]),
@@ -47,24 +48,30 @@ export const settings: IWidgetSettings = makeSettings({
         makeArray('axesY', 'Оси Y', [
             [
                 makeBoolean('show', 'Отображать', true),
+                makeColor('color', 'Цвет'),
             ], [
                 makeNumber('index', 'Номер оси', 1),
-                makeString('name', 'Название')
-            ], [
-                makeColor('color', 'Цвет'),
                 makeList<YAxisPos>('position', 'Положение оси', 'left', YAxisPosValues),
+            ], [
+                makeString('name', 'Подпись'),
+            ], [
+                makeColor('nameColor', 'Цвет подписи'),
+                makeNumber('nameGap', 'Отступ подписи', '')
             ]
         ], {collapse: true}),
         makeNumber('axisXDistance', 'Расстояние между осями X', 20),
         makeArray('axesX', 'Оси X', [
             [
                 makeBoolean('show', 'Отображать', true),
+                makeColor('color', 'Цвет'),
             ], [
                 makeNumber('index', 'Номер оси', 1),
-                makeString('name', 'Название')
-            ], [
-                makeColor('color', 'Цвет'),
                 makeList<XAxisPos>('position', 'Положение оси', 'bottom', XAxisPosValues),
+            ], [
+                makeString('name', 'Подпись'),
+            ], [
+                makeColor('nameColor', 'Цвет подписи'),
+                makeNumber('nameGap', 'Отступ подписи', '')
             ]
         ], {collapse: true})
     ],
