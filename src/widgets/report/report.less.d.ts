@@ -1,5 +1,6 @@
 export interface IReportLess {
-  'value': string;
+  'table': string;
+  'title': string;
 }
 
 export const locals: IReportLess;

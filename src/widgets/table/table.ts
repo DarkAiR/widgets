@@ -23,7 +23,6 @@ export class Table extends Chart {
 
     run(): void {
         const data: IChartData = this.chartData;
-
         const dataByDataSources: TableRow[][] = data.data as TableRow[][];
 
         // NOTE: Для таблицы существует только один источник, если его нет, то это Exception
@@ -87,7 +86,7 @@ export class Table extends Chart {
 
     getTemplate(): string {
         return `
-            <div class='${s["widget"]}'>
+            <div class='${s["widget"]} ${w["widget"]}'>
                 <h4>{{title}}</h4>
                 <table class="${s['table']} ${s['w-100']} ${w['table']}">
                 <thead>
