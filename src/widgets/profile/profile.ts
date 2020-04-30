@@ -1,5 +1,5 @@
 import s from '../../styles/_all.less';
-import w from './profileAndDistribution.less';
+import w from './profile.less';
 import {settings as widgetSettings} from "./settings";
 
 import echarts from 'echarts';
@@ -16,7 +16,7 @@ import {IWidgetSettings} from "../../widgetSettings";
 import {ChartType} from "../../models/types";
 import {SettingsHelper} from "../../helpers";
 
-export class ProfileAndDistribution extends Chart {
+export class Profile extends Chart {
     getVariables(): IWidgetVariables {
         return {};
     }
@@ -50,7 +50,7 @@ export class ProfileAndDistribution extends Chart {
             series: optionsData.series
         };
 
-        console.groupCollapsed('ProfileAndDistribution eChart options');
+        console.groupCollapsed('Profile eChart options');
         console.log(options);
         console.log(JSON.stringify(options));
         console.groupEnd();

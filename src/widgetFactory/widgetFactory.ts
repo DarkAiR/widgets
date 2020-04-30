@@ -14,7 +14,8 @@ export class WidgetFactory {
     dataProvider: DataProvider = null;
 
     static loadWidgetConfig(widgetType: WidgetType): Promise<IWidgetSettings> {
-        const widgetTypeToImport: Record<WidgetType, () => Promise<{settings: IWidgetSettings}>> = {
+        type T = Promise<{settings: IWidgetSettings}>;
+        const widgetTypeToImport: Record<WidgetType, () => T> = {
             'SPLINE':           () => import('../widgets/spline/settings'),
             'AVERAGE_NUMBER':   () => import('../widgets/averageNumber/settings'),
             'SOLID_GAUGE':      () => import('../widgets/solidGauge/settings'),
@@ -24,8 +25,8 @@ export class WidgetFactory {
             'STATIC':           () => import('../widgets/static/settings'),
             'KPI':              () => import('../widgets/KPI/settings'),
             'AVATAR':           () => import('../widgets/avatar/settings'),
-            'DISTRIBUTION':     () => import('../widgets/profileAndDistribution/settings'),
-            'PROFILE':          () => import('../widgets/profileAndDistribution/settings'),
+            'DISTRIBUTION':     () => import('../widgets/distribution/settings'),
+            'PROFILE':          () => import('../widgets/profile/settings'),
         };
         return new Promise((resolve: ResolveFunc, reject: RejectFunc) => {
             if (!widgetTypeToImport[widgetType]) {
@@ -92,8 +93,8 @@ export class WidgetFactory {
             "STATIC":           () => widgets.Static.Static,
             "KPI":              () => widgets.KPI.KPI,
             "AVATAR":           () => widgets.Avatar.Avatar,
-            "PROFILE":          () => widgets.ProfileAndDistribution.ProfileAndDistribution,
-            "DISTRIBUTION":     () => widgets.ProfileAndDistribution.ProfileAndDistribution
+            "PROFILE":          () => widgets.Profile.Profile,
+            "DISTRIBUTION":     () => widgets.Distribution.Distribution
 
         };
         return new Promise<IChart>((resolve: ResolveFunc<IChart>, reject: RejectFunc) => {

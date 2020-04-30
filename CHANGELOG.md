@@ -189,4 +189,5 @@
 
 ##### 0.8.19 / 2020-04-30
 - виджет Profile 
-- настройки fill и label вынесены в helper и подключены к Profile
+- виджет Distribution 
+- настройки fill и label вынесены в helper и подключены к Profile и Distribution 

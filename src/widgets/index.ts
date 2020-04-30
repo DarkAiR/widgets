@@ -7,6 +7,7 @@ import * as Table from './table';
 import * as Static from './static';
 import * as KPI from './KPI';
 import * as Avatar from './avatar';
-import * as ProfileAndDistribution from './profileAndDistribution';
+import * as Profile from './profile';
+import * as Distribution from './distribution';
 
-export {AverageNumber, IndicatorsTable, Report, SolidGauge, Spline, Table, Static, KPI, Avatar, ProfileAndDistribution};
+export {AverageNumber, IndicatorsTable, Report, SolidGauge, Spline, Table, Static, KPI, Avatar, Profile, Distribution};

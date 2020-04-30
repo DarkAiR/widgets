@@ -37,7 +37,7 @@ export const settings: IWidgetSettings = makeSettings({
         ], {collapse: true}),
     ],
     dataSet: {
-        initDataSets: [{viewType: 'PROFILE'}],      // DISTRIBUTION
+        initDataSets: [{viewType: 'PROFILE'}],
         canAdd: false,
         settings: [
             makeColor('color', ' Цвет'),
