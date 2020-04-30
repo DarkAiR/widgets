@@ -203,7 +203,7 @@ export class DataProvider {
                         frequency: ${dataSet.frequency}
                         preFrequency: ${dataSet.preFrequency}
                         operation: ${dataSet.operation}
-                        methods: ["${dataSet.methods}"]
+                        methods: ["${dataSet.methods.join('", "')}"]
                         dataSource1: ${dataSource1}
                         dataSource2: ${dataSource2}
                     }
