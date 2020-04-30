@@ -4,7 +4,7 @@ import {settings as widgetSettings} from "./settings";
 
 import echarts from 'echarts';
 import {
-    IChartData, IColor, IGradient, ISettings,
+    IChartData, IColor, ISettings,
     IWidgetVariables
 } from '../../interfaces';
 import {
