@@ -4,15 +4,17 @@ import {settings as widgetSettings} from "./settings";
 
 import echarts from 'echarts';
 import {
-    IChartData,
+    IChartData, IColor, IGradient, ISettings,
     IWidgetVariables
 } from '../../interfaces';
 import {
-   isEmpty as _isEmpty
+    merge as _merge, isEmpty as _isEmpty
 } from 'lodash';
 import {Chart} from '../../models/Chart';
 import {ProfilePoint} from '../../interfaces';
 import {IWidgetSettings} from "../../widgetSettings";
+import {ChartType} from "../../models/types";
+import {SettingsHelper} from "../../helpers";
 
 export class ProfileAndDistribution extends Chart {
     getVariables(): IWidgetVariables {
@@ -30,11 +32,18 @@ export class ProfileAndDistribution extends Chart {
 
         const options = {
             grid: {
-                top: 20,
-                bottom: 0,
-                right: 0,
-                left: 0,
+                top: +this.getWidgetSetting('paddings.top'),
+                bottom: +this.getWidgetSetting('paddings.bottom'),
+                right: +this.getWidgetSetting('paddings.right'),
+                left: +this.getWidgetSetting('paddings.left'),
                 containLabel: true
+            },
+            tooltip: {
+                axisPointer: {
+                    show: true,
+                    type: 'line',
+                },
+                formatter: '{c0}'
             },
             xAxis: {data: optionsData.xAxisValues},
             yAxis: {},
@@ -74,14 +83,21 @@ export class ProfileAndDistribution extends Chart {
     } {
         const series: Object[] = [];
         const xAxisValues: number[] = [];
+        const dataSetSettings: ISettings = this.chartData.dataSets[0].settings;
+        const currColor = this.getColor(dataSetSettings, 'color-yellow');
 
         data.forEach((item: ProfilePoint[]) => {
-            const seriesData = {
-                symbolSize: 20,
-                data: [],
-                type: "bar"
-            };
+            let seriesData: ISettings = {};
+            switch (this.getDataSetSettings<ChartType>(dataSetSettings, 'chartType')) {
+                case "LINE":
+                    seriesData = this.getLineSeries(0, currColor);
+                    break;
+                case "HISTOGRAM":
+                    seriesData = this.getHistogramSeries(0, currColor);
+                    break;
+            }
 
+            seriesData.data = [];
             item.forEach((obj: ProfilePoint) => {
                 xAxisValues.push(obj.xposition);
                 seriesData.data.push(obj.value);
@@ -94,6 +110,88 @@ export class ProfileAndDistribution extends Chart {
             xAxisValues: xAxisValues,
             series: series
         };
+    }
+
+    private getLineSeries(idx: number, color: IColor): Object {
+        return this.applySettings(idx, 'LINE', {
+            type: 'line',
+            smooth: true,
+            forComparing: 0,
+            xAxisIndex: 0,
+            stack: null,
+            seriesLayoutBy: 'column',
+            showSymbol: true,
+            symbolSize: 4,
+
+            color: color.hex,                   // Основной цвет
+            itemStyle: {
+                opacity: color.opacity          // Прозрачность влияет на весь подписи + метки
+            },
+            lineStyle: {
+                shadowBlur: 2,
+                shadowColor: 'rgba(0, 0, 0, 0.3)',
+                type: this.getDataSetSettings(this.chartData.dataSets[idx].settings, 'lineStyle.type'),
+                width: 2,
+                opacity: color.opacity,         // Прозрачность линии
+            },
+            label: {
+                show: false,
+                position: 'top',
+                distance: 0,
+                rotate: 0,
+                backgroundColor: '',
+                borderColor: '',
+                borderWidth: 1,
+                padding: [3, 5, 3, 5],
+                borderRadius: [1, 1, 1, 1]
+            },
+            animation: true,
+            animationEasing: 'cubicOut',
+            animationEasingUpdate: 'cubicOut',
+            animationDuration: 1000,
+            animationDurationUpdate: 1000,
+            animationDelay: 0,
+            animationDelayUpdate: 0,
+            connectNulls: true
+        });
+    }
+
+    private getHistogramSeries(idx: number, color: IColor): Object {
+        return this.applySettings(idx, 'HISTOGRAM', {
+            type: 'bar',
+            xAxisIndex: 0,
+            seriesLayoutBy: 'column',
+
+            color: color.hex,                   // Основной цвет
+            itemStyle: {
+                opacity: color.opacity          // Прозрачность влияет на весь подписи + метки
+            },
+            label: {
+                show: false,
+                position: 'inside',
+                distance: 0,
+                rotate: 90,
+                backgroundColor: '',
+                borderColor: '',
+                borderWidth: 1,
+                padding: [3, 5, 3, 5],
+                borderRadius: [1, 1, 1, 1]
+            },
+            animation: true,
+            animationDelay: 0,
+            animationDelayUpdate: 0,
+            showSymbol: true
+        });
+    }
+
+    /**
+     * Добавляем стандартные настройки для каждого dataSet
+     */
+    private applySettings(idx: number, chartType: ChartType, seriesData: Object): Object {
+        _merge(seriesData, SettingsHelper.getLabelSettings(this.widgetSettings.dataSet.settings, this.chartData.dataSets[idx].settings));
+        _merge(seriesData, SettingsHelper.getFillSettings(this.widgetSettings.dataSet.settings, this.chartData.dataSets[idx].settings, chartType));
+
+        return seriesData;
     }
 
     getTemplate(): string {

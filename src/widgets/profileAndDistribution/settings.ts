@@ -8,6 +8,9 @@ import {
     makeSettingsGroup,
     makeString
 } from "../../widgetSettings/settings";
+import {ChartType, ChartTypeValues, LineType, LineTypeValues} from "../../models/types";
+import {fillSettings} from "../fillSettings";
+import {labelSettings} from "../labelSettings";
 
 export const settings: IWidgetSettings = makeSettings({
     settings: [
@@ -23,10 +26,29 @@ export const settings: IWidgetSettings = makeSettings({
                 makeList<string>('align', 'Выравнивание', 'left', ['left', 'center', 'right'])
             ]
         ]),
+        makeSettingsGroup('paddings', 'Отступы графика', [
+            [
+                makeNumber('top', 'Сверху', 20),
+                makeNumber('bottom', 'Снизу', 0)
+            ], [
+                makeNumber('left', 'Слева', 0),
+                makeNumber('right', 'Справа', 0)
+            ]
+        ], {collapse: true}),
     ],
     dataSet: {
         initDataSets: [{viewType: 'PROFILE'}],      // DISTRIBUTION
         canAdd: false,
-        settings: []
+        settings: [
+            makeColor('color', ' Цвет'),
+            makeList<ChartType>('chartType', 'Вид', 'LINE', ChartTypeValues),
+            makeSettingsGroup('lineStyle', 'Стиль линии', [
+                [
+                    makeList<LineType>('type', 'Тип', 'solid', LineTypeValues)
+                ],
+            ]),
+            ...fillSettings,
+            ...labelSettings,
+        ]
     }
 });

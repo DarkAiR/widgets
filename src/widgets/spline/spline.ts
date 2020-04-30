@@ -15,7 +15,7 @@ import {
     min as _min, max as _max, isEmpty as _isEmpty
 } from 'lodash';
 import {Chart} from '../../models/Chart';
-import {TimeSeriesData, TimeSeriesHelper} from '../../helpers';
+import {SettingsHelper, TimeSeriesData, TimeSeriesHelper} from '../../helpers';
 import {ChartType, LegendPos, XAxisPos, YAxisPos} from "../../models/types";
 import {TSPoint} from "../../interfaces/graphQL";
 import {TypeGuardsHelper} from "../../helpers";
@@ -110,8 +110,6 @@ export class Spline extends Chart {
                     left: +this.getWidgetSetting('paddings.left') + (containLabel ? 0 : (leftAmount * axisYDistance)),
                     containLabel: containLabel
                 },
-                xAxis: xAxesData.axes,
-                yAxis: yAxesData.axes,
                 tooltip: {
                     axisPointer: {
                         show: true,
@@ -120,6 +118,8 @@ export class Spline extends Chart {
                     formatter: '{c0}'
                 },
                 legend: legend,
+                xAxis: xAxesData.axes,
+                yAxis: yAxesData.axes,
                 series: series
             };
 
@@ -407,7 +407,7 @@ export class Spline extends Chart {
      */
     private getAxisSetting<T>(axisName: string, varName: string, axisNumber: number): T {        // unknown, чтобы обязательно указывать тип
         const axesData = this.getWidgetSetting<Object[]>(axisName);
-        const item: WidgetSettingsItem = this.getWidgetSettingByPath(this.widgetSettings.settings, [axisName, varName]);
+        const item: WidgetSettingsItem = SettingsHelper.getWidgetSettingByPath(this.widgetSettings.settings, [axisName, varName]);
         const dataObj = axesData.find((v: Object) => +_get(v, 'index') === axisNumber);
         if (dataObj !== undefined) {
             return _get(dataObj, varName, item.default);
@@ -880,86 +880,9 @@ export class Spline extends Chart {
 
         seriesData['name'] = getSetting('name') || ' ';     // Чтобы чтото отобразилось, нужно хотя бы пробел
 
-        /*
-            Настройки label
-         */
-        // См. https://echarts.apache.org/en/option.html#series-line.label.formatter
-        const label: ISettings = {       // tslint:disable-line:no-any
-            show: getSetting<boolean>('label.show')
-        };
-        if (label.show) {
-            const delimiter: string = getSetting('label.delimiter') || '.';
-            const precision: number = getSetting('label.precision') || 0;
-            const measure = getSetting<boolean>('label.showMeasure')
-                ? getSetting<string>('label.measure')
-                : '';
+        _merge(seriesData, SettingsHelper.getLabelSettings(this.widgetSettings.dataSet.settings, this.chartData.dataSets[idx].settings));
+        _merge(seriesData, SettingsHelper.getFillSettings(this.widgetSettings.dataSet.settings, this.chartData.dataSets[idx].settings, chartType));
 
-            label.formatter = (params: Object | []): string => {
-                let value: string = params['value'] + '';
-                const v: number = parseFloat(value);
-                const integer: string = v !== NaN ? ((v + '').split('.')[0] ?? '') : '';
-                const fraction: string = v !== NaN ? ((v + '').split('.')[1] ?? '') : '';
-                value = integer + (+precision === 0 ? '' : (delimiter + fraction.padEnd(precision, '0')));
-                return value + measure;
-            };
-            label.fontSize = getSetting<number>('label.fontSize');
-            const color = getSetting<string>('label.color');
-            if (!!color) {
-                label.color = color;
-            }
-        }
-        _merge(seriesData, {label: label});
-
-        /*
-            Настройки fill
-         */
-        if (getSetting<boolean>('fill.show')) {
-            const gradient: IGradient = getSetting('fill.color');
-            let angle: number = gradient.rotate % 360;
-            if (angle < 0) {
-                angle = 360 + angle;
-            }
-            // Переводим угол в координаты градиента
-            const sin: number = Math.sin(angle / 180 * Math.PI) / 2;
-            const cos: number = Math.cos(angle / 180 * Math.PI) / 2;
-            let coords = [0.5 - cos, 0.5 - sin, 0.5 + cos, 0.5 + sin];
-            coords = coords.map((v: number) => +v.toFixed(2));
-            let colorsStart: number = 0;
-            const colorsOffs: number = gradient.colors.length <= 1 ? 1 : 1 / (gradient.colors.length - 1);
-            const colors: Object[] = gradient.colors.map((c: string) => {
-                const res: Object = {
-                    offset: colorsStart,
-                    color: c
-                };
-                colorsStart += colorsOffs;
-                return res;
-            });
-            const color = {
-                type: 'linear',
-                x: coords[0],
-                y: coords[1],
-                x2: coords[2],
-                y2: coords[3],
-                colorStops: colors
-            };
-
-            switch (chartType) {
-                case 'LINE':
-                    _merge(seriesData, {
-                        areaStyle: {
-                            color
-                        }
-                    });
-                    break;
-                case 'HISTOGRAM':
-                    _merge(seriesData, {
-                        itemStyle: {
-                            color
-                        }
-                    });
-                    break;
-            }
-        }
         return seriesData;
     }
 

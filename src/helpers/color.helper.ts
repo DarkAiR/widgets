@@ -1,4 +1,4 @@
-import {IColor, IRgbaHex, ISettings} from "../interfaces";
+import {IColor, IRgbaHex} from "../interfaces";
 
 export class ColorHelper {
     static parseHex(hex: string): IRgbaHex {
