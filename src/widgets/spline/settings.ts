@@ -22,6 +22,8 @@ import {
     makeString
 } from "../../widgetSettings/settings";
 import {commonSettings} from "../commonSettings";
+import {fillSettings} from "../fillSettings";
+import {labelSettings} from "../labelSettings";
 
 export const settings: IWidgetSettings = makeSettings({
     settings: [
@@ -102,26 +104,8 @@ export const settings: IWidgetSettings = makeSettings({
                     makeList<LineType>('type', 'Тип', 'solid', LineTypeValues)
                 ],
             ]),
-            makeSettingsGroup('fill', 'Стиль заливки', [
-                [
-                    makeGradient('color', 'Цвет заливки'),
-                    makeBoolean('show', 'Показывать', false)
-                ]
-            ]),
-            makeSettingsGroup('label', 'Формат вывода значений', [
-                [
-                    makeBoolean('show', 'Показывать значение', false)
-                ], [
-                    makeColor('color', 'Цвет'),
-                    makeNumber('fontSize', 'Размер шрифта', 12)
-                ], [
-                    makeString('delimiter', 'Разделитель', '.'),
-                    makeNumber('precision', 'Точность в знаках', 2)
-                ], [
-                    makeString('measure', 'Единица измерения'),
-                    makeBoolean('showMeasure', 'Показывать единицу изменения', false)
-                ]
-            ])
+            ...fillSettings,
+            ...labelSettings,
         ]
     }
 });

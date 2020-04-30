@@ -10,7 +10,7 @@ import {EventBusWrapper, EventBus, EventBusEvent} from 'goodteditor-event-bus';
 import {IWidgetSettings} from "../widgetSettings";
 import {SettingsGroupSetting} from "../widgetSettings/settings";
 import {WidgetSettingsArray, WidgetSettingsItem} from "../widgetSettings/types";
-import {ColorHelper} from "../helpers";
+import {ColorHelper, SettingsHelper} from "../helpers";
 
 const hogan = require('hogan.js');
 
@@ -128,54 +128,24 @@ export abstract class Chart implements IChart {
     }
 
     /**
-     * Получить конфигурацию настройки по пути до нее
-     */
-    protected getWidgetSettingByPath(config: WidgetSettingsArray, parts: string[]): WidgetSettingsItem {
-        if (!parts.length) {
-            throw new Error('Path not found');
-        }
-        let item = config.find((v: WidgetSettingsItem) => v.name === parts[0]);
-        if (!item) {
-            throw new Error(`Attempt to get not described parameter "${parts.join('.')}"`);
-        }
-        if (parts.length === 1) {
-            return item;
-        }
-        if ((item as SettingsGroupSetting).settings !== undefined) {
-            let foundItem: WidgetSettingsItem = null;
-            const newParts = parts.slice(1 - parts.length);
-            (item as SettingsGroupSetting).settings.some((cfgRow: WidgetSettingsArray) => {
-                try {
-                    foundItem = this.getWidgetSettingByPath(cfgRow, newParts);
-                    return true;
-                } catch (e) {
-                    return false;
-                }
-            });
-            if (foundItem === null) {
-                throw new Error(`Attempt to get not described parameter "${parts.join('.')}"`);
-            }
-            item = foundItem;
-        }
-        return item;
-    }
-
-    /**
      * Возвращает настройку из сеттингов виджета
      * @param settings Объект с настройками
      * @param path название поля
      * @return возвращает значение того типа, к которому присваивается результат, поэтому нужен тип T
      */
     protected getWidgetSetting<T = void>(...args: Array<ISettings | string>): T {
-        const f = ({settings, path}: {settings: ISettings, path: string}): T => {
-            const item: WidgetSettingsItem = this.getWidgetSettingByPath(this.widgetSettings.settings, path.split('.'));
-            return _get(settings, path, item.default);  // Если параметр описан, но не пришел в настройках, выставляем default
-        };
-
         if (args[1] === undefined) {
-            return f({settings: this.chartData.settings, path: args[0] as string});
+            return SettingsHelper.getWidgetSetting<T>(
+                this.widgetSettings.settings,
+                this.chartData.settings,
+                args[0] as string
+            );
         } else {
-            return f({settings: args[0] as ISettings, path: args[1] as string});
+            return SettingsHelper.getWidgetSetting<T>(
+                this.widgetSettings.settings,
+                args[0] as ISettings,
+                args[1] as string
+            );
         }
     }
 
@@ -186,8 +156,7 @@ export abstract class Chart implements IChart {
      * @return возвращает значение того типа, к которому присваивается результат, поэтому нужен тип T
      */
     protected getDataSetSettings<T = void>(settings: ISettings, path: string): T {
-        const item: WidgetSettingsItem = this.getWidgetSettingByPath(this.widgetSettings.dataSet.settings, path.split('.'));
-        return _get<T>(settings, path, item.default);   // Если параметр описан, но не пришел в настройках, выставляем default
+        return SettingsHelper.getDataSetSettings<T>(this.widgetSettings.dataSet.settings, settings, path);
     }
 
     /**
