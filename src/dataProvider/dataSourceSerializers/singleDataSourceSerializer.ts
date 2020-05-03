@@ -1,11 +1,15 @@
-import {ISerializer} from "./ISerializer";
 import {SingleDataSource} from "../../interfaces";
 import * as stringifyObject from 'stringify-object';
 import {get as _get, isEmpty as _isEmpty} from 'lodash';
 
-export class SingleDataSourceSerializer implements ISerializer {
-    serialize(dataSource: SingleDataSource): string {
+export class SingleDataSourceSerializer {
+    static serialize(dataSource: SingleDataSource): string {
         const dimensionsJson: string = stringifyObject(dataSource.dimensions, {
+            indent: ' ',
+            singleQuotes: false
+        }).replace(/\n/g, '');
+
+        const metricFiltersJson: string = stringifyObject(dataSource.metricFilters ?? [], {     // Для старых шаблонов может не быть metricFilters
             indent: ' ',
             singleQuotes: false
         }).replace(/\n/g, '');
@@ -17,12 +21,13 @@ export class SingleDataSourceSerializer implements ISerializer {
 
         return `{
             type: ${dataSource.type},
-            name: "${dataSource.name}",
+            name: "${dataSource.name}"
             dimensions: ${dimensionsJson},
             metric: {
                 name: "${dataSource.metric.name}",
                 expression: "${expression}",
-            }
+            },
+            metricFilters: ${metricFiltersJson}
         }`;
     }
 }
