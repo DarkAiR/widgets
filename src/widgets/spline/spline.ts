@@ -5,9 +5,10 @@ import {settings as widgetSettings} from "./settings";
 import echarts from 'echarts';
 import {
     DataSet,
-    IChartData, IColor, IGradient, ISettings,
+    IChartData, IColor, ISettings,
     IWidgetVariables,
     SingleDataSource,
+    DataSetTemplate,
 } from '../../interfaces';
 import {
     get as _get, set as _set, map as _map, forEach as _forEach,
@@ -17,11 +18,10 @@ import {
 import {Chart} from '../../models/Chart';
 import {SettingsHelper, TimeSeriesData, TimeSeriesHelper} from '../../helpers';
 import {ChartType, LegendPos, XAxisPos, YAxisPos} from "../../models/types";
-import {TSPoint} from "../../interfaces/graphQL";
+import {TSPoint, DimensionFilter} from "../../interfaces/graphQL";
 import {TypeGuardsHelper} from "../../helpers";
 import {IWidgetSettings} from "../../widgetSettings";
 import {WidgetSettingsItem} from "../../widgetSettings/types";
-import {makeBoolean, makeList, makeNumber, makeString} from "../../widgetSettings/settings";
 
 interface XAxesData {
     name: string;
@@ -51,6 +51,9 @@ export class Spline extends Chart {
     getVariables(): IWidgetVariables {
         const res: IWidgetVariables = {};
         const addVar = this.addVar(res);
+
+        addVar(0, 'org units', 'OrgUnits', 'Выбирается в отдельном виджете');
+
         _forEach(this.config.template.dataSets, (v: DataSet, idx: number) => {
             if (TypeGuardsHelper.isDataSetTemplate(v)) {
                 const nameStr: string = v.dataSource1.type === 'SINGLE' ? '(' + (<SingleDataSource>v.dataSource1).name + ')' : '';
@@ -897,6 +900,25 @@ export class Spline extends Chart {
             needReload = true;
         };
         switch (varName) {
+            case 'org units':
+                if (TypeGuardsHelper.dataSetsIsDataSetTemplate(this.chartData.dataSets)) {
+                    this.chartData.dataSets.forEach((v: DataSetTemplate) => {
+                        if (TypeGuardsHelper.isSingleDataSource(v.dataSource1)) {
+                            // Ищем dataSource для почты
+                            const dimensionName: string = _get(value, 'dimension', null);
+                            const outerId = _get(value, 'detail.outerId', null);
+                            if (dimensionName === null) {
+                                throw new Error('Process event: Invalid incoming data : ' + JSON.stringify(value));
+                            }
+                            if (['kpi', 'kpi_forecast', 'worked_hours', 'worked_shifts'].includes(v.dataSource1.name)) {
+                                const dim: DimensionFilter = v.dataSource1.dimensions.find((d: DimensionFilter) => d.name === dimensionName);
+                                dim.values = [outerId];
+                                needReload = true;
+                            }
+                        }
+                    });
+                }
+                break;
             case 'start date':
                 setVar('from', value);
                 break;
