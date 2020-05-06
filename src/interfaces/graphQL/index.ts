@@ -5,6 +5,7 @@ export * from './dimensionFilter';
 export * from './dimensionUnit';
 export * from './metric';
 export * from './metricUnit';
+export * from './metricFilter';
 export * from './organizationUnit';
 export * from './point';
 export * from './profilePoint';

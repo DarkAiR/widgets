@@ -1,9 +1,8 @@
-import {ISerializer} from "./ISerializer";
 import {AggregationDataSource} from "../../interfaces";
 import * as stringifyObject from 'stringify-object';
 
-export class AggregationDataSourceSerializer implements ISerializer {
-    serialize(dataSource: AggregationDataSource): string {
+export class AggregationDataSourceSerializer {
+    static serialize(dataSource: AggregationDataSource): string {
         const firstDataSource = stringifyObject(dataSource.firstDataSource, {
             indent: ' ',
             singleQuotes: false

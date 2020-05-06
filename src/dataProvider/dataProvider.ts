@@ -4,12 +4,11 @@ import {IGqlRequest} from "./IGqlRequest";
 import {ServerType, ViewType} from "../models/types";
 import {
     IChartData,
-    SingleDataSource,
     WidgetTemplate,
     DataSet,
     DataSetTemplate,
     JoinDataSetTemplate,
-    TimeSeriesDataSetShort
+    TimeSeriesDataSetShort, DataSource
 } from "../interfaces";
 import {serializers} from '.';
 import * as stringifyObject from 'stringify-object';
@@ -110,14 +109,18 @@ export class DataProvider {
         return data;
     }
 
+    private serializeDataSource(dataSource: DataSource): string {
+        if (TypeGuardsHelper.isSingleDataSource(dataSource)) {
+            return serializers.SingleDataSourceSerializer.serialize(dataSource);
+        }
+        if (TypeGuardsHelper.isAggregationDataSource(dataSource)) {
+            return serializers.AggregationDataSourceSerializer.serialize(dataSource);
+        }
+        return '{}';
+    }
+
     private serializeDynamicGQL(dataSet: DataSetTemplate, server: ServerType): IGqlRequest | null {
-        let dataSource = '{}';
-        if (TypeGuardsHelper.isSingleDataSource(dataSet.dataSource1)) {
-            dataSource = (new serializers.SingleDataSourceSerializer()).serialize(dataSet.dataSource1);
-        }
-        if (TypeGuardsHelper.isAggregationDataSource(dataSet.dataSource1)) {
-            dataSource = (new serializers.AggregationDataSourceSerializer()).serialize(dataSet.dataSource1);
-        }
+        const dataSource = this.serializeDataSource(dataSet.dataSource1);
 
         // NOTE: Типизировать возвращаемые данные не получится, т.к. не все поля являются строками
         //       Нр, frequency: HOUR, а значит, что не получится их сохранять в объекте и сериализовать
@@ -146,13 +149,7 @@ export class DataProvider {
         const dataSetArr: string[] = [];
 
         dataSet.dataSetTemplates.forEach((v: TimeSeriesDataSetShort) => {
-            let dataSource = '{}';
-            if (TypeGuardsHelper.isSingleDataSource(v.dataSource1)) {
-                dataSource = (new serializers.TableDataSourceSerializer()).serialize(v.dataSource1);
-            }
-            if (TypeGuardsHelper.isAggregationDataSource(v.dataSource1)) {
-                dataSource = (new serializers.AggregationDataSourceSerializer()).serialize(v.dataSource1);
-            }
+            const dataSource = this.serializeDataSource(v.dataSource1);
 
             dataSetArr.push(`{
                 preFrequency: ${v.preFrequency},
@@ -189,9 +186,8 @@ export class DataProvider {
     }
 
     private serializeReportGQL(dataSet: DataSetTemplate, server: ServerType): IGqlRequest | null {
-        const serializer = new serializers.ReportDataSourceSerializer();
-        const dataSource1 = serializer.serialize(dataSet.dataSource1 as SingleDataSource);
-        const dataSource2 = serializer.serialize(dataSet.dataSource2 as SingleDataSource);
+        const dataSource1 = this.serializeDataSource(dataSet.dataSource1);
+        const dataSource2 = this.serializeDataSource(dataSet.dataSource2);
         return {
             operationName: null,
             variables: {},
@@ -217,9 +213,8 @@ export class DataProvider {
     }
 
     private serializeStaticGQL(dataSet: DataSetTemplate, server: ServerType): IGqlRequest | null {
-        const serializer = new serializers.StaticDataSourceSerializer();
-        const dataSource1 = serializer.serialize(dataSet.dataSource1 as SingleDataSource);
-        const dataSource2 = serializer.serialize(dataSet.dataSource2 as SingleDataSource);
+        const dataSource1 = this.serializeDataSource(dataSet.dataSource1);
+        const dataSource2 = this.serializeDataSource(dataSet.dataSource2);
         return {
             operationName: null,
             variables: {},
@@ -242,8 +237,7 @@ export class DataProvider {
     }
 
     private serializeProfileGQL(dataSet: DataSetTemplate, server: ServerType): IGqlRequest | null {
-        const serializer = new serializers.ProfileDataSourceSerializer();
-        const dataSource1 = serializer.serialize(dataSet.dataSource1 as SingleDataSource);
+        const dataSource1 = this.serializeDataSource(dataSet.dataSource1);
         return {
             operationName: null,
             variables: {},
@@ -265,8 +259,7 @@ export class DataProvider {
     }
 
     private serializeDistributionGQL(dataSet: DataSetTemplate, server: ServerType): IGqlRequest | null {
-        const serializer = new serializers.DistributionDataSourceSerializer();
-        const dataSource1 = serializer.serialize(dataSet.dataSource1 as SingleDataSource);
+        const dataSource1 = this.serializeDataSource(dataSet.dataSource1);
         return {
             operationName: null,
             variables: {},
