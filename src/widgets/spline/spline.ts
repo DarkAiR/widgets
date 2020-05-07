@@ -8,7 +8,7 @@ import {
     IChartData, IColor, ISettings,
     IWidgetVariables,
     SingleDataSource,
-    DataSetTemplate,
+    DataSetTemplate, IEventOrgUnits, IOrgUnitDetail,
 } from '../../interfaces';
 import {
     get as _get, set as _set, map as _map, forEach as _forEach,
@@ -889,7 +889,8 @@ export class Spline extends Chart {
         return seriesData;
     }
 
-    private onEventBusFunc(varName: string, value: string, dataSourceId: number): boolean {
+    // tslint:disable-next-line:no-any
+    private onEventBusFunc(varName: string, value: any, dataSourceId: number): boolean {
         console.log('Spline listenStateChange:', varName, value, dataSourceId);
 
         // NOTE: Делаем через switch, т.к. в общем случае каждая обработка может содержать дополнительную логику
@@ -899,21 +900,25 @@ export class Spline extends Chart {
             _set(this.config.template.dataSets[dataSourceId], prop, v);
             needReload = true;
         };
+
         switch (varName) {
             case 'org units':
                 if (TypeGuardsHelper.dataSetsIsDataSetTemplate(this.chartData.dataSets)) {
                     this.chartData.dataSets.forEach((v: DataSetTemplate) => {
                         if (TypeGuardsHelper.isSingleDataSource(v.dataSource1)) {
                             // Ищем dataSource для почты
-                            const dimensionName: string = _get(value, 'dimension', null);
-                            const outerId = _get(value, 'detail.outerId', null);
-                            if (dimensionName === null) {
-                                throw new Error('Process event: Invalid incoming data : ' + JSON.stringify(value));
-                            }
                             if (['kpi', 'kpi_forecast', 'worked_hours', 'worked_shifts'].includes(v.dataSource1.name)) {
-                                const dim: DimensionFilter = v.dataSource1.dimensions.find((d: DimensionFilter) => d.name === dimensionName);
-                                dim.values = [outerId];
-                                needReload = true;
+                                const event: IEventOrgUnits = value;
+                                for (const dimName in event) {
+                                    if (!event.hasOwnProperty(dimName)) {
+                                        continue;
+                                    }
+                                    const dim: DimensionFilter = v.dataSource1.dimensions.find((d: DimensionFilter) => d.name === dimName);
+                                    if (dim) {
+                                        dim.values = event[dimName].map((orgUnitDetail: IOrgUnitDetail) => orgUnitDetail.outerId);
+                                        needReload = true;
+                                    }
+                                }
                             }
                         }
                     });
@@ -943,18 +948,18 @@ export class Spline extends Chart {
 
     getTemplate(): string {
         return `
-                <div class='${s['widget']}  ${w['widget']}' style="{{globalCardSets}}">
-                    {{#showTitle}}
-                    <div class='${w['row']}'>
-                        <div class="${w['title']}" style="{{titleStyle}}">
-                            {{title}}
-                        </div>
-                    </div>
-                    {{/showTitle}}
-
-                    <div class='${w['row']} ${w['chart']}'>
+            <div class='${s['widget']}  ${w['widget']}' style="{{globalCardSets}}">
+                {{#showTitle}}
+                <div class='${w['row']}'>
+                    <div class="${w['title']}" style="{{titleStyle}}">
+                        {{title}}
                     </div>
                 </div>
-            `;
+                {{/showTitle}}
+
+                <div class='${w['row']} ${w['chart']}'>
+                </div>
+            </div>
+        `;
     }
 }
