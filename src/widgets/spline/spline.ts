@@ -8,7 +8,7 @@ import {
     IChartData, IColor, ISettings,
     IWidgetVariables,
     SingleDataSource,
-    DataSetTemplate, IEventOrgUnits, IOrgUnitDetail,
+    DataSetTemplate, IEventOrgUnits,
 } from '../../interfaces';
 import {
     get as _get, set as _set, map as _map, forEach as _forEach,
@@ -915,7 +915,7 @@ export class Spline extends Chart {
                                     }
                                     const dim: DimensionFilter = v.dataSource1.dimensions.find((d: DimensionFilter) => d.name === dimName);
                                     if (dim) {
-                                        dim.values = event[dimName].map((orgUnitDetail: IOrgUnitDetail) => orgUnitDetail.outerId);
+                                        dim.values = event[dimName];
                                         needReload = true;
                                     }
                                 }
