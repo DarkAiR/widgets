@@ -180,9 +180,8 @@ export class DataProvider {
                     }
                 ){
                     localDateTime
-                    dimensions { name, value }
-                    metrics { name, value }
-                    ${hasEntity ? 'dimensions { entity {name, outerId} }' : ''}
+                    dimensions { name value ${hasEntity ? 'entity {name, outerId}' : ''}}
+                    metrics { name value }
                 }}`
         };
     }
