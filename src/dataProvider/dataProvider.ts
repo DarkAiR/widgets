@@ -43,7 +43,7 @@ export class DataProvider {
         return response;
     }
 
-    public async parseTemplate(template: WidgetTemplate): Promise<IChartData | null> {
+    public async parseTemplate(template: WidgetTemplate, hasEntity: boolean = false): Promise<IChartData | null> {
         if (_get(template, 'dataSets', null) === null  ||  !template.dataSets.length) {
             return null;
         }
@@ -88,7 +88,7 @@ export class DataProvider {
             data.data[idx] = await fetch(this.gqlLink, {
                 method: 'post',
                 body: JSON.stringify(
-                    loadData[item.viewType].serializeFunc.call(this, item, template.server)     // Выбор типа item автоматически в фции сериализации
+                    loadData[item.viewType].serializeFunc.call(this, item, template.server, hasEntity)     // Выбор типа item автоматически в фции сериализации
                 ),
                 headers: {
                     'Content-Type': 'application/json'
@@ -119,7 +119,7 @@ export class DataProvider {
         return '{}';
     }
 
-    private serializeDynamicGQL(dataSet: DataSetTemplate, server: ServerType): IGqlRequest | null {
+    private serializeDynamicGQL(dataSet: DataSetTemplate, server: ServerType, hasEntity: boolean): IGqlRequest | null {
         const dataSource = this.serializeDataSource(dataSet.dataSource1);
 
         // NOTE: Типизировать возвращаемые данные не получится, т.к. не все поля являются строками
@@ -141,11 +141,12 @@ export class DataProvider {
                 ){
                     value
                     localDateTime
+                    ${hasEntity ? 'dimensions { entity {name, outerId} }' : ''}
                 }}`
         };
     }
 
-    private serializeTableGQL(dataSet: JoinDataSetTemplate, server: ServerType): IGqlRequest | null {
+    private serializeTableGQL(dataSet: JoinDataSetTemplate, server: ServerType, hasEntity: boolean): IGqlRequest | null {
         const dataSetArr: string[] = [];
 
         dataSet.dataSetTemplates.forEach((v: TimeSeriesDataSetShort) => {
@@ -181,13 +182,15 @@ export class DataProvider {
                     localDateTime
                     dimensions { name, value }
                     metrics { name, value }
+                    ${hasEntity ? 'dimensions { entity {name, outerId} }' : ''}
                 }}`
         };
     }
 
-    private serializeReportGQL(dataSet: DataSetTemplate, server: ServerType): IGqlRequest | null {
+    private serializeReportGQL(dataSet: DataSetTemplate, server: ServerType, hasEntity: boolean): IGqlRequest | null {
         const dataSource1 = this.serializeDataSource(dataSet.dataSource1);
         const dataSource2 = this.serializeDataSource(dataSet.dataSource2);
+
         return {
             operationName: null,
             variables: {},
@@ -208,13 +211,15 @@ export class DataProvider {
                         key
                         value
                     }
+                    ${hasEntity ? 'dimensions { entity {name, outerId} }' : ''}
                 }}`
         };
     }
 
-    private serializeStaticGQL(dataSet: DataSetTemplate, server: ServerType): IGqlRequest | null {
+    private serializeStaticGQL(dataSet: DataSetTemplate, server: ServerType, hasEntity: boolean): IGqlRequest | null {
         const dataSource1 = this.serializeDataSource(dataSet.dataSource1);
         const dataSource2 = this.serializeDataSource(dataSet.dataSource2);
+
         return {
             operationName: null,
             variables: {},
@@ -232,12 +237,14 @@ export class DataProvider {
                 ){
                     xValue
                     yValue
+                    ${hasEntity ? 'dimensions { entity {name, outerId} }' : ''}
                 }}`
         };
     }
 
-    private serializeProfileGQL(dataSet: DataSetTemplate, server: ServerType): IGqlRequest | null {
+    private serializeProfileGQL(dataSet: DataSetTemplate, server: ServerType, hasEntity: boolean): IGqlRequest | null {
         const dataSource1 = this.serializeDataSource(dataSet.dataSource1);
+
         return {
             operationName: null,
             variables: {},
@@ -254,12 +261,14 @@ export class DataProvider {
                 ){
                     value
                     xposition
+                    ${hasEntity ? 'dimensions { entity {name, outerId} }' : ''}
                 }}`
         };
     }
 
-    private serializeDistributionGQL(dataSet: DataSetTemplate, server: ServerType): IGqlRequest | null {
+    private serializeDistributionGQL(dataSet: DataSetTemplate, server: ServerType, hasEntity: boolean): IGqlRequest | null {
         const dataSource1 = this.serializeDataSource(dataSet.dataSource1);
+
         return {
             operationName: null,
             variables: {},
@@ -277,6 +286,7 @@ export class DataProvider {
                 ){
                     value
                     xposition
+                    ${hasEntity ? 'dimensions { entity {name, outerId} }' : ''}
                 }}`
         };
     }
