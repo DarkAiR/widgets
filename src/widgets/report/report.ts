@@ -21,7 +21,7 @@ export class Report extends Chart {
         const data: IChartData = this.chartData;
         const reportPoints: ReportPoint[] = data.data as ReportPoint[];
 
-        if (TypeGuardsHelper.dataSetsIsDataSetTemplate(data.dataSets)) {
+        if (TypeGuardsHelper.everyIsDataSetTemplate(data.dataSets)) {
             const value = _get(data, 'data[0].items[0].value', 0);
             const point: ReportPoint = reportPoints[0];
             const currColor = this.getColor(data.dataSets[0].settings, 'color-yellow');

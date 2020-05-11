@@ -117,9 +117,6 @@ export class WidgetFactory {
     }
 
     private addVersion(config: WidgetConfigInner): void {
-        // if (process.env.NODE_ENV !== 'development') {
-        //     return;
-        // }
         const versionElement = document.createElement('div');
 
         config.element.style.position = 'relative';
@@ -128,6 +125,9 @@ export class WidgetFactory {
         versionElement.style.top = '0px';
         versionElement.style.fontSize = '.5em';
         versionElement.style.opacity = '.4';
+        if (process.env.NODE_ENV !== 'development') {
+            versionElement.style.opacity = '.0';
+        }
         versionElement.innerHTML = 'v' + __VERSION__;
         config.element.appendChild(versionElement);
     }

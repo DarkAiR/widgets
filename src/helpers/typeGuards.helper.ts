@@ -6,8 +6,12 @@ export class TypeGuardsHelper {
      * Проверяем, что все элементы dataSets являются DataSetTemplate
      * После вызова можно использовать все жлементы массива dataSets без преобразования!
      */
-    static dataSetsIsDataSetTemplate(dataSets: DataSet[]): dataSets is DataSetTemplate[] {
+    static everyIsDataSetTemplate(dataSets: DataSet[]): dataSets is DataSetTemplate[] {
         return dataSets.every((v: DataSet) => v.viewType !== 'TABLE');
+    }
+
+    static everyIsJoinDataSetTemplate(dataSets: DataSet[]): dataSets is JoinDataSetTemplate[] {
+        return dataSets.every((v: DataSet) => v.viewType === 'TABLE');
     }
 
     static isDataSetTemplate(dataSet: DataSet): dataSet is DataSetTemplate {

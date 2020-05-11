@@ -20,7 +20,7 @@ export class AverageNumber extends Chart {
     run(): void {
         const data: IChartData = this.chartData;
 
-        if (TypeGuardsHelper.dataSetsIsDataSetTemplate(data.dataSets)) {
+        if (TypeGuardsHelper.everyIsDataSetTemplate(data.dataSets)) {
             const currValue = _get(data.data[0], '[0].value', 0);
             const prevValue = _get(data.data[1], '[0].value', 0);
 

@@ -26,7 +26,7 @@ export class KPI extends Chart {
     run(): void {
         const data: IChartData = this.chartData;
 
-        if (TypeGuardsHelper.dataSetsIsDataSetTemplate(data.dataSets)) {
+        if (TypeGuardsHelper.everyIsDataSetTemplate(data.dataSets)) {
             const dataSetSettings0: ISettings = data.dataSets[0].settings;
             const dataSetSettings1: ISettings = data.dataSets[1].settings;
 

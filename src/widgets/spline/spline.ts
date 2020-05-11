@@ -76,7 +76,7 @@ export class Spline extends Chart {
     run(): void {
         const data: IChartData = this.chartData;
 
-        if (TypeGuardsHelper.dataSetsIsDataSetTemplate(data.dataSets)) {
+        if (TypeGuardsHelper.everyIsDataSetTemplate(data.dataSets)) {
             // FIXME: Внешние стили нельзя использовать
             const globalCardSets = _get(data.dataSets[0].settings, 'globalCardSettings', '');
 
@@ -191,7 +191,7 @@ export class Spline extends Chart {
         const data: IChartData = this.chartData;
         const series: Object[] = [];
 
-        if (TypeGuardsHelper.dataSetsIsDataSetTemplate(data.dataSets)) {
+        if (TypeGuardsHelper.everyIsDataSetTemplate(data.dataSets)) {
             for (let idx = 0; idx < data.data.length; idx++) {
                 const dataSetSettings: ISettings = data.dataSets[idx].settings;
 
@@ -241,7 +241,7 @@ export class Spline extends Chart {
         const data: IChartData = this.chartData;
         const series: Object[] = [];
 
-        if (TypeGuardsHelper.dataSetsIsDataSetTemplate(data.dataSets)) {
+        if (TypeGuardsHelper.everyIsDataSetTemplate(data.dataSets)) {
             let factData = [];
             let factProps = {};
             let factOpts = {};
@@ -432,7 +432,7 @@ export class Spline extends Chart {
         /*
             Готовим данные для осей
          */
-        if (TypeGuardsHelper.dataSetsIsDataSetTemplate(data.dataSets)) {
+        if (TypeGuardsHelper.everyIsDataSetTemplate(data.dataSets)) {
             // const axesX = this.getWidgetSetting<unknown[]>('axesX');
 
             for (let idx = 0; idx < timeSeriesArr.length; idx++) {
@@ -563,7 +563,7 @@ export class Spline extends Chart {
         /*
             Готовим данные для осей
          */
-        if (TypeGuardsHelper.dataSetsIsDataSetTemplate(data.dataSets)) {
+        if (TypeGuardsHelper.everyIsDataSetTemplate(data.dataSets)) {
             for (let idx = 0; idx < data.data.length; idx++) {
                 const dataSetSettings: ISettings = data.dataSets[idx].settings;
 
@@ -703,7 +703,7 @@ export class Spline extends Chart {
      */
     private hasHistogram(): boolean {
         const data: IChartData = this.chartData;
-        if (TypeGuardsHelper.dataSetsIsDataSetTemplate(data.dataSets)) {
+        if (TypeGuardsHelper.everyIsDataSetTemplate(data.dataSets)) {
             for (let idx = 0; idx < data.data.length; idx++) {
                 if (this.getDataSetSettings<ChartType>(data.dataSets[idx].settings, 'chartType') === 'HISTOGRAM') {
                     return true;
@@ -903,7 +903,7 @@ export class Spline extends Chart {
 
         switch (varName) {
             case 'org units':
-                if (TypeGuardsHelper.dataSetsIsDataSetTemplate(this.chartData.dataSets)) {
+                if (TypeGuardsHelper.everyIsDataSetTemplate(this.chartData.dataSets)) {
                     this.chartData.dataSets.forEach((v: DataSetTemplate) => {
                         if (TypeGuardsHelper.isSingleDataSource(v.dataSource1)) {
                             // Ищем dataSource для почты
