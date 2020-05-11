@@ -105,7 +105,7 @@ export class Table extends Chart {
                     {{#rows}}
                     <tr>
                         {{#cols}}
-                            <td>{{value}}</td>
+                            <td class="table-small">{{value}}</td>
                         {{/cols}}
                     </tr>
                     {{/rows}}
