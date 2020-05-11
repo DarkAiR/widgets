@@ -56,6 +56,7 @@ export class DataProvider {
         const loadData: Record<ViewType, {
             serializeFunc: Function,
             resultProp: string,
+            hasEntity?: boolean
         }> = {
             'DYNAMIC': {
                 serializeFunc: this.serializeDynamicGQL,
@@ -71,7 +72,8 @@ export class DataProvider {
             },
             'TABLE': {
                 serializeFunc: this.serializeTableGQL,
-                resultProp: 'data.getTableData'
+                resultProp: 'data.getTableData',
+                hasEntity: true
             },
             'DISTRIBUTION': {
                 serializeFunc: this.serializeDistributionGQL,
@@ -88,7 +90,8 @@ export class DataProvider {
             data.data[idx] = await fetch(this.gqlLink, {
                 method: 'post',
                 body: JSON.stringify(
-                    loadData[item.viewType].serializeFunc.call(this, item, template.server, hasEntity)     // Выбор типа item автоматически в фции сериализации
+                    // Выбор типа item автоматически в фции сериализации
+                    loadData[item.viewType].serializeFunc.call(this, item, template.server, loadData[item.viewType].hasEntity ?? hasEntity)
                 ),
                 headers: {
                     'Content-Type': 'application/json'
@@ -146,7 +149,7 @@ export class DataProvider {
         };
     }
 
-    private serializeTableGQL(dataSet: JoinDataSetTemplate, server: ServerType, hasEntity: boolean): IGqlRequest | null {
+    private serializeTableGQL(dataSet: JoinDataSetTemplate, server: ServerType, hasEntity: boolean = true): IGqlRequest | null {
         const dataSetArr: string[] = [];
 
         dataSet.dataSetTemplates.forEach((v: TimeSeriesDataSetShort) => {

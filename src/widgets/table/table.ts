@@ -58,7 +58,10 @@ export class Table extends Chart {
 
                 row.push({name: 'localDateTime', value: new Date(v.localDateTime).toLocaleDateString()});   // Конвертируем даты
                 dimensions.forEach((dimName: string) => {
-                    row.push({name: dimName, value: _get(pointDimensionsName[dimName], 'value', '')});
+                    row.push({
+                        name: dimName,
+                        value: _get(pointDimensionsName[dimName], 'entity.name', _get(pointDimensionsName[dimName], 'value', ''))
+                    });
                 });
                 metrics.forEach((metricName: string) => {
                     row.push({name: metricName, value: _get(pointMetricsName[metricName], 'value', '')});
@@ -88,7 +91,7 @@ export class Table extends Chart {
         return `
             <div class='${s["widget"]} ${w["widget"]}'>
                 <h4>{{title}}</h4>
-                <table class="${s['table']} ${s['w-100']} ${w['table']}">
+                <table class="${s['table']} ${s['w-100']} ${w['table']} table table-zebra">
                 <thead>
                     <tr>
                         {{#header}}
