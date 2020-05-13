@@ -2,10 +2,10 @@
  * Настройки для заливки
  */
 
-import {makeBoolean, makeGradient, makeSettingsGroup} from "../widgetSettings/settings";
-import {SettingFunc} from "../widgetSettings/types";
+import {makeBoolean, makeGradient, makeSettingsGroup} from "../controls";
+import {SettingFunc} from "../types";
 
-export const fillSettings: SettingFunc[] = [
+export const fill: SettingFunc[] = [
     makeSettingsGroup('fill', 'Стиль заливки', [
         [
             makeGradient('color', 'Цвет заливки'),

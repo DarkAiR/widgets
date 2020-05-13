@@ -1,10 +1,10 @@
 import {IWidgetSettings, makeSettings} from "../../widgetSettings";
-import {makeColor} from "../../widgetSettings/settings";
-import {commonSettings} from "../commonSettings";
+import {makeColor} from "../../widgetSettings/controls";
+import settingsPresets from "../../widgetSettings/settingsPresets";
 
 export const settings: IWidgetSettings = makeSettings({
     settings: [
-        ...commonSettings
+        ...settingsPresets.common,
     ],
     dataSet: {
         initDataSets: [{viewType: 'STATIC'}],

@@ -1,7 +1,7 @@
-import {get as _get} from 'lodash';
+import {get as _get, isEmpty as _isEmpty} from 'lodash';
 import {IGradient, ISettings} from "../interfaces";
 import {WidgetSettingsArray, WidgetSettingsItem} from "../widgetSettings/types";
-import {SettingsGroupSetting} from "../widgetSettings/settings";
+import {SettingsGroupSetting} from "../widgetSettings/controls";
 import {ChartType} from "../models/types";
 
 export class SettingsHelper {
@@ -61,6 +61,29 @@ export class SettingsHelper {
     }
 
     /**
+     * Получить настройки title
+     */
+    static getTitleSettings(config: WidgetSettingsArray, settings: ISettings): {
+        show: boolean,
+        name: string,
+        style: string
+    } {
+        const getSetting = <T = void>(path: string): T => SettingsHelper.getWidgetSetting<T>(config, settings, path);
+
+        const titleStyle = [];
+        titleStyle.push(`color: ${getSetting('title.color')}`);
+        if (!_isEmpty(getSetting('title.size'))) {
+            titleStyle.push(`font-size: ${getSetting('title.size')}px`);
+        }
+        titleStyle.push(`text-align: ${getSetting('title.align')}`);
+        return {
+            show: getSetting<boolean>('title.show'),
+            name: getSetting<string>('title.name'),
+            style: titleStyle.join(';')
+        };
+    }
+
+    /**
      * Получить настройки fill для echarts
      */
     static getFillSettings(config: WidgetSettingsArray, settings: ISettings, chartType: ChartType): ISettings {
@@ -69,34 +92,7 @@ export class SettingsHelper {
 
         if (getSetting<boolean>('fill.show')) {
             const gradient: IGradient = getSetting('fill.color');
-            let angle: number = gradient.rotate % 360;
-            if (angle < 0) {
-                angle = 360 + angle;
-            }
-            // Переводим угол в координаты градиента
-            const sin: number = Math.sin(angle / 180 * Math.PI) / 2;
-            const cos: number = Math.cos(angle / 180 * Math.PI) / 2;
-            let coords = [0.5 - cos, 0.5 - sin, 0.5 + cos, 0.5 + sin];
-            coords = coords.map((v: number) => +v.toFixed(2));
-            let colorsStart: number = 0;
-            const colorsOffs: number = gradient.colors.length <= 1 ? 1 : 1 / (gradient.colors.length - 1);
-            const colors: Object[] = gradient.colors.map((c: string) => {
-                const res: Object = {
-                    offset: colorsStart,
-                    color: c
-                };
-                colorsStart += colorsOffs;
-                return res;
-            });
-            const color = {
-                type: 'linear',
-                x: coords[0],
-                y: coords[1],
-                x2: coords[2],
-                y2: coords[3],
-                colorStops: colors
-            };
-
+            const color: ISettings = SettingsHelper.getGradientSettings(gradient);
             switch (chartType) {
                 case 'LINE':
                     obj = {
@@ -113,8 +109,42 @@ export class SettingsHelper {
                     };
                     break;
             }
+
         }
         return obj;
+    }
+
+    /**
+     * Получить настройки градиента для echarts
+     */
+    static getGradientSettings(gradient: IGradient): ISettings {
+        let angle: number = gradient.rotate % 360;
+        if (angle < 0) {
+            angle = 360 + angle;
+        }
+        // Переводим угол в координаты градиента
+        const sin: number = Math.sin(angle / 180 * Math.PI) / 2;
+        const cos: number = Math.cos(angle / 180 * Math.PI) / 2;
+        let coords = [0.5 - cos, 0.5 - sin, 0.5 + cos, 0.5 + sin];
+        coords = coords.map((v: number) => +v.toFixed(2));
+        let colorsStart: number = 0;
+        const colorsOffs: number = gradient.colors.length <= 1 ? 1 : 1 / (gradient.colors.length - 1);
+        const colors: Object[] = gradient.colors.map((c: string) => {
+            const res: Object = {
+                offset: colorsStart,
+                color: c
+            };
+            colorsStart += colorsOffs;
+            return res;
+        });
+        return {
+            type: 'linear',
+            x: coords[0],
+            y: coords[1],
+            x2: coords[2],
+            y2: coords[3],
+            colorStops: colors
+        };
     }
 
     /**

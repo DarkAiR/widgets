@@ -1,9 +1,9 @@
 import {IWidgetSettings, makeSettings} from "../../widgetSettings";
-import {commonSettings} from "../commonSettings";
+import settingsPresets from "../../widgetSettings/settingsPresets";
 
 export const settings: IWidgetSettings = makeSettings({
     settings: [
-        ...commonSettings
+        ...settingsPresets.common,
     ],
     dataSet: {
         initDataSets: [{viewType: 'STATIC'}],

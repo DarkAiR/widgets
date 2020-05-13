@@ -15,39 +15,18 @@ import {
     makeArray,
     makeBoolean,
     makeColor,
-    makeGradient,
     makeList,
     makeNumber,
     makeSettingsGroup,
     makeString
-} from "../../widgetSettings/settings";
-import {commonSettings} from "../commonSettings";
-import {fillSettings} from "../fillSettings";
-import {labelSettings} from "../labelSettings";
+} from "../../widgetSettings/controls";
+import settingsPresets from "../../widgetSettings/settingsPresets";
 
 export const settings: IWidgetSettings = makeSettings({
     settings: [
-        // ...commonSettings,
-        makeSettingsGroup('title', 'Заголовок', [
-            [
-                makeBoolean('show', 'Отображать', true),
-                makeColor('color', 'Цвет', '#2c2c2c')
-            ], [
-                makeString('name', 'Заголовок')
-            ], [
-                makeNumber('size', 'Размер шрифта', 14),
-                makeList<string>('align', 'Выравнивание', 'left', ['left', 'center', 'right'])
-            ]
-        ]),
-        makeSettingsGroup('paddings', 'Отступы графика', [
-            [
-                makeNumber('top', 'Сверху', 20),
-                makeNumber('bottom', 'Снизу', 20)
-            ], [
-                makeNumber('left', 'Слева', 0),
-                makeNumber('right', 'Справа', 0)
-            ]
-        ], {collapse: true}),
+        ...settingsPresets.title,
+        ...settingsPresets.paddings,
+        ...settingsPresets.background,
         makeNumber('axisYDistance', 'Расстояние между осями Y', 50),
         makeArray('axesY', 'Оси Y', [
             [
@@ -104,8 +83,8 @@ export const settings: IWidgetSettings = makeSettings({
                     makeList<LineType>('type', 'Тип', 'solid', LineTypeValues)
                 ],
             ]),
-            ...fillSettings,
-            ...labelSettings,
+            ...settingsPresets.fill,
+            ...settingsPresets.label,
         ]
     }
 });
