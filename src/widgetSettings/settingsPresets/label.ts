@@ -8,8 +8,8 @@ import {
     makeNumber,
     makeSettingsGroup,
     makeString
-} from "../widgetSettings/settings";
-import {SettingFunc} from "../widgetSettings/types";
+} from "../controls";
+import {SettingFunc} from "../types";
 
 export const labelSettings: SettingFunc[] = [
     makeSettingsGroup('label', 'Формат вывода значений', [
