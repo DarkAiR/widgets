@@ -8,7 +8,7 @@ import {
     IChartData, IColor, ISettings,
     IWidgetVariables,
     SingleDataSource,
-    DataSetTemplate, IEventOrgUnits,
+    DataSetTemplate, IEventOrgUnits, IGradient,
 } from '../../interfaces';
 import {
     get as _get, set as _set, map as _map, forEach as _forEach,
@@ -103,9 +103,15 @@ export class Spline extends Chart {
 
             const legend: Object = this.getLegend();
 
+            const backgroundColor: IGradient = this.getWidgetSetting('backgroundColor');
+            const background: ISettings = backgroundColor.colors.length
+                ? { backgroundColor: SettingsHelper.getGradientSettings(backgroundColor) }
+                : {};
+
             // NOTE: при containLabel=true ECharts правильно считает ширину отступа для нескольких осей,
             //       но не умеет располагать оси рядом, поэтому, при более чем одной оси, высчитываем отступы вручную
             const options = {
+                ...background,
                 grid: {
                     top: +this.getWidgetSetting('paddings.top') + (containLabel ? 0 : topAmount * axisXDistance),
                     bottom: +this.getWidgetSetting('paddings.bottom') + (containLabel ? 0 : bottomAmount * axisXDistance),

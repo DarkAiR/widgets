@@ -1,10 +1,10 @@
 import {IWidgetSettings, makeSettings} from "../../widgetSettings";
-import {makeArray, makeString} from "../../widgetSettings/settings";
-import {commonSettings} from "../commonSettings";
+import {makeArray, makeString} from "../../widgetSettings/controls";
+import settingsPresets from "../../widgetSettings/settingsPresets";
 
 export const settings: IWidgetSettings = makeSettings({
     settings: [
-        ...commonSettings
+        ...settingsPresets.common,
     ],
     dataSet: {
         initDataSets: [{viewType: 'TABLE'}],

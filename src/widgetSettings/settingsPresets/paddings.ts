@@ -8,7 +8,7 @@ import {
 } from "../controls";
 import {SettingFunc} from "../types";
 
-export const paddingsSettings: SettingFunc[] = [
+export const paddings: SettingFunc[] = [
     makeSettingsGroup('paddings', 'Отступы графика', [
         [
             makeNumber('top', 'Сверху', 20),

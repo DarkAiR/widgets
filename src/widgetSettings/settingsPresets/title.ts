@@ -11,7 +11,7 @@ import {
 } from "../controls";
 import {SettingFunc} from "../types";
 
-export const titleSettings: SettingFunc[] = [
+export const title: SettingFunc[] = [
     makeSettingsGroup('title', 'Заголовок', [
         [
             makeBoolean('show', 'Отображать', true),
@@ -24,3 +24,4 @@ export const titleSettings: SettingFunc[] = [
         ]
     ]),
 ];
+

@@ -5,6 +5,6 @@
 import {makeString} from "../controls";
 import {SettingFunc} from "../types";
 
-export const commonSettings: SettingFunc[] = [
+export const common: SettingFunc[] = [
     makeString('title', 'Заголовок')
 ];

@@ -11,7 +11,7 @@ import {
     NumberSetting,
     SettingsGroupSetting,
     StringSetting
-} from "./settings";
+} from "./controls";
 
 export type SettingFunc = (...args: any) => WidgetSettingsItem;     // tslint:disable-line:no-any
 

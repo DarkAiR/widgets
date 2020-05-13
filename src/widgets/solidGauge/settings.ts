@@ -1,10 +1,10 @@
 import {IWidgetSettings, makeSettings} from "../../widgetSettings";
-import {makeColor, makeIcon} from "../../widgetSettings/settings";
-import {commonSettings} from "../commonSettings";
+import {makeColor, makeIcon} from "../../widgetSettings/controls";
+import settingsPresets from "../../widgetSettings/settingsPresets";
 
 export const settings: IWidgetSettings = makeSettings({
     settings: [
-        ...commonSettings,
+        ...settingsPresets.common,
         makeIcon('icon', 'Иконка', '')
     ],
     dataSet: {

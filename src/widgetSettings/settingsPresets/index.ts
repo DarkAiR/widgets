@@ -1,13 +1,16 @@
-import * as common from './commonSettings';
-import * as title from './titleSettings';
-import * as paddings from './paddingsSettings';
-import * as fill from './fillSettings';
-import * as label from './labelSettings';
+import {common} from './common';
+import {title} from './title';
+import {paddings} from './paddings';
+import {fill} from './fill';
+import {label} from './label';
+import {background} from './background';
 
-export const settings = [
+const settingsPresets = {
     common,
     title,
     paddings,
     fill,
-    label
-];
+    label,
+    background
+};
+export default settingsPresets;

@@ -11,7 +11,7 @@ import {
 } from "../controls";
 import {SettingFunc} from "../types";
 
-export const labelSettings: SettingFunc[] = [
+export const label: SettingFunc[] = [
     makeSettingsGroup('label', 'Формат вывода значений', [
         [
             makeBoolean('show', 'Показывать значение', false)

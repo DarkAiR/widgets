@@ -8,7 +8,7 @@ import {
 import {WidgetConfigInner} from "./widgetConfig";
 import {EventBusWrapper, EventBus, EventBusEvent} from 'goodteditor-event-bus';
 import {IWidgetSettings} from "../widgetSettings";
-import {SettingsGroupSetting} from "../widgetSettings/settings";
+import {SettingsGroupSetting} from "../widgetSettings/controls";
 import {WidgetSettingsArray, WidgetSettingsItem} from "../widgetSettings/types";
 import {ColorHelper, SettingsHelper} from "../helpers";
 
