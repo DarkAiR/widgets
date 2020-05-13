@@ -1,4 +1,4 @@
-import {get as _get} from 'lodash';
+import {get as _get, isEmpty as _isEmpty} from 'lodash';
 import {IGradient, ISettings} from "../interfaces";
 import {WidgetSettingsArray, WidgetSettingsItem} from "../widgetSettings/types";
 import {SettingsGroupSetting} from "../widgetSettings/controls";
@@ -58,6 +58,29 @@ export class SettingsHelper {
             item = foundItem;
         }
         return item;
+    }
+
+    /**
+     * Получить настройки title
+     */
+    static getTitleSettings(config: WidgetSettingsArray, settings: ISettings): {
+        show: boolean,
+        name: string,
+        style: string
+    } {
+        const getSetting = <T = void>(path: string): T => SettingsHelper.getWidgetSetting<T>(config, settings, path);
+
+        const titleStyle = [];
+        titleStyle.push(`color: ${getSetting('title.color')}`);
+        if (!_isEmpty(getSetting('title.size'))) {
+            titleStyle.push(`font-size: ${getSetting('title.size')}px`);
+        }
+        titleStyle.push(`text-align: ${getSetting('title.align')}`);
+        return {
+            show: getSetting<boolean>('title.show'),
+            name: getSetting<string>('title.name'),
+            style: titleStyle.join(';')
+        };
     }
 
     /**

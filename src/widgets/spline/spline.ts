@@ -8,7 +8,7 @@ import {
     IChartData, IColor, ISettings,
     IWidgetVariables,
     SingleDataSource,
-    DataSetTemplate, IEventOrgUnits, IGradient,
+    DataSetTemplate, IEventOrgUnits, IGradient, JoinDataSetTemplate, TimeSeriesDataSetShort,
 } from '../../interfaces';
 import {
     get as _get, set as _set, map as _map, forEach as _forEach,
@@ -165,17 +165,12 @@ export class Spline extends Chart {
                 }
             }
 
-            const titleStyle = [];
-            titleStyle.push(`color: ${this.getWidgetSetting('title.color')}`);
-            if (!_isEmpty(this.getWidgetSetting('title.size'))) {
-                titleStyle.push(`font-size: ${this.getWidgetSetting('title.size')}px`);
-            }
-            titleStyle.push(`text-align: ${this.getWidgetSetting('title.align')}`);
+            const titleSettings = SettingsHelper.getTitleSettings(this.widgetSettings.settings, this.chartData.settings);
 
             this.config.element.innerHTML = this.renderTemplate({
-                showTitle: this.getWidgetSetting('title.show'),
-                title: this.getWidgetSetting('title.name'),
-                titleStyle: titleStyle.join(';'),
+                showTitle: titleSettings.show,
+                title: titleSettings.name,
+                titleStyle: titleSettings.style,
                 globalCardSets
             });
 
@@ -897,7 +892,10 @@ export class Spline extends Chart {
 
     // tslint:disable-next-line:no-any
     private onEventBusFunc(varName: string, value: any, dataSourceId: number): boolean {
-        console.log('Spline listenStateChange:', varName, value, dataSourceId);
+        console.groupCollapsed('Spline EventBus data');
+        console.log(varName, '=', value);
+        console.log('dataSourceId =', dataSourceId);
+        console.groupEnd();
 
         // NOTE: Делаем через switch, т.к. в общем случае каждая обработка может содержать дополнительную логику
 
@@ -909,26 +907,7 @@ export class Spline extends Chart {
 
         switch (varName) {
             case 'org units':
-                if (TypeGuardsHelper.everyIsDataSetTemplate(this.chartData.dataSets)) {
-                    this.chartData.dataSets.forEach((v: DataSetTemplate) => {
-                        if (TypeGuardsHelper.isSingleDataSource(v.dataSource1)) {
-                            // Ищем dataSource для почты
-                            if (['kpi', 'kpi_forecast', 'worked_hours', 'worked_shifts'].includes(v.dataSource1.name)) {
-                                const event: IEventOrgUnits = value;
-                                for (const dimName in event) {
-                                    if (!event.hasOwnProperty(dimName)) {
-                                        continue;
-                                    }
-                                    const dim: DimensionFilter = v.dataSource1.dimensions.find((d: DimensionFilter) => d.name === dimName);
-                                    if (dim) {
-                                        dim.values = event[dimName];
-                                        needReload = true;
-                                    }
-                                }
-                            }
-                        }
-                    });
-                }
+                needReload = this.processingOrgUnits(value as IEventOrgUnits);
                 break;
             case 'start date':
                 setVar('from', value);
@@ -948,6 +927,30 @@ export class Spline extends Chart {
             case 'operation':
                 setVar('operation', value);
                 break;
+        }
+        return needReload;
+    }
+
+    private processingOrgUnits(event: IEventOrgUnits): boolean {
+        let needReload = false;
+        if (TypeGuardsHelper.everyIsDataSetTemplate(this.chartData.dataSets)) {
+            this.chartData.dataSets.forEach((v: DataSetTemplate) => {
+                if (TypeGuardsHelper.isSingleDataSource(v.dataSource1)) {
+                    // Ищем dataSource для почты
+                    if (['kpi', 'kpi_forecast', 'worked_hours', 'worked_shifts'].includes(v.dataSource1.name)) {
+                        for (const dimName in event) {
+                            if (!event.hasOwnProperty(dimName)) {
+                                continue;
+                            }
+                            const dim: DimensionFilter = v.dataSource1.dimensions.find((d: DimensionFilter) => d.name === dimName);
+                            if (dim) {
+                                dim.values = event[dimName];
+                                needReload = true;
+                            }
+                        }
+                    }
+                }
+            });
         }
         return needReload;
     }

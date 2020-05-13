@@ -55,7 +55,7 @@ export abstract class Chart implements IChart {
         console.log('%cWidget add listeners', 'color: #b080ff');
         // Подписаться на шину
         this.config.eventBus.listenStateChange((ev: EventBusEvent, eventObj: Object) => {
-            console.log('ListenStateChange:', ev, eventObj);
+            // console.log('ListenStateChange:', ev, eventObj);
             let needReload = false;
             const widgetVars: IWidgetVariables = this.getVariables();
             _forEach(eventObj, (value: string, name: string) => {

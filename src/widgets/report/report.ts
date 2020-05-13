@@ -2,15 +2,28 @@ import s from "../../styles/_all.less";
 import w from "./report.less";
 import {settings as widgetSettings} from "./settings";
 
-import {IChartData, INameValue, IWidgetVariables, ReportPoint, ReportItem} from "../../interfaces";
-import {get as _get} from "lodash";
+import {
+    IChartData,
+    INameValue,
+    IWidgetVariables,
+    ReportPoint,
+    ReportItem,
+    IColor,
+    JoinDataSetTemplate, TimeSeriesDataSetShort, IEventOrgUnits, DimensionFilter, DataSetTemplate, SingleDataSource
+} from "../../interfaces";
+import {get as _get, isEmpty as _isEmpty} from "lodash";
 import {Chart} from "../../models/Chart";
-import {TypeGuardsHelper} from "../../helpers";
+import {ColorHelper, SettingsHelper, TypeGuardsHelper} from "../../helpers";
 import {IWidgetSettings} from "../../widgetSettings";
 
 export class Report extends Chart {
     getVariables(): IWidgetVariables {
-        return {};
+        const res: IWidgetVariables = {};
+        const addVar = this.addVar(res);
+
+        addVar(0, 'org units', 'OrgUnits', 'Выбирается в отдельном виджете');
+
+        return res;
     }
 
     getSettings(): IWidgetSettings {
@@ -22,31 +35,95 @@ export class Report extends Chart {
         const reportPoints: ReportPoint[] = data.data as ReportPoint[];
 
         if (TypeGuardsHelper.everyIsDataSetTemplate(data.dataSets)) {
-            const value = _get(data, 'data[0].items[0].value', 0);
             const point: ReportPoint = reportPoints[0];
-            const currColor = this.getColor(data.dataSets[0].settings, 'color-yellow');
+            const value = point?.items[0]?.value || 0;
 
-            const rows: INameValue[] = point.items.map((v: ReportItem) => ({name: v.key, value: v.value + ''}));
+            const titleSettings = SettingsHelper.getTitleSettings(this.widgetSettings.settings, this.chartData.settings);
+
+            const valueStyle = [];
+            valueStyle.push(`color: ${this.getWidgetSetting('value.color')}`);
+            if (!_isEmpty(this.getWidgetSetting('value.size'))) {
+                valueStyle.push(`font-size: ${this.getWidgetSetting('value.size')}px`);
+            }
+            valueStyle.push(`text-align: ${this.getWidgetSetting('value.align')}`);
+
+            const rows: INameValue[] = point.items.map((v: ReportItem) => ({
+                name: v.key,
+                value: (v.value * 100).toFixed(2) + '%'
+            }));
 
             this.config.element.innerHTML = this.renderTemplate({
-                title: this.getWidgetSetting('title'),
+                showTitle: titleSettings.show,
+                title: titleSettings.name,
+                titleStyle: titleSettings.style,
                 rows,
-                colorClass: w[currColor.className],
-                colorStyle: currColor.style
+                valueStyle: valueStyle.join(';')
+            });
+
+            this.onEventBus = this.onEventBusFunc.bind(this);
+        }
+    }
+
+    // tslint:disable-next-line:no-any
+    private onEventBusFunc(varName: string, value: any, dataSourceId: number): boolean {
+        console.groupCollapsed('Report EventBus data');
+        console.log(varName, '=', value);
+        console.log('dataSourceId =', dataSourceId);
+        console.groupEnd();
+
+        // NOTE: Делаем через switch, т.к. в общем случае каждая обработка может содержать дополнительную логику
+
+        let needReload = false;
+        switch (varName) {
+            case 'org units':
+                needReload = this.processingOrgUnits(value as IEventOrgUnits);
+                break;
+        }
+        return needReload;
+    }
+
+    private processingOrgUnits(event: IEventOrgUnits): boolean {
+        let needReload = false;
+        if (TypeGuardsHelper.everyIsDataSetTemplate(this.chartData.dataSets)) {
+            this.chartData.dataSets.forEach((v: DataSetTemplate) => {
+                if (TypeGuardsHelper.isSingleDataSource(v.dataSource1) && TypeGuardsHelper.isSingleDataSource(v.dataSource2)) {
+                    // Ищем dataSource для почты
+                    if (['kpi', 'kpi_forecast', 'worked_hours', 'worked_shifts'].includes(v.dataSource1.name)) {
+                        for (const dimName in event) {
+                            if (!event.hasOwnProperty(dimName)) {
+                                continue;
+                            }
+                            [v.dataSource1, v.dataSource2].forEach((dataSource: SingleDataSource) => {
+                                const dim: DimensionFilter = dataSource.dimensions.find((d: DimensionFilter) => d.name === dimName);
+                                if (dim) {
+                                    dim.values = event[dimName];
+                                    needReload = true;
+                                }
+                            });
+                        }
+                    }
+                }
             });
         }
+        return needReload;
     }
 
     getTemplate(): string {
         return `
             <div class='${s["widget"]} ${w["widget"]}'>
-                <h4>{{title}}</h4>
+                {{#showTitle}}
+                <div class='${w['row']}'>
+                    <div class="${w['title']}" style="{{titleStyle}}">
+                        {{title}}
+                    </div>
+                </div>
+                {{/showTitle}}
                 <table class="${s['table']} ${s['w-100']} ${w['table']}">
                 <tbody>
                     {{#rows}}
                     <tr>
-                        <td>{{name}}</td>
-                        <td {{colorClass}} style='{{colorStyle}}'>{{value}}</td>
+                        <td style="display: none">{{name}}</td>
+                        <td style='{{valueStyle}}'>{{value}}</td>
                     </tr>
                     {{/rows}}
                 </tbody>

@@ -3,7 +3,6 @@ import w from "./table.less";
 import {settings as widgetSettings} from "./settings";
 
 import {
-    DataSetTemplate,
     DimensionFilter,
     IChartData, IEventOrgUnits, INameValue, ISettings,
     IWidgetVariables, JoinDataSetTemplate, TableRow, TimeSeriesDataSetShort
@@ -97,46 +96,53 @@ export class Table extends Chart {
 
     // tslint:disable-next-line:no-any
     private onEventBusFunc(varName: string, value: any, dataSourceId: number): boolean {
-        console.log('Table listenStateChange:', varName, value, dataSourceId);
+        console.groupCollapsed('Table EventBus data');
+        console.log(varName, '=', value);
+        console.log('dataSourceId =', dataSourceId);
+        console.groupEnd();
 
         // NOTE: Делаем через switch, т.к. в общем случае каждая обработка может содержать дополнительную логику
 
         let needReload = false;
-
         switch (varName) {
             case 'org units':
-                if (TypeGuardsHelper.everyIsJoinDataSetTemplate(this.chartData.dataSets)) {
-                    this.chartData.dataSets.forEach((joinDataSet: JoinDataSetTemplate) => {
-                        joinDataSet.dataSetTemplates.forEach((v: TimeSeriesDataSetShort) => {
-                            if (TypeGuardsHelper.isSingleDataSource(v.dataSource1)) {
-                                // Ищем dataSource для почты
-                                if (['kpi', 'kpi_forecast', 'worked_hours', 'worked_shifts'].includes(v.dataSource1.name)) {
-                                    const event: IEventOrgUnits = value;
-                                    for (const dimName in event) {
-                                        if (!event.hasOwnProperty(dimName)) {
-                                            continue;
-                                        }
-                                        const dim: DimensionFilter = joinDataSet.dimensions.find((d: DimensionFilter) => d.name === dimName);
-                                        if (dim) {
-                                            dim.values = event[dimName];
-                                            dim.groupBy = event[dimName].length ? true : false;
-                                            needReload = true;
-                                        } else {
-                                            const newFilter: DimensionFilter = {
-                                                name: dimName,
-                                                values: event[dimName],
-                                                expression: '',
-                                                groupBy: true
-                                            };
-                                            joinDataSet.dimensions.push(newFilter);
-                                        }
-                                    }
+                needReload = this.processingOrgUnits(value as IEventOrgUnits);
+                break;
+        }
+        return needReload;
+    }
+
+    private processingOrgUnits(event: IEventOrgUnits): boolean {
+        let needReload = false;
+        if (TypeGuardsHelper.everyIsJoinDataSetTemplate(this.chartData.dataSets)) {
+            this.chartData.dataSets.forEach((joinDataSet: JoinDataSetTemplate) => {
+                joinDataSet.dataSetTemplates.forEach((v: TimeSeriesDataSetShort) => {
+                    if (TypeGuardsHelper.isSingleDataSource(v.dataSource1)) {
+                        // Ищем dataSource для почты
+                        if (['kpi', 'kpi_forecast', 'worked_hours', 'worked_shifts'].includes(v.dataSource1.name)) {
+                            for (const dimName in event) {
+                                if (!event.hasOwnProperty(dimName)) {
+                                    continue;
+                                }
+                                const dim: DimensionFilter = joinDataSet.dimensions.find((d: DimensionFilter) => d.name === dimName);
+                                if (dim) {
+                                    dim.values = event[dimName];
+                                    dim.groupBy = event[dimName].length ? true : false;
+                                    needReload = true;
+                                } else {
+                                    const newFilter: DimensionFilter = {
+                                        name: dimName,
+                                        values: event[dimName],
+                                        expression: '',
+                                        groupBy: true
+                                    };
+                                    joinDataSet.dimensions.push(newFilter);
                                 }
                             }
-                        });
-                    });
-                }
-                break;
+                        }
+                    }
+                });
+            });
         }
         return needReload;
     }

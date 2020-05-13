@@ -55,17 +55,12 @@ export class Profile extends Chart {
         console.log(JSON.stringify(options));
         console.groupEnd();
 
-        const titleStyle = [];
-        titleStyle.push(`color: ${this.getWidgetSetting('title.color')}`);
-        if (!_isEmpty(this.getWidgetSetting('title.size'))) {
-            titleStyle.push(`font-size: ${this.getWidgetSetting('title.size')}px`);
-        }
-        titleStyle.push(`text-align: ${this.getWidgetSetting('title.align')}`);
+        const titleSettings = SettingsHelper.getTitleSettings(this.widgetSettings.settings, this.chartData.settings);
 
         this.config.element.innerHTML = this.renderTemplate({
-            showTitle: this.getWidgetSetting('title.show'),
-            title: this.getWidgetSetting('title.name'),
-            titleStyle: titleStyle.join(';'),
+            showTitle: titleSettings.show,
+            title: titleSettings.name,
+            titleStyle: titleSettings.style,
         });
 
         const el = this.config.element.getElementsByClassName(w['chart'])[0];
