@@ -7,7 +7,7 @@ export const ViewTypeValues = ['STATIC', 'DYNAMIC', 'DISTRIBUTION', 'PROFILE', '
 export type ViewType = typeof ViewTypeValues[number];
 
 // Тип частоты
-export type Frequency = 'YEAR' | 'MONTH' | 'WEEK' | 'DAY' | 'HOUR' | 'ALL';
+export type Frequency = 'YEAR' | 'MONTH' | 'WEEK' | 'DAY' | 'HOUR' | 'ALL' | 'NONE';
 
 // Тип DataSource
 export type DataSourceType = 'SINGLE' | 'AGGREGATION';
