@@ -942,11 +942,21 @@ export class Spline extends Chart {
                             if (!event.hasOwnProperty(dimName)) {
                                 continue;
                             }
+                            // NOTE: Нельзя проверять на event[dimName].length, т.к. тогда остануться данные с прошлого раза
                             const dim: DimensionFilter = v.dataSource1.dimensions.find((d: DimensionFilter) => d.name === dimName);
                             if (dim) {
                                 dim.values = event[dimName];
-                                needReload = true;
+                            } else {
+                                // Пустые данные не приходят в виджет, поэтому dimension может и не быть
+                                const newFilter: DimensionFilter = {
+                                    name: dimName,
+                                    values: event[dimName],
+                                    expression: '',
+                                    groupBy: false
+                                };
+                                v.dataSource1.dimensions.push(newFilter);
                             }
+                            needReload = true;
                         }
                     }
                 }

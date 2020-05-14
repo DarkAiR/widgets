@@ -124,11 +124,11 @@ export class Table extends Chart {
                                 if (!event.hasOwnProperty(dimName)) {
                                     continue;
                                 }
+                                // NOTE: Нельзя проверять на event[dimName].length, т.к. тогда остануться данные с прошлого раза
                                 const dim: DimensionFilter = joinDataSet.dimensions.find((d: DimensionFilter) => d.name === dimName);
                                 if (dim) {
                                     dim.values = event[dimName];
-                                    dim.groupBy = event[dimName].length ? true : false;
-                                    needReload = true;
+                                    dim.groupBy = event[dimName].length > 0;
                                 } else {
                                     const newFilter: DimensionFilter = {
                                         name: dimName,
@@ -138,6 +138,7 @@ export class Table extends Chart {
                                     };
                                     joinDataSet.dimensions.push(newFilter);
                                 }
+                                needReload = true;
                             }
                         }
                     }

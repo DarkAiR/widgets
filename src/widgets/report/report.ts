@@ -93,12 +93,22 @@ export class Report extends Chart {
                             if (!event.hasOwnProperty(dimName)) {
                                 continue;
                             }
+                            // NOTE: Нельзя проверять на event[dimName].length, т.к. тогда остануться данные с прошлого раза
                             [v.dataSource1, v.dataSource2].forEach((dataSource: SingleDataSource) => {
                                 const dim: DimensionFilter = dataSource.dimensions.find((d: DimensionFilter) => d.name === dimName);
                                 if (dim) {
                                     dim.values = event[dimName];
-                                    needReload = true;
+                                } else {
+                                    // Пустые данные не приходят в виджет, поэтому dimension может и не быть
+                                    const newFilter: DimensionFilter = {
+                                        name: dimName,
+                                        values: event[dimName],
+                                        expression: '',
+                                        groupBy: false
+                                    };
+                                    dataSource.dimensions.push(newFilter);
                                 }
+                                needReload = true;
                             });
                         }
                     }
