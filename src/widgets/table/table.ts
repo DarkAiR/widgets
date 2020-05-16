@@ -11,6 +11,7 @@ import {get as _get, map as _map, filter as _filter, keyBy as _keyBy} from "loda
 import {Chart} from "../../models/Chart";
 import {TypeGuardsHelper} from "../../helpers";
 import {IWidgetSettings} from "../../widgetSettings";
+import {pochtaDataSources} from "../../models/pochtaDataSources";
 
 export class Table extends Chart {
     getVariables(): IWidgetVariables {
@@ -56,20 +57,24 @@ export class Table extends Chart {
                 ...dimensions,
                 ...metrics
             ], this.getDataSetSettings(settings, 'columnNames'));
-            const rows: Array<{cols: INameValue[]}> = points.map((v: TableRow) => {
+            let key = 0;
+            const rows: Array<{cols: INameValue<{k: number, v: string}>[]}> = points.map((v: TableRow) => {
                 const row = [];
                 const pointDimensionsName: string = _keyBy(v.dimensions, 'name');
                 const pointMetricsName: string = _keyBy(v.metrics, 'name');
 
-                row.push({name: 'localDateTime', value: new Date(v.localDateTime).toLocaleDateString()});   // Конвертируем даты
+                row.push({name: 'localDateTime', value: {k: key++, v: new Date(v.localDateTime).toLocaleDateString()}});   // Конвертируем даты
                 dimensions.forEach((dimName: string) => {
                     row.push({
                         name: dimName,
-                        value: _get(pointDimensionsName[dimName], 'entity.name', _get(pointDimensionsName[dimName], 'value', ''))
+                        value: {
+                            k: key++,
+                            v: _get(pointDimensionsName[dimName], 'entity.name', _get(pointDimensionsName[dimName], 'value', ''))
+                        }
                     });
                 });
                 metrics.forEach((metricName: string) => {
-                    row.push({name: metricName, value: _get(pointMetricsName[metricName], 'value', '')});
+                    row.push({name: metricName, value: {k: key++, v: _get(pointMetricsName[metricName], 'value', '')}});
                 });
                 return {cols: row};
             });
@@ -119,16 +124,16 @@ export class Table extends Chart {
                 joinDataSet.dataSetTemplates.forEach((v: TimeSeriesDataSetShort) => {
                     if (TypeGuardsHelper.isSingleDataSource(v.dataSource1)) {
                         // Ищем dataSource для почты
-                        if (['kpi', 'kpi_forecast', 'worked_hours', 'worked_shifts'].includes(v.dataSource1.name)) {
+                        if (pochtaDataSources.includes(v.dataSource1.name)) {
                             for (const dimName in event) {
                                 if (!event.hasOwnProperty(dimName)) {
                                     continue;
                                 }
+                                // NOTE: Нельзя проверять на event[dimName].length, т.к. тогда остануться данные с прошлого раза
                                 const dim: DimensionFilter = joinDataSet.dimensions.find((d: DimensionFilter) => d.name === dimName);
                                 if (dim) {
                                     dim.values = event[dimName];
-                                    dim.groupBy = event[dimName].length ? true : false;
-                                    needReload = true;
+                                    dim.groupBy = event[dimName].length > 0;
                                 } else {
                                     const newFilter: DimensionFilter = {
                                         name: dimName,
@@ -138,6 +143,7 @@ export class Table extends Chart {
                                     };
                                     joinDataSet.dimensions.push(newFilter);
                                 }
+                                needReload = true;
                             }
                         }
                     }
@@ -147,9 +153,40 @@ export class Table extends Chart {
         return needReload;
     }
 
+    /**
+     * Анимирование значения от n1 до n2 за время time в ms
+     */
+    animNumber(numbers: [[number, number]], time: number): Function {
+        return () => {
+            const animFunc = function (d: number): number {
+                return 1 - Math.pow((d - 1), 4);
+            };
+
+            let steps = 20;
+            const stepTime = Math.trunc(time / steps);
+            let x = 0;
+            let resValues: string[] = [];
+            const timerId = setInterval(() => {
+                const k = animFunc(x) / animFunc(1);
+                resValues = [];
+                for (const num of numbers) {
+                    resValues.push((num[0] + k * (num[1] - num[0])).toFixed(2));
+                }
+                x += stepTime / time;
+                if (--steps <= 0) {
+                    resValues = [];
+                    for (const num of numbers) {
+                        resValues.push((num[1]).toFixed(2));
+                    }
+                    clearInterval(timerId);
+                }
+            }, stepTime);
+        };
+    }
+
     getTemplate(): string {
         return `
-            <div class='${s["widget"]} ${w["widget"]}'>
+            <div class='${s["widget"]}'>
                 <h4>{{title}}</h4>
                 <table class="${s['table']} ${s['w-100']} ${w['table']} table table-zebra">
                 <thead>
@@ -165,7 +202,7 @@ export class Table extends Chart {
                     {{#rows}}
                     <tr>
                         {{#cols}}
-                            <td class="table-small">{{value}}</td>
+                            <td class="table-small ${w['value']}" attr-key="{{value.k}}">{{value.v}}</td>
                         {{/cols}}
                     </tr>
                     {{/rows}}

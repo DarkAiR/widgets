@@ -4,21 +4,28 @@ import {settings as widgetSettings} from "./settings";
 
 import echarts from 'echarts';
 import {
-    IChartData, IColor, ISettings,
-    IWidgetVariables
+    DataSet, DataSetTemplate, DimensionFilter,
+    IChartData, IColor, IEventOrgUnits, ISettings,
+    IWidgetVariables, SingleDataSource
 } from '../../interfaces';
 import {
-    merge as _merge, isEmpty as _isEmpty
+    merge as _merge
 } from 'lodash';
 import {Chart} from '../../models/Chart';
 import {ProfilePoint} from '../../interfaces';
 import {IWidgetSettings} from "../../widgetSettings";
 import {ChartType} from "../../models/types";
-import {SettingsHelper} from "../../helpers";
+import {SettingsHelper, TypeGuardsHelper} from "../../helpers";
+import {pochtaDataSources} from "../../models/pochtaDataSources";
 
 export class Profile extends Chart {
     getVariables(): IWidgetVariables {
-        return {};
+        const res: IWidgetVariables = {};
+        const addVar = this.addVar(res);
+
+        addVar(0, 'org units', 'OrgUnits', 'Выбирается в отдельном виджете');
+
+        return res;
     }
 
     getSettings(): IWidgetSettings {
@@ -70,6 +77,7 @@ export class Profile extends Chart {
         this.onResize = (width: number, height: number): void => {
             myChart.resize();
         };
+        this.onEventBus = this.onEventBusFunc.bind(this);
     }
 
     private getData(data: ProfilePoint[][]): {
@@ -187,6 +195,56 @@ export class Profile extends Chart {
         _merge(seriesData, SettingsHelper.getFillSettings(this.widgetSettings.dataSet.settings, this.chartData.dataSets[idx].settings, chartType));
 
         return seriesData;
+    }
+
+    // tslint:disable-next-line:no-any
+    private onEventBusFunc(varName: string, value: any, dataSourceId: number): boolean {
+        console.groupCollapsed('Profile EventBus data');
+        console.log(varName, '=', value);
+        console.log('dataSourceId =', dataSourceId);
+        console.groupEnd();
+
+        let needReload = false;
+        switch (varName) {
+            case 'org units':
+                needReload = this.processingOrgUnits(value as IEventOrgUnits);
+                break;
+        }
+        return needReload;
+    }
+
+    private processingOrgUnits(event: IEventOrgUnits): boolean {
+        let needReload = false;
+        if (TypeGuardsHelper.everyIsDataSetTemplate(this.chartData.dataSets)) {
+            this.chartData.dataSets.forEach((v: DataSetTemplate) => {
+                if (TypeGuardsHelper.isSingleDataSource(v.dataSource1)) {
+                    // Ищем dataSource для почты
+                    if (pochtaDataSources.includes(v.dataSource1.name)) {
+                        for (const dimName in event) {
+                            if (!event.hasOwnProperty(dimName)) {
+                                continue;
+                            }
+                            // NOTE: Нельзя проверять на event[dimName].length, т.к. тогда остануться данные с прошлого раза
+                            const dim: DimensionFilter = v.dataSource1.dimensions.find((d: DimensionFilter) => d.name === dimName);
+                            if (dim) {
+                                dim.values = event[dimName];
+                            } else {
+                                // Пустые данные не приходят в виджет, поэтому dimension может и не быть
+                                const newFilter: DimensionFilter = {
+                                    name: dimName,
+                                    values: event[dimName],
+                                    expression: '',
+                                    groupBy: false
+                                };
+                                v.dataSource1.dimensions.push(newFilter);
+                            }
+                            needReload = true;
+                        }
+                    }
+                }
+            });
+        }
+        return needReload;
     }
 
     getTemplate(): string {
