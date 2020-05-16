@@ -1,1 +1,9 @@
-export const pochtaDataSources = ['kpi', 'kpi_forecast', 'worked_hours', 'worked_shifts', 'proceeds'];
+export const pochtaDataSources = [
+    'kpi',                  // История операций
+    'kpi_forecast',         // Прогноз операций
+    'fte',                  // Рабочая нагрузка
+    'worked_hours',         // Отработанные часы
+    'worked_shifts',        // Отработанные смены
+    'worked_events',        // Дисциплина
+    'proceeds',             // Выручка
+];
