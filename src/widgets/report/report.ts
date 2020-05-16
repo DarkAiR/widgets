@@ -15,6 +15,7 @@ import {get as _get, isEmpty as _isEmpty} from "lodash";
 import {Chart} from "../../models/Chart";
 import {ColorHelper, SettingsHelper, TypeGuardsHelper} from "../../helpers";
 import {IWidgetSettings} from "../../widgetSettings";
+import {pochtaDataSources} from "../../models/pochtaDataSources";
 
 export class Report extends Chart {
     getVariables(): IWidgetVariables {
@@ -88,7 +89,7 @@ export class Report extends Chart {
             this.chartData.dataSets.forEach((v: DataSetTemplate) => {
                 if (TypeGuardsHelper.isSingleDataSource(v.dataSource1) && TypeGuardsHelper.isSingleDataSource(v.dataSource2)) {
                     // Ищем dataSource для почты
-                    if (['kpi', 'kpi_forecast', 'worked_hours', 'worked_shifts'].includes(v.dataSource1.name)) {
+                    if (pochtaDataSources.includes(v.dataSource1.name)) {
                         for (const dimName in event) {
                             if (!event.hasOwnProperty(dimName)) {
                                 continue;

@@ -8,12 +8,12 @@ import {
     IChartData, IColor, ISettings,
     IWidgetVariables,
     SingleDataSource,
-    DataSetTemplate, IEventOrgUnits, IGradient, JoinDataSetTemplate, TimeSeriesDataSetShort,
+    DataSetTemplate, IEventOrgUnits, IGradient,
 } from '../../interfaces';
 import {
     get as _get, set as _set, map as _map, forEach as _forEach,
     fromPairs as _fromPairs, findKey as _findKey, merge as _merge, flow as _flow,
-    min as _min, max as _max, isEmpty as _isEmpty
+    min as _min, max as _max
 } from 'lodash';
 import {Chart} from '../../models/Chart';
 import {SettingsHelper, TimeSeriesData, TimeSeriesHelper} from '../../helpers';
@@ -22,6 +22,7 @@ import {TSPoint, DimensionFilter} from "../../interfaces/graphQL";
 import {TypeGuardsHelper} from "../../helpers";
 import {IWidgetSettings} from "../../widgetSettings";
 import {WidgetSettingsItem} from "../../widgetSettings/types";
+import {pochtaDataSources} from "../../models/pochtaDataSources";
 
 interface XAxesData {
     name: string;
@@ -937,7 +938,7 @@ export class Spline extends Chart {
             this.chartData.dataSets.forEach((v: DataSetTemplate) => {
                 if (TypeGuardsHelper.isSingleDataSource(v.dataSource1)) {
                     // Ищем dataSource для почты
-                    if (['kpi', 'kpi_forecast', 'worked_hours', 'worked_shifts'].includes(v.dataSource1.name)) {
+                    if (pochtaDataSources.includes(v.dataSource1.name)) {
                         for (const dimName in event) {
                             if (!event.hasOwnProperty(dimName)) {
                                 continue;
