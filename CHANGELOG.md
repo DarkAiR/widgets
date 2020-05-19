@@ -238,3 +238,8 @@
 
 ##### 0.8.34 / 2020-05-17
 - убран overflow:hidden для таблиц
+
+##### 0.8.35 / 2020-05-19
+- удален виджет Avatar
+- настройка background добавлена в виджеты averageNumbers, profile, distribution, report, solidGauge, static
+- из Spline удалена обработка globalCardSettings, xAxisSettings

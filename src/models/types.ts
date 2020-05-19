@@ -3,7 +3,7 @@ export * from "./typesGraphQL";
 // Типы виджетов
 // Каждый тип виджета может поддерживать определенное число различный viewType
 export type WidgetType = 'SPLINE' | 'AVERAGE_NUMBER' | 'SOLID_GAUGE' | 'INDICATORS_TABLE' | 'TABLE'
-     | 'REPORT' | 'STATIC' | 'KPI' | 'AVATAR' | 'DISTRIBUTION' | 'PROFILE';
+     | 'REPORT' | 'STATIC' | 'KPI' | 'DISTRIBUTION' | 'PROFILE';
 
 // Вид графика для spline
 // NOTE: Нельзя через enum, т.к. они не экспортируются, поэтому через массив значений + type

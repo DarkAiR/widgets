@@ -6,8 +6,7 @@ import * as Spline from './spline';
 import * as Table from './table';
 import * as Static from './static';
 import * as KPI from './KPI';
-import * as Avatar from './avatar';
 import * as Profile from './profile';
 import * as Distribution from './distribution';
 
-export {AverageNumber, IndicatorsTable, Report, SolidGauge, Spline, Table, Static, KPI, Avatar, Profile, Distribution};
+export {AverageNumber, IndicatorsTable, Report, SolidGauge, Spline, Table, Static, KPI, Profile, Distribution};

@@ -5,6 +5,7 @@ import settingsPresets from "../../widgetSettings/settingsPresets";
 export const settings: IWidgetSettings = makeSettings({
     settings: [
         ...settingsPresets.common,
+        ...settingsPresets.background,
         makeIcon('icon', 'Иконка', '')
     ],
     dataSet: {

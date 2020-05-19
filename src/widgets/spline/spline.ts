@@ -78,9 +78,6 @@ export class Spline extends Chart {
         const data: IChartData = this.chartData;
 
         if (TypeGuardsHelper.everyIsDataSetTemplate(data.dataSets)) {
-            // FIXME: Внешние стили нельзя использовать
-            const globalCardSets = _get(data.dataSets[0].settings, 'globalCardSettings', '');
-
             const timeSeriesData: TimeSeriesData = TimeSeriesHelper.convertTimeSeriesToData(data.data as TSPoint[][]);
 
             const xAxesData = this.getXAxes(timeSeriesData);
@@ -104,15 +101,9 @@ export class Spline extends Chart {
 
             const legend: Object = this.getLegend();
 
-            const backgroundColor: IGradient = this.getWidgetSetting('backgroundColor');
-            const background: ISettings = backgroundColor.colors.length
-                ? { backgroundColor: SettingsHelper.getGradientSettings(backgroundColor) }
-                : {};
-
             // NOTE: при containLabel=true ECharts правильно считает ширину отступа для нескольких осей,
             //       но не умеет располагать оси рядом, поэтому, при более чем одной оси, высчитываем отступы вручную
             const options = {
-                ...background,
                 grid: {
                     top: +this.getWidgetSetting('paddings.top') + (containLabel ? 0 : topAmount * axisXDistance),
                     bottom: +this.getWidgetSetting('paddings.bottom') + (containLabel ? 0 : bottomAmount * axisXDistance),
@@ -150,29 +141,13 @@ export class Spline extends Chart {
                 }
             }
 
-            // FIXME: Нельзя открывать прямой доступ к внутренним настройкам визуализатора виджета, т.к. способ рендера может поменяться
-            //        Необходимо переделать на мепинг из настроек xAxisSettings в eCharts
-            //        Правильным решением будет сделать универсальные настройки для изменения цвета/толщины линии/и т.п.
-            // axisLine: {show: false}
-            // axisTick: {show: false}
-            // axisLabel: {formatter: "{value}.04.2019", color: "rgba(50,50,50,.6)"}
-            // splitLine: {show: false}
-            const xAxisSettings = _get(data.dataSets[0].settings, 'xAxisSettings', {});
-            for (const k in xAxisSettings) {
-                if (xAxisSettings.hasOwnProperty(k)) {
-                    if (xAxisSettings[k] !== undefined) {
-                        options.xAxis[k] = xAxisSettings[k];
-                    }
-                }
-            }
-
             const titleSettings = SettingsHelper.getTitleSettings(this.widgetSettings.settings, this.chartData.settings);
 
             this.config.element.innerHTML = this.renderTemplate({
                 showTitle: titleSettings.show,
                 title: titleSettings.name,
                 titleStyle: titleSettings.style,
-                globalCardSets
+                backgroundStyle: this.getBackground(this.getWidgetSetting('backgroundColor'))
             });
 
             const el = this.config.element.getElementsByClassName(w['chart'])[0];
@@ -211,14 +186,16 @@ export class Spline extends Chart {
                 }
 
                 // FIXME: Та же проблема, как в FIXME выше, мы разрешаем кому-то снаружи лезть напрямую в наш рендер
-                // symbolSize: 8
-                // + name: "Эффективность"
-                // tooltip: {formatter: "{a}<br>{b}.04.2019: {c}%"}
-                // + label: {show: true, formatter: "{c}%", color: "rgba(255,255,255,.6)"}
-                // + color: "rgba(255,255,255,.3)"
-                // + lineStyle: {type: "dotted", color: "rgba(255,255,255,.3)"}
-                // + areaStyle: {color: {type: "linear", x: 0, y: 0, x2: 0, y2: 1,…}}
-                // z: 0
+                // "seriesSettings":{
+                //     "symbolSize":8,
+                //    + "name":"Эффективность",
+                //     "tooltip":{"formatter":"{a}<br>{b}.04.2019: {c}%"},
+                //    + "label":{"show":true,"formatter":"{c}%","color":"rgba(255,255,255,.6)"},
+                //    + "color":"rgba(255,255,255,.3)",
+                //    + "lineStyle":{"type":"dotted","color":"rgba(255,255,255,.3)"},
+                //    + "areaStyle":{"color":{"type":"linear","x":0,"y":0,"x2":0,"y2":1,"colorStops":[{"offset":0,"color":"rgba(255, 255, 255, .1)"},{"offset":1,"color":"rgba(255, 255, 255, .5)"}]}},
+                //     "z":0
+                // },
                 const seriesSettings = _get(dataSetSettings, 'seriesSettings', {});
                 for (const k in seriesSettings) {
                     if (seriesSettings.hasOwnProperty(k)) {
@@ -968,7 +945,7 @@ export class Spline extends Chart {
 
     getTemplate(): string {
         return `
-            <div class='${s['widget']}  ${w['widget']}' style="{{globalCardSets}}">
+            <div class='${s['widget']}  ${w['widget']}' style="{{backgroundStyle}}">
                 {{#showTitle}}
                 <div class='${w['row']}'>
                     <div class="${w['title']}" style="{{titleStyle}}">
