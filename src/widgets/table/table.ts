@@ -186,7 +186,7 @@ export class Table extends Chart {
 
     getTemplate(): string {
         return `
-            <div class='${s["widget"]}'>
+            <div class='${s["widget"]} ${w["widget"]}'>
                 <h4>{{title}}</h4>
                 <table class="${s['table']} ${s['w-100']} ${w['table']} table table-zebra">
                 <thead>
