@@ -8,7 +8,7 @@ import {
     IWidgetVariables
 } from '../../interfaces';
 import {
-    merge as _merge, isEmpty as _isEmpty
+    merge as _merge
 } from 'lodash';
 import {Chart} from '../../models/Chart';
 import {ProfilePoint} from '../../interfaces';
@@ -61,6 +61,7 @@ export class Distribution extends Chart {
             showTitle: titleSettings.show,
             title: titleSettings.name,
             titleStyle: titleSettings.style,
+            backgroundStyle: this.getBackground(this.getWidgetSetting('backgroundColor')),
         });
 
         const el = this.config.element.getElementsByClassName(w['chart'])[0];
@@ -191,18 +192,18 @@ export class Distribution extends Chart {
 
     getTemplate(): string {
         return `
-                <div class='${s['widget']}  ${w['widget']}'>
-                    {{#showTitle}}
-                    <div class='${w['row']}'>
-                        <div class="${w['title']}" style="{{titleStyle}}">
-                            {{title}}
-                        </div>
-                    </div>
-                    {{/showTitle}}
-
-                    <div class='${w['row']} ${w['chart']}'>
+            <div class='${s['widget']} ${w['widget']}' style="{{backgroundStyle}}">
+                {{#showTitle}}
+                <div class='${w['row']}'>
+                    <div class="${w['title']}" style="{{titleStyle}}">
+                        {{title}}
                     </div>
                 </div>
-            `;
+                {{/showTitle}}
+
+                <div class='${w['row']} ${w['chart']}'>
+                </div>
+            </div>
+        `;
     }
 }

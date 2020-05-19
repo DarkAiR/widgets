@@ -24,7 +24,6 @@ export class WidgetFactory {
             'REPORT':           () => import('../widgets/report/settings'),
             'STATIC':           () => import('../widgets/static/settings'),
             'KPI':              () => import('../widgets/KPI/settings'),
-            'AVATAR':           () => import('../widgets/avatar/settings'),
             'DISTRIBUTION':     () => import('../widgets/distribution/settings'),
             'PROFILE':          () => import('../widgets/profile/settings'),
         };
@@ -92,7 +91,6 @@ export class WidgetFactory {
             "REPORT":           () => widgets.Report.Report,
             "STATIC":           () => widgets.Static.Static,
             "KPI":              () => widgets.KPI.KPI,
-            "AVATAR":           () => widgets.Avatar.Avatar,
             "PROFILE":          () => widgets.Profile.Profile,
             "DISTRIBUTION":     () => widgets.Distribution.Distribution
 

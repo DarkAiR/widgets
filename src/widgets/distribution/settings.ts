@@ -11,6 +11,7 @@ export const settings: IWidgetSettings = makeSettings({
     settings: [
         ...settingsPresets.title,
         ...settingsPresets.paddings,
+        ...settingsPresets.background,
     ],
     dataSet: {
         initDataSets: [{viewType: 'DISTRIBUTION'}],

@@ -2,14 +2,12 @@ import {get as _get, forEach as _forEach, defaultTo as _defaultTo} from 'lodash'
 import ResizeObserver from 'resize-observer-polyfill';
 import {
     IChart,
-    IChartData, IColor, IRgbaHex, ISettings,
+    IChartData, IColor, IGradient, ISettings,
     IWidgetVariables
 } from "../interfaces";
 import {WidgetConfigInner} from "./widgetConfig";
 import {EventBusWrapper, EventBus, EventBusEvent} from 'goodteditor-event-bus';
 import {IWidgetSettings} from "../widgetSettings";
-import {SettingsGroupSetting} from "../widgetSettings/controls";
-import {WidgetSettingsArray, WidgetSettingsItem} from "../widgetSettings/types";
 import {ColorHelper, SettingsHelper} from "../helpers";
 
 const hogan = require('hogan.js');
@@ -172,6 +170,18 @@ export abstract class Chart implements IChart {
     ): IColor {
         const colorSetting: string = this.getDataSetSettings(settings, 'color');
         return ColorHelper.hexToColor(!colorSetting ? defColor : colorSetting, defClassName);
+    }
+
+    /**
+     * Возвращает строку стилей для background
+     */
+    protected getBackground(gradient: IGradient): string {
+        if (!gradient.colors.length) {
+            return '';
+        }
+        return gradient.colors.length === 1
+            ? `background-color: ${gradient.colors[0]}; height: 100%;`
+            : `background: linear-gradient(${(gradient.rotate + 90) % 360}deg, ${gradient.colors.join(', ')}); height: 100%;`;
     }
 
     /**

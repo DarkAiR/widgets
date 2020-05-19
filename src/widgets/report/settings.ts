@@ -12,7 +12,8 @@ export const settings: IWidgetSettings = makeSettings({
                 makeNumber('size', 'Размер шрифта', 14),
                 makeList<string>('align', 'Выравнивание', 'left', ['left', 'center', 'right'])
             ]
-        ])
+        ]),
+        ...settingsPresets.background,
     ],
     dataSet: {
         initDataSets: [{viewType: 'REPORT'}],

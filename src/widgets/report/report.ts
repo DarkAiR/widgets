@@ -9,11 +9,11 @@ import {
     ReportPoint,
     ReportItem,
     IColor,
-    JoinDataSetTemplate, TimeSeriesDataSetShort, IEventOrgUnits, DimensionFilter, DataSetTemplate, SingleDataSource
+    IEventOrgUnits, DimensionFilter, DataSetTemplate, SingleDataSource
 } from "../../interfaces";
-import {get as _get, isEmpty as _isEmpty} from "lodash";
+import {isEmpty as _isEmpty} from "lodash";
 import {Chart} from "../../models/Chart";
-import {ColorHelper, SettingsHelper, TypeGuardsHelper} from "../../helpers";
+import {SettingsHelper, TypeGuardsHelper} from "../../helpers";
 import {IWidgetSettings} from "../../widgetSettings";
 import {pochtaDataSources} from "../../models/pochtaDataSources";
 
@@ -54,11 +54,12 @@ export class Report extends Chart {
             }));
 
             this.config.element.innerHTML = this.renderTemplate({
+                backgroundStyle: this.getBackground(this.getWidgetSetting('backgroundColor')),
                 showTitle: titleSettings.show,
                 title: titleSettings.name,
                 titleStyle: titleSettings.style,
                 rows,
-                valueStyle: valueStyle.join(';')
+                valueStyle: valueStyle.join(';'),
             });
 
             this.onEventBus = this.onEventBusFunc.bind(this);
@@ -121,7 +122,7 @@ export class Report extends Chart {
 
     getTemplate(): string {
         return `
-            <div class='${s["widget"]} ${w["widget"]}'>
+            <div class='${s["widget"]} ${w["widget"]}' style="{{backgroundStyle}}">
                 {{#showTitle}}
                 <div class='${w['row']}'>
                     <div class="${w['title']}" style="{{titleStyle}}">

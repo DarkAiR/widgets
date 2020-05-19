@@ -4,9 +4,9 @@ import {settings as widgetSettings} from "./settings";
 
 import echarts from 'echarts';
 import {
-    DataSet, DataSetTemplate, DimensionFilter,
+    DataSetTemplate, DimensionFilter,
     IChartData, IColor, IEventOrgUnits, ISettings,
-    IWidgetVariables, SingleDataSource
+    IWidgetVariables
 } from '../../interfaces';
 import {
     merge as _merge
@@ -68,6 +68,7 @@ export class Profile extends Chart {
             showTitle: titleSettings.show,
             title: titleSettings.name,
             titleStyle: titleSettings.style,
+            backgroundStyle: this.getBackground(this.getWidgetSetting('backgroundColor')),
         });
 
         const el = this.config.element.getElementsByClassName(w['chart'])[0];
@@ -249,18 +250,18 @@ export class Profile extends Chart {
 
     getTemplate(): string {
         return `
-                <div class='${s['widget']}  ${w['widget']}'>
-                    {{#showTitle}}
-                    <div class='${w['row']}'>
-                        <div class="${w['title']}" style="{{titleStyle}}">
-                            {{title}}
-                        </div>
-                    </div>
-                    {{/showTitle}}
-
-                    <div class='${w['row']} ${w['chart']}'>
+            <div class='${s['widget']}  ${w['widget']}' style="{{backgroundStyle}}">
+                {{#showTitle}}
+                <div class='${w['row']}'>
+                    <div class="${w['title']}" style="{{titleStyle}}">
+                        {{title}}
                     </div>
                 </div>
-            `;
+                {{/showTitle}}
+
+                <div class='${w['row']} ${w['chart']}'>
+                </div>
+            </div>
+        `;
     }
 }
