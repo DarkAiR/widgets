@@ -243,3 +243,6 @@
 - удален виджет Avatar
 - настройка background добавлена в виджеты averageNumbers, profile, distribution, report, solidGauge, static
 - из Spline удалена обработка globalCardSettings, xAxisSettings
+
+##### 0.8.36 / 2020-05-20
+- в DataProvider используется apiUrl для всех урлов

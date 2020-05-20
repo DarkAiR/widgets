@@ -19,11 +19,11 @@ export class DataProvider {
     private apiUrl: string;
 
     private get gqlLink(): string {
-        return this.apiUrl || 'http://34.83.209.150:8080/graphql';
+        return (this.apiUrl || 'http://localhost') + '/graphql';
     }
 
     private get templatesLink(): string {
-        return 'http://34.83.209.150:8080/api/v1/templates';
+        return (this.apiUrl || 'http://localhost') + '/api/v1/templates';
     }
 
     constructor(apiUrl: string) {
