@@ -5,16 +5,19 @@ import {settings as widgetSettings} from "./settings";
 import echarts from 'echarts';
 import {
     IChartData, IColor, ISettings,
-    IWidgetVariables
+    IWidgetVariables, XAxisData, YAxisData
 } from '../../interfaces';
 import {
-    merge as _merge
+    merge as _merge,
+    min as _min,
+    max as _max,
+    flow as _flow
 } from 'lodash';
 import {Chart} from '../../models/Chart';
 import {ProfilePoint} from '../../interfaces';
 import {IWidgetSettings} from "../../widgetSettings";
 import {ChartType} from "../../models/types";
-import {SettingsHelper} from "../../helpers";
+import {MathHelper, SettingsHelper} from "../../helpers";
 
 export class Distribution extends Chart {
     getVariables(): IWidgetVariables {
@@ -30,12 +33,17 @@ export class Distribution extends Chart {
 
         const optionsData = this.getData(data.data as ProfilePoint[][]);
 
+        const xAxisData = this.getXAxis(optionsData.xAxisValues);
+        const yAxisData = this.getYAxis(optionsData.series[0].data);
+
+        const legend: Object = SettingsHelper.getLegend(this.widgetSettings.settings, this.chartData.settings);
+
         const options = {
             grid: {
-                top: +this.getWidgetSetting('paddings.top'),
-                bottom: +this.getWidgetSetting('paddings.bottom'),
-                right: +this.getWidgetSetting('paddings.right'),
-                left: +this.getWidgetSetting('paddings.left'),
+                top: +this.getWidgetSetting('chartPaddings.top'),
+                bottom: +this.getWidgetSetting('chartPaddings.bottom'),
+                right: +this.getWidgetSetting('chartPaddings.right'),
+                left: +this.getWidgetSetting('chartPaddings.left'),
                 containLabel: true
             },
             tooltip: {
@@ -45,8 +53,9 @@ export class Distribution extends Chart {
                 },
                 formatter: '{c0}'
             },
-            xAxis: {data: optionsData.xAxisValues},
-            yAxis: {},
+            legend: legend,
+            xAxis: xAxisData,
+            yAxis: yAxisData,
             series: optionsData.series
         };
 
@@ -61,7 +70,8 @@ export class Distribution extends Chart {
             showTitle: titleSettings.show,
             title: titleSettings.name,
             titleStyle: titleSettings.style,
-            backgroundStyle: this.getBackground(this.getWidgetSetting('backgroundColor')),
+            backgroundStyle: this.getBackgroundStyle(this.getWidgetSetting('backgroundColor')),
+            paddingStyle: this.getPaddingStyle(this.getWidgetSetting('paddings'))
         });
 
         const el = this.config.element.getElementsByClassName(w['chart'])[0];
@@ -75,9 +85,9 @@ export class Distribution extends Chart {
 
     private getData(data: ProfilePoint[][]): {
         xAxisValues: number[],
-        series: Object[]
+        series: ISettings[]
     } {
-        const series: Object[] = [];
+        const series: ISettings[] = [];
         const xAxisValues: number[] = [];
         const dataSetSettings: ISettings = this.chartData.dataSets[0].settings;
         const currColor = this.getColor(dataSetSettings, 'color-yellow');
@@ -127,7 +137,7 @@ export class Distribution extends Chart {
                 shadowBlur: 2,
                 shadowColor: 'rgba(0, 0, 0, 0.3)',
                 type: this.getDataSetSettings(this.chartData.dataSets[idx].settings, 'lineStyle.type'),
-                width: 2,
+                width: this.getDataSetSettings(this.chartData.dataSets[idx].settings, 'lineStyle.width'),
                 opacity: color.opacity,         // Прозрачность линии
             },
             label: {
@@ -181,9 +191,88 @@ export class Distribution extends Chart {
     }
 
     /**
+     * Получить данные для осей
+     */
+    private getXAxis(xAxisValues: number[]): Object {
+        const axisData: XAxisData = {
+            show: this.getWidgetSetting('axisX.show'),
+            name: this.getWidgetSetting('axisX.name'),
+            nameGap: this.getWidgetSetting('axisX.nameGap'),
+            nameColor: this.getWidgetSetting('axisX.nameColor'),
+            color: this.getWidgetSetting('axisX.color'),
+            position: this.getWidgetSetting('axisX.position'),
+            axesToIndex: [],
+            showTick: this.getWidgetSetting('axisX.showTick'),
+        };
+
+        const res = SettingsHelper.getXAxisSettings(
+            axisData,
+            0,
+            null,
+            0,
+            this.hasHistogram()
+        );
+        res.data = xAxisValues;
+        return res;
+    }
+
+    /**
+     * Получить данные для осей
+     */
+    private getYAxis(seriesData: number): Object {
+        const dataSetSettings: ISettings = this.chartData.dataSets[0].settings;
+        let color: string = this.getWidgetSetting('axisY.color');
+        if (!color) {
+            // Получаем цвет из цвета графика
+            color = this.getDataSetSettings(dataSetSettings, 'color');
+        }
+
+        let max: number = _max(seriesData);
+        let min: number = _flow(
+            _min,
+            (v: number) => v > 0 ? 0 : v
+        )(seriesData);
+        [max, min] = MathHelper.roundInterval(max, min);
+
+        const axisData: YAxisData = {
+            show: this.getWidgetSetting('axisY.show'),
+            name: this.getWidgetSetting('axisY.name'),
+            nameGap: this.getWidgetSetting('axisY.nameGap'),
+            nameColor: this.getWidgetSetting('axisY.nameColor'),
+            color: color,
+            position: this.getWidgetSetting('axisY.position'),
+            max: max,
+            min: min,
+            axesToIndex: [],
+            showTick: this.getWidgetSetting('axisY.showTick')
+        };
+
+        let nameRotate = 0;
+        switch (axisData.position) {
+            case 'left':
+                nameRotate = 90;
+                break;
+            case 'right':
+                nameRotate = 270;
+                break;
+        }
+
+        return SettingsHelper.getYAxisSettings(
+            axisData,
+            0,
+            0,
+            nameRotate
+        );
+    }
+
+    /**
      * Добавляем стандартные настройки для каждого dataSet
      */
     private applySettings(idx: number, chartType: ChartType, seriesData: Object): Object {
+        const getSetting = <T = void>(path: string): T => this.getDataSetSettings<T>(this.chartData.dataSets[idx].settings, path);
+
+        seriesData['name'] = getSetting('name') || ' ';     // Чтобы чтото отобразилось, нужно хотя бы пробел
+
         _merge(seriesData, SettingsHelper.getLabelSettings(this.widgetSettings.dataSet.settings, this.chartData.dataSets[idx].settings));
         _merge(seriesData, SettingsHelper.getFillSettings(this.widgetSettings.dataSet.settings, this.chartData.dataSets[idx].settings, chartType));
 
@@ -192,7 +281,7 @@ export class Distribution extends Chart {
 
     getTemplate(): string {
         return `
-            <div class='${s['widget']} ${w['widget']}' style="{{backgroundStyle}}">
+            <div class='${s['widget']} ${w['widget']}' style="{{backgroundStyle}} {{paddingStyle}}">
                 {{#showTitle}}
                 <div class='${w['row']}'>
                     <div class="${w['title']}" style="{{titleStyle}}">

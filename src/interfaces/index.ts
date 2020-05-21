@@ -10,3 +10,5 @@ export * from "./INameValue";
 export * from './promise';
 export * from './IColor';
 export * from './IGradient';
+export * from './XAxisData';
+export * from './YAxisData';

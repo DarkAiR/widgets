@@ -22,6 +22,6 @@ export const title: SettingFunc[] = [
             makeNumber('size', 'Размер шрифта', 14),
             makeList<string>('align', 'Выравнивание', 'left', ['left', 'center', 'right'])
         ]
-    ]),
+    ], {collapse: true}),
 ];
 

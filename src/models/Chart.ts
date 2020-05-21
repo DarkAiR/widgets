@@ -8,7 +8,8 @@ import {
 import {WidgetConfigInner} from "./widgetConfig";
 import {EventBusWrapper, EventBus, EventBusEvent} from 'goodteditor-event-bus';
 import {IWidgetSettings} from "../widgetSettings";
-import {ColorHelper, SettingsHelper} from "../helpers";
+import {ColorHelper, SettingsHelper, TypeGuardsHelper} from "../helpers";
+import {ChartType} from "./types";
 
 const hogan = require('hogan.js');
 
@@ -175,13 +176,40 @@ export abstract class Chart implements IChart {
     /**
      * Возвращает строку стилей для background
      */
-    protected getBackground(gradient: IGradient): string {
+    protected getBackgroundStyle(gradient: IGradient): string {
         if (!gradient.colors.length) {
             return '';
         }
         return gradient.colors.length === 1
             ? `background-color: ${gradient.colors[0]}; height: 100%;`
             : `background: linear-gradient(${(gradient.rotate + 90) % 360}deg, ${gradient.colors.join(', ')}); height: 100%;`;
+    }
+
+    /**
+     * Возвращает строку стилей для background
+     */
+    protected getPaddingStyle(paddings: ISettings): string {
+        return 'padding: ' +
+            `${+paddings.top}px ` +
+            `${+paddings.right}px ` +
+            `${+paddings.bottom}px ` +
+            `${+paddings.left}px;`;
+    }
+
+    /**
+     * Проверяем, есть ли среди графиков гистограммы
+     * Для них необходимо изменить вид графика
+     */
+    protected hasHistogram(): boolean {
+        const data: IChartData = this.chartData;
+        if (TypeGuardsHelper.everyIsDataSetTemplate(data.dataSets)) {
+            for (let idx = 0; idx < data.data.length; idx++) {
+                if (this.getDataSetSettings<ChartType>(data.dataSets[idx].settings, 'chartType') === 'HISTOGRAM') {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     /**

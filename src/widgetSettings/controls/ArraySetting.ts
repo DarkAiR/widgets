@@ -14,7 +14,7 @@ export function makeArray(
     label: string,
     settings: Array<SettingFunc[]>,
     data: {
-        collapse: boolean           // Сворачивание при инициализации
+        collapse: boolean;          // Сворачивание при инициализации
     } = null
 ): SettingFunc {
     return (): ArraySetting => ({
@@ -24,6 +24,6 @@ export function makeArray(
         default: [],
         // settings - это массив из строк
         settings: settings.map((row: SettingFunc[]) => row.map((v: SettingFunc) => v())),
-        collapse: data?.collapse ?? false
+        collapse: data?.collapse ?? false,
     });
 }

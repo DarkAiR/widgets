@@ -9,7 +9,7 @@ import {
 } from "../../interfaces";
 import {get as _get, map as _map, filter as _filter, keyBy as _keyBy} from "lodash";
 import {Chart} from "../../models/Chart";
-import {TypeGuardsHelper} from "../../helpers";
+import {MathHelper, TypeGuardsHelper} from "../../helpers";
 import {IWidgetSettings} from "../../widgetSettings";
 import {pochtaDataSources} from "../../models/pochtaDataSources";
 
@@ -163,7 +163,7 @@ export class Table extends Chart {
             };
 
             let steps = 20;
-            const stepTime = Math.trunc(time / steps);
+            const stepTime = MathHelper.trunc(time / steps);
             let x = 0;
             let resValues: string[] = [];
             const timerId = setInterval(() => {

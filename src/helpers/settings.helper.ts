@@ -1,8 +1,8 @@
-import {get as _get, isEmpty as _isEmpty} from 'lodash';
-import {IGradient, ISettings} from "../interfaces";
+import {get as _get, isEmpty as _isEmpty, merge as _merge} from 'lodash';
+import {IGradient, ISettings, XAxisData, YAxisData} from "../interfaces";
 import {WidgetSettingsArray, WidgetSettingsItem} from "../widgetSettings/types";
 import {SettingsGroupSetting} from "../widgetSettings/controls";
-import {ChartType} from "../models/types";
+import {ChartType, LegendPos} from "../models/types";
 
 export class SettingsHelper {
     /**
@@ -30,7 +30,7 @@ export class SettingsHelper {
     /**
      * Получить конфигурацию настройки по пути до нее
      */
-     static getWidgetSettingByPath(config: WidgetSettingsArray, parts: string[]): WidgetSettingsItem {
+    static getWidgetSettingByPath(config: WidgetSettingsArray, parts: string[]): WidgetSettingsItem {
         if (!parts.length) {
             throw new Error('Path not found');
         }
@@ -81,6 +81,59 @@ export class SettingsHelper {
             name: getSetting<string>('title.name'),
             style: titleStyle.join(';')
         };
+    }
+
+    /**
+     * Получить настройки legend
+     */
+    static getLegend(config: WidgetSettingsArray, settings: ISettings): Object {
+        const getSetting = <T = void>(path: string): T => SettingsHelper.getWidgetSetting<T>(config, settings, path);
+
+        const align: LegendPos = getSetting('legend.position');
+        const gap: number = +getSetting('legend.gap');
+        let obj: ISettings = {};
+        switch (align) {
+            case "top":
+                obj = {
+                    orient: 'horizontal',
+                    top: gap,
+                };
+                break;
+            case "right":
+                obj = {
+                    orient: 'vertical',
+                    right: gap,
+                    top: 'middle'
+                };
+                break;
+            case "bottom":
+                obj = {
+                    orient: 'horizontal',
+                    bottom: gap,
+                };
+                break;
+            case "left":
+                obj = {
+                    orient: 'vertical',
+                    left: gap,
+                    top: 'middle'
+                };
+                break;
+        }
+        const textStyle: ISettings = {};
+        const color: string = getSetting('legend.color');
+        if (!color) {
+            textStyle.color = color;
+        }
+        _merge(obj, {
+            show: getSetting('legend.show'),
+            type: 'plain',
+            align: 'left',
+            textStyle: {
+                ...textStyle
+            }
+        });
+        return obj;
     }
 
     /**
@@ -178,5 +231,141 @@ export class SettingsHelper {
             }
         }
         return {label: label};
+    }
+
+    /**
+     * Получить настройки axis для echarts
+     */
+    static getXAxisSettings(
+        axisData: XAxisData,
+        axisIndex: number,
+        formatter: any,                 // tslint:disable-line:no-any
+        offset: number,
+        hasHistogram: boolean
+    ): ISettings {
+        const nameObj = {};
+        if (axisData.name) {
+            nameObj['name'] = axisData.name;
+            nameObj['nameLocation'] = 'middle';
+        }
+        if (axisData.nameGap) {
+            nameObj['nameGap'] = axisData.nameGap;
+        }
+        if (axisData.nameColor) {
+            nameObj['nameTextStyle'] = {
+                color: axisData.nameColor
+            };
+        }
+
+        // Цифры
+        const axisLabel: ISettings = {
+            formatter,
+            fontSize: 12
+        };
+        // Настройки оси
+        const axisLine: ISettings = {
+            lineStyle: {}
+        };
+        if (!!axisData.color) {
+            axisLabel.color = axisData.color;
+            axisLine.lineStyle.color = axisData.color;
+        }
+
+        const res = {
+            id: axisIndex,          // Записываем в id реальный индекс оси
+            type: 'category',
+            show: axisData.show,
+            position: axisData.position,
+            boundaryGap: hasHistogram,
+            offset: offset,
+            axisLabel,
+            axisLine,
+            // Насечки на оси
+            axisTick: {
+                show: axisData.showTick
+            },
+            // Сетка
+            splitLine: {
+                show: true,
+                lineStyle: {
+                    color: '#e9e9e9',
+                    width: 1,
+                    type: 'dashes'
+                }
+            },
+            data: null
+        };
+        _merge(res, nameObj);
+        return res;
+    }
+
+    /**
+     * Получить настройки axis для echarts
+     */
+    static getYAxisSettings(
+        axisData: YAxisData,
+        axisIndex: number,
+        offset: number,
+        nameRotate: number
+    ): ISettings {
+        const nameObj = {
+            nameRotate
+        };
+        if (axisData.name) {
+            nameObj['name'] = axisData.name;
+            nameObj['nameLocation'] = 'middle';
+        }
+        if (axisData.nameGap) {
+            nameObj['nameGap'] = axisData.nameGap;
+        }
+        if (axisData.nameColor) {
+            nameObj['nameTextStyle'] = {
+                color: axisData.nameColor
+            };
+        }
+
+        // Цифры
+        const axisLabel: ISettings = {
+            fontSize: 12
+        };
+
+        // Настройки оси
+        const axisLine: ISettings = {
+            lineStyle: {}
+        };
+
+        if (!!axisData.color) {
+            axisLabel.color = axisData.color;
+            axisLine.lineStyle.color = axisData.color;
+        }
+
+        const res = {
+            id: axisIndex,                          // Записываем в id реальный индекс оси
+            type: 'value',
+            show: axisData.show,
+            position: axisData.position,
+            min: axisData.min,
+            max: axisData.max,
+            offset: offset,
+            splitNumber: 3,                         // На сколько делить ось
+            // minInterval: maxY / 3,                  // Минимальный размер интервала
+            // maxInterval: maxY / 3,                  // Максимальный размер интервала
+            axisLabel,
+            axisLine,
+            // Насечки на оси
+            axisTick: {
+                show: axisData.showTick
+            },
+            // Сетка
+            splitLine: {
+                lineStyle: {
+                    color: '#e9e9e9',
+                    width: 1,
+                    type: 'solid'
+                }
+            }
+        };
+        _merge(res, nameObj);
+        return res;
     }
 }

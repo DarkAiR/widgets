@@ -8,7 +8,7 @@ import {
     IChartData, IColor, ISettings,
     IWidgetVariables,
     SingleDataSource,
-    DataSetTemplate, IEventOrgUnits, IGradient,
+    DataSetTemplate, IEventOrgUnits, XAxisData, YAxisData,
 } from '../../interfaces';
 import {
     get as _get, set as _set, map as _map, forEach as _forEach,
@@ -16,37 +16,13 @@ import {
     min as _min, max as _max
 } from 'lodash';
 import {Chart} from '../../models/Chart';
-import {SettingsHelper, TimeSeriesData, TimeSeriesHelper} from '../../helpers';
-import {ChartType, LegendPos, XAxisPos, YAxisPos} from "../../models/types";
+import {MathHelper, SettingsHelper, TimeSeriesData, TimeSeriesHelper} from '../../helpers';
+import {ChartType, XAxisPos, YAxisPos} from "../../models/types";
 import {TSPoint, DimensionFilter} from "../../interfaces/graphQL";
 import {TypeGuardsHelper} from "../../helpers";
 import {IWidgetSettings} from "../../widgetSettings";
 import {WidgetSettingsItem} from "../../widgetSettings/types";
 import {pochtaDataSources} from "../../models/pochtaDataSources";
-
-interface XAxesData {
-    name: string;
-    nameGap: number;
-    nameColor: string;
-    color: string;
-    position: XAxisPos;
-    show: boolean;
-    axesToIndex: number[];
-    showTick: boolean;
-}
-
-interface YAxesData {
-    name: string;
-    nameGap: number;
-    nameColor: string;
-    color: string;
-    position: YAxisPos;
-    show: boolean;
-    max: number;
-    min: number;
-    axesToIndex: number[];
-    showTick: boolean;
-}
 
 export class Spline extends Chart {
     getVariables(): IWidgetVariables {
@@ -99,16 +75,16 @@ export class Spline extends Chart {
             const axisYDistance: number = this.getWidgetSetting('axisYDistance');
             const axisXDistance: number = this.getWidgetSetting('axisXDistance');
 
-            const legend: Object = this.getLegend();
+            const legend: Object = SettingsHelper.getLegend(this.widgetSettings.settings, this.chartData.settings);
 
             // NOTE: при containLabel=true ECharts правильно считает ширину отступа для нескольких осей,
             //       но не умеет располагать оси рядом, поэтому, при более чем одной оси, высчитываем отступы вручную
             const options = {
                 grid: {
-                    top: +this.getWidgetSetting('paddings.top') + (containLabel ? 0 : topAmount * axisXDistance),
-                    bottom: +this.getWidgetSetting('paddings.bottom') + (containLabel ? 0 : bottomAmount * axisXDistance),
-                    right: +this.getWidgetSetting('paddings.right') + (containLabel ? 0 : (rightAmount * axisYDistance)),
-                    left: +this.getWidgetSetting('paddings.left') + (containLabel ? 0 : (leftAmount * axisYDistance)),
+                    top: +this.getWidgetSetting('chartPaddings.top') + (containLabel ? 0 : topAmount * axisXDistance),
+                    bottom: +this.getWidgetSetting('chartPaddings.bottom') + (containLabel ? 0 : bottomAmount * axisXDistance),
+                    right: +this.getWidgetSetting('chartPaddings.right') + (containLabel ? 0 : (rightAmount * axisYDistance)),
+                    left: +this.getWidgetSetting('chartPaddings.left') + (containLabel ? 0 : (leftAmount * axisYDistance)),
                     containLabel: containLabel
                 },
                 tooltip: {
@@ -147,7 +123,8 @@ export class Spline extends Chart {
                 showTitle: titleSettings.show,
                 title: titleSettings.name,
                 titleStyle: titleSettings.style,
-                backgroundStyle: this.getBackground(this.getWidgetSetting('backgroundColor'))
+                backgroundStyle: this.getBackgroundStyle(this.getWidgetSetting('backgroundColor')),
+                paddingStyle: this.getPaddingStyle(this.getWidgetSetting('paddings'))
             });
 
             const el = this.config.element.getElementsByClassName(w['chart'])[0];
@@ -405,7 +382,7 @@ export class Spline extends Chart {
         axesToIndex: {[key: number]: number}
     } {
         const data: IChartData = this.chartData;
-        const axesData: {[key: number]: XAxesData} = {};
+        const axesData: {[key: number]: XAxisData} = {};
         const timeSeriesArr = [timeSeriesData.dates];
 
         /*
@@ -442,21 +419,7 @@ export class Spline extends Chart {
         let topAxis = 0;
         let bottomAxis = 0;
 
-        const axes: Object[] = _map(axesData, (axisData: XAxesData, k: number): Object => {
-            const nameObj = {};
-            if (axisData.name) {
-                nameObj['name'] = axisData.name;
-                nameObj['nameLocation'] = 'middle';
-            }
-            if (axisData.nameGap) {
-                nameObj['nameGap'] = axisData.nameGap;
-            }
-            if (axisData.nameColor) {
-                nameObj['nameTextStyle'] = {
-                    color: axisData.nameColor
-                };
-            }
-
+        const axes: Object[] = _map(axesData, (axisData: XAxisData, k: number): Object => {
             let offset = 0;
             switch (axisData.position) {
                 case 'top':
@@ -469,54 +432,23 @@ export class Spline extends Chart {
                     break;
             }
 
-            // Цифры
-            const axisLabel: ISettings = {
-                formatter: (value: string) => {
+            const res = SettingsHelper.getXAxisSettings(
+                axisData,
+                k,
+                (value: string) => {
                     const date: Date = new Date(value);
                     return ['0' + date.getDate(), '0' + (date.getMonth() + 1)].map((vv: string) => vv.slice(-2)).join('.');
                 },
-                fontSize: 12
-            };
-            // Настройки оси
-            const axisLine: ISettings = {
-                lineStyle: {}
-            };
-            if (!!axisData.color) {
-                axisLabel.color = axisData.color;
-                axisLine.lineStyle.color = axisData.color;
-            }
-
-            const res = {
-                id: k,                                  // Записываем в id реальный индекс оси
-                type: 'category',
-                show: axisData.show,
-                position: axisData.position,
-                boundaryGap: this.hasHistogram(),
-                offset: offset,
-                axisLabel,
-                axisLine,
-                // Насечки на оси
-                axisTick: {
-                    show: axisData.showTick
-                },
-                // Сетка
-                splitLine: {
-                    show: true,
-                    lineStyle: {
-                        color: '#e9e9e9',
-                        width: 1,
-                        type: 'dashes'
-                    }
-                },
-                data: timeSeriesArr[axisData.axesToIndex[0]]       // FIXME: собирать данные со всех осей
-            };
-            _merge(res, nameObj);
+                offset,
+                this.hasHistogram()
+            );
+            res.data = timeSeriesArr[axisData.axesToIndex[0]];      // FIXME: собирать данные со всех осей
             return res;
         });
 
         // {1: {axesToIndex: [11,22]}, 2: {axesToIndex: [33]} => {11:0, 22:0, 33:1}
         const axesToIndex: {[key: number]: number} = _merge(
-            ..._map(axesData, (v: XAxesData, axisNumber: number) =>
+            ..._map(axesData, (v: XAxisData, axisNumber: number) =>
                 _fromPairs( v.axesToIndex.map((dataSetIdx: number) => {
                     return [dataSetIdx, _findKey(axes, (axesObj: Object) => axesObj['id'] === axisNumber) ?? 0];
                 }))
@@ -537,7 +469,7 @@ export class Spline extends Chart {
         axesToIndex: {[key: number]: number}
     } {
         const data: IChartData = this.chartData;
-        const axesData: {[key: number]: YAxesData} = {};
+        const axesData: {[key: number]: YAxisData} = {};
 
         /*
             Готовим данные для осей
@@ -548,11 +480,12 @@ export class Spline extends Chart {
 
                 const axisNumber: number = +this.getDataSetSettings(dataSetSettings, 'axisY');
 
-                const max: number = _max(timeSeriesData.values[idx]);
-                const min: number = _flow(
+                let max: number = _max(timeSeriesData.values[idx]);
+                let min: number = _flow(
                     _min,
                     (v: number) => v > 0 ? 0 : v
                 )(timeSeriesData.values[idx]);
+                [max, min] = MathHelper.roundInterval(max, min);
 
                 if (axesData[axisNumber] !== undefined) {
                     axesData[axisNumber].min = _min([axesData[axisNumber].min, min]);
@@ -587,83 +520,33 @@ export class Spline extends Chart {
         let leftAxis = 0;
         let rightAxis = 0;
 
-        const axes: Object[] = _map(axesData, (axisData: YAxesData, k: number): Object => {
-            const nameObj = {};
-            if (axisData.name) {
-                nameObj['name'] = axisData.name;
-                nameObj['nameLocation'] = 'middle';
-            }
-            if (axisData.nameGap) {
-                nameObj['nameGap'] = axisData.nameGap;
-            }
-            if (axisData.nameColor) {
-                nameObj['nameTextStyle'] = {
-                    color: axisData.nameColor
-                };
-            }
-
+        const axes: Object[] = _map(axesData, (axisData: YAxisData, k: number): Object => {
             let offset = 0;
+            let nameRotate = 0;
             switch (axisData.position) {
                 case 'left':
-                    nameObj['nameRotate'] = 90;
+                    nameRotate = 90;
                     offset = leftAxis * axisYDistance;
                     leftAxis++;
                     break;
                 case 'right':
-                    nameObj['nameRotate'] = 270;
+                    nameRotate = 270;
                     offset = rightAxis * axisYDistance;
                     rightAxis++;
                     break;
             }
 
-            // Цифры
-            const axisLabel: ISettings = {
-                fontSize: 12
-            };
-
-            // Настройки оси
-            const axisLine: ISettings = {
-                lineStyle: {}
-            };
-
-            if (!!axisData.color) {
-                axisLabel.color = axisData.color;
-                axisLine.lineStyle.color = axisData.color;
-            }
-
-            const res = {
-                id: k,                                  // Записываем в id реальный индекс оси
-                type: 'value',
-                show: axisData.show,
-                position: axisData.position,
-                min: axisData.min,
-                max: axisData.max,
-                offset: offset,
-                splitNumber: 3,                         // На сколько делить ось
-                // minInterval: maxY / 3,                  // Минимальный размер интервала
-                // maxInterval: maxY / 3,                  // Максимальный размер интервала
-                axisLabel,
-                axisLine,
-                // Насечки на оси
-                axisTick: {
-                    show: axisData.showTick
-                },
-                // Сетка
-                splitLine: {
-                    lineStyle: {
-                        color: '#e9e9e9',
-                        width: 1,
-                        type: 'solid'
-                    }
-                }
-            };
-            _merge(res, nameObj);
-            return res;
+            return SettingsHelper.getYAxisSettings(
+                axisData,
+                k,
+                offset,
+                nameRotate
+            );
         });
 
         // {1: {axesToIndex: [11,22]}, 2: {axesToIndex: [33]} => {11:0, 22:0, 33:1}
         const axesToIndex: {[key: number]: number} = _merge(
-            ..._map(axesData, (v: YAxesData, axisNumber: number) =>
+            ..._map(axesData, (v: YAxisData, axisNumber: number) =>
                 _fromPairs( v.axesToIndex.map((dataSetIdx: number) => {
                     return [dataSetIdx, _findKey(axes, (axesObj: Object) => axesObj['id'] === axisNumber) ?? 0];
                 }))
@@ -674,62 +557,6 @@ export class Spline extends Chart {
             axesToIndex,
             axes
         };
-    }
-
-    /**
-     * Проверяем, есть ли среди графиков гистограммы
-     * Для них необходимо изменить вид графика
-     */
-    private hasHistogram(): boolean {
-        const data: IChartData = this.chartData;
-        if (TypeGuardsHelper.everyIsDataSetTemplate(data.dataSets)) {
-            for (let idx = 0; idx < data.data.length; idx++) {
-                if (this.getDataSetSettings<ChartType>(data.dataSets[idx].settings, 'chartType') === 'HISTOGRAM') {
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
-
-    private getLegend(): Object {
-        const align: LegendPos = this.getWidgetSetting('legend.position');
-        const gap: number = +this.getWidgetSetting('legend.gap');
-        let obj: ISettings = {};
-        switch (align) {
-            case "top":
-                obj = {
-                    orient: 'horizontal',
-                    top: gap,
-                };
-                break;
-            case "right":
-                obj = {
-                    orient: 'vertical',
-                    right: gap,
-                    top: 'middle'
-                };
-                break;
-            case "bottom":
-                obj = {
-                    orient: 'horizontal',
-                    bottom: gap,
-                };
-                break;
-            case "left":
-                obj = {
-                    orient: 'vertical',
-                    left: gap,
-                    top: 'middle'
-                };
-                break;
-        }
-        _merge(obj, {
-            show: this.getWidgetSetting('legend.show'),
-            type: 'plain',
-            align: 'left'
-        });
-        return obj;
     }
 
     /*
@@ -770,7 +597,7 @@ export class Spline extends Chart {
                 shadowBlur: 2,
                 shadowColor: 'rgba(0, 0, 0, 0.3)',
                 type: this.getDataSetSettings(this.chartData.dataSets[idx].settings, 'lineStyle.type'),
-                width: 2,
+                width: this.getDataSetSettings(this.chartData.dataSets[idx].settings, 'lineStyle.width'),
                 opacity: color.opacity,         // Прозрачность линии
             },
             label: {
@@ -945,7 +772,7 @@ export class Spline extends Chart {
 
     getTemplate(): string {
         return `
-            <div class='${s['widget']}  ${w['widget']}' style="{{backgroundStyle}}">
+            <div class='${s['widget']}  ${w['widget']}' style="{{backgroundStyle}} {{paddingStyle}}">
                 {{#showTitle}}
                 <div class='${w['row']}'>
                     <div class="${w['title']}" style="{{titleStyle}}">
