@@ -1,6 +1,6 @@
 import {BaseSetting} from "./BaseSetting";
 import {SettingFunc, WidgetSettingsArray, WidgetSettingsItem} from "../types";
-import {ISettings} from "../../interfaces";
+import {ISettings, INameValue} from "../../interfaces";
 
 type DefaultType = ISettings;
 
@@ -16,7 +16,8 @@ export function makeSettingsGroup(
     settings: Array<SettingFunc[]>,
     data: {
         collapse?: boolean;         // Сворачивание при инициализации,
-        oneLineRows?: boolean;      // Группа, в которой все элементы это отдельный строка
+        oneLineRows?: boolean;      // Группа, в которой все элементы это отдельный строка,
+        condition?: string;         // Условия на JS в формате "${var1} === 'foo' && ${var2} > 2"
     } = null
 ): SettingFunc {
     const defSettings: DefaultType = {};
@@ -36,5 +37,6 @@ export function makeSettingsGroup(
         settings: settings.map((row: SettingFunc[]) => row.map((v: SettingFunc) => v())),
         collapse: data?.collapse ?? false,
         oneLineRows: data?.oneLineRows ?? false,
+        condition: data?.condition ?? ''
     });
 }

@@ -17,7 +17,7 @@ import {
 } from 'lodash';
 import {Chart} from '../../models/Chart';
 import {MathHelper, SettingsHelper, TimeSeriesData, TimeSeriesHelper} from '../../helpers';
-import {ChartType, XAxisPos, YAxisPos} from "../../models/types";
+import {ChartType, HistogramType, XAxisPos, YAxisPos} from "../../models/types";
 import {TSPoint, DimensionFilter} from "../../interfaces/graphQL";
 import {TypeGuardsHelper} from "../../helpers";
 import {IWidgetSettings} from "../../widgetSettings";
@@ -471,9 +471,7 @@ export class Spline extends Chart {
         const data: IChartData = this.chartData;
         const axesData: {[key: number]: YAxisData} = {};
 
-        /*
-            Готовим данные для осей
-         */
+        // Готовим данные для осей
         if (TypeGuardsHelper.everyIsDataSetTemplate(data.dataSets)) {
             for (let idx = 0; idx < data.data.length; idx++) {
                 const dataSetSettings: ISettings = data.dataSets[idx].settings;
@@ -489,7 +487,11 @@ export class Spline extends Chart {
 
                 if (axesData[axisNumber] !== undefined) {
                     axesData[axisNumber].min = _min([axesData[axisNumber].min, min]);
-                    axesData[axisNumber].max = _max([axesData[axisNumber].max, max]);
+                    if (this.getWidgetSetting<HistogramType>('histogram.type') === 'stack') {
+                        axesData[axisNumber].max += max;
+                    } else {
+                        axesData[axisNumber].max = _max([axesData[axisNumber].max, max]);
+                    }
                     axesData[axisNumber].axesToIndex.push(idx);
                 } else {
                     let color: string = this.getAxisSetting('axesY', 'color', axisNumber) as string;
@@ -513,9 +515,7 @@ export class Spline extends Chart {
             }
         }
 
-        /*
-            Готовим данные для echarts
-         */
+        // Готовим данные для echarts
         const axisYDistance: number = this.getWidgetSetting('axisYDistance');
         let leftAxis = 0;
         let rightAxis = 0;
@@ -584,7 +584,6 @@ export class Spline extends Chart {
             smooth: true,
             forComparing: 0,
             xAxisIndex: 0,
-            stack: null,
             seriesLayoutBy: 'column',
             showSymbol: true,
             symbolSize: 4,
@@ -623,6 +622,23 @@ export class Spline extends Chart {
     }
 
     private getHistogramSeries(idx: number, color: IColor): Object {
+        const dataSetSettings: ISettings = this.chartData.dataSets[idx].settings;
+        const axisNumber: number = +this.getDataSetSettings(dataSetSettings, 'axisY');
+
+        let histogramType: ISettings = {};
+        switch (this.getWidgetSetting<HistogramType>('histogram.type')) {
+            case "stack":
+                histogramType = {
+                    stack: `stackHistogram_${axisNumber}`
+                };
+                break;
+            case "overlap":
+                histogramType = {
+                    barGap: '-100%',
+                };
+                break;
+        }
+
         return this.applySettings(idx, 'HISTOGRAM', {
             type: 'bar',
             xAxisIndex: 0,
@@ -630,7 +646,7 @@ export class Spline extends Chart {
 
             color: color.hex,                   // Основной цвет
             itemStyle: {
-                opacity: color.opacity          // Прозрачность влияет на весь подписи + метки
+                opacity: color.opacity          // Прозрачность влияет на весь bar подписи + метки
             },
             label: {
                 show: false,
@@ -646,7 +662,11 @@ export class Spline extends Chart {
             animation: true,
             animationDelay: 0,
             animationDelayUpdate: 0,
-            showSymbol: true
+            showSymbol: true,
+
+            barGap: this.getWidgetSetting('histogram.barGap') + '%',
+            barCategoryGap: this.getWidgetSetting('histogram.barCategoryGap') + '%',
+            ...histogramType        // Обязательно после barGap и barCategoryGap
         });
     }
 
@@ -742,7 +762,7 @@ export class Spline extends Chart {
             this.chartData.dataSets.forEach((v: DataSetTemplate) => {
                 if (TypeGuardsHelper.isSingleDataSource(v.dataSource1)) {
                     // Ищем dataSource для почты
-                    if (pochtaDataSources.includes(v.dataSource1.name)) {
+                    // if (pochtaDataSources.includes(v.dataSource1.name)) {
                         for (const dimName in event) {
                             if (!event.hasOwnProperty(dimName)) {
                                 continue;
@@ -763,7 +783,7 @@ export class Spline extends Chart {
                             }
                             needReload = true;
                         }
-                    }
+                    // }
                 }
             });
         }

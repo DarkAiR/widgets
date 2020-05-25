@@ -163,6 +163,7 @@ export class Distribution extends Chart {
     }
 
     private getHistogramSeries(idx: number, color: IColor): Object {
+        const dataSetSettings: ISettings = this.chartData.dataSets[0].settings;
         return this.applySettings(idx, 'HISTOGRAM', {
             type: 'bar',
             xAxisIndex: 0,
@@ -186,7 +187,8 @@ export class Distribution extends Chart {
             animation: true,
             animationDelay: 0,
             animationDelayUpdate: 0,
-            showSymbol: true
+            showSymbol: true,
+            barCategoryGap: this.getDataSetSettings(dataSetSettings, 'histogram.barCategoryGap') + '%',
         });
     }
 

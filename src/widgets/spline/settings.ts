@@ -1,7 +1,7 @@
 import {IWidgetSettings, makeSettings} from "../../widgetSettings";
 import {
     ChartType,
-    ChartTypeValues,
+    ChartTypeValues, HistogramType, HistogramTypeValues,
     LineType,
     LineTypeValues,
 } from "../../models/types";
@@ -22,7 +22,15 @@ export const settings: IWidgetSettings = makeSettings({
         ...settingsPresets.chartPaddings,
         ...settingsPresets.multiAxesY,
         ...settingsPresets.multiAxesX,
-        ...settingsPresets.legend
+        ...settingsPresets.legend,
+        makeSettingsGroup('histogram', 'Гистограмма', [
+            [
+                makeList<HistogramType>('type', 'Вид гистограммы', 'normal', HistogramTypeValues),
+            ], [
+                makeNumber('barCategoryGap', 'Расст. между категориями, в %', 20),
+                makeNumber('barGap', 'Расст. между источниками, в %', 30, {condition: '${type} === "normal"'}),
+            ]
+        ])
     ],
     dataSet: {
         initDataSets: [{viewType: 'DYNAMIC'}],
@@ -31,15 +39,17 @@ export const settings: IWidgetSettings = makeSettings({
             makeString('name', 'Название'),
             makeColor('color', ' Цвет'),
             makeList<ChartType>('chartType', 'Вид', 'LINE', ChartTypeValues),
-            makeNumber('axisY', 'Номер оси Y', 1),
             makeSettingsGroup('lineStyle', 'Стиль линии', [
                 [
                     makeList<LineType>('type', 'Тип', 'solid', LineTypeValues),
                     makeNumber('width', 'Ширина', 2)
                 ],
-            ]),
+            ], {
+                condition: '${chartType} === "LINE"'
+            }),
             ...settingsPresets.fill,
             ...settingsPresets.label,
+            makeNumber('axisY', 'Номер оси Y', 1),
         ]
     }
 });

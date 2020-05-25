@@ -7,7 +7,7 @@ import {
 } from "../../widgetSettings/controls";
 import {
     ChartType,
-    ChartTypeValues, LegendPos, LegendPosValues,
+    ChartTypeValues, HistogramType, HistogramTypeValues, LegendPos, LegendPosValues,
     LineType,
     LineTypeValues,
     XAxisPos, XAxisPosValues,
@@ -38,7 +38,16 @@ export const settings: IWidgetSettings = makeSettings({
                     makeList<LineType>('type', 'Тип', 'solid', LineTypeValues),
                     makeNumber('width', 'Ширина', 2)
                 ],
-            ]),
+            ], {
+                condition: '${chartType} === "LINE"'
+            }),
+            makeSettingsGroup('histogram', 'Гистограмма', [
+                [
+                    makeNumber('barCategoryGap', 'Расст. между категориями, в %', 20),
+                ]
+            ], {
+                condition: '${chartType} === "HISTOGRAM"'
+            }),
             ...settingsPresets.fill,
             ...settingsPresets.label,
         ]

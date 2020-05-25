@@ -171,6 +171,7 @@ export class Profile extends Chart {
     }
 
     private getHistogramSeries(idx: number, color: IColor): Object {
+        const dataSetSettings: ISettings = this.chartData.dataSets[0].settings;
         return this.applySettings(idx, 'HISTOGRAM', {
             type: 'bar',
             xAxisIndex: 0,
@@ -194,7 +195,8 @@ export class Profile extends Chart {
             animation: true,
             animationDelay: 0,
             animationDelayUpdate: 0,
-            showSymbol: true
+            showSymbol: true,
+            barCategoryGap: this.getDataSetSettings(dataSetSettings, 'histogram.barCategoryGap') + '%',
         });
     }
 
@@ -309,7 +311,7 @@ export class Profile extends Chart {
             this.chartData.dataSets.forEach((v: DataSetTemplate) => {
                 if (TypeGuardsHelper.isSingleDataSource(v.dataSource1)) {
                     // Ищем dataSource для почты
-                    if (pochtaDataSources.includes(v.dataSource1.name)) {
+                    // if (pochtaDataSources.includes(v.dataSource1.name)) {
                         for (const dimName in event) {
                             if (!event.hasOwnProperty(dimName)) {
                                 continue;
@@ -330,7 +332,7 @@ export class Profile extends Chart {
                             }
                             needReload = true;
                         }
-                    }
+                    // }
                 }
             });
         }
