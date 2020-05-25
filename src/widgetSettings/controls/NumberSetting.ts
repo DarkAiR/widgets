@@ -8,7 +8,16 @@ export interface NumberSetting extends BaseSetting<DefaultType> {
     max: number;
 }
 
-export function makeNumber(name: string, label: string, def: DefaultType, data: {min: number, max: number} = null): SettingFunc {
+export function makeNumber(
+    name: string,
+    label: string,
+    def: DefaultType,
+    data: {
+        min?: number,
+        max?: number
+        condition?: string;         // Условия на JS в формате "${var1} === 'foo' && ${var2} > 2"
+    } = null
+): SettingFunc {
     return (): NumberSetting => ({
         name,
         label,
@@ -16,6 +25,6 @@ export function makeNumber(name: string, label: string, def: DefaultType, data: 
         default: def,
         min: data?.min ?? null,
         max: data?.max ?? null,
-        condition: ''
+        condition: data?.condition ?? ''
     });
 }

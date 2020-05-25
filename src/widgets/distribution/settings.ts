@@ -15,7 +15,7 @@ export const settings: IWidgetSettings = makeSettings({
         ...settingsPresets.chartPaddings,
         ...settingsPresets.axisY,
         ...settingsPresets.axisX,
-        ...settingsPresets.legend
+        ...settingsPresets.legend,
     ],
     dataSet: {
         initDataSets: [{viewType: 'DISTRIBUTION'}],
@@ -29,7 +29,16 @@ export const settings: IWidgetSettings = makeSettings({
                     makeList<LineType>('type', 'Тип', 'solid', LineTypeValues),
                     makeNumber('width', 'Ширина', 2)
                 ],
-            ]),
+            ], {
+                condition: '${chartType} === "LINE"'
+            }),
+            makeSettingsGroup('histogram', 'Гистограмма', [
+                [
+                    makeNumber('barCategoryGap', 'Расст. между категориями, в %', 20),
+                ]
+            ], {
+                condition: '${chartType} === "HISTOGRAM"'
+            }),
             ...settingsPresets.fill,
             ...settingsPresets.label,
         ]

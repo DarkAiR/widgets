@@ -487,7 +487,7 @@ export class Spline extends Chart {
 
                 if (axesData[axisNumber] !== undefined) {
                     axesData[axisNumber].min = _min([axesData[axisNumber].min, min]);
-                    if (this.getWidgetSetting<HistogramType>('histogramType') === 'stack') {
+                    if (this.getWidgetSetting<HistogramType>('histogram.type') === 'stack') {
                         axesData[axisNumber].max += max;
                     } else {
                         axesData[axisNumber].max = _max([axesData[axisNumber].max, max]);
@@ -626,7 +626,7 @@ export class Spline extends Chart {
         const axisNumber: number = +this.getDataSetSettings(dataSetSettings, 'axisY');
 
         let histogramType: ISettings = {};
-        switch (this.getWidgetSetting<HistogramType>('histogramType')) {
+        switch (this.getWidgetSetting<HistogramType>('histogram.type')) {
             case "stack":
                 histogramType = {
                     stack: `stackHistogram_${axisNumber}`
@@ -635,7 +635,6 @@ export class Spline extends Chart {
             case "overlap":
                 histogramType = {
                     barGap: '-100%',
-                    barCategoryGap: '20%'
                 };
                 break;
         }
@@ -664,7 +663,10 @@ export class Spline extends Chart {
             animationDelay: 0,
             animationDelayUpdate: 0,
             showSymbol: true,
-            ...histogramType
+
+            barGap: this.getWidgetSetting('histogram.barGap') + '%',
+            barCategoryGap: this.getWidgetSetting('histogram.barCategoryGap') + '%',
+            ...histogramType        // Обязательно после barGap и barCategoryGap
         });
     }
 

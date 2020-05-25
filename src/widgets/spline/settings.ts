@@ -23,7 +23,14 @@ export const settings: IWidgetSettings = makeSettings({
         ...settingsPresets.multiAxesY,
         ...settingsPresets.multiAxesX,
         ...settingsPresets.legend,
-        makeList<HistogramType>('histogramType', 'Вид гистограммы', 'normal', HistogramTypeValues),
+        makeSettingsGroup('histogram', 'Гистограмма', [
+            [
+                makeList<HistogramType>('type', 'Вид гистограммы', 'normal', HistogramTypeValues),
+            ], [
+                makeNumber('barCategoryGap', 'Расст. между категориями, в %', 20),
+                makeNumber('barGap', 'Расст. между источниками, в %', 30, {condition: '${type} === "normal"'}),
+            ]
+        ])
     ],
     dataSet: {
         initDataSets: [{viewType: 'DYNAMIC'}],
