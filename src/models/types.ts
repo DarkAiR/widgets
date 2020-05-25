@@ -28,3 +28,7 @@ export type LegendPos = typeof LegendPosValues[number];
 
 export type MethodType = 'MAPE' | 'MAE' | 'coverage' | 'utilization';
 export type ServerType = 'druid' | 'qlik';
+
+// Варианты отображения HISTOGRAM
+export const HistogramTypeValues = ['normal', 'stack', 'overlap'] as const;
+export type HistogramType = typeof HistogramTypeValues[number];

@@ -1,7 +1,7 @@
 import {IWidgetSettings, makeSettings} from "../../widgetSettings";
 import {
     ChartType,
-    ChartTypeValues,
+    ChartTypeValues, HistogramType, HistogramTypeValues,
     LineType,
     LineTypeValues,
 } from "../../models/types";
@@ -22,7 +22,8 @@ export const settings: IWidgetSettings = makeSettings({
         ...settingsPresets.chartPaddings,
         ...settingsPresets.multiAxesY,
         ...settingsPresets.multiAxesX,
-        ...settingsPresets.legend
+        ...settingsPresets.legend,
+        makeList<HistogramType>('histogramType', 'Вид гистограммы', 'normal', HistogramTypeValues),
     ],
     dataSet: {
         initDataSets: [{viewType: 'DYNAMIC'}],
