@@ -5,4 +5,5 @@ export interface BaseSetting<T> {
     label: string;                  // Заголовок переменной (для checkbox label != name)
     type: WidgetSettingsTypes;      // Тип настройки
     default: T | null;              // Значение по-умолчанию
+    condition: string;              // Условие отображения
 }

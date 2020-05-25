@@ -11,6 +11,7 @@ export function makeBoolean(name: string, label: string, def: DefaultType): Sett
         name,
         label,
         type: 'boolean',
-        default: def
+        default: def,
+        condition: ''
     });
 }

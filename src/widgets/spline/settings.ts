@@ -31,15 +31,17 @@ export const settings: IWidgetSettings = makeSettings({
             makeString('name', 'Название'),
             makeColor('color', ' Цвет'),
             makeList<ChartType>('chartType', 'Вид', 'LINE', ChartTypeValues),
-            makeNumber('axisY', 'Номер оси Y', 1),
             makeSettingsGroup('lineStyle', 'Стиль линии', [
                 [
                     makeList<LineType>('type', 'Тип', 'solid', LineTypeValues),
                     makeNumber('width', 'Ширина', 2)
                 ],
-            ]),
+            ], {
+                condition: '${chartType} === "LINE"'
+            }),
             ...settingsPresets.fill,
             ...settingsPresets.label,
+            makeNumber('axisY', 'Номер оси Y', 1),
         ]
     }
 });

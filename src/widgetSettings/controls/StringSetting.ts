@@ -11,6 +11,7 @@ export function makeString(name: string, label: string, def: DefaultType = null)
         name,
         label: label,
         type: 'string',
-        default: def ?? ''
+        default: def ?? '',
+        condition: ''
     });
 }

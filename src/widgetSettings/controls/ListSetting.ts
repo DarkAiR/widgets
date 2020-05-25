@@ -29,6 +29,7 @@ export function makeList<T = void, U extends T = T>(
         label,
         type: 'list',
         default: def,
-        list
+        list,
+        condition: ''
     });
 }
