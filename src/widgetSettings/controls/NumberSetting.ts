@@ -15,6 +15,7 @@ export function makeNumber(name: string, label: string, def: DefaultType, data: 
         type: 'number',
         default: def,
         min: data?.min ?? null,
-        max: data?.max ?? null
+        max: data?.max ?? null,
+        condition: ''
     });
 }

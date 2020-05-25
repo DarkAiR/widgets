@@ -11,6 +11,7 @@ export function makeIcon(name: string, label: string, def: DefaultType): Setting
         name,
         label,
         type: 'icon',
-        default: def
+        default: def,
+        condition: ''
     });
 }

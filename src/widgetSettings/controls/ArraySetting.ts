@@ -25,5 +25,6 @@ export function makeArray(
         // settings - это массив из строк
         settings: settings.map((row: SettingFunc[]) => row.map((v: SettingFunc) => v())),
         collapse: data?.collapse ?? false,
+        condition: ''
     });
 }
