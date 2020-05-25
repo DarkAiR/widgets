@@ -124,7 +124,7 @@ export class Table extends Chart {
                 joinDataSet.dataSetTemplates.forEach((v: TimeSeriesDataSetShort) => {
                     if (TypeGuardsHelper.isSingleDataSource(v.dataSource1)) {
                         // Ищем dataSource для почты
-                        if (pochtaDataSources.includes(v.dataSource1.name)) {
+                        // if (pochtaDataSources.includes(v.dataSource1.name)) {
                             for (const dimName in event) {
                                 if (!event.hasOwnProperty(dimName)) {
                                     continue;
@@ -145,7 +145,7 @@ export class Table extends Chart {
                                 }
                                 needReload = true;
                             }
-                        }
+                        // }
                     }
                 });
             });

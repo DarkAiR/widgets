@@ -762,7 +762,7 @@ export class Spline extends Chart {
             this.chartData.dataSets.forEach((v: DataSetTemplate) => {
                 if (TypeGuardsHelper.isSingleDataSource(v.dataSource1)) {
                     // Ищем dataSource для почты
-                    if (pochtaDataSources.includes(v.dataSource1.name)) {
+                    // if (pochtaDataSources.includes(v.dataSource1.name)) {
                         for (const dimName in event) {
                             if (!event.hasOwnProperty(dimName)) {
                                 continue;
@@ -783,7 +783,7 @@ export class Spline extends Chart {
                             }
                             needReload = true;
                         }
-                    }
+                    // }
                 }
             });
         }

@@ -90,7 +90,7 @@ export class Report extends Chart {
             this.chartData.dataSets.forEach((v: DataSetTemplate) => {
                 if (TypeGuardsHelper.isSingleDataSource(v.dataSource1) && TypeGuardsHelper.isSingleDataSource(v.dataSource2)) {
                     // Ищем dataSource для почты
-                    if (pochtaDataSources.includes(v.dataSource1.name)) {
+                    // if (pochtaDataSources.includes(v.dataSource1.name)) {
                         for (const dimName in event) {
                             if (!event.hasOwnProperty(dimName)) {
                                 continue;
@@ -113,7 +113,7 @@ export class Report extends Chart {
                                 needReload = true;
                             });
                         }
-                    }
+                    // }
                 }
             });
         }
