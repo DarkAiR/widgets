@@ -132,11 +132,16 @@ export class Spline extends Chart {
             myChart.setOption(options);
 
             if (enableZoom) {
+                const widget = this.config.element.getElementsByClassName(w['widget'])[0];
+                widget.addEventListener('mouseenter', () => { console.log('mouseenter'); });
+                widget.addEventListener('mouseleave', () => { console.log('mouseleave'); });
+
+
                 if (this.baseInterval !== 'HOUR') {
                     myChart.on('dblclick', 'xAxis.category', (param: IEventAxisXClick) => this.onClickAxisX(param.value as string));
                 }
                 const toolbtn = this.config.element.getElementsByClassName(w['toolbtn'])[0];
-                toolbtn.addEventListener("click", this.revertInterval);
+                toolbtn.addEventListener("click", this.revertInterval.bind(this));
             }
 
             this.onResize = (width: number, height: number): void => {
