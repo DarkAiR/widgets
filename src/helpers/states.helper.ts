@@ -14,10 +14,25 @@ export class StatesHelper {
         StatesHelper.stack[idx].push(changes);
     }
 
-    static getLastChanges(idx: string | number = 0): ISettings {
+    /**
+     * Get last changes and exclude it
+     */
+    static getLastChanges<T = ISettings>(idx: string | number = 0): T {
         if (StatesHelper.stack[idx] !== undefined) {
             if (StatesHelper.stack[idx].length) {
-                return StatesHelper.stack[idx].splice(-1)[0];
+                return StatesHelper.stack[idx].splice(-1)[0] as T;
+            }
+        }
+        return {} as T;
+    }
+
+    /**
+     * Get first changes and leave it
+     */
+    static getFirstChanges(idx: string | number = 0): ISettings {
+        if (StatesHelper.stack[idx] !== undefined) {
+            if (StatesHelper.stack[idx].length) {
+                return StatesHelper.stack[idx][0];
             }
         }
         return {};

@@ -27,4 +27,8 @@ export class DateHelper {
             'T' + pad(date.getHours()) +
             ':' + pad(date.getMinutes());
     }
+
+    static addDate(date: Date, year: number, month: number, day: number): Date {
+        return new Date(date.getFullYear() + year, date.getMonth() + month, date.getDate() + day, date.getHours(), date.getMinutes(), date.getSeconds(), date.getMilliseconds());
+    }
 }

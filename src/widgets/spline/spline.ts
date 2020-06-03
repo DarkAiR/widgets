@@ -24,11 +24,21 @@ import {IWidgetSettings} from "../../widgetSettings";
 import {WidgetSettingsItem} from "../../widgetSettings/types";
 import {IEventAxisXClick} from "../../interfaces/echarts";
 
+interface Interval {
+    currInterval: Frequency;        // Текущий отображаемый интервал
+    subInterval: Frequency;         // Интервал, на которые делится текущий
+    cutFrom: string;
+    cutTo: string;
+}
+
 export class Spline extends Chart {
-    private cutFrom: string = null;
-    private cutTo: string = null;
-    private baseInterval: Frequency = null;         // Начальный максимальный интервал. Нужен для начальной точки при расчете текущего интервала
-    private shortestFrequency: Frequency = null;    // Самая короткая частота. Нужна для формирования подписей, <= baseInterval
+    private interval: Interval = {
+        currInterval: null,
+        subInterval: null,
+        cutFrom: null,
+        cutTo: null
+    };
+    private shortestFrequency: Frequency = null;    // Самая короткая частота. Нужна для формирования подписей, <= subInterval
 
     getVariables(): IWidgetVariables {
         const res: IWidgetVariables = {};
@@ -61,10 +71,10 @@ export class Spline extends Chart {
         if (TypeGuardsHelper.everyIsDataSetTemplate(data.dataSets)) {
             const enableZoom: boolean = this.getWidgetSetting('enableZoom');
 
-            const timeSeriesData: TimeSeriesData = TimeSeriesHelper.convertTimeSeriesToData(data, this.cutFrom, this.cutTo);
+            const timeSeriesData: TimeSeriesData = TimeSeriesHelper.convertTimeSeriesToData(data, this.interval.cutFrom, this.interval.cutTo);
 
             // shortestFrequency определяет размерность оси X
-            this.baseInterval = TimeSeriesHelper.calcInterval(timeSeriesData.dates);
+            this.interval.subInterval = TimeSeriesHelper.calcInterval(timeSeriesData.dates);
             [, this.shortestFrequency] = TimeSeriesHelper.getShortestInterval(data);
 
             const xAxesData = this.getXAxes(timeSeriesData);
@@ -125,6 +135,7 @@ export class Spline extends Chart {
                 backgroundStyle: this.getBackgroundStyle(this.getWidgetSetting('backgroundColor')),
                 paddingStyle: this.getPaddingStyle(this.getWidgetSetting('paddings')),
                 enableZoom,
+                disableBtn: StatesHelper.isEmpty('interval')
             });
 
             const el = this.config.element.getElementsByClassName(w['chart'])[0];
@@ -132,16 +143,13 @@ export class Spline extends Chart {
             myChart.setOption(options);
 
             if (enableZoom) {
-                const widget = this.config.element.getElementsByClassName(w['widget'])[0];
-                widget.addEventListener('mouseenter', () => { console.log('mouseenter'); });
-                widget.addEventListener('mouseleave', () => { console.log('mouseleave'); });
-
-
-                if (this.baseInterval !== 'HOUR') {
+                if (this.interval.subInterval !== 'HOUR') {
                     myChart.on('dblclick', 'xAxis.category', (param: IEventAxisXClick) => this.onClickAxisX(param.value as string));
                 }
-                const toolbtn = this.config.element.getElementsByClassName(w['toolbtn'])[0];
-                toolbtn.addEventListener("click", this.revertInterval.bind(this));
+                const buttons = this.config.element.getElementsByClassName(w['toolbtn']);
+                buttons[0].addEventListener("click", this.leftInterval.bind(this));
+                buttons[1].addEventListener("click", this.revertInterval.bind(this));
+                buttons[2].addEventListener("click", this.rightInterval.bind(this));
             }
 
             this.onResize = (width: number, height: number): void => {
@@ -454,7 +462,7 @@ export class Spline extends Chart {
                         case 'MONTH':
                             return monthNames[date.getMonth()];
                         case 'HOUR':
-                            if (this.baseInterval === 'HOUR') {
+                            if (this.interval.subInterval === 'HOUR') {
                                 return ('0' + date.getHours()).slice(-2) + ':00';
                             }
                             break;
@@ -463,7 +471,7 @@ export class Spline extends Chart {
                 },
                 offset,
                 this.hasHistogram(),
-                enableZoom && this.baseInterval !== 'HOUR'
+                enableZoom && this.interval.subInterval !== 'HOUR'
             );
             res.data = timeSeriesArr[axisData.axesToIndex[0]];      // FIXME: собирать данные со всех осей
             return res;
@@ -740,6 +748,77 @@ export class Spline extends Chart {
         return seriesData;
     }
 
+    /**
+     * Переместиться влево по интервалам
+     */
+    private leftInterval(): void {
+        let newDate: Date = null;
+        switch (this.interval.currInterval) {
+            case 'YEAR':
+                newDate = DateHelper.addDate(new Date(this.interval.cutFrom), -1, 0, 0);
+                break;
+            case 'MONTH':
+                newDate = DateHelper.addDate(new Date(this.interval.cutFrom), 0, -1, 0);
+                break;
+            case 'DAY':
+                newDate = DateHelper.addDate(new Date(this.interval.cutFrom), 0, 0, -1);
+                break;
+        }
+        if (newDate !== null) {
+            let newInterval: Frequency = TimeSeriesHelper.decreaseFrequency(this.interval.currInterval, 'HOUR');
+            if (newInterval === 'WEEK') {
+                newInterval = TimeSeriesHelper.decreaseFrequency(newInterval, 'HOUR');
+            }
+            [this.interval.cutFrom, this.interval.cutTo, ] = this.calcCutInterval(newInterval, newDate);
+        }
+
+        // Выставляем новые интервалы
+        this.chartData.dataSets.forEach((dataSet: DataSetTemplate, idx: number) => {
+            dataSet.period = null;
+            dataSet.from = DateHelper.yyyymmdd(new Date(this.interval.cutFrom));
+            dataSet.to = DateHelper.yyyymmdd(new Date(this.interval.cutTo));
+        });
+
+        this.redraw().then();
+    }
+
+    /**
+     * Переместиться вправо по интервалам
+     */
+    private rightInterval(): void {
+        let newDate: Date = null;
+        switch (this.interval.currInterval) {
+            case 'YEAR':
+                newDate = DateHelper.addDate(new Date(this.interval.cutFrom), 1, 0, 0);
+                break;
+            case 'MONTH':
+                newDate = DateHelper.addDate(new Date(this.interval.cutFrom), 0, 1, 0);
+                break;
+            case 'DAY':
+                newDate = DateHelper.addDate(new Date(this.interval.cutFrom), 0, 0, 1);
+                break;
+        }
+        if (newDate !== null) {
+            let newInterval: Frequency = TimeSeriesHelper.decreaseFrequency(this.interval.currInterval, 'HOUR');
+            if (newInterval === 'WEEK') {
+                newInterval = TimeSeriesHelper.decreaseFrequency(newInterval, 'HOUR');
+            }
+            [this.interval.cutFrom, this.interval.cutTo, ] = this.calcCutInterval(newInterval, newDate);
+        }
+
+        // Выставляем новые интервалы
+        this.chartData.dataSets.forEach((dataSet: DataSetTemplate, idx: number) => {
+            dataSet.period = null;
+            dataSet.from = DateHelper.yyyymmdd(new Date(this.interval.cutFrom));
+            dataSet.to = DateHelper.yyyymmdd(new Date(this.interval.cutTo));
+        });
+
+        this.redraw().then();
+    }
+
+    /**
+     * Вернуться на верхний интервал
+     */
     private revertInterval(): void {
         let changed: boolean = false;
         this.chartData.dataSets.forEach((dataSet: DataSetTemplate, idx: number) => {
@@ -747,10 +826,7 @@ export class Spline extends Chart {
                 const obj: ISettings = StatesHelper.getLastChanges(idx);
                 _merge(dataSet, obj);
 
-                const interval: ISettings = StatesHelper.getLastChanges('interval');
-                this.baseInterval = interval.baseInterval;
-                this.cutFrom = interval.cutFrom;
-                this.cutTo = interval.cutTo;
+                this.interval = StatesHelper.getLastChanges<Interval>('interval');
                 changed = true;
             }
         });
@@ -764,16 +840,12 @@ export class Spline extends Chart {
      */
     private onClickAxisX(paramDate: string): void {
         // Проваливаемся на след. интервал
-        if (this.baseInterval === 'HOUR') {
+        if (this.interval.subInterval === 'HOUR') {
             return;
         }
-        StatesHelper.push({
-            baseInterval: this.baseInterval,
-            cutFrom: this.cutFrom,
-            cutTo: this.cutTo
-        }, 'interval');
+        StatesHelper.push(_cloneDeep(this.interval), 'interval');
 
-        let newInterval: Frequency = TimeSeriesHelper.decreaseFrequency(this.baseInterval, 'HOUR');
+        let newInterval: Frequency = TimeSeriesHelper.decreaseFrequency(this.interval.subInterval, 'HOUR');
         if (newInterval === 'WEEK') {
             newInterval = TimeSeriesHelper.decreaseFrequency(newInterval, 'HOUR');
         }
@@ -781,11 +853,8 @@ export class Spline extends Chart {
         // paramDate может в общем случае быть чем угодно, поэтому проверяем
         const date: Date = new Date(paramDate);
         if (!isNaN(date.getTime())) {
-            [this.cutFrom, this.cutTo] = this.calcCutInterval(newInterval, date);
+            [this.interval.cutFrom, this.interval.cutTo, this.interval.currInterval] = this.calcCutInterval(newInterval, date);
         }
-
-        const fromTime: number = new Date(this.cutFrom).getTime();
-        const toTime: number = new Date(this.cutTo).getTime();
 
         // Считаем новый массив Frequency, проверяем, что он может уменьшаться
         let canChangeFreq: boolean = false;
@@ -806,8 +875,8 @@ export class Spline extends Chart {
             }
             if (canChangeFreq) {
                 dataSet.period = null;
-                dataSet.from = DateHelper.yyyymmdd(new Date(fromTime));
-                dataSet.to = DateHelper.yyyymmdd(new Date(toTime));
+                dataSet.from = DateHelper.yyyymmdd(new Date(this.interval.cutFrom));
+                dataSet.to = DateHelper.yyyymmdd(new Date(this.interval.cutTo));
             }
         });
         if (!canChangeFreq) {
@@ -821,29 +890,33 @@ export class Spline extends Chart {
     /**
      * Рассчитать интервал обрезки
      */
-    private calcCutInterval(newInterval: Frequency, date: Date): [string, string] {
+    private calcCutInterval(newInterval: Frequency, date: Date): [string, string, Frequency] {
         let cutFrom: string = null;
         let cutTo: string = null;
+        let currInterval: Frequency = newInterval;
         switch (newInterval) {
             // Отображаем месяцы в году
             case 'MONTH':
                 cutFrom = DateHelper.toISOString(new Date(date.getFullYear(), 0, 1, 0, 0));
                 cutTo = DateHelper.toISOString(new Date(date.getFullYear(), 11, 31, 23, 59));
+                currInterval = 'YEAR';
                 break;
             // Отображаем дни в месяце
             case 'DAY':
                 cutFrom = DateHelper.toISOString(new Date(date.getFullYear(), date.getMonth(), 1, 0, 0));
                 cutTo = DateHelper.toISOString(new Date(date.getFullYear(), date.getMonth(), DateHelper.getDaysInMonth(date), 23, 59));
+                currInterval = 'MONTH';
                 break;
             // Отображаем часы в дне
             case 'HOUR':
                 cutFrom = DateHelper.toISOString(new Date(date.getFullYear(), date.getMonth(), date.getDate(), 0, 0));
                 cutTo = DateHelper.toISOString(new Date(date.getFullYear(), date.getMonth(), date.getDate(), 23, 59));
+                currInterval = 'DAY';
                 break;
             default:
                 throw new Error('Invalid interval: ' + newInterval);
         }
-        return [cutFrom, cutTo];
+        return [cutFrom, cutTo, currInterval];
     }
 
     /**
@@ -934,7 +1007,17 @@ export class Spline extends Chart {
                         {{title}}
                     </div>
                     {{#enableZoom}}
-                        <div class="${w['toolbtn']}"><i class="mdi mdi-undo"></i></div>
+                        <div class="${s['d-flex']} ${w['toolbox']}">
+                            <div class="${s['btn']} ${s['btn-icon']} ${w['toolbtn']}" {{#disableBtn}}disabled="disabled"{{/disableBtn}}>
+                                <i class="mdi mdi-arrow-left"></i>
+                            </div>
+                            <div class="${s['btn']} ${s['btn-icon']} ${w['toolbtn']}" {{#disableBtn}}disabled="disabled"{{/disableBtn}}>
+                                <i class="mdi mdi-arrow-up"></i>
+                            </div>
+                            <div class="${s['btn']} ${s['btn-icon']} ${w['toolbtn']}" {{#disableBtn}}disabled="disabled"{{/disableBtn}}>
+                                <i class="mdi mdi-arrow-right"></i>
+                            </div>
+                        </div>
                     {{/enableZoom}}
                 </div>
                 {{/showTitle}}
