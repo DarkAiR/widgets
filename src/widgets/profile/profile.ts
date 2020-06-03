@@ -220,7 +220,8 @@ export class Profile extends Chart {
             0,
             null,
             0,
-            this.hasHistogram()
+            this.hasHistogram(),
+            false
         );
         res.data = xAxisValues;
         return res;
@@ -289,6 +290,10 @@ export class Profile extends Chart {
         return seriesData;
     }
 
+    /**
+     * Обработка событий
+     * NOTE: все данные меняются в this.config.template
+     */
     // tslint:disable-next-line:no-any
     private onEventBusFunc(varName: string, value: any, dataSourceId: number): boolean {
         console.groupCollapsed('Profile EventBus data');
@@ -307,8 +312,8 @@ export class Profile extends Chart {
 
     private processingOrgUnits(event: IEventOrgUnits): boolean {
         let needReload = false;
-        if (TypeGuardsHelper.everyIsDataSetTemplate(this.chartData.dataSets)) {
-            this.chartData.dataSets.forEach((v: DataSetTemplate) => {
+        if (TypeGuardsHelper.everyIsDataSetTemplate(this.config.template.dataSets)) {
+            this.config.template.dataSets.forEach((v: DataSetTemplate) => {
                 if (TypeGuardsHelper.isSingleDataSource(v.dataSource1)) {
                     // Ищем dataSource для почты
                     // if (pochtaDataSources.includes(v.dataSource1.name)) {

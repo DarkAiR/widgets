@@ -212,7 +212,8 @@ export class Distribution extends Chart {
             0,
             null,
             0,
-            this.hasHistogram()
+            this.hasHistogram(),
+            false
         );
         res.data = xAxisValues;
         return res;

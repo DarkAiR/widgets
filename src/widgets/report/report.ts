@@ -66,6 +66,10 @@ export class Report extends Chart {
         }
     }
 
+    /**
+     * Обработка событий
+     * NOTE: все данные меняются в this.config.template
+     */
     // tslint:disable-next-line:no-any
     private onEventBusFunc(varName: string, value: any, dataSourceId: number): boolean {
         console.groupCollapsed('Report EventBus data');
@@ -86,8 +90,8 @@ export class Report extends Chart {
 
     private processingOrgUnits(event: IEventOrgUnits): boolean {
         let needReload = false;
-        if (TypeGuardsHelper.everyIsDataSetTemplate(this.chartData.dataSets)) {
-            this.chartData.dataSets.forEach((v: DataSetTemplate) => {
+        if (TypeGuardsHelper.everyIsDataSetTemplate(this.config.template.dataSets)) {
+            this.config.template.dataSets.forEach((v: DataSetTemplate) => {
                 if (TypeGuardsHelper.isSingleDataSource(v.dataSource1) && TypeGuardsHelper.isSingleDataSource(v.dataSource2)) {
                     // Ищем dataSource для почты
                     // if (pochtaDataSources.includes(v.dataSource1.name)) {

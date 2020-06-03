@@ -99,6 +99,10 @@ export class Table extends Chart {
         return src;
     }
 
+    /**
+     * Обработка событий
+     * NOTE: все данные меняются в this.config.template
+     */
     // tslint:disable-next-line:no-any
     private onEventBusFunc(varName: string, value: any, dataSourceId: number): boolean {
         console.groupCollapsed('Table EventBus data');
@@ -119,8 +123,8 @@ export class Table extends Chart {
 
     private processingOrgUnits(event: IEventOrgUnits): boolean {
         let needReload = false;
-        if (TypeGuardsHelper.everyIsJoinDataSetTemplate(this.chartData.dataSets)) {
-            this.chartData.dataSets.forEach((joinDataSet: JoinDataSetTemplate) => {
+        if (TypeGuardsHelper.everyIsJoinDataSetTemplate(this.config.template.dataSets)) {
+            this.config.template.dataSets.forEach((joinDataSet: JoinDataSetTemplate) => {
                 joinDataSet.dataSetTemplates.forEach((v: TimeSeriesDataSetShort) => {
                     if (TypeGuardsHelper.isSingleDataSource(v.dataSource1)) {
                         // Ищем dataSource для почты

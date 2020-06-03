@@ -6,6 +6,7 @@ import {
     LineTypeValues,
 } from "../../models/types";
 import {
+    makeBoolean,
     makeColor,
     makeList,
     makeNumber,
@@ -30,7 +31,8 @@ export const settings: IWidgetSettings = makeSettings({
                 makeNumber('barCategoryGap', 'Расст. между категориями, в %', 20),
                 makeNumber('barGap', 'Расст. между источниками, в %', 30, {condition: '${type} === "normal"'}),
             ]
-        ])
+        ]),
+        makeBoolean('enableZoom', 'Включить zoom', false)
     ],
     dataSet: {
         initDataSets: [{viewType: 'DYNAMIC'}],
