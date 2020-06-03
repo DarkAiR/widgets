@@ -12,12 +12,41 @@
     flex-direction: row;
     flex-wrap: wrap;
     align-items: stretch;
+    justify-content: space-between;
 }
 .title {
-    flex-basis: 100%;
+    //flex-basis: 100%;
     max-width: 100%;
     margin-bottom: @spacer3;
     line-height: 1.5em;
+}
+
+.widget:hover .toolbox {
+    opacity: 1.0;
+}
+
+.toolbox {
+    transition: all 0.1s;
+    opacity: 0.0;
+
+    .toolbtn {
+        cursor: pointer;
+        width: calc(var(--unit) * 3);
+        height: calc(var(--unit) * 3);
+        transition: all 0.1s;
+        line-height: inherit;
+        opacity: 0.8;
+        background: transparent !important;
+
+        &:hover {
+            opacity: 1.0;
+            transform: scale(1.2);
+        }
+
+        i {
+            line-height: inherit;
+        }
+    }
 }
 .chart {
     width: 100%;

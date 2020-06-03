@@ -81,7 +81,7 @@ export class IndicatorsTable extends Chart {
         const dataSet5 = _get(data.data, '4', null);
         const dataSet6 = _get(data.data, '5', null);
 
-        const timeSeriesData: TimeSeriesData = TimeSeriesHelper.convertTimeSeriesToData(data.data as TSPoint[][]);
+        const timeSeriesData: TimeSeriesData = TimeSeriesHelper.convertTimeSeriesToData(data);
 
         for (const idx in timeSeriesData.dates) {
             if (!timeSeriesData.dates.hasOwnProperty(idx)) {

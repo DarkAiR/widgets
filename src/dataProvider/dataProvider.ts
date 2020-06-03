@@ -1,5 +1,5 @@
 import 'whatwg-fetch';
-import {get as _get} from 'lodash';
+import {get as _get, defaultTo as _defaultTo, cloneDeep as _cloneDeep} from 'lodash';
 import {IGqlRequest} from "./IGqlRequest";
 import {ServerType, ViewType} from "../models/types";
 import {
@@ -48,9 +48,9 @@ export class DataProvider {
             return null;
         }
         const data: IChartData = {
-            dataSets: template.dataSets,
+            dataSets: template.dataSets,        // Копируется ссылка, поэтому можно менять dataSets и ничего не потеряется
             data: [],
-            settings: _get(template, 'settings', {})
+            settings: _defaultTo(_get(template, 'settings'), {})
         };
 
         const loadData: Record<ViewType, {
@@ -103,7 +103,7 @@ export class DataProvider {
                     }
                     return resp.json();
                 })
-                .then((resp: IObject) => _get(resp, loadData[item.viewType].resultProp, []))
+                .then((resp: IObject) => _defaultTo(_get(resp, loadData[item.viewType].resultProp), []))
                 .catch((error: Error) => { throw error; });
         });
         // Асинхронно загружаем все данные

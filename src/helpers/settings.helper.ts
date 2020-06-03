@@ -241,7 +241,8 @@ export class SettingsHelper {
         axisIndex: number,
         formatter: any,                 // tslint:disable-line:no-any
         offset: number,
-        hasHistogram: boolean
+        hasHistogram: boolean,
+        triggerEvent: boolean
     ): ISettings {
         const nameObj = {};
         if (axisData.name) {
@@ -278,6 +279,7 @@ export class SettingsHelper {
             position: axisData.position,
             boundaryGap: hasHistogram,
             offset: offset,
+            triggerEvent,
             axisLabel,
             axisLine,
             // Насечки на оси
