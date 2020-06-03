@@ -505,10 +505,15 @@ export class Spline extends Chart {
 
         // Готовим данные для осей
         if (TypeGuardsHelper.everyIsDataSetTemplate(data.dataSets)) {
+            // Отдельно суммируем высоту стеков
+            const stackMax: {[key: number]: number} = {};
+            const histType: HistogramType = this.getWidgetSetting('histogram.type');
+
             for (let idx = 0; idx < data.data.length; idx++) {
                 const dataSetSettings: ISettings = data.dataSets[idx].settings;
 
                 const axisNumber: number = +this.getDataSetSettings(dataSetSettings, 'axisY');
+                const chartType: ChartType = this.getDataSetSettings(dataSetSettings, 'chartType');
 
                 let max: number = _max(timeSeriesData.values[idx]);
                 let min: number = _flow(
@@ -519,8 +524,8 @@ export class Spline extends Chart {
 
                 if (axesData[axisNumber] !== undefined) {
                     axesData[axisNumber].min = _min([axesData[axisNumber].min, min]);
-                    if (this.getWidgetSetting<HistogramType>('histogram.type') === 'stack') {
-                        axesData[axisNumber].max += max;
+                    if (histType === 'stack' && chartType === 'HISTOGRAM') {
+                        stackMax[axisNumber] += max;
                     } else {
                         axesData[axisNumber].max = _max([axesData[axisNumber].max, max]);
                     }
@@ -538,11 +543,22 @@ export class Spline extends Chart {
                         nameColor: this.getAxisSetting('axesY', 'nameColor', axisNumber),
                         color: color,
                         position: this.getAxisSetting('axesY', 'position', axisNumber),
-                        max: max,
+                        max: 0,
                         min: min,
                         axesToIndex: [idx],
                         showTick: this.getAxisSetting('axesY', 'showTick', axisNumber),
                     };
+                    if (histType === 'stack' && chartType === 'HISTOGRAM') {
+                        stackMax[axisNumber] = max;
+                    } else {
+                        axesData[axisNumber].max = max;
+                    }
+                }
+            }
+
+            for (const axisNumber in axesData) {
+                if (axesData.hasOwnProperty(axisNumber)) {
+                    axesData[axisNumber].max = _max([axesData[axisNumber].max, stackMax[axisNumber]]);
                 }
             }
         }
