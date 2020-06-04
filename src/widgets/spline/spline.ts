@@ -104,7 +104,7 @@ export class Spline extends Chart {
             const axisYDistance: number = this.getWidgetSetting('axisYDistance');
             const axisXDistance: number = this.getWidgetSetting('axisXDistance');
 
-            const legend: Object = SettingsHelper.getLegend(this.widgetSettings.settings, this.chartData.settings);
+            const legend: Object = SettingsHelper.getLegendSettings(this.widgetSettings.settings, this.chartData.settings);
 
             // NOTE: при containLabel=true ECharts правильно считает ширину отступа для нескольких осей,
             //       но не умеет располагать оси рядом, поэтому, при более чем одной оси, высчитываем отступы вручную
@@ -140,8 +140,8 @@ export class Spline extends Chart {
                 showTitle: titleSettings.show,
                 title: titleSettings.name,
                 titleStyle: titleSettings.style,
-                backgroundStyle: this.getBackgroundStyle(this.getWidgetSetting('backgroundColor')),
-                paddingStyle: this.getPaddingStyle(this.getWidgetSetting('paddings')),
+                backgroundStyle: SettingsHelper.getBackgroundStyle(this.getWidgetSetting('backgroundColor')),
+                paddingStyle: SettingsHelper.getPaddingStyle(this.getWidgetSetting('paddings')),
                 enableZoom,
                 disableBtn: StatesHelper.isEmpty('interval')
             });

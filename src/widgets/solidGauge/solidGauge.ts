@@ -5,7 +5,7 @@ import {settings as widgetSettings} from "./settings";
 import {IChartData, IWidgetVariables} from "../../interfaces";
 import {get as _get} from "lodash";
 import {Chart} from "../../models/Chart";
-import {TypeGuardsHelper} from "../../helpers";
+import {SettingsHelper, TypeGuardsHelper} from "../../helpers";
 import {IWidgetSettings} from "../../widgetSettings";
 
 export class SolidGauge extends Chart {
@@ -34,7 +34,7 @@ export class SolidGauge extends Chart {
             const fontSize = this.getFontSize(currValue);
 
             const output = this.renderTemplate({
-                backgroundStyle: this.getBackgroundStyle(this.getWidgetSetting('backgroundColor')),
+                backgroundStyle: SettingsHelper.getBackgroundStyle(this.getWidgetSetting('backgroundColor')),
                 fontSize,
                 currValue,
                 title: this.getWidgetSetting('title'),

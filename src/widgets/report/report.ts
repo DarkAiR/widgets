@@ -53,7 +53,7 @@ export class Report extends Chart {
             }));
 
             this.config.element.innerHTML = this.renderTemplate({
-                backgroundStyle: this.getBackgroundStyle(this.getWidgetSetting('backgroundColor')),
+                backgroundStyle: SettingsHelper.getBackgroundStyle(this.getWidgetSetting('backgroundColor')),
                 showTitle: titleSettings.show,
                 title: titleSettings.name,
                 titleStyle: titleSettings.style,

@@ -5,7 +5,7 @@ import {settings as widgetSettings} from "./settings";
 import {IChartData, IWidgetVariables} from "../../interfaces";
 import {get as _get} from "lodash";
 import {Chart} from "../../models/Chart";
-import {TypeGuardsHelper} from "../../helpers";
+import {SettingsHelper, TypeGuardsHelper} from "../../helpers";
 import {IWidgetSettings} from "../../widgetSettings";
 
 export class AverageNumber extends Chart {
@@ -26,7 +26,7 @@ export class AverageNumber extends Chart {
 
             const currColor = this.getColor(data.dataSets[0].settings, 'color-yellow');
             const prevColor = this.getColor(data.dataSets[1].settings, 'color-grey');
-            const backgroundStyle = this.getBackgroundStyle(this.getWidgetSetting('backgroundColor'));
+            const backgroundStyle = SettingsHelper.getBackgroundStyle(this.getWidgetSetting('backgroundColor'));
 
             const str = `
                 <div class='${s["widget"]}' style="${backgroundStyle}">
