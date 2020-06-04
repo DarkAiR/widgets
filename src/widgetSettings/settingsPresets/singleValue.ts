@@ -1,5 +1,5 @@
 /**
- * Настройки для подписи значений на графике
+ * Настройки для одиночного значения типа KPI или REPORT
  */
 
 import {
@@ -7,17 +7,18 @@ import {
     makeColor,
     makeNumber,
     makeSettingsGroup,
-    makeString
+    makeString,
+    makeList
 } from "../controls";
 import {SettingFunc} from "../types";
 
-export const label: SettingFunc[] = [
-    makeSettingsGroup('label', 'Формат вывода значений', [
+export const singleValue: SettingFunc[] = [
+    makeSettingsGroup('value', 'Значение', [
         [
-            makeBoolean('show', 'Показывать значение', false)
+            makeColor('color', 'Цвет', '#2c2c2c'),
         ], [
-            makeColor('color', 'Цвет'),
-            makeNumber('fontSize', 'Размер шрифта', 12)
+            makeNumber('size', 'Размер шрифта', 14),
+            makeList<string>('align', 'Выравнивание', 'left', ['left', 'center', 'right'])
         ], [
             makeString('delimiter', 'Разделитель', '.'),
             makeNumber('precision', 'Точность в знаках', 2)

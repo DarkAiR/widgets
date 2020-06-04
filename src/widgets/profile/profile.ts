@@ -42,7 +42,7 @@ export class Profile extends Chart {
         const xAxisData = this.getXAxis(optionsData.xAxisValues);
         const yAxisData = this.getYAxis(optionsData.series[0].data);
 
-        const legend: Object = SettingsHelper.getLegend(this.widgetSettings.settings, this.chartData.settings);
+        const legend: Object = SettingsHelper.getLegendSettings(this.widgetSettings.settings, this.chartData.settings);
 
         const options = {
             grid: {
@@ -76,8 +76,8 @@ export class Profile extends Chart {
             showTitle: titleSettings.show,
             title: titleSettings.name,
             titleStyle: titleSettings.style,
-            backgroundStyle: this.getBackgroundStyle(this.getWidgetSetting('backgroundColor')),
-            paddingStyle: this.getPaddingStyle(this.getWidgetSetting('paddings'))
+            backgroundStyle: SettingsHelper.getBackgroundStyle(this.getWidgetSetting('backgroundColor')),
+            paddingStyle: SettingsHelper.getPaddingStyle(this.getWidgetSetting('paddings'))
         });
 
         const el = this.config.element.getElementsByClassName(w['chart'])[0];

@@ -86,7 +86,7 @@ export class SettingsHelper {
     /**
      * Получить настройки legend
      */
-    static getLegend(config: WidgetSettingsArray, settings: ISettings): Object {
+    static getLegendSettings(config: WidgetSettingsArray, settings: ISettings): Object {
         const getSetting = <T = void>(path: string): T => SettingsHelper.getWidgetSetting<T>(config, settings, path);
 
         const align: LegendPos = getSetting('legend.position');
@@ -210,20 +210,7 @@ export class SettingsHelper {
             show: getSetting<boolean>('label.show')
         };
         if (label.show) {
-            const delimiter: string = getSetting('label.delimiter') || '.';
-            const precision: number = getSetting('label.precision') || 0;
-            const measure = getSetting<boolean>('label.showMeasure')
-                ? getSetting<string>('label.measure')
-                : '';
-
-            label.formatter = (params: Object | []): string => {
-                let value: string = params['value'] + '';
-                const v: number = parseFloat(value);
-                const integer: string = v !== NaN ? ((v + '').split('.')[0] ?? '') : '';
-                const fraction: string = v !== NaN ? ((v + '').split('.')[1] ?? '') : '';
-                value = integer + (+precision === 0 ? '' : (delimiter + fraction.padEnd(precision, '0')));
-                return value + measure;
-            };
+            label.formatter = SettingsHelper.formatSingleValue(getSetting('label'));
             label.fontSize = getSetting<number>('label.fontSize');
             const color = getSetting<string>('label.color');
             if (!!color) {
@@ -369,5 +356,61 @@ export class SettingsHelper {
         };
         _merge(res, nameObj);
         return res;
+    }
+
+    /**
+     * Возвращает строку стилей для background
+     */
+    static getBackgroundStyle(gradient: IGradient): string {
+        if (!gradient.colors.length) {
+            return '';
+        }
+        return gradient.colors.length === 1
+            ? `background-color: ${gradient.colors[0]}; height: 100%;`
+            : `background: linear-gradient(${(gradient.rotate + 90) % 360}deg, ${gradient.colors.join(', ')}); height: 100%;`;
+    }
+
+    /**
+     * Возвращает строку стилей для background
+     */
+    static getPaddingStyle(paddings: ISettings): string {
+        return 'padding: ' +
+            `${+paddings.top}px ` +
+            `${+paddings.right}px ` +
+            `${+paddings.bottom}px ` +
+            `${+paddings.left}px;`;
+    }
+
+    /**
+     * Получить строку стилей для singleValue
+     */
+    static getSingleValueStyle(value: number, settings: ISettings): [string, string] {
+        const valueStyle = [];
+        valueStyle.push(`color: ${settings.color}`);
+        if (!_isEmpty(settings.size)) {
+            valueStyle.push(`font-size: ${settings.size}px`);
+        }
+        valueStyle.push(`text-align: ${settings.align}`);
+        return [SettingsHelper.formatSingleValue(settings)({value}), valueStyle.join('; ')];
+    }
+
+    /**
+     * Отформатировать singleValue
+     */
+    static formatSingleValue(settings: ISettings): Function {
+        const delimiter: string = settings.delimiter || '.';
+        const precision: number = settings.precision || 0;
+        const measure: string = settings.showMeasure
+            ? settings.measure
+            : '';
+
+        return (params: {value: string | number} | []): string => {
+            let value: string = params['value'] + '';
+            const v: number = parseFloat(value);
+            const integer: string = v !== NaN ? ((v + '').split('.')[0] ?? '') : '';
+            const fraction: string = v !== NaN ? ((v + '').split('.')[1] ?? '') : '';
+            value = integer + (+precision === 0 ? '' : (delimiter + fraction.padEnd(precision, '0')));
+            return value + measure;
+        };
     }
 }

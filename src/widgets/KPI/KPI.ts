@@ -36,24 +36,16 @@ export class KPI extends Chart {
 
         if (TypeGuardsHelper.everyIsDataSetTemplate(data.dataSets)) {
             const dataSetSettings: ISettings = data.dataSets[0].settings;
-            const value: number = points[0][0].value || 0;
-
             const titleSettings = SettingsHelper.getTitleSettings(this.widgetSettings.settings, this.chartData.settings);
-
-            const valueStyle = [];
-            valueStyle.push(`color: ${this.getWidgetSetting('value.color')}`);
-            if (!_isEmpty(this.getWidgetSetting('value.size'))) {
-                valueStyle.push(`font-size: ${this.getWidgetSetting('value.size')}px`);
-            }
-            valueStyle.push(`text-align: ${this.getWidgetSetting('value.align')}`);
+            const [value, valueStyle]: [string, string] = SettingsHelper.getSingleValueStyle(points[0][0].value || 0, this.getWidgetSetting('value'));
 
             this.config.element.innerHTML = this.renderTemplate({
-                backgroundStyle: this.getBackgroundStyle(this.getWidgetSetting('backgroundColor')),
+                backgroundStyle: SettingsHelper.getBackgroundStyle(this.getWidgetSetting('backgroundColor')),
                 showTitle: titleSettings.show,
                 title: titleSettings.name,
                 titleStyle: titleSettings.style,
-                value: value, // (value * 100).toFixed(2) + '%',
-                valueStyle: valueStyle.join(';'),
+                value: value,
+                valueStyle: valueStyle,
             });
 
             this.onEventBus = this.onEventBusFunc.bind(this);

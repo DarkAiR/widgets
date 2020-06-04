@@ -10,6 +10,7 @@ import {axisY} from "./axisY";
 import {multiAxesX} from "./multiAxesX";
 import {multiAxesY} from "./multiAxesY";
 import {legend} from "./legend";
+import {singleValue} from "./singleValue";
 
 const settingsPresets = {
     common,
@@ -18,6 +19,7 @@ const settingsPresets = {
     paddings,
     fill,
     label,
+    singleValue,
     background,
     axisX,
     axisY,

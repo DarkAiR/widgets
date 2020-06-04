@@ -174,29 +174,6 @@ export abstract class Chart implements IChart {
     }
 
     /**
-     * Возвращает строку стилей для background
-     */
-    protected getBackgroundStyle(gradient: IGradient): string {
-        if (!gradient.colors.length) {
-            return '';
-        }
-        return gradient.colors.length === 1
-            ? `background-color: ${gradient.colors[0]}; height: 100%;`
-            : `background: linear-gradient(${(gradient.rotate + 90) % 360}deg, ${gradient.colors.join(', ')}); height: 100%;`;
-    }
-
-    /**
-     * Возвращает строку стилей для background
-     */
-    protected getPaddingStyle(paddings: ISettings): string {
-        return 'padding: ' +
-            `${+paddings.top}px ` +
-            `${+paddings.right}px ` +
-            `${+paddings.bottom}px ` +
-            `${+paddings.left}px;`;
-    }
-
-    /**
      * Проверяем, есть ли среди графиков гистограммы
      * Для них необходимо изменить вид графика
      */
