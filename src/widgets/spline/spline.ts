@@ -16,7 +16,15 @@ import {
     min as _min, max as _max, isEmpty as _isEmpty, cloneDeep as _cloneDeep
 } from 'lodash';
 import {Chart} from '../../models/Chart';
-import {DateHelper, MathHelper, SettingsHelper, StatesHelper, TimeSeriesData, TimeSeriesHelper} from '../../helpers';
+import {
+    DateHelper,
+    MathHelper,
+    OrgUnitsHelper,
+    SettingsHelper,
+    StatesHelper,
+    TimeSeriesData,
+    TimeSeriesHelper
+} from '../../helpers';
 import {ChartType, Frequency, HistogramType, XAxisPos, YAxisPos} from "../../models/types";
 import {DimensionFilter} from "../../interfaces/graphQL";
 import {TypeGuardsHelper} from "../../helpers";
@@ -956,7 +964,13 @@ export class Spline extends Chart {
 
         switch (varName) {
             case 'org units':
-                needReload = this.processingOrgUnits(value as IEventOrgUnits);
+                if (TypeGuardsHelper.everyIsDataSetTemplate(this.config.template.dataSets)) {
+                    this.config.template.dataSets.forEach((v: DataSetTemplate) => {
+                        if (OrgUnitsHelper.setOrgUnits(v.dataSource1, value as IEventOrgUnits)) {
+                            needReload = true;
+                        }
+                    });
+                }
                 break;
             case 'start date':
                 setVar('from', value);
@@ -976,40 +990,6 @@ export class Spline extends Chart {
             case 'operation':
                 setVar('operation', value);
                 break;
-        }
-        return needReload;
-    }
-
-    private processingOrgUnits(event: IEventOrgUnits): boolean {
-        let needReload = false;
-        if (TypeGuardsHelper.everyIsDataSetTemplate(this.config.template.dataSets)) {
-            this.config.template.dataSets.forEach((v: DataSetTemplate) => {
-                if (TypeGuardsHelper.isSingleDataSource(v.dataSource1)) {
-                    // Ищем dataSource для почты
-                    // if (pochtaDataSources.includes(v.dataSource1.name)) {
-                        for (const dimName in event) {
-                            if (!event.hasOwnProperty(dimName)) {
-                                continue;
-                            }
-                            // NOTE: Нельзя проверять на event[dimName].length, т.к. тогда остануться данные с прошлого раза
-                            const dim: DimensionFilter = v.dataSource1.dimensions.find((d: DimensionFilter) => d.name === dimName);
-                            if (dim) {
-                                dim.values = event[dimName];
-                            } else {
-                                // Пустые данные не приходят в виджет, поэтому dimension может и не быть
-                                const newFilter: DimensionFilter = {
-                                    name: dimName,
-                                    values: event[dimName],
-                                    expression: '',
-                                    groupBy: false
-                                };
-                                v.dataSource1.dimensions.push(newFilter);
-                            }
-                            needReload = true;
-                        }
-                    // }
-                }
-            });
         }
         return needReload;
     }
