@@ -18,8 +18,7 @@ import {Chart} from '../../models/Chart';
 import {ProfilePoint} from '../../interfaces';
 import {IWidgetSettings} from "../../widgetSettings";
 import {ChartType} from "../../models/types";
-import {MathHelper, SettingsHelper, TypeGuardsHelper} from "../../helpers";
-import {pochtaDataSources} from "../../models/pochtaDataSources";
+import {MathHelper, OrgUnitsHelper, SettingsHelper, TypeGuardsHelper} from "../../helpers";
 
 export class Profile extends Chart {
     getVariables(): IWidgetVariables {
@@ -304,42 +303,14 @@ export class Profile extends Chart {
         let needReload = false;
         switch (varName) {
             case 'org units':
-                needReload = this.processingOrgUnits(value as IEventOrgUnits);
-                break;
-        }
-        return needReload;
-    }
-
-    private processingOrgUnits(event: IEventOrgUnits): boolean {
-        let needReload = false;
-        if (TypeGuardsHelper.everyIsDataSetTemplate(this.config.template.dataSets)) {
-            this.config.template.dataSets.forEach((v: DataSetTemplate) => {
-                if (TypeGuardsHelper.isSingleDataSource(v.dataSource1)) {
-                    // Ищем dataSource для почты
-                    // if (pochtaDataSources.includes(v.dataSource1.name)) {
-                        for (const dimName in event) {
-                            if (!event.hasOwnProperty(dimName)) {
-                                continue;
-                            }
-                            // NOTE: Нельзя проверять на event[dimName].length, т.к. тогда остануться данные с прошлого раза
-                            const dim: DimensionFilter = v.dataSource1.dimensions.find((d: DimensionFilter) => d.name === dimName);
-                            if (dim) {
-                                dim.values = event[dimName];
-                            } else {
-                                // Пустые данные не приходят в виджет, поэтому dimension может и не быть
-                                const newFilter: DimensionFilter = {
-                                    name: dimName,
-                                    values: event[dimName],
-                                    expression: '',
-                                    groupBy: false
-                                };
-                                v.dataSource1.dimensions.push(newFilter);
-                            }
+                if (TypeGuardsHelper.everyIsDataSetTemplate(this.config.template.dataSets)) {
+                    this.config.template.dataSets.forEach((v: DataSetTemplate) => {
+                        if (OrgUnitsHelper.setOrgUnits(v.dataSource1, value as IEventOrgUnits)) {
                             needReload = true;
                         }
-                    // }
+                    });
                 }
-            });
+                break;
         }
         return needReload;
     }

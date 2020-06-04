@@ -13,9 +13,8 @@ import {
 } from "../../interfaces";
 import {isEmpty as _isEmpty} from "lodash";
 import {Chart} from "../../models/Chart";
-import {SettingsHelper, TypeGuardsHelper} from "../../helpers";
+import {OrgUnitsHelper, SettingsHelper, TypeGuardsHelper} from "../../helpers";
 import {IWidgetSettings} from "../../widgetSettings";
-import {pochtaDataSources} from "../../models/pochtaDataSources";
 
 export class Report extends Chart {
     getVariables(): IWidgetVariables {
@@ -82,54 +81,27 @@ export class Report extends Chart {
         let needReload = false;
         switch (varName) {
             case 'org units':
-                needReload = this.processingOrgUnits(value as IEventOrgUnits);
-                break;
-        }
-        return needReload;
-    }
-
-    private processingOrgUnits(event: IEventOrgUnits): boolean {
-        let needReload = false;
-        if (TypeGuardsHelper.everyIsDataSetTemplate(this.config.template.dataSets)) {
-            this.config.template.dataSets.forEach((v: DataSetTemplate) => {
-                if (TypeGuardsHelper.isSingleDataSource(v.dataSource1) && TypeGuardsHelper.isSingleDataSource(v.dataSource2)) {
-                    // Ищем dataSource для почты
-                    // if (pochtaDataSources.includes(v.dataSource1.name)) {
-                        for (const dimName in event) {
-                            if (!event.hasOwnProperty(dimName)) {
-                                continue;
-                            }
-                            // NOTE: Нельзя проверять на event[dimName].length, т.к. тогда остануться данные с прошлого раза
-                            [v.dataSource1, v.dataSource2].forEach((dataSource: SingleDataSource) => {
-                                const dim: DimensionFilter = dataSource.dimensions.find((d: DimensionFilter) => d.name === dimName);
-                                if (dim) {
-                                    dim.values = event[dimName];
-                                } else {
-                                    // Пустые данные не приходят в виджет, поэтому dimension может и не быть
-                                    const newFilter: DimensionFilter = {
-                                        name: dimName,
-                                        values: event[dimName],
-                                        expression: '',
-                                        groupBy: false
-                                    };
-                                    dataSource.dimensions.push(newFilter);
-                                }
-                                needReload = true;
-                            });
+                if (TypeGuardsHelper.everyIsDataSetTemplate(this.config.template.dataSets)) {
+                    this.config.template.dataSets.forEach((v: DataSetTemplate) => {
+                        if (OrgUnitsHelper.setOrgUnits(v.dataSource1, value as IEventOrgUnits)) {
+                            needReload = true;
                         }
-                    // }
+                        if (OrgUnitsHelper.setOrgUnits(v.dataSource2, value as IEventOrgUnits)) {
+                            needReload = true;
+                        }
+                    });
                 }
-            });
+                break;
         }
         return needReload;
     }
 
     getTemplate(): string {
         return `
-            <div class='${s["widget"]} ${w["widget"]}' style="{{backgroundStyle}}">
+            <div class='${s["widget"]}' style="{{backgroundStyle}}">
                 {{#showTitle}}
                 <div class='${w['row']}'>
-                    <div class="${w['title']}" style="{{titleStyle}}">
+                    <div style="{{titleStyle}}">
                         {{title}}
                     </div>
                 </div>

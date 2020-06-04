@@ -11,7 +11,6 @@ import {get as _get, map as _map, filter as _filter, keyBy as _keyBy} from "loda
 import {Chart} from "../../models/Chart";
 import {MathHelper, TypeGuardsHelper} from "../../helpers";
 import {IWidgetSettings} from "../../widgetSettings";
-import {pochtaDataSources} from "../../models/pochtaDataSources";
 
 export class Table extends Chart {
     getVariables(): IWidgetVariables {
@@ -127,29 +126,26 @@ export class Table extends Chart {
             this.config.template.dataSets.forEach((joinDataSet: JoinDataSetTemplate) => {
                 joinDataSet.dataSetTemplates.forEach((v: TimeSeriesDataSetShort) => {
                     if (TypeGuardsHelper.isSingleDataSource(v.dataSource1)) {
-                        // Ищем dataSource для почты
-                        // if (pochtaDataSources.includes(v.dataSource1.name)) {
-                            for (const dimName in event) {
-                                if (!event.hasOwnProperty(dimName)) {
-                                    continue;
-                                }
-                                // NOTE: Нельзя проверять на event[dimName].length, т.к. тогда остануться данные с прошлого раза
-                                const dim: DimensionFilter = joinDataSet.dimensions.find((d: DimensionFilter) => d.name === dimName);
-                                if (dim) {
-                                    dim.values = event[dimName];
-                                    dim.groupBy = event[dimName].length > 0;
-                                } else {
-                                    const newFilter: DimensionFilter = {
-                                        name: dimName,
-                                        values: event[dimName],
-                                        expression: '',
-                                        groupBy: true
-                                    };
-                                    joinDataSet.dimensions.push(newFilter);
-                                }
-                                needReload = true;
+                        for (const dimName in event) {
+                            if (!event.hasOwnProperty(dimName)) {
+                                continue;
                             }
-                        // }
+                            // NOTE: Нельзя проверять на event[dimName].length, т.к. тогда остануться данные с прошлого раза
+                            const dim: DimensionFilter = joinDataSet.dimensions.find((d: DimensionFilter) => d.name === dimName);
+                            if (dim) {
+                                dim.values = event[dimName];
+                                dim.groupBy = event[dimName].length > 0;
+                            } else {
+                                const newFilter: DimensionFilter = {
+                                    name: dimName,
+                                    values: event[dimName],
+                                    expression: '',
+                                    groupBy: true
+                                };
+                                joinDataSet.dimensions.push(newFilter);
+                            }
+                            needReload = true;
+                        }
                     }
                 });
             });
