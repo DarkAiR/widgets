@@ -210,6 +210,7 @@ export class Distribution extends Chart {
         const res = SettingsHelper.getXAxisSettings(
             axisData,
             0,
+            'category',
             null,
             0,
             this.hasHistogram(),

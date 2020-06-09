@@ -97,7 +97,7 @@ export class Profile extends Chart {
         const series: ISettings[] = [];
         const xAxisValues: number[] = [];
         const dataSetSettings: ISettings = this.chartData.dataSets[0].settings;
-        const currColor = this.getColor(dataSetSettings, 'color-yellow');
+        const currColor: IColor = this.getColor(dataSetSettings, 'color-yellow');
 
         data.forEach((item: ProfilePoint[]) => {
             let seriesData: ISettings = {};
@@ -217,6 +217,7 @@ export class Profile extends Chart {
         const res = SettingsHelper.getXAxisSettings(
             axisData,
             0,
+            'category',
             null,
             0,
             this.hasHistogram(),

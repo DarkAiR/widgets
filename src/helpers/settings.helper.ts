@@ -226,6 +226,7 @@ export class SettingsHelper {
     static getXAxisSettings(
         axisData: XAxisData,
         axisIndex: number,
+        type: string,
         formatter: any,                 // tslint:disable-line:no-any
         offset: number,
         hasHistogram: boolean,
@@ -261,7 +262,7 @@ export class SettingsHelper {
 
         const res = {
             id: axisIndex,          // Записываем в id реальный индекс оси
-            type: 'category',
+            type: type,
             show: axisData.show,
             position: axisData.position,
             boundaryGap: hasHistogram,

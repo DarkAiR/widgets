@@ -7,8 +7,8 @@ export interface YAxisData {
     color: string;
     position: YAxisPos;
     show: boolean;
-    max: number;
-    min: number;
+    max?: number;
+    min?: number;
     axesToIndex: number[];
     showTick: boolean;
 }

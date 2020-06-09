@@ -1,18 +1,14 @@
 import {IWidgetSettings, makeSettings} from "../../widgetSettings";
 import {
-    makeArray, makeBoolean,
     makeColor,
     makeList, makeNumber,
     makeSettingsGroup, makeString,
 } from "../../widgetSettings/controls";
 import {
     ChartType,
-    ChartTypeValues, HistogramType, HistogramTypeValues, LegendPos, LegendPosValues,
+    ChartTypeValues,
     LineType,
-    LineTypeValues,
-    XAxisPos, XAxisPosValues,
-    YAxisPos,
-    YAxisPosValues
+    LineTypeValues
 } from "../../models/types";
 import settingsPresets from "../../widgetSettings/settingsPresets";
 

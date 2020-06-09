@@ -462,6 +462,7 @@ export class Spline extends Chart {
             const res = SettingsHelper.getXAxisSettings(
                 axisData,
                 k,
+                'category',
                 (value: string) => {
                     const date: Date = new Date(value);
                     switch (this.shortestFrequency) {
