@@ -187,7 +187,11 @@ export class TimeSeriesHelper {
         if (f[curr] <= f[min]) {
             return curr;
         }
-        return TimeSeriesHelper.swapFrequencyPriority()[f[curr] - 1];
+        let newFrequency: Frequency = TimeSeriesHelper.swapFrequencyPriority()[f[curr] - 1];
+        if (newFrequency === 'WEEK') {
+            newFrequency = TimeSeriesHelper.swapFrequencyPriority()[f[curr] - 2];
+        }
+        return newFrequency;
     }
 
     static compareFrequency(a: Frequency, b: Frequency): -1 | 0 | 1 {
@@ -200,10 +204,9 @@ export class TimeSeriesHelper {
     static calcInterval(dates: string[]): Frequency {
         const timestamps: number[] = dates.map((localDateTime: string) => new Date(localDateTime).getTime());
         const hours: number = Math.ceil((_max(timestamps) - _min(timestamps)) / (60 * 60 * 1000));
-        return hours < 24 ? 'HOUR' :
-            hours < 31 * 24 ? 'DAY' :
-            hours < 365 * 24 ? 'MONTH' :
-            'YEAR';
+        return hours > 31 * 24 ? 'YEAR' :
+            hours > 24 ? 'MONTH' :
+            'DAY';
     }
 
     /**
