@@ -171,6 +171,9 @@ export class SettingsHelper {
      * Получить настройки градиента для echarts
      */
     static getGradientSettings(gradient: IGradient): ISettings {
+        if (!gradient.colors.length) {
+            return {};
+        }
         let angle: number = gradient.rotate % 360;
         if (angle < 0) {
             angle = 360 + angle;
@@ -412,6 +415,32 @@ export class SettingsHelper {
             const fraction: string = v !== NaN ? ((v + '').split('.')[1] ?? '') : '';
             value = integer + (+precision === 0 ? '' : (delimiter + fraction.padEnd(precision, '0')));
             return value + measure;
+        };
+    }
+
+    /**
+     * Отформатировать scatterValue
+     */
+    static formatScatterValue(settings: ISettings): Function {
+        const delimiter: string = settings.delimiter || '.';
+        const precision: number = settings.precision || 0;
+        const measure: string = settings.showMeasure
+            ? settings.measure
+            : '';
+
+        return (params: {data: [string | number, string | number]}): string => {
+            const f = (v: number): string => {
+                const integer: string = v !== NaN ? ((v + '').split('.')[0] ?? '') : '';
+                const fraction: string = v !== NaN ? ((v + '').split('.')[1] ?? '') : '';
+                return integer + (+precision === 0 ? '' : (delimiter + fraction.padEnd(precision, '0')));
+            };
+            let value1: string = params.data[0] + '';
+            let value2: string = params.data[1] + '';
+            const v1: number = parseFloat(value1);
+            const v2: number = parseFloat(value2);
+            value1 = f(v1);
+            value2 = f(v2);
+            return `(${value1}Есть но, ${value2}${measure})`;
         };
     }
 }

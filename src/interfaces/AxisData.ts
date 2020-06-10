@@ -1,14 +1,17 @@
-import {YAxisPos} from "../models/types";
+import {XAxisPos, YAxisPos} from "../models/types";
 
-export interface YAxisData {
+export interface AxisData<T> {
     name: string;
     nameGap: number;
     nameColor: string;
     color: string;
-    position: YAxisPos;
+    position: T;
     show: boolean;
     max?: number;
     min?: number;
     axesToIndex: number[];
     showTick: boolean;
 }
+
+export type XAxisData = AxisData<XAxisPos>;
+export type YAxisData = AxisData<YAxisPos>;

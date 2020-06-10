@@ -13,7 +13,7 @@ import {
 import {
     get as _get, set as _set, map as _map, forEach as _forEach,
     fromPairs as _fromPairs, findKey as _findKey, merge as _merge, flow as _flow,
-    min as _min, max as _max, isEmpty as _isEmpty, cloneDeep as _cloneDeep
+    min as _min, max as _max, cloneDeep as _cloneDeep, isEmpty as _isEmpty
 } from 'lodash';
 import {Chart} from '../../models/Chart';
 import {
@@ -26,7 +26,6 @@ import {
     TimeSeriesHelper
 } from '../../helpers';
 import {ChartType, Frequency, HistogramType, XAxisPos, YAxisPos} from "../../models/types";
-import {DimensionFilter} from "../../interfaces/graphQL";
 import {TypeGuardsHelper} from "../../helpers";
 import {IWidgetSettings} from "../../widgetSettings";
 import {WidgetSettingsItem} from "../../widgetSettings/types";
@@ -78,6 +77,8 @@ export class Spline extends Chart {
 
         if (TypeGuardsHelper.everyIsDataSetTemplate(data.dataSets)) {
             const enableZoom: boolean = this.getWidgetSetting('enableZoom');
+            const axisYDistance: number = this.getWidgetSetting('axisYDistance');
+            const axisXDistance: number = this.getWidgetSetting('axisXDistance');
 
             const timeSeriesData: TimeSeriesData = TimeSeriesHelper.convertTimeSeriesToData(data, this.interval.cutFrom, this.interval.cutTo);
 
@@ -94,22 +95,23 @@ export class Spline extends Chart {
             const topAmount: number     = xAxesData.axes.filter((v: Object) => (v['position'] as XAxisPos) === 'top').length;
             const bottomAmount: number  = xAxesData.axes.filter((v: Object) => (v['position'] as XAxisPos) === 'bottom').length;
 
+            // Только для одиночных осей
+            const containLabel: boolean = leftAmount <= 1 && rightAmount <= 1 && topAmount <= 1 && bottomAmount <= 1;
+
+            const legend: Object = SettingsHelper.getLegendSettings(this.widgetSettings.settings, this.chartData.settings);
             const classicSeries: Object[] = this.getClassicSeries(timeSeriesData, yAxesData.axesToIndex);
             const comparedSeries: Object[] = this.getComparedSeries(timeSeriesData, yAxesData.axesToIndex);
             const series = classicSeries.concat(comparedSeries);
 
-            // Только для одиночных осей
-            const containLabel: boolean = leftAmount <= 1 && rightAmount <= 1 && topAmount <= 1 && bottomAmount <= 1;
-
-            const axisYDistance: number = this.getWidgetSetting('axisYDistance');
-            const axisXDistance: number = this.getWidgetSetting('axisXDistance');
-
-            const legend: Object = SettingsHelper.getLegendSettings(this.widgetSettings.settings, this.chartData.settings);
+            const chartBackgroundSettings: ISettings = SettingsHelper.getGradientSettings(this.getWidgetSetting('chartBackground.color'));
+            const chartBackground: Object = _isEmpty(chartBackgroundSettings) ? {} : { backgroundColor: chartBackgroundSettings };
 
             // NOTE: при containLabel=true ECharts правильно считает ширину отступа для нескольких осей,
             //       но не умеет располагать оси рядом, поэтому, при более чем одной оси, высчитываем отступы вручную
             const options = {
                 grid: {
+                    show: true,
+                    ...chartBackground,
                     top: +this.getWidgetSetting('chartPaddings.top') + (containLabel ? 0 : topAmount * axisXDistance),
                     bottom: +this.getWidgetSetting('chartPaddings.bottom') + (containLabel ? 0 : bottomAmount * axisXDistance),
                     right: +this.getWidgetSetting('chartPaddings.right') + (containLabel ? 0 : (rightAmount * axisYDistance)),
@@ -140,7 +142,7 @@ export class Spline extends Chart {
                 showTitle: titleSettings.show,
                 title: titleSettings.name,
                 titleStyle: titleSettings.style,
-                backgroundStyle: SettingsHelper.getBackgroundStyle(this.getWidgetSetting('backgroundColor')),
+                backgroundStyle: SettingsHelper.getBackgroundStyle(this.getWidgetSetting('background.color')),
                 paddingStyle: SettingsHelper.getPaddingStyle(this.getWidgetSetting('paddings')),
                 enableZoom,
                 disableBtn: StatesHelper.isEmpty('interval')

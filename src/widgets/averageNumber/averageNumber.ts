@@ -26,7 +26,7 @@ export class AverageNumber extends Chart {
 
             const currColor = this.getColor(data.dataSets[0].settings, 'color-yellow');
             const prevColor = this.getColor(data.dataSets[1].settings, 'color-grey');
-            const backgroundStyle = SettingsHelper.getBackgroundStyle(this.getWidgetSetting('backgroundColor'));
+            const backgroundStyle = SettingsHelper.getBackgroundStyle(this.getWidgetSetting('background.color'));
 
             const str = `
                 <div class='${s["widget"]}' style="${backgroundStyle}">

@@ -10,9 +10,10 @@ import settingsPresets from "../../widgetSettings/settingsPresets";
 export const settings: IWidgetSettings = makeSettings({
     settings: [
         ...settingsPresets.title,
-        ...settingsPresets.background,
         ...settingsPresets.paddings,
+        ...settingsPresets.background,
         ...settingsPresets.chartPaddings,
+        ...settingsPresets.chartBackground,
         ...settingsPresets.axisY,
         ...settingsPresets.axisX,
         ...settingsPresets.legend,

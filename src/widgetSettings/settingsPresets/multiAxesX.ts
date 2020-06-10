@@ -19,7 +19,7 @@ export const multiAxesX: SettingFunc[] = [
             makeBoolean('show', 'Отображать', true),
             makeColor('color', 'Цвет'),
         ], [
-            makeNumber('index', 'Номер оси', 1),        // Используется в getAxisSetting
+            makeNumber('index', 'Номер оси', 1),            // Используется в getAxisSetting
             makeList<XAxisPos>('position', 'Положение оси', 'bottom', XAxisPosValues),
         ], [
             makeString('name', 'Подпись'),

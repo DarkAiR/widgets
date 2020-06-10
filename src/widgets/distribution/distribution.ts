@@ -11,12 +11,13 @@ import {
     merge as _merge,
     min as _min,
     max as _max,
-    flow as _flow
+    flow as _flow,
+    isEmpty as _isEmpty
 } from 'lodash';
 import {Chart} from '../../models/Chart';
 import {ProfilePoint} from '../../interfaces';
 import {IWidgetSettings} from "../../widgetSettings";
-import {ChartType} from "../../models/types";
+import {ChartType, XAxisPos, YAxisPos} from "../../models/types";
 import {MathHelper, SettingsHelper} from "../../helpers";
 
 export class Distribution extends Chart {
@@ -38,8 +39,13 @@ export class Distribution extends Chart {
 
         const legend: Object = SettingsHelper.getLegendSettings(this.widgetSettings.settings, this.chartData.settings);
 
+        const chartBackgroundSettings: ISettings = SettingsHelper.getGradientSettings(this.getWidgetSetting('chartBackground.color'));
+        const chartBackground: Object = _isEmpty(chartBackgroundSettings) ? {} : { backgroundColor: chartBackgroundSettings };
+
         const options = {
             grid: {
+                show: true,
+                ...chartBackground,
                 top: +this.getWidgetSetting('chartPaddings.top'),
                 bottom: +this.getWidgetSetting('chartPaddings.bottom'),
                 right: +this.getWidgetSetting('chartPaddings.right'),
@@ -70,7 +76,7 @@ export class Distribution extends Chart {
             showTitle: titleSettings.show,
             title: titleSettings.name,
             titleStyle: titleSettings.style,
-            backgroundStyle: SettingsHelper.getBackgroundStyle(this.getWidgetSetting('backgroundColor')),
+            backgroundStyle: SettingsHelper.getBackgroundStyle(this.getWidgetSetting('background.color')),
             paddingStyle: SettingsHelper.getPaddingStyle(this.getWidgetSetting('paddings'))
         });
 

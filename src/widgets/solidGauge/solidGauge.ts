@@ -34,7 +34,7 @@ export class SolidGauge extends Chart {
             const fontSize = this.getFontSize(currValue);
 
             const output = this.renderTemplate({
-                backgroundStyle: SettingsHelper.getBackgroundStyle(this.getWidgetSetting('backgroundColor')),
+                backgroundStyle: SettingsHelper.getBackgroundStyle(this.getWidgetSetting('background.color')),
                 fontSize,
                 currValue,
                 title: this.getWidgetSetting('title'),

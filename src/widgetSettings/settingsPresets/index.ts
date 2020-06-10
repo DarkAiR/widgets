@@ -5,6 +5,7 @@ import {chartPaddings} from './chartPaddings';
 import {fill} from './fill';
 import {label} from './label';
 import {background} from './background';
+import {chartBackground} from "./chartBackground";
 import {axisX} from "./axisX";
 import {axisY} from "./axisY";
 import {multiAxesX} from "./multiAxesX";
@@ -21,6 +22,7 @@ const settingsPresets = {
     label,
     singleValue,
     background,
+    chartBackground,
     axisX,
     axisY,
     multiAxesX,

@@ -40,7 +40,7 @@ export class KPI extends Chart {
             const [value, valueStyle]: [string, string] = SettingsHelper.getSingleValueStyle(points[0][0].value || 0, this.getDataSetSettings(dataSetSettings, 'value'));
 
             this.config.element.innerHTML = this.renderTemplate({
-                backgroundStyle: SettingsHelper.getBackgroundStyle(this.getWidgetSetting('backgroundColor')),
+                backgroundStyle: SettingsHelper.getBackgroundStyle(this.getWidgetSetting('background.color')),
                 showTitle: titleSettings.show,
                 title: titleSettings.name,
                 titleStyle: titleSettings.style,
