@@ -152,7 +152,7 @@ export class Spline extends Chart {
 
             if (enableZoom) {
                 if (this.interval.currInterval !== 'DAY') {
-                    myChart.on('dblclick', 'xAxis.category', (param: IEventAxisXClick) => this.onClickAxisX(param.value as string));
+                    myChart.on('click', 'xAxis.category', (param: IEventAxisXClick) => this.onClickAxisX(param.value as string));
                 }
                 const buttons = this.config.element.getElementsByClassName(w['toolbtn']);
                 buttons[0].addEventListener("click", this.leftInterval.bind(this));
