@@ -44,6 +44,7 @@ export class Spline extends Chart {
         cutTo: null
     };
     private shortestFrequency: Frequency = null;    // Самая короткая частота. Нужна для формирования подписей
+    private clickTimeoutId: number = null;
 
     getVariables(): IWidgetVariables {
         const res: IWidgetVariables = {};
@@ -596,6 +597,7 @@ export class Spline extends Chart {
             return SettingsHelper.getYAxisSettings(
                 axisData,
                 k,
+                'value',
                 offset,
                 nameRotate
             );
@@ -855,6 +857,15 @@ export class Spline extends Chart {
      * Обработка нажатия на оси X
      */
     private onClickAxisX(paramDate: string): void {
+        if (this.clickTimeoutId !== null) {
+            // Double click detected
+            return;
+        }
+        this.clickTimeoutId = window.setTimeout(() => {
+            window.clearTimeout(this.clickTimeoutId);
+            this.clickTimeoutId = null;
+        }, 300);
+
         // Проваливаемся на след. интервал
         if (this.interval.currInterval === 'DAY') {
             return;

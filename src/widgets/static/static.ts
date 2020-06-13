@@ -3,17 +3,19 @@ import w from './static.less';
 import {settings as widgetSettings} from "./settings";
 
 import echarts from 'echarts';
-import {max as _max, min as _min, get as _get, map as _map, findKey as _findKey, fromPairs as _fromPairs, merge as _merge, isEmpty as _isEmpty} from 'lodash';
+import {
+    max as _max, min as _min,
+    isEmpty as _isEmpty,
+    sortBy as _sortBy
+} from 'lodash';
 import {
     DataSetTemplate,
     IChartData, IColor, IEventOrgUnits, ISettings,
-    IWidgetVariables, AxisData, Point, XAxisData, YAxisData
+    IWidgetVariables, Point, XAxisData, YAxisData
 } from '../../interfaces';
 import {Chart} from '../../models/Chart';
 import {IWidgetSettings} from "../../widgetSettings";
 import {MathHelper, OrgUnitsHelper, SettingsHelper, TypeGuardsHelper} from "../../helpers";
-import {WidgetSettingsItem} from "../../widgetSettings/types";
-import {XAxisPos, YAxisPos} from "../../models/types";
 
 export class Static extends Chart {
     getVariables(): IWidgetVariables {
@@ -35,23 +37,11 @@ export class Static extends Chart {
         if (TypeGuardsHelper.everyIsDataSetTemplate(data.dataSets)) {
             const points: Point[][] = data.data as Point[][];
 
-            const axisYDistance: number = this.getWidgetSetting('axisYDistance');
-            const axisXDistance: number = 0;    // this.getWidgetSetting('axisXDistance');
-
-            const xAxesData = this.getXAxes(points);
-            const yAxesData = this.getYAxes(points);
-
-            // Вычисляем количество осей
-            const leftAmount: number = yAxesData.axes.filter((v: Object) => (v['position'] as YAxisPos) === 'left').length;
-            const rightAmount: number = yAxesData.axes.filter((v: Object) => (v['position'] as YAxisPos) === 'right').length;
-            const topAmount: number = xAxesData.axes.filter((v: Object) => (v['position'] as XAxisPos) === 'top').length;
-            const bottomAmount: number = xAxesData.axes.filter((v: Object) => (v['position'] as XAxisPos) === 'bottom').length;
-
-            // Только для одиночных осей
-            const containLabel: boolean = leftAmount <= 1 && rightAmount <= 1 && topAmount <= 1 && bottomAmount <= 1;
+            const xAxisData = this.getXAxis(points);
+            const yAxisData = this.getYAxis(points);
 
             const legend: Object = SettingsHelper.getLegendSettings(this.widgetSettings.settings, this.chartData.settings);
-            const series: Object[] = this.getSeries(points, yAxesData.axesToIndex, xAxesData.axesToIndex);
+            const series: Object[] = this.getSeries(points);
 
             const chartBackgroundSettings: ISettings = SettingsHelper.getGradientSettings(this.getWidgetSetting('chartBackground.color'));
             const chartBackground: Object = _isEmpty(chartBackgroundSettings) ? {} : { backgroundColor: chartBackgroundSettings };
@@ -60,15 +50,15 @@ export class Static extends Chart {
                 grid: {
                     show: true,
                     ...chartBackground,
-                    top: +this.getWidgetSetting('chartPaddings.top') + (containLabel ? 0 : topAmount * axisXDistance),
-                    bottom: +this.getWidgetSetting('chartPaddings.bottom') + (containLabel ? 0 : bottomAmount * axisXDistance),
-                    right: +this.getWidgetSetting('chartPaddings.right') + (containLabel ? 0 : (rightAmount * axisYDistance)),
-                    left: +this.getWidgetSetting('chartPaddings.left') + (containLabel ? 0 : (leftAmount * axisYDistance)),
-                    containLabel: containLabel
+                    top: +this.getWidgetSetting('chartPaddings.top'),
+                    bottom: +this.getWidgetSetting('chartPaddings.bottom'),
+                    right: +this.getWidgetSetting('chartPaddings.right'),
+                    left: +this.getWidgetSetting('chartPaddings.left'),
+                    containLabel: true
                 },
                 legend: legend,
-                xAxis: xAxesData.axes,
-                yAxis: yAxesData.axes,
+                xAxis: xAxisData,
+                yAxis: yAxisData,
                 series: series
             };
 
@@ -98,7 +88,7 @@ export class Static extends Chart {
         }
     }
 
-    private getSeries(pointsData: Point[][], yAxesToIndex: {[dataSetIdx: number]: number}, xAxesToIndex: {[dataSetIdx: number]: number}): ISettings[] {
+    private getSeries(pointsData: Point[][]): ISettings[] {
         const data: IChartData = this.chartData;
         const series: ISettings[] = [];
 
@@ -120,10 +110,8 @@ export class Static extends Chart {
                     },
                     emphasis: label,
                     symbolSize: this.getDataSetSettings(dataSetSettings, 'symbolSize'),
-                    data: points.map((obj: Point) => [obj.xValue, obj.yValue]),
-                    type: "scatter",
-                    yAxisIndex: yAxesToIndex[idx],
-                    xAxisIndex: xAxesToIndex[idx],
+                    data: _sortBy(points.map((obj: Point) => [obj.xValue, obj.yValue]), 0),
+                    type: "scatter"
                 });
             }
         }
@@ -131,169 +119,65 @@ export class Static extends Chart {
     }
 
     /**
-     * Получить настройку конкретной оси
+     * Получить данные для осей
      */
-    private getAxisSetting<T>(axisName: string, varName: string, axisNumber: number): T {        // unknown, чтобы обязательно указывать тип
-        const axesData = this.getWidgetSetting<Object[]>(axisName);
-        const item: WidgetSettingsItem = SettingsHelper.getWidgetSettingByPath(this.widgetSettings.settings, [axisName, varName]);
-        const dataObj = axesData.find((v: Object) => +_get(v, 'index') === axisNumber);
-        if (dataObj !== undefined) {
-            return _get(dataObj, varName, item.default);
-        }
-        return item.default;
+    private getXAxis(pointsData: Point[][]): Object {
+        let max: number = _max(pointsData.map((points: Point[]) => _max(points.map((point: Point) => point.xValue))));
+        let min: number = _min(pointsData.map((points: Point[]) => _min(points.map((point: Point) => point.xValue))));
+        [max, min] = MathHelper.roundInterval(max, min);
+
+        const axisData: XAxisData = {
+            show: this.getWidgetSetting('axisX.show'),
+            name: this.getWidgetSetting('axisX.name'),
+            nameGap: this.getWidgetSetting('axisX.nameGap'),
+            nameColor: this.getWidgetSetting('axisX.nameColor'),
+            color: this.getWidgetSetting('axisX.color'),
+            position: this.getWidgetSetting('axisX.position'),
+            max: max,
+            min: min,
+            axesToIndex: [],
+            showTick: this.getWidgetSetting('axisX.showTick'),
+        };
+
+        return SettingsHelper.getXAxisSettings(
+            axisData,
+            0,
+            'value',
+            null,
+            0,
+            false,
+            false
+        );
     }
 
     /**
      * Получить данные для осей
      */
-    private getXAxes(pointsData: Point[][]): {
-        axes: Object[],
-        axesToIndex: {[key: number]: number}
-    } {
-        const axesData: {[key: number]: XAxisData} = this.getAxes<XAxisPos>(pointsData, false);
+    private getYAxis(pointsData: Point[][]): Object {
+        let max: number = _max(pointsData.map((points: Point[]) => _max(points.map((point: Point) => point.yValue))));
+        let min: number = _min(pointsData.map((points: Point[]) => _min(points.map((point: Point) => point.yValue))));
+        [max, min] = MathHelper.roundInterval(max, min);
 
-        // Готовим данные для echarts
-        const axisXDistance: number = this.getWidgetSetting('axisXDistance');
-        let topAxis = 0;
-        let bottomAxis = 0;
-
-        const axes: Object[] = _map(axesData, (axisData: XAxisData, k: number): Object => {
-            let offset = 0;
-            switch (axisData.position) {
-                case 'top':
-                    offset = topAxis * axisXDistance;
-                    topAxis++;
-                    break;
-                case 'bottom':
-                    offset = bottomAxis * axisXDistance;
-                    bottomAxis++;
-                    break;
-            }
-
-            return SettingsHelper.getXAxisSettings(
-                axisData,
-                k,
-                'value',
-                null,
-                offset,
-                false,
-                false
-            );
-        });
-
-        // {1: {axesToIndex: [11,22]}, 2: {axesToIndex: [33]} => {11:0, 22:0, 33:1}
-        // {[dataSetIdx: number] : axisIndex}
-        const axesToIndex: {[key: number]: number} = _merge(
-            ..._map(axesData, (v: XAxisData, axisNumber: number) =>
-                _fromPairs( v.axesToIndex.map((dataSetIdx: number) => {
-                    return [dataSetIdx, _findKey(axes, (axesObj: Object) => axesObj['id'] === axisNumber) ?? 0];
-                }))
-            )
-        );
-
-        return {
-            axesToIndex,
-            axes
+        const axisData: YAxisData = {
+            show: this.getWidgetSetting('axisY.show'),
+            name: this.getWidgetSetting('axisY.name'),
+            nameGap: this.getWidgetSetting('axisY.nameGap'),
+            nameColor: this.getWidgetSetting('axisY.nameColor'),
+            color: this.getWidgetSetting('axisY.color'),
+            position: 'left',   // disable changing position
+            max: max,
+            min: min,
+            axesToIndex: [],
+            showTick: this.getWidgetSetting('axisY.showTick')
         };
-    }
 
-    /**
-     * Получить данные для осей
-     */
-    private getYAxes(pointsData: Point[][]): {
-        axes: Object[],
-        axesToIndex: {[key: number]: number}
-    } {
-        const axesData: {[key: number]: YAxisData} = this.getAxes<YAxisPos>(pointsData, true);
-
-        // Готовим данные для echarts
-        const axisYDistance: number = this.getWidgetSetting('axisYDistance');
-        let leftAxis = 0;
-        let rightAxis = 0;
-
-        const axes: Object[] = _map(axesData, (axisData: YAxisData, k: number): Object => {
-            let offset = 0;
-            let nameRotate = 0;
-            switch (axisData.position) {
-                case 'left':
-                    nameRotate = 90;
-                    offset = leftAxis * axisYDistance;
-                    leftAxis++;
-                    break;
-                case 'right':
-                    nameRotate = 270;
-                    offset = rightAxis * axisYDistance;
-                    rightAxis++;
-                    break;
-            }
-
-            return SettingsHelper.getYAxisSettings(
-                axisData,
-                k,
-                offset,
-                nameRotate
-            );
-        });
-
-        // {1: {axesToIndex: [11,22]}, 2: {axesToIndex: [33]} => {11:0, 22:0, 33:1}
-        // {[dataSetIdx: number] : axisIndex}
-        const axesToIndex: {[key: number]: number} = _merge(
-            ..._map(axesData, (v: YAxisData, axisNumber: number) =>
-                _fromPairs( v.axesToIndex.map((dataSetIdx: number) => {
-                    return [dataSetIdx, _findKey(axes, (axesObj: Object) => axesObj['id'] === axisNumber) ?? 0];
-                }))
-            )
+        return SettingsHelper.getYAxisSettings(
+            axisData,
+            0,
+            'value',
+            0,
+            90
         );
-
-        return {
-            axesToIndex,
-            axes
-        };
-    }
-
-    private getAxes<T>(pointsData: Point[][], isYAxis: boolean): {[key: number]: AxisData<T>} {
-        const data: IChartData = this.chartData;
-        const axesData: { [key: number]: AxisData<T> } = {};
-
-        // Готовим данные для осей
-        if (TypeGuardsHelper.everyIsDataSetTemplate(data.dataSets)) {
-            for (let idx = 0; idx < data.data.length; idx++) {
-                const dataSetSettings: ISettings = data.dataSets[idx].settings;
-                const axisNumber: number = +this.getDataSetSettings(dataSetSettings, isYAxis ? 'axisY' : 'axisX');
-                const points: Point[] = pointsData[idx];
-
-                const values: number[] = points.map((obj: Point) => isYAxis ? obj.yValue : obj.xValue);
-                let max: number = _max(values);
-                let min: number = _min(values);
-                [max, min] = MathHelper.roundInterval(max, min);
-
-                if (axesData[axisNumber] !== undefined) {
-                    axesData[axisNumber].min = _min([axesData[axisNumber].min, min]);
-                    axesData[axisNumber].max = _max([axesData[axisNumber].max, max]);
-                    axesData[axisNumber].axesToIndex.push(idx);
-                } else {
-                    const axisSett: string = isYAxis ? 'axesY' : 'axesX';
-                    let color: string = this.getAxisSetting(axisSett, 'color', axisNumber) as string;
-                    if (!color) {
-                        // Получаем цвет из цвета графика
-                        color = this.getDataSetSettings(dataSetSettings, 'color');
-                    }
-                    axesData[axisNumber] = {
-                        show: this.getAxisSetting(axisSett, 'show', axisNumber),
-                        name: this.getAxisSetting(axisSett, 'name', axisNumber),
-                        nameGap: this.getAxisSetting(axisSett, 'nameGap', axisNumber),
-                        nameColor: this.getAxisSetting(axisSett, 'nameColor', axisNumber),
-                        color: color,
-                        position: this.getAxisSetting(axisSett, 'position', axisNumber),
-                        max: max,
-                        min: min,
-                        axesToIndex: [idx],
-                        showTick: this.getAxisSetting(axisSett, 'showTick', axisNumber),
-                    };
-                }
-            }
-        }
-        return axesData;
     }
 
     /**

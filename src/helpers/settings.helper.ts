@@ -298,6 +298,7 @@ export class SettingsHelper {
     static getYAxisSettings(
         axisData: YAxisData,
         axisIndex: number,
+        type: string,
         offset: number,
         nameRotate: number
     ): ISettings {
@@ -334,7 +335,7 @@ export class SettingsHelper {
 
         const res = {
             id: axisIndex,                          // Записываем в id реальный индекс оси
-            type: 'value',
+            type: type,
             show: axisData.show,
             position: axisData.position,
             min: axisData.min,
@@ -440,7 +441,7 @@ export class SettingsHelper {
             const v2: number = parseFloat(value2);
             value1 = f(v1);
             value2 = f(v2);
-            return `(${value1}Есть но, ${value2}${measure})`;
+            return `(${value1}, ${value2}${measure})`;
         };
     }
 }

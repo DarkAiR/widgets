@@ -270,6 +270,7 @@ export class Distribution extends Chart {
         return SettingsHelper.getYAxisSettings(
             axisData,
             0,
+            'value',
             0,
             nameRotate
         );

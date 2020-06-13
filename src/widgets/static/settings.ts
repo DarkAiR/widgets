@@ -9,8 +9,8 @@ export const settings: IWidgetSettings = makeSettings({
         ...settingsPresets.background,
         ...settingsPresets.chartPaddings,
         ...settingsPresets.chartBackground,
-        ...settingsPresets.multiAxesY,
-        ...settingsPresets.multiAxesX,
+        ...settingsPresets.func.axisY(false),
+        ...settingsPresets.axisX,
         ...settingsPresets.legend,
     ],
     dataSet: {
@@ -20,9 +20,7 @@ export const settings: IWidgetSettings = makeSettings({
             makeString('name', 'Название'),
             makeColor('color', ' Цвет'),
             ...settingsPresets.label,
-            makeNumber('symbolSize', 'Размер символа', 20),
-            makeNumber('axisY', 'Номер оси Y', 1),
-            makeNumber('axisX', 'Номер оси X', 1),
+            makeNumber('symbolSize', 'Размер символа', 20)
         ]
     }
 });

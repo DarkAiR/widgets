@@ -7,7 +7,7 @@ import {label} from './label';
 import {background} from './background';
 import {chartBackground} from "./chartBackground";
 import {axisX} from "./axisX";
-import {axisY} from "./axisY";
+import {axisY, axisYFunc} from "./axisY";
 import {multiAxesX} from "./multiAxesX";
 import {multiAxesY} from "./multiAxesY";
 import {legend} from "./legend";
@@ -27,6 +27,10 @@ const settingsPresets = {
     axisY,
     multiAxesX,
     multiAxesY,
-    legend
+    legend,
+
+    func: {
+        axisY: axisYFunc,
+    }
 };
 export default settingsPresets;

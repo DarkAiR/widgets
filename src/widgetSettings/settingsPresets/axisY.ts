@@ -11,21 +11,28 @@ import {
 import {SettingFunc} from "../types";
 import {YAxisPos, YAxisPosValues} from "../../models/types";
 
-export const axisY: SettingFunc[] = [
-    makeSettingsGroup('axisY', 'Ось Y', [
-        [
-            makeBoolean('show', 'Отображать', true),
-            makeColor('color', 'Цвет'),
-        ], [
-            makeList<YAxisPos>('position', 'Положение оси', 'left', YAxisPosValues),
-        ], [
-            makeString('name', 'Подпись'),
-        ], [
-            makeColor('nameColor', 'Цвет подписи'),
-            makeNumber('nameGap', 'Отступ подписи', '')
-        ], [
-            makeBoolean('showTick', 'Отображать насечки', true)
-        ]
-    ], {collapse: true}),
-];
+function axisYFunc(enablePosition: boolean = true): SettingFunc[] {
+    return [
+        makeSettingsGroup('axisY', 'Ось Y', [
+            [
+                makeBoolean('show', 'Отображать', true),
+                makeColor('color', 'Цвет'),
+            ],
+            !enablePosition ? [] : [
+                makeList<YAxisPos>('position', 'Положение оси', 'left', YAxisPosValues),
+            ], [
+                makeString('name', 'Подпись'),
+            ], [
+                makeColor('nameColor', 'Цвет подписи'),
+                makeNumber('nameGap', 'Отступ подписи', '')
+            ], [
+                makeBoolean('showTick', 'Отображать насечки', true)
+            ]
+        ], {collapse: true}),
+    ];
+}
+
+const axisY: SettingFunc[] = axisYFunc();
+
+export {axisY, axisYFunc};
 
