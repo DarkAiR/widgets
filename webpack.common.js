@@ -134,33 +134,35 @@ module.exports = (env) => {
                     //     cleanStaleWebpackAssets: false
                     // }).apply(options);
 
-                    new CopyWebpackPlugin([
-                        {
-                            from: './README.md',
-                            to: 'README.md'
-                        }, {
-                            from: './package-lib.json',
-                            to: 'package.json'
-                        }, {
-                            from: './src/styles/_styles.css',
-                            to: 'styles.css'
-                        }, {
-                            from: './node_modules/goodt-framework-css/dist/all.min.css',
-                            to: 'assets/all.min.css'
-                        }, {
-                            from: './node_modules/@mdi/font/css/materialdesignicons.css',
-                            to: 'assets/materialdesignicons.css',
-                            transform(content, path) {
-                                return content.toString().replace(/\.\.\/fonts\//g, './fonts/');
+                    new CopyWebpackPlugin({
+                        patterns: [
+                            {
+                                from: './README.md',
+                                to: 'README.md'
+                            }, {
+                                from: './package-lib.json',
+                                to: 'package.json'
+                            }, {
+                                from: './src/styles/_styles.css',
+                                to: 'styles.css'
+                            }, {
+                                from: './node_modules/goodt-framework-css/dist/all.min.css',
+                                to: 'assets/all.min.css'
+                            }, {
+                                from: './node_modules/@mdi/font/css/materialdesignicons.css',
+                                to: 'assets/materialdesignicons.css',
+                                transform(content, path) {
+                                    return content.toString().replace(/\.\.\/fonts\//g, './fonts/');
+                                }
+                            }, {
+                                from: './node_modules/@mdi/font/fonts/',
+                                to: 'assets/fonts/'
+                            }, {
+                                from: './node_modules/goodt-framework-css/fonts/',
+                                to: 'assets/fonts/'
                             }
-                        }, {
-                            from: './node_modules/@mdi/font/fonts/',
-                            to: 'assets/fonts/'
-                        }, {
-                            from: './node_modules/goodt-framework-css/fonts/',
-                            to: 'assets/fonts/'
-                        }
-                    ]).apply(options);
+                        ]
+                    }).apply(options);
                 }
             },
             new webpack.DefinePlugin({
