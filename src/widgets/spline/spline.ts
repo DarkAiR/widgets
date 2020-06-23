@@ -58,7 +58,6 @@ export class Spline extends Chart {
                 addVar(idx, 'period', 'Период', `${nameStr}: формат см. документацию по template-api`);
                 addVar(idx, 'start date', 'Начало выборки', `${nameStr}: YYYY-mm-dd`);
                 addVar(idx, 'finish date', 'Окончание выборки', `${nameStr}: YYYY-mm-dd`);
-                addVar(idx, 'view type', 'Тип отображения', `${nameStr}: LINE | HISTOGRAM`);
                 addVar(idx, 'frequency', 'Частота конечной агрегации', `${nameStr}: YEAR | MONTH | WEEK | DAY | HOUR | ALL`);
                 addVar(idx, 'pre frequency', 'Частота выборки для которой выполняется операция, указанная в operation', `${nameStr}: YEAR | MONTH | WEEK | DAY | HOUR | ALL`);
                 addVar(idx, 'operation', 'операция, которую необходимо выполнить при агрегации из preFrequency во frequency', `${nameStr}: SUM | AVG | MIN | MAX | DIVIDE`);

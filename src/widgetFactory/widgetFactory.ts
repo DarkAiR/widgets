@@ -17,6 +17,7 @@ export class WidgetFactory {
         type T = Promise<{settings: IWidgetSettings}>;
         const widgetTypeToImport: Record<WidgetType, () => T> = {
             'SPLINE':           () => import('../widgets/spline/settings'),
+            'CATEGORY':         () => import('../widgets/category/settings'),
             'AVERAGE_NUMBER':   () => import('../widgets/averageNumber/settings'),
             'SOLID_GAUGE':      () => import('../widgets/solidGauge/settings'),
             'INDICATORS_TABLE': () => import('../widgets/indicatorsTable/settings'),
@@ -86,6 +87,7 @@ export class WidgetFactory {
 
         const widgetsArr: WidgetsArr = {
             "SPLINE":           () => widgets.Spline.Spline,
+            "CATEGORY":         () => widgets.Category.Category,
             "AVERAGE_NUMBER":   () => widgets.AverageNumber.AverageNumber,
             "SOLID_GAUGE":      () => widgets.SolidGauge.SolidGauge,
             "INDICATORS_TABLE": () => widgets.IndicatorsTable.IndicatorsTable,

@@ -2,7 +2,7 @@ import {TSPoint} from "../interfaces/graphQL";
 import {IChartData, ISettings} from '../interfaces';
 import {Frequency} from "../models/typesGraphQL";
 import {TypeGuardsHelper} from "./typeGuards.helper";
-import {min as _min, max as _max} from 'lodash';
+import {min as _min, max as _max, get as _get} from 'lodash';
 import { DateHelper } from './date.helper';
 
 export interface TimeSeriesData {
@@ -52,6 +52,7 @@ export class TimeSeriesHelper {
                 let found: IValue = valuesArr.find((valueArrItem: IValue) => valueArrItem.localDateTime === v.localDateTime);
                 if (!found) {
                     found = {localDateTime: v.localDateTime, values: []};
+                    valuesArr.push(found);
                     try {
                         const t: number = new Date(v.localDateTime).getTime();
                         interval.minTime = _min([t, interval.minTime]);
@@ -61,9 +62,8 @@ export class TimeSeriesHelper {
                             interval.maxTimeInInterval = _max([t, interval.maxTimeInInterval]);
                         }
                     } catch (e) {}
-                    valuesArr.push(found);
                 }
-                found.values[idx] = v.value;
+                found.values[idx] = +_get(found.values, idx, 0) + v.value;
             });
         });
 
@@ -135,7 +135,7 @@ export class TimeSeriesHelper {
         const data: TSPoint[][] = chartData.data as TSPoint[][];
 
         let shortestFrequencyIdx: number = TimeSeriesHelper.frequencyPriority['ALL'];
-        let shortestDataSetIdx: number = null;
+        let shortestDataSetIdx: number = 0;
         data.forEach((dataValues: TSPoint[], idx: number) => {
             if (TypeGuardsHelper.isDataSetTemplate(chartData.dataSets[idx])) {
                 const f: number = TimeSeriesHelper.frequencyPriority[chartData.dataSets[idx].frequency];

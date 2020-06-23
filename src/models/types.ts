@@ -2,7 +2,7 @@ export * from "./typesGraphQL";
 
 // Типы виджетов
 // Каждый тип виджета может поддерживать определенное число различный viewType
-export type WidgetType = 'SPLINE' | 'AVERAGE_NUMBER' | 'SOLID_GAUGE' | 'INDICATORS_TABLE' | 'TABLE'
+export type WidgetType = 'SPLINE' | 'CATEGORY' | 'AVERAGE_NUMBER' | 'SOLID_GAUGE' | 'INDICATORS_TABLE' | 'TABLE'
      | 'REPORT' | 'STATIC' | 'KPI' | 'DISTRIBUTION' | 'PROFILE';
 
 // Вид графика для spline
