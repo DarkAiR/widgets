@@ -2,14 +2,12 @@ import s from "../../styles/_all.less";
 import w from "./indicatorsTable.less";
 import {settings as widgetSettings} from "./settings";
 
-import {IChartData, IWidgetVariables} from "../../interfaces";
+import {IChartData, ISettings, IWidgetVariables} from "../../interfaces";
 import {get as _get, head as _head, forEach as _forEach} from "lodash";
 import * as moment from 'moment';
 import * as hammer from 'hammerjs';
 import {Chart} from "../../models/Chart";
 import {TimeSeriesData, TimeSeriesHelper} from "../../helpers";
-import {TSPoint} from "../../interfaces/graphQL";
-import {IObject} from "../../interfaces/IObject";
 import {IWidgetSettings} from "../../widgetSettings";
 
 type MetricsStatus = 'normal' | 'warning' | 'error';
@@ -38,7 +36,7 @@ export class IndicatorsTable extends Chart {
 
         let startOffs = 0;
         this.mc.get('pan').set({ direction: hammer.DIRECTION_HORIZONTAL });
-        this.mc.on("panstart panleft panright", (ev: IObject) => {
+        this.mc.on("panstart panleft panright", (ev: ISettings) => {
             const contEl = _head(this.config.element.getElementsByClassName(w['cont']));
             switch (ev.type) {
                 case 'panstart':

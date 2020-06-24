@@ -105,11 +105,14 @@ export abstract class Chart implements IChart {
      * Перерисовать виджет с текущими данными
      */
     async redraw(): Promise<void> {
-        this.config.dataProvider.parseTemplate(this.config.template)
-            .then((templateData: IChartData) => {
+        this.config.dataProvider.parseTemplate(this.config.template).then(
+            (templateData: IChartData) => {
                 this.chartData = templateData;
                 this.run();
-            });
+            }
+        ).catch((error: Error) => {
+            throw error;
+        });
     }
 
     /**

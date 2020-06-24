@@ -17,6 +17,7 @@ export class WidgetFactory {
         type T = Promise<{settings: IWidgetSettings}>;
         const widgetTypeToImport: Record<WidgetType, () => T> = {
             'SPLINE':           () => import('../widgets/spline/settings'),
+            'CATEGORY':         () => import('../widgets/category/settings'),
             'AVERAGE_NUMBER':   () => import('../widgets/averageNumber/settings'),
             'SOLID_GAUGE':      () => import('../widgets/solidGauge/settings'),
             'INDICATORS_TABLE': () => import('../widgets/indicatorsTable/settings'),
@@ -86,6 +87,7 @@ export class WidgetFactory {
 
         const widgetsArr: WidgetsArr = {
             "SPLINE":           () => widgets.Spline.Spline,
+            "CATEGORY":         () => widgets.Category.Category,
             "AVERAGE_NUMBER":   () => widgets.AverageNumber.AverageNumber,
             "SOLID_GAUGE":      () => widgets.SolidGauge.SolidGauge,
             "INDICATORS_TABLE": () => widgets.IndicatorsTable.IndicatorsTable,
@@ -100,10 +102,8 @@ export class WidgetFactory {
         return new Promise<IChart>((resolve: ResolveFunc<IChart>, reject: RejectFunc) => {
             this.dataProvider.parseTemplate(template).then((data: IChartData) => {
                 if (!widgetsArr[template.widgetType]) {
-                    console.error('Not supported');
-                    reject();
+                    throw new Error(`Widget type <${template.widgetType}> not supported`);
                 }
-
                 const widget: Chart = new (widgetsArr[template.widgetType]())(config);
                 widget.create(data);
                 this.addVersion(config);
@@ -111,7 +111,7 @@ export class WidgetFactory {
             }).catch((error: Error) => {
                 // Ловим ошибку (например 500), чтобы виджеты не зависли в состоянии loading
                 console.error(error);
-                reject();
+                reject(error);
             });
         });
     }
