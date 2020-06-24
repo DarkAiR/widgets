@@ -102,10 +102,8 @@ export class WidgetFactory {
         return new Promise<IChart>((resolve: ResolveFunc<IChart>, reject: RejectFunc) => {
             this.dataProvider.parseTemplate(template).then((data: IChartData) => {
                 if (!widgetsArr[template.widgetType]) {
-                    console.error('Not supported');
-                    reject();
+                    throw new Error(`Widget type <${template.widgetType}> not supported`);
                 }
-
                 const widget: Chart = new (widgetsArr[template.widgetType]())(config);
                 widget.create(data);
                 this.addVersion(config);
@@ -113,7 +111,7 @@ export class WidgetFactory {
             }).catch((error: Error) => {
                 // Ловим ошибку (например 500), чтобы виджеты не зависли в состоянии loading
                 console.error(error);
-                reject();
+                reject(error);
             });
         });
     }

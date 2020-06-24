@@ -8,10 +8,9 @@ import {
     IWidgetVariables,
     ReportPoint,
     ReportItem,
-    IColor,
-    IEventOrgUnits, DimensionFilter, DataSetTemplate, SingleDataSource
+    IEventOrgUnits, DataSetTemplate
 } from "../../interfaces";
-import {isEmpty as _isEmpty} from "lodash";
+import {isEmpty as _isEmpty, get as _get} from "lodash";
 import {Chart} from "../../models/Chart";
 import {OrgUnitsHelper, SettingsHelper, TypeGuardsHelper} from "../../helpers";
 import {IWidgetSettings} from "../../widgetSettings";
@@ -36,7 +35,6 @@ export class Report extends Chart {
 
         if (TypeGuardsHelper.everyIsDataSetTemplate(data.dataSets)) {
             const point: ReportPoint = reportPoints[0];
-            const value = point?.items[0]?.value || 0;
 
             const titleSettings = SettingsHelper.getTitleSettings(this.widgetSettings.settings, this.chartData.settings);
 

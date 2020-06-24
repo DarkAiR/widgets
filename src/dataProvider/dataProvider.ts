@@ -8,11 +8,10 @@ import {
     DataSet,
     DataSetTemplate,
     JoinDataSetTemplate,
-    TimeSeriesDataSetShort, DataSource
+    TimeSeriesDataSetShort, DataSource, ISettings
 } from "../interfaces";
 import {serializers} from '.';
 import * as stringifyObject from 'stringify-object';
-import {IObject} from "../interfaces/IObject";
 import {TypeGuardsHelper} from "../helpers";
 
 type SerializeFunc = (dataSet: DataSet, server: ServerType, widgetType: WidgetType, hasEntity: boolean) => IGqlRequest | null;
@@ -40,7 +39,10 @@ export class DataProvider {
                 }
                 return resp.json();
             })
-            .catch((error: Error) => console.error(error.message));
+            .catch((error: Error) => {
+                console.error(error);
+                throw error;
+            });
         console.log('Load template', response);
         return response;
     }
@@ -99,13 +101,17 @@ export class DataProvider {
                     'Content-Type': 'application/json'
                 }
             })
-                .then((resp: Response) => {
+                .then(async (resp: Response) => {
                     if (!resp.ok) {
                         throw new Error(resp.statusText);
                     }
-                    return resp.json();
+                    const res: ISettings = await resp.json();
+                    if (res.errors.length) {
+                        throw new Error(res.errors[0].message);
+                    }
+                    return res;
                 })
-                .then((resp: IObject) => _defaultTo(_get(resp, loadData[item.viewType].resultProp), []))
+                .then((resp: ISettings) => _defaultTo(_get(resp, loadData[item.viewType].resultProp), []))
                 .catch((error: Error) => { throw error; });
         });
         // Асинхронно загружаем все данные
