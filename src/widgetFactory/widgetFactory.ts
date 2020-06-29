@@ -1,4 +1,4 @@
-import {IChart, IChartData, RejectFunc, ResolveFunc, WidgetTemplate} from "../interfaces";
+import {IChart, IChartData, ISettings, RejectFunc, ResolveFunc, WidgetTemplate} from "../interfaces";
 import {DataProvider} from "../dataProvider";
 import * as widgets from "../widgets";
 import {StatesHelper, WidgetConfig, WidgetConfigInner} from "..";
@@ -38,51 +38,43 @@ export class WidgetFactory {
         });
     }
 
-    run(config: WidgetConfig): Promise<IChart> {
-        return new Promise((resolve: ResolveFunc, reject: RejectFunc) => {
-            if (!config.element) {
-                console.error('Required field "element" is not specified');
-                reject();
-            }
-            if (!config.templateId) {
-                console.error('Required field "templateId" is not specified');
-                reject();
-            }
-            resolve();
-        }).then(() => {
+    async run(config: WidgetConfig): Promise<IChart> {
+        if (!config.element) {
+            throw new Error('Required field "element" is not specified');
+        }
+        if (!config.templateId) {
+            throw new Error('Required field "templateId" is not specified');
+        }
+        if (!config.dataProvider) {
             this.dataProvider = new DataProvider(config.apiUrl);
-            return new Promise<IChart>((resolve: ResolveFunc<IChart>) => {
-                this.dataProvider
-                    .getTemplate(config.templateId)
-                    .then((template: WidgetTemplate) => {
-                        const innerConfig: WidgetConfigInner = Object.assign(config, {
-                            dataProvider: this.dataProvider,
-                            template: template
-                        });
-                        this.createWidget(innerConfig, template).then((widget: IChart) => resolve(widget));
-                    });
-            });
+            config.dataProvider = this.dataProvider;
+        } else {
+            this.dataProvider = config.dataProvider;
+        }
+        const template: WidgetTemplate = await this.dataProvider.getTemplate(config.templateId);
+        const innerConfig: WidgetConfigInner = Object.assign(config, {
+            template: template
         });
+        return this.createWidget(innerConfig, template);
     }
 
-    runWithSource(config: WidgetConfig, template: WidgetTemplate): Promise<IChart> {
-        return new Promise((resolve: ResolveFunc, reject: RejectFunc) => {
-            if (!config.element) {
-                console.error('Required field "element" is not specified');
-                reject();
-            }
-            resolve();
-        }).then(() => {
+    async runWithSource(config: WidgetConfig, template: WidgetTemplate): Promise<IChart> {
+        if (!config.element) {
+            throw new Error('Required field "element" is not specified');
+        }
+        if (!config.dataProvider) {
             this.dataProvider = new DataProvider(config.apiUrl);
-            const innerConfig: WidgetConfigInner = Object.assign(config, {
-                dataProvider: this.dataProvider,
-                template: template
-            });
-            return this.createWidget(innerConfig, template);
+            config.dataProvider = this.dataProvider;
+        } else {
+            this.dataProvider = config.dataProvider;
+        }
+        const innerConfig: WidgetConfigInner = Object.assign(config, {
+            template: template
         });
+        return this.createWidget(innerConfig, template);
     }
 
-    private createWidget(config: WidgetConfigInner, template: WidgetTemplate): Promise<IChart> {
+    private async createWidget(config: WidgetConfigInner, template: WidgetTemplate): Promise<IChart> {
         StatesHelper.clear();
 
         const widgetsArr: WidgetsArr = {
@@ -99,21 +91,14 @@ export class WidgetFactory {
             "DISTRIBUTION":     () => widgets.Distribution.Distribution
 
         };
-        return new Promise<IChart>((resolve: ResolveFunc<IChart>, reject: RejectFunc) => {
-            this.dataProvider.parseTemplate(template).then((data: IChartData) => {
-                if (!widgetsArr[template.widgetType]) {
-                    throw new Error(`Widget type <${template.widgetType}> not supported`);
-                }
-                const widget: Chart = new (widgetsArr[template.widgetType]())(config);
-                widget.create(data);
-                this.addVersion(config);
-                resolve(widget as IChart);
-            }).catch((error: Error) => {
-                // Ловим ошибку (например 500), чтобы виджеты не зависли в состоянии loading
-                console.error(error);
-                reject(error);
-            });
-        });
+        if (!widgetsArr[template.widgetType]) {
+            throw new Error(`Widget type <${template.widgetType}> not supported`);
+        }
+        const data: IChartData = await this.dataProvider.parseTemplate(template);
+        const widget: Chart = new (widgetsArr[template.widgetType]())(config);
+        widget.create(data);
+        this.addVersion(config);
+        return widget as IChart;
     }
 
     private addVersion(config: WidgetConfigInner): void {

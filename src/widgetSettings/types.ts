@@ -19,6 +19,9 @@ export type SettingFunc = (...args: any) => WidgetSettingsItem;     // tslint:di
 export type WidgetSettingsTypes = 'string' | 'number' | 'boolean' | 'list' | 'color' | 'gradient' | 'icon'
     | 'settingsGroup' | 'array';
 
+// Тип для hint SettingsGroupSetting
+export type SettingsGroupType = 'string' | 'widgetPaddings' | 'chartPaddings';
+
 // Обобщенная структура данных всех настроек
 // tslint:disable:no-any
 export type WidgetSettingsItem =

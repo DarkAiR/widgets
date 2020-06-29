@@ -8,7 +8,7 @@ import {
     DataSet,
     DataSetTemplate,
     JoinDataSetTemplate,
-    TimeSeriesDataSetShort, DataSource, ISettings
+    TimeSeriesDataSetShort, DataSource, ISettings, DimensionUnit, ResolveFunc, RejectFunc, DataSourceInfo, DimensionInfo
 } from "../interfaces";
 import {serializers} from '.';
 import * as stringifyObject from 'stringify-object';
@@ -16,8 +16,17 @@ import {TypeGuardsHelper} from "../helpers";
 
 type SerializeFunc = (dataSet: DataSet, server: ServerType, widgetType: WidgetType, hasEntity: boolean) => IGqlRequest | null;
 
+interface Cache {
+    dataSources: DataSourceInfo[];
+    dataSourcesPromise: Promise<DataSourceInfo[]>;
+}
+
 export class DataProvider {
-    private apiUrl: string;
+    private readonly apiUrl: string;
+    private cache: Cache = {
+        dataSources: null,
+        dataSourcesPromise: null,
+    };
 
     private get gqlLink(): string {
         return (this.apiUrl || 'http://localhost') + '/graphql';
@@ -31,7 +40,7 @@ export class DataProvider {
         this.apiUrl = apiUrl;
     }
 
-    public async getTemplate(templateId: string): Promise<WidgetTemplate> {
+    async getTemplate(templateId: string): Promise<WidgetTemplate> {
         const response = await fetch(this.templatesLink + '/' + templateId)
             .then((resp: Response) => {
                 if (!resp.ok) {
@@ -47,7 +56,7 @@ export class DataProvider {
         return response;
     }
 
-    public async parseTemplate(template: WidgetTemplate, hasEntity: boolean = false): Promise<IChartData | null> {
+    async parseTemplate(template: WidgetTemplate, hasEntity: boolean = false): Promise<IChartData | null> {
         if (_get(template, 'dataSets', null) === null  ||  !template.dataSets.length) {
             return null;
         }
@@ -120,6 +129,54 @@ export class DataProvider {
         return data;
     }
 
+    async getDimensionsInfo(dataSourceName: string, dimensions: string[]): Promise<DimensionInfo[]> {
+        const dataSource: DataSourceInfo = await this.getDataSource(dataSourceName);
+        return dataSource
+            ? dataSource.dimensions.filter((v: DimensionInfo) => dimensions.includes(v.name))
+            : [];
+    }
+
+    async getDataSource(dataSourceName: string): Promise<DataSourceInfo> {
+        const dataSources: DataSourceInfo[] = await this.getDataSources();
+        return dataSources.find((v: DataSourceInfo) => v.name === dataSourceName);
+    }
+
+    async getDataSources(): Promise<DataSourceInfo[]> {
+        if (this.cache.dataSources !== null) {
+            return Promise.resolve(this.cache.dataSources);
+        }
+        if (this.cache.dataSourcesPromise !== null) {
+            return this.cache.dataSourcesPromise;
+        }
+        this.cache.dataSourcesPromise = new Promise((resolve: ResolveFunc, reject: RejectFunc) => {
+            fetch(this.gqlLink, {
+                method: 'post',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(this.makeGqlRequest(
+                    'getDataSources{name, caption, dimensions{name, caption, hidden}, metrics{name, caption}}')
+                )
+            }).then((response: Response) => {
+                if (!response.ok) {
+                    reject();
+                }
+                return response.json();
+            })
+                .then((data: ISettings) => {
+                    return (data?.dataPresent || false)
+                        ? (data?.data.getDataSources || [])
+                        : [];
+                })
+                .then((data: DataSourceInfo[]) => {
+                    this.cache.dataSources = data;
+                    resolve(data);
+                }).catch(() => reject());
+        });
+        return this.cache.dataSourcesPromise;
+    }
+
+
     private serializeDataSource(dataSource: DataSource): string {
         if (TypeGuardsHelper.isSingleDataSource(dataSource)) {
             return serializers.SingleDataSourceSerializer.serialize(dataSource);
@@ -139,7 +196,7 @@ export class DataProvider {
         let dimensions: string = '';
         switch (widgetType) {
             case 'CATEGORY':
-                dimensions = `dimensions { name value ${hasEntity ? 'entity {name, outerId}' : ''}}`;
+                dimensions = `dimensions { name value entity {name, outerId} }`;
                 break;
             default:
                 dimensions = hasEntity ? 'dimensions { entity {name, outerId} }' : '';
@@ -315,5 +372,13 @@ export class DataProvider {
             ? `period: "${dataSet.period}"`
             : `from: "${dataSet.from}"
                to: "${dataSet.to}"`;
+    }
+
+    private makeGqlRequest(query: string): IGqlRequest {
+        return {
+            operationName: null,
+            variables    : {},
+            query        : `{${query}}`
+        };
     }
 }

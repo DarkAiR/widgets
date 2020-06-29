@@ -17,5 +17,5 @@ export const paddings: SettingFunc[] = [
             makeNumber('left', 'Слева', 10),
             makeNumber('right', 'Справа', 10)
         ]
-    ], {collapse: true}),
+    ], {collapse: true, hint: {type: 'widgetPaddings'}}),
 ];

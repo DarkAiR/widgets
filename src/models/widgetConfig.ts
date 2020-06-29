@@ -10,9 +10,9 @@ export class WidgetConfig {
     element: HTMLElement;                   // Контейнер для виджета
     apiUrl?: string;                        // Url для API на GraphQL (по-умолчанию используется дефолтный)
     eventBus?: EventBusWrapper;             // Шина данных
+    dataProvider: DataProvider;             // Провайдер данных для перезагрузки данных виджетами
 }
 
 export class WidgetConfigInner extends WidgetConfig {
-    dataProvider: DataProvider;             // Провайдер данных для перезагрузки данных виджетами
     template: WidgetTemplate;               // Шаблон для изменения и перезагрузки данных виджетами
 }

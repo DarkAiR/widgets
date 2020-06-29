@@ -37,15 +37,22 @@ Also you can use Promise for receiving signals about complete of loading widget 
 
 For example:
 ```
-const config = new WidgetConfig();
-config.templateId = 'TEMPLATE_ID';
-config.element = document.getElementById('ELEMENT_ID');
-config.apiUrl = 'YOUR GRAPHQL API';     // Optional
-config.eventBus = <EventBusWrapper>
-this.widgetFactory.run(config).then(
-    (widget: IChart) => complete,
-    () => error
-);
+class YourClass {
+    config = null;  // Here wiil be store the DataProvider
+
+    yourRenderMethod() {
+        this.config = new WidgetConfig();
+        this.config.templateId = 'TEMPLATE_ID';
+        this.config.element = document.getElementById('ELEMENT_ID');
+        this.config.apiUrl = 'YOUR GRAPHQL API';     // Optional
+        this.config.eventBus = <EventBusWrapper>
+
+        this.widgetFactory.run(this.config).then(
+            (widget: IChart) => complete,
+            () => error
+        );
+    }
+}
 ```
 
 Interface IChart has method for getting available variables for EventBus:

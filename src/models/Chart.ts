@@ -2,7 +2,7 @@ import {get as _get, forEach as _forEach, defaultTo as _defaultTo} from 'lodash'
 import ResizeObserver from 'resize-observer-polyfill';
 import {
     IChart,
-    IChartData, IColor, IGradient, ISettings,
+    IChartData, IColor, ISettings,
     IWidgetVariables
 } from "../interfaces";
 import {WidgetConfigInner} from "./widgetConfig";

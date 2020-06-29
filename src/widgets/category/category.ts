@@ -4,6 +4,8 @@ import {settings as widgetSettings} from "./settings";
 
 import echarts from 'echarts';
 import {
+    DataSet,
+    DataSetTemplate, DimensionFilter, DimensionInfo,
     DimensionUnit,
     IChartData, IColor, INameValue, ISettings,
     IWidgetVariables, TSPoint,
@@ -11,9 +13,11 @@ import {
 } from '../../interfaces';
 import {
     get as _get, set as _set, map as _map, forEach as _forEach,
-    fromPairs as _fromPairs, findKey as _findKey, merge as _merge, flow as _flow,
+    flow as _flow,
     min as _min, max as _max, cloneDeep as _cloneDeep, isEmpty as _isEmpty,
-    omit as _omit, flatten as _flatten
+    flatten as _flatten, toPairs as _toPairs,
+    sortBy as _sortBy, values as _values,
+    isEqual as _isEqual
 } from 'lodash';
 import {Chart} from '../../models/Chart';
 import {
@@ -35,89 +39,163 @@ export class Category extends Chart {
     run(): void {
         const data: IChartData = this.chartData;
 
-        if (TypeGuardsHelper.everyIsDataSetTemplate(data.dataSets)) {
-            const seriesData = this.getData(data.data as TSPoint[][]);
+        (async () => {
+            if (TypeGuardsHelper.everyIsDataSetTemplate(data.dataSets)) {
+                const dimInfos: DimensionInfo[] = await this.getDimensionInfos(data.dataSets);
 
-            const xAxisData = this.getXAxis(seriesData.xAxisValues);
-            const yAxisData = this.getYAxis(seriesData.series);
+                const seriesData = this.getData(data.data as TSPoint[][], dimInfos);
 
-            const legend: Object = SettingsHelper.getLegendSettings(this.widgetSettings.settings, this.chartData.settings);
+                const xAxisData = this.getXAxis(seriesData.xAxisValues);
+                const yAxisData = this.getYAxis(seriesData.series);
 
-            const chartBackgroundSettings: ISettings = SettingsHelper.getGradientSettings(this.getWidgetSetting('chartBackground.color'));
-            const chartBackground: Object = _isEmpty(chartBackgroundSettings) ? {} : { backgroundColor: chartBackgroundSettings };
+                const legend: Object = SettingsHelper.getLegendSettings(this.widgetSettings.settings, this.chartData.settings);
 
-            const options = {
-                grid: {
-                    show: true,
-                    ...chartBackground,
-                    top: +this.getWidgetSetting('chartPaddings.top'),
-                    bottom: +this.getWidgetSetting('chartPaddings.bottom'),
-                    right: +this.getWidgetSetting('chartPaddings.right'),
-                    left: +this.getWidgetSetting('chartPaddings.left'),
-                    containLabel: true
-                },
-                tooltip: {
-                    axisPointer: {
+                const chartBackgroundSettings: ISettings = SettingsHelper.getGradientSettings(this.getWidgetSetting('chartBackground.color'));
+                const chartBackground: Object = _isEmpty(chartBackgroundSettings) ? {} : { backgroundColor: chartBackgroundSettings };
+
+                const options = {
+                    grid: {
                         show: true,
-                        type: 'line',
+                        ...chartBackground,
+                        top: +this.getWidgetSetting('chartPaddings.top'),
+                        bottom: +this.getWidgetSetting('chartPaddings.bottom'),
+                        right: +this.getWidgetSetting('chartPaddings.right'),
+                        left: +this.getWidgetSetting('chartPaddings.left'),
+                        containLabel: true
                     },
-                    formatter: (p: ISettings) => {
-                        return `
-                            <div style='text-align: left'>${p.marker} ${(p.data.value[0] + '').replace(/\n/gi, ' / ')}</div>
-                            <div>${p.data.value[1]}</div>`;
-                    }
-                },
-                legend: legend,
-                xAxis: xAxisData,
-                yAxis: yAxisData,
-                series: seriesData.series
-            };
+                    tooltip: {
+                        axisPointer: {
+                            show: true,
+                            type: 'line',
+                        },
+                        formatter: (p: ISettings) => {
+                            // p.data.value[0]: INameValue[]
+                            const content: string = `
+                                <tr>
+                                    <td style='text-align: right'>${p.marker}</td>
+                                    <td>&nbsp;:&nbsp;</td>
+                                    <td>${p.data.value[1]}</td>
+                                </tr>` + p.data.value[2].map((v: INameValue) => `
+                                 <tr>
+                                    <td style='text-align: right'>${v.name}</td>
+                                    <td>&nbsp;:&nbsp;</td>
+                                    <td>${v.value}</td>
+                                </tr>
+                            `).join('');
+                            return `<table width="100%" style='padding: 0; margin: 0; border: 0'>${content}</table>`;
+                        }
+                    },
+                    legend: legend,
+                    xAxis: xAxisData,
+                    yAxis: yAxisData,
+                    series: seriesData.series
+                };
 
-            console.groupCollapsed('Category eChart options');
-            console.log(options);
-            console.log(JSON.stringify(options));
-            console.groupEnd();
+                console.groupCollapsed('Category eChart options');
+                console.log(options);
+                console.log(JSON.stringify(options));
+                console.groupEnd();
 
-            const titleSettings = SettingsHelper.getTitleSettings(this.widgetSettings.settings, this.chartData.settings);
+                const titleSettings = SettingsHelper.getTitleSettings(this.widgetSettings.settings, this.chartData.settings);
 
-            this.config.element.innerHTML = this.renderTemplate({
-                showTitle: titleSettings.show,
-                title: titleSettings.name,
-                titleStyle: titleSettings.style,
-                backgroundStyle: SettingsHelper.getBackgroundStyle(this.getWidgetSetting('background.color')),
-                paddingStyle: SettingsHelper.getPaddingStyle(this.getWidgetSetting('paddings'))
-            });
+                this.config.element.innerHTML = this.renderTemplate({
+                    showTitle: titleSettings.show,
+                    title: titleSettings.name,
+                    titleStyle: titleSettings.style,
+                    backgroundStyle: SettingsHelper.getBackgroundStyle(this.getWidgetSetting('background.color')),
+                    paddingStyle: SettingsHelper.getPaddingStyle(this.getWidgetSetting('paddings'))
+                });
 
-            const el = this.config.element.getElementsByClassName(w['chart'])[0];
-            const myChart = echarts.init(el);
-            myChart.setOption(options);
+                const el = this.config.element.getElementsByClassName(w['chart'])[0];
+                const myChart = echarts.init(el);
+                myChart.setOption(options);
 
-            this.onResize = (width: number, height: number): void => {
-                myChart.resize();
-            };
-        }
+                this.onResize = (width: number, height: number): void => {
+                    myChart.resize();
+                };
+            }
+        })();
     }
 
-    private getData(data: TSPoint[][]): {
+    private async getDimensionInfos(dataSets: DataSetTemplate[]): Promise<DimensionInfo[]> {
+        const dimInfos: DimensionInfo[] = [];
+        const cmp = (a: DimensionInfo, b: DimensionInfo) => a.name === b.name;
+
+        let dataSet: DataSetTemplate;
+        for (dataSet of dataSets) {
+            if (TypeGuardsHelper.isSingleDataSource(dataSet.dataSource1)) {
+                const res: DimensionInfo[] = await this.config.dataProvider.getDimensionsInfo(
+                    dataSet.dataSource1.name,
+                    dataSet.dataSource1.dimensions
+                        .filter((d: DimensionFilter) => d.groupBy)
+                        .map((d: DimensionFilter) => d.name)
+                );
+                const tmpArr: DimensionInfo[] = _cloneDeep(dimInfos);
+                res.forEach((v1: DimensionInfo) => tmpArr.some((v2: DimensionInfo) => cmp(v1, v2)) ? false : dimInfos.push(v1));
+            } else {
+                throw new Error('AggregationDataSource not supported');
+            }
+        }
+        return dimInfos;
+    }
+
+    private getData(data: TSPoint[][], dimInfos: DimensionInfo[]): {
         xAxisValues: string[],
         series: ISettings[]
     } {
-        const series: ISettings[] = [];
-        const xAxisValues: string[] = [];
+        const getDimensionInfo = (name: string): string => dimInfos.find((v: DimensionInfo) => v.name === name).caption ?? name;
+        const getDimensionKey = (v: TSPoint): INameValue[] => {
+            return _sortBy(v.dimensions.map((d: DimensionUnit): INameValue => (
+                { name: getDimensionInfo(d.name), value: d?.entity?.name ?? d.value }
+            )), _values);
+        };
+        const keyExist = (arr: INameValue[][], v1: INameValue[]): boolean => {
+            return arr.some((v2: INameValue[]) => _isEqual(v1, v2));
+        };
 
-        data.forEach((pointsValues: TSPoint[], idx: number) => {
-            const tmp: INameValue<number>[] = pointsValues.map((v: TSPoint) => ({
-                name: v.dimensions.map((d: DimensionUnit) => d.value).join("\n"),
-                value: v.value
-            }));
-            _map(tmp, 'name').forEach((v: string) => {
-                if (!xAxisValues.includes(v)) {
-                    xAxisValues.push(v);
+        const dimArr: INameValue[][] = [];
+        data.forEach((pointsValues: TSPoint[]) => {
+            pointsValues.forEach((v: TSPoint) => {
+                const key: INameValue[] = getDimensionKey(v);
+                if (!keyExist(dimArr, key)) {
+                    dimArr.push(key);
                 }
             });
-            series[idx] = this.getHistogramSeries(idx, this.getColor(this.chartData.dataSets[idx].settings, 'color-yellow'));
-            series[idx].data = _map(tmp, (v: INameValue<number>) => ({value: [v.name, v.value]}));
         });
+
+        /*
+        idx1  v1  v2  -
+        idx2  -   v4  v3
+              d1  d2  d3
+         */
+        const res: [INameValue[], number][][] = [...new Array(data.length)].map(
+            () => dimArr.map((v: INameValue[]) => [v, 0])
+        );
+
+        // Проходим по все исходным точкам
+        data.forEach((pointsValues: TSPoint[], idx: number) => {
+            pointsValues.forEach((v: TSPoint) => {
+                // В массиве res[idx] находим нужный dimension и заполняем его данными
+                const v1: INameValue[] = getDimensionKey(v);
+                res[idx].some((v2: [INameValue[], number]) => {
+                    if (_isEqual(v1, v2[0])) {
+                        v2[1] = v.value;
+                        return true;
+                    }
+                    return false;
+                });
+            });
+        });
+
+        const createKey = (v: INameValue[]): string => v.map((v2: INameValue): string => `${v2.value}`).join("\n");
+        const xAxisValues: string[] = dimArr.map((v: INameValue[]): string => createKey(v));
+
+        const series: ISettings[] = [];
+        data.forEach((pointsValues: TSPoint[], idx: number) => {
+            series[idx] = this.getHistogramSeries(idx, this.getColor(this.chartData.dataSets[idx].settings, 'color-yellow'));
+            series[idx].data = res[idx].map((v: [INameValue[], number]) => ({value: [createKey(v[0]), v[1], v[0]]}));
+        });
+
         return {
             xAxisValues,
             series

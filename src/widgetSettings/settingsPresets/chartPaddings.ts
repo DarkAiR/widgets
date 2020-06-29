@@ -17,5 +17,5 @@ export const chartPaddings: SettingFunc[] = [
             makeNumber('left', 'Слева', 0),
             makeNumber('right', 'Справа', 0)
         ]
-    ], {collapse: true}),
+    ], {collapse: true, hint: {type: 'chartPaddings'}}),
 ];
