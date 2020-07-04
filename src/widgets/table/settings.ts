@@ -8,7 +8,7 @@ export const settings: IWidgetSettings = makeSettings({
     ],
     dataSet: {
         initDataSets: [{viewType: 'TABLE'}],
-        canAdd: true,
+        canAdd: false,
         settings: [
             makeArray('columnNames', 'Названия колонок', [
                 [

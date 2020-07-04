@@ -320,3 +320,7 @@
 - dataProvider переписан на async/await
 - в SettingsGroup добавлено поле для подсказки hint
 - добавлены подсказки на отступы
+
+##### 0.12.1 / 2020-07-04
+- добавлен DataProvider::templateToRequests, возвращающий список запросов для graphQL по каждому dataSet
+- в таблице запрещено добавлять новые dataSets
