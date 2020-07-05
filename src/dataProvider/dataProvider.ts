@@ -66,6 +66,44 @@ export class DataProvider {
             settings: _defaultTo(_get(template, 'settings'), {})
         };
 
+        const requests: {request: string, resultProp: string}[] = this.templateToRequests(template, hasEntity);
+
+        // NOTE: idx - Сохраняем порядок dataSet
+        const promises = template.dataSets.map(async (item: DataSet, idx: number) => {
+            data.data[idx] = await fetch(this.gqlLink, {
+                method: 'post',
+                body: requests[idx].request,
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+                .then(async (resp: Response) => {
+                    if (!resp.ok) {
+                        throw new Error(resp.statusText);
+                    }
+                    const res: ISettings = await resp.json();
+                    if (res.errors.length) {
+                        throw new Error(res.errors[0].message);
+                    }
+                    return res;
+                })
+                .then((resp: ISettings) => _defaultTo(_get(resp, requests[idx].resultProp), []))
+                .catch((error: Error) => { throw error; });
+        });
+        // Асинхронно загружаем все данные
+        await Promise.all(promises);
+
+        return data;
+    }
+
+    /**
+     * Возвращает список запросов для graphQL по каждому dataSet
+     * Также используется для экспорта данных
+     */
+    templateToRequests(template: WidgetTemplate, hasEntity: boolean = false): {request: string, resultProp: string}[] {
+        if (_get(template, 'dataSets', null) === null  ||  !template.dataSets.length) {
+            return null;
+        }
         const loadData: Record<ViewType, {
             serializeFunc: SerializeFunc,
             resultProp: string,
@@ -98,35 +136,19 @@ export class DataProvider {
             }
         };
 
+        const res: {request: string, resultProp: string}[] = [];
+
         // NOTE: idx - Сохраняем порядок dataSet
-        const promises = template.dataSets.map(async (item: DataSet, idx: number) => {
-            data.data[idx] = await fetch(this.gqlLink, {
-                method: 'post',
-                body: JSON.stringify(
+        template.dataSets.forEach((item: DataSet, idx: number) => {
+            res[idx] = {
+                request: JSON.stringify(
                     // Выбор типа item автоматически в фции сериализации
                     loadData[item.viewType].serializeFunc.call(this, item, template.server, template.widgetType, loadData[item.viewType].hasEntity ?? hasEntity)
                 ),
-                headers: {
-                    'Content-Type': 'application/json'
-                }
-            })
-                .then(async (resp: Response) => {
-                    if (!resp.ok) {
-                        throw new Error(resp.statusText);
-                    }
-                    const res: ISettings = await resp.json();
-                    if (res.errors.length) {
-                        throw new Error(res.errors[0].message);
-                    }
-                    return res;
-                })
-                .then((resp: ISettings) => _defaultTo(_get(resp, loadData[item.viewType].resultProp), []))
-                .catch((error: Error) => { throw error; });
+                resultProp: loadData[item.viewType].resultProp
+            };
         });
-        // Асинхронно загружаем все данные
-        await Promise.all(promises);
-
-        return data;
+        return res;
     }
 
     async getDimensionsInfo(dataSourceName: string, dimensions: string[]): Promise<DimensionInfo[]> {
