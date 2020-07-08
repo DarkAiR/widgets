@@ -159,8 +159,42 @@ export class DataProvider {
     }
 
     async getDataSource(dataSourceName: string): Promise<DataSourceInfo> {
-        const dataSources: DataSourceInfo[] = await this.getDataSources();
-        return dataSources.find((v: DataSourceInfo) => v.name === dataSourceName);
+        const dataSource: DataSourceInfo = (this.cache.dataSources || []).find((info: DataSourceInfo) => info.name === dataSourceName);
+        if (dataSource) {
+            return dataSource;
+        }
+
+        return new Promise((resolve: ResolveFunc, reject: RejectFunc) => {
+            fetch(this.gqlLink, {
+                method: 'post',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(this.makeGqlRequest(`
+                    getDataSource(
+                        dataSourceName: "${dataSourceName}"
+                    ){name, caption, dimensions{name, caption, hidden}, metrics{name, caption}}
+                `))
+            }).then((response: Response) => {
+                if (!response.ok) {
+                    reject();
+                }
+                return response.json();
+            })
+                .then((data: ISettings) => {
+                    return (data?.dataPresent || false)
+                        ? (data?.data.getDataSource || null)
+                        : null;
+                })
+                .then((data: DataSourceInfo) => {
+                    if (this.cache.dataSources === null) {
+                        this.cache.dataSources = [data];
+                    } else {
+                        this.cache.dataSources.push(data);
+                    }
+                    resolve(data);
+                }).catch(() => reject());
+        });
     }
 
     async getDataSources(): Promise<DataSourceInfo[]> {

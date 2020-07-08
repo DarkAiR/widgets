@@ -324,3 +324,6 @@
 ##### 0.12.1 / 2020-07-04
 - добавлен DataProvider::templateToRequests, возвращающий список запросов для graphQL по каждому dataSet
 - в таблице запрещено добавлять новые dataSets
+
+##### 0.12.2 / 2020-07-08
+- getDataSource
