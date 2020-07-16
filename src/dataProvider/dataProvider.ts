@@ -1,5 +1,5 @@
 import 'whatwg-fetch';
-import {get as _get, defaultTo as _defaultTo, cloneDeep as _cloneDeep} from 'lodash';
+import {get as _get, defaultTo as _defaultTo} from 'lodash';
 import {IGqlRequest} from "./IGqlRequest";
 import {ServerType, ViewType, WidgetType} from "../models/types";
 import {
@@ -31,9 +31,14 @@ export class DataProvider {
     private get gqlLink(): string {
         return (this.apiUrl || 'http://localhost') + '/graphql';
     }
-
     private get templatesLink(): string {
         return (this.apiUrl || 'http://localhost') + '/api/v1/templates';
+    }
+    private get authHeaders(): HeadersInit {
+        const basicHash: string = localStorage.getItem('authToken') || '';
+        return {
+            ...(basicHash ? {'Authorization': 'Basic ' + basicHash} : {})
+        };
     }
 
     constructor(apiUrl: string) {
@@ -41,19 +46,15 @@ export class DataProvider {
     }
 
     async getTemplate(templateId: string): Promise<WidgetTemplate> {
-        const response = await fetch(this.templatesLink + '/' + templateId)
-            .then((resp: Response) => {
-                if (!resp.ok) {
-                    throw new Error(resp.statusText);
-                }
-                return resp.json();
-            })
-            .catch((error: Error) => {
-                console.error(error);
-                throw error;
-            });
-        console.log('Load template', response);
-        return response;
+        const template = await fetch(this.templatesLink + '/' + templateId, {
+            headers: {
+                ...this.authHeaders
+            }
+        })
+            .then(this.handleError)
+            .then((response: Response) => response.json());
+        console.log('Load template', template);
+        return template;
     }
 
     async parseTemplate(template: WidgetTemplate, hasEntity: boolean = false): Promise<IChartData | null> {
@@ -74,21 +75,19 @@ export class DataProvider {
                 method: 'post',
                 body: requests[idx].request,
                 headers: {
-                    'Content-Type': 'application/json'
-                }
+                    'Content-Type': 'application/json',
+                    ...this.authHeaders
+                },
             })
-                .then(async (resp: Response) => {
-                    if (!resp.ok) {
-                        throw new Error(resp.statusText);
-                    }
-                    const res: ISettings = await resp.json();
+                .then(this.handleError)
+                .then((resp: Response) => resp.json())
+                .then((res: ISettings) => {
                     if (res.errors.length) {
                         throw new Error(res.errors[0].message);
                     }
                     return res;
                 })
-                .then((resp: ISettings) => _defaultTo(_get(resp, requests[idx].resultProp), []))
-                .catch((error: Error) => { throw error; });
+                .then((resp: ISettings) => _defaultTo(_get(resp, requests[idx].resultProp), []));
         });
         // Асинхронно загружаем все данные
         await Promise.all(promises);
@@ -168,7 +167,8 @@ export class DataProvider {
             fetch(this.gqlLink, {
                 method: 'post',
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    ...this.authHeaders
                 },
                 body: JSON.stringify(this.makeGqlRequest(`
                     getDataSource(
@@ -177,23 +177,22 @@ export class DataProvider {
                 `))
             }).then((response: Response) => {
                 if (!response.ok) {
-                    reject();
+                    throw new Error();
                 }
                 return response.json();
+            }).then((data: ISettings) => {
+                return (data?.dataPresent || false)
+                    ? (data?.data.getDataSource || null)
+                    : null;
             })
-                .then((data: ISettings) => {
-                    return (data?.dataPresent || false)
-                        ? (data?.data.getDataSource || null)
-                        : null;
-                })
-                .then((data: DataSourceInfo) => {
-                    if (this.cache.dataSources === null) {
-                        this.cache.dataSources = [data];
-                    } else {
-                        this.cache.dataSources.push(data);
-                    }
-                    resolve(data);
-                }).catch(() => reject());
+            .then((data: DataSourceInfo) => {
+                if (this.cache.dataSources === null) {
+                    this.cache.dataSources = [data];
+                } else {
+                    this.cache.dataSources.push(data);
+                }
+                resolve(data);
+            }).catch(() => reject(null));
         });
     }
 
@@ -208,30 +207,57 @@ export class DataProvider {
             fetch(this.gqlLink, {
                 method: 'post',
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    ...this.authHeaders
                 },
                 body: JSON.stringify(this.makeGqlRequest(
                     'getDataSources{name, caption, dimensions{name, caption, hidden}, metrics{name, caption}}')
                 )
             }).then((response: Response) => {
                 if (!response.ok) {
-                    reject();
+                    throw new Error();
                 }
                 return response.json();
-            })
-                .then((data: ISettings) => {
-                    return (data?.dataPresent || false)
-                        ? (data?.data.getDataSources || [])
-                        : [];
-                })
-                .then((data: DataSourceInfo[]) => {
-                    this.cache.dataSources = data;
-                    resolve(data);
-                }).catch(() => reject());
+            }).then((data: ISettings) => {
+                return (data?.dataPresent || false)
+                    ? (data?.data.getDataSources || [])
+                    : [];
+            }).then((data: DataSourceInfo[]) => {
+                this.cache.dataSources = data;
+                resolve(data);
+            }).catch(() => {
+                this.cache.dataSources = null;
+                this.cache.dataSourcesPromise = null;
+                reject(null);
+            });
         });
         return this.cache.dataSourcesPromise;
     }
 
+    private async handleError(response: Response): Promise<Response> {
+        if (!response.ok) {
+            let errStr = '';
+            switch (response.status) {
+                case 401:
+                    errStr = 'Unauthorized';
+                    break;
+                default:
+                    errStr = response.statusText;
+                    if (!errStr) {
+                        errStr = 'Unknown error';
+                        try {
+                            const json = await response.json();
+                            errStr = json?.message ?? errStr;
+                        } catch (e) {
+                            // Do nothing
+                        }
+                    }
+                    break;
+            }
+            throw new Error(errStr);
+        }
+        return response;
+    }
 
     private serializeDataSource(dataSource: DataSource): string {
         if (TypeGuardsHelper.isSingleDataSource(dataSource)) {

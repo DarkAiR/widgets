@@ -71,6 +71,14 @@ where IWidgetVariables is
 }
 ```
 
+#### Basic auth
+
+The authorization hash stored in the LocalStorage.
+The integration product must control authentication on its own and store it in LocalStorage using the “authToken” key.
+```
+localStorage.setItem('authToken', btoa('login:pass'))
+```
+
 -----------------------
 
 ### Local development
