@@ -10,14 +10,15 @@ import {
     ListSetting,
     NumberSetting,
     SettingsGroupSetting,
-    StringSetting
+    StringSetting,
+    PasswordSetting
 } from "./controls";
 
 export type SettingFunc = (...args: any) => WidgetSettingsItem;     // tslint:disable-line:no-any
 
 // Типы настроек
 export type WidgetSettingsTypes = 'string' | 'number' | 'boolean' | 'list' | 'color' | 'gradient' | 'icon'
-    | 'settingsGroup' | 'array';
+    | 'settingsGroup' | 'array' | 'password';
 
 // Тип для hint SettingsGroupSetting
 export type SettingsGroupType = 'string' | 'widgetPaddings' | 'chartPaddings';
@@ -33,7 +34,8 @@ export type WidgetSettingsItem =
     IconSetting |
     GradientSetting |
     SettingsGroupSetting |
-    ArraySetting;
+    ArraySetting |
+    PasswordSetting;
 // tslint:enable:no-any
 
 export type WidgetSettingsArray = WidgetSettingsItem[];
