@@ -1,15 +1,11 @@
-import s from "../../styles/_all.less";
 import w from "./KPI.less";
 import {settings as widgetSettings} from "./settings";
-import {isEmpty as _isEmpty} from 'lodash';
 import {
-    DataSetTemplate, DimensionFilter,
+    DataSetTemplate,
     IChartData,
     IEventOrgUnits,
-    INameValue,
     ISettings,
     IWidgetVariables,
-    ReportItem, SingleDataSource,
     TSPoint
 } from "../../interfaces";
 import {Chart} from "../../models/Chart";
@@ -82,14 +78,13 @@ export class KPI extends Chart {
 
     getTemplate(): string {
         return `
-            <div class='${s["widget"]}' style="{{backgroundStyle}}">
+            <div class="${w['widget']}" style="{{backgroundStyle}}">
                 {{#showTitle}}
-                <div class='${w['row']}'>
-                    <div style="{{titleStyle}}">
-                        {{title}}
-                    </div>
+                <div class="${w['title']}" style="{{titleStyle}}">
+                    {{title}}
                 </div>
                 {{/showTitle}}
+
                 <div style='{{valueStyle}}'>{{value}}</div>
             </div>
         `;

@@ -28,12 +28,12 @@ export class ColorHelper {
     }
 
     /**
-     * Возвращает строку стилей и имя класса
-     * Оба значения можно использовать как есть в виде class=`${className}` style=`${colorStyle}`
+     * Возвращает строку стилей
+     * Значение можно использовать как есть в виде style=`${colorStyle}`
      * По-умолчанию альфа-канал не используется, поэтому хранится в отдельных переменных
      * @return Всегда возвращает валидный цвет для подстановки
      */
-    static hexToColor(colorHex: string, defClassName: string): IColor {
+    static hexToColor(colorHex: string): IColor {
         const rgbaHex: IRgbaHex = ColorHelper.parseHex(colorHex);
 
         const hex: string = '#' + rgbaHex.r + rgbaHex.g + rgbaHex.b;
@@ -41,8 +41,7 @@ export class ColorHelper {
 
         const style: string             = colorHex ? `color: ${hex};`           : '';
         const styleWithAlpha: string    = colorHex ? `color: ${hexWithAlpha};`  : '';
-        const className: string         = colorHex ? ''                         : defClassName;
 
-        return {hex, hexWithAlpha, style, styleWithAlpha, className, opacity: parseInt(rgbaHex.a, 16) / 255};
+        return {hex, hexWithAlpha, style, styleWithAlpha, opacity: parseInt(rgbaHex.a, 16) / 255};
     }
 }

@@ -1,31 +1,41 @@
-@import (reference) '~goodt-framework-css/src/_params.less';
-@import (reference) '../../styles/theme.less';
+@import "../../styles/_widget.less";
 
 .title {
-    margin-bottom: @spacer3;
+    width: 100%;
+    max-width: 100%;
+    margin-bottom: var(--spacer3);
     line-height: 1.5em;
 }
+
+.table {
+    width: 100%;
+
+    td, th {
+        vertical-align: center;
+    }
+}
+
 .curr {
     line-height: 1;
-    color: @color-yellow;
+    color: var(--color-yellow);
     text-align: left;
 
     &.num {
         font-size: 2.5em;
     }
     &.text {
-        margin-top: @spacer2;
+        margin-top: var(--spacer2);
     }
 }
 .prev {
     line-height: 1;
-    color: @color-grey-light;
+    color: var(--color-grey-light);
     text-align: right;
 
     &.num {
         font-size: 2em;
     }
     &.text {
-        margin-top: @spacer2;
+        margin-top: var(--spacer2);
     }
 }

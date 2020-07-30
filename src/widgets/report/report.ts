@@ -1,4 +1,3 @@
-import s from "../../styles/_all.less";
 import w from "./report.less";
 import {settings as widgetSettings} from "./settings";
 
@@ -10,7 +9,7 @@ import {
     ReportItem,
     IEventOrgUnits, DataSetTemplate
 } from "../../interfaces";
-import {isEmpty as _isEmpty, get as _get} from "lodash";
+import {isEmpty as _isEmpty} from "lodash";
 import {Chart} from "../../models/Chart";
 import {OrgUnitsHelper, SettingsHelper, TypeGuardsHelper} from "../../helpers";
 import {IWidgetSettings} from "../../widgetSettings";
@@ -38,12 +37,13 @@ export class Report extends Chart {
 
             const titleSettings = SettingsHelper.getTitleSettings(this.widgetSettings.settings, this.chartData.settings);
 
-            const valueStyle = [];
-            valueStyle.push(`color: ${this.getWidgetSetting('value.color')}`);
-            if (!_isEmpty(this.getWidgetSetting('value.size'))) {
-                valueStyle.push(`font-size: ${this.getWidgetSetting('value.size')}px`);
-            }
-            valueStyle.push(`text-align: ${this.getWidgetSetting('value.align')}`);
+            const valueStyle = [
+                `color: ${this.getWidgetSetting('value.color')}`,
+                !_isEmpty(this.getWidgetSetting('value.size'))
+                    ? `font-size: ${this.getWidgetSetting('value.size')}px`
+                    : '',
+                `text-align: ${this.getWidgetSetting('value.align')}`
+            ];
 
             const rows: INameValue[] = point.items.map((v: ReportItem) => ({
                 name: v.key,
@@ -96,15 +96,13 @@ export class Report extends Chart {
 
     getTemplate(): string {
         return `
-            <div class='${s["widget"]}' style="{{backgroundStyle}}">
+            <div class="${w['widget']}" style="{{backgroundStyle}}">
                 {{#showTitle}}
-                <div class='${w['row']}'>
-                    <div style="{{titleStyle}}">
-                        {{title}}
-                    </div>
+                <div class="${w['title']}" style="{{titleStyle}}">
+                    {{title}}
                 </div>
                 {{/showTitle}}
-                <table class="${s['table']} ${s['w-100']} ${w['table']}">
+                <table class="${w['table']}">
                 <tbody>
                     {{#rows}}
                     <tr>

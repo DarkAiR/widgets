@@ -20,7 +20,7 @@ import {SomeInterface} from 'abc-charts/interfaces';
 import {SomeType} from 'abc-charts/models/types';
 ```
 
-Include styles as you can.
+If your intergration system does not includes "material design" or needed fonts you can import these from the "abc-charts".  
 For example:
 
 ```

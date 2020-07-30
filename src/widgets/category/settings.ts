@@ -1,11 +1,6 @@
 import {IWidgetSettings, makeSettings} from "../../widgetSettings";
 import {
-    HistogramType, HistogramTypeValues
-} from "../../models/types";
-import {
-    makeBoolean,
     makeColor,
-    makeList,
     makeNumber,
     makeSettingsGroup,
     makeString

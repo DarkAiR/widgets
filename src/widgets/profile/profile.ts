@@ -1,10 +1,9 @@
-import s from '../../styles/_all.less';
 import w from './profile.less';
 import {settings as widgetSettings} from "./settings";
 
 import echarts from 'echarts';
 import {
-    DataSetTemplate, DimensionFilter,
+    DataSetTemplate,
     IChartData, IColor, IEventOrgUnits, ISettings,
     IWidgetVariables, XAxisData, YAxisData
 } from '../../interfaces';
@@ -18,7 +17,7 @@ import {
 import {Chart} from '../../models/Chart';
 import {ProfilePoint} from '../../interfaces';
 import {IWidgetSettings} from "../../widgetSettings";
-import {ChartType, XAxisPos, YAxisPos} from "../../models/types";
+import {ChartType} from "../../models/types";
 import {MathHelper, OrgUnitsHelper, SettingsHelper, TypeGuardsHelper} from "../../helpers";
 
 export class Profile extends Chart {
@@ -103,7 +102,7 @@ export class Profile extends Chart {
         const series: ISettings[] = [];
         const xAxisValues: number[] = [];
         const dataSetSettings: ISettings = this.chartData.dataSets[0].settings;
-        const currColor: IColor = this.getColor(dataSetSettings, 'color-yellow');
+        const currColor: IColor = this.getColor(dataSetSettings);
 
         data.forEach((item: ProfilePoint[]) => {
             let seriesData: ISettings = {};
@@ -325,16 +324,14 @@ export class Profile extends Chart {
 
     getTemplate(): string {
         return `
-            <div class='${s['widget']}  ${w['widget']}' style="{{backgroundStyle}} {{paddingStyle}}">
+            <div class="${w['widget']}" style="{{backgroundStyle}} {{paddingStyle}}">
                 {{#showTitle}}
-                <div class='${w['row']}'>
-                    <div class="${w['title']}" style="{{titleStyle}}">
-                        {{title}}
-                    </div>
+                <div class="${w['title']}" style="{{titleStyle}}">
+                    {{title}}
                 </div>
                 {{/showTitle}}
 
-                <div class='${w['row']} ${w['chart']}'>
+                <div class="${w['chart']}">
                 </div>
             </div>
         `;

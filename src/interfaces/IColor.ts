@@ -3,7 +3,6 @@ export interface IColor {
     hexWithAlpha: string;
     style: string;
     styleWithAlpha: string;
-    className: string;
     opacity: number;
 }
 

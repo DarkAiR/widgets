@@ -1,5 +1,5 @@
 export interface IKPILess {
-  'table': string;
+  'widget': string;
   'title': string;
 }
 

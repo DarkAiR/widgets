@@ -1,5 +1,4 @@
-@import (reference) '~goodt-framework-css/src/_params.less';
-@import (reference) '../../styles/theme.less';
+@import "../../styles/_widget.less";
 
 @max-width: 328px;
 @max-height: 200px;
@@ -8,25 +7,20 @@
 .widget {
     position: relative;
     text-align: center;
-    font-size: calc(100% / unit(@font-size));       // Базовый размер шрифта относительно родительского, от него через em будут считаться дочерние шрифты
-
-    .widget-inner {
-        font-size: 100%;        // Calculated font size
-    }
 }
 
 .chart {
-    position: relative;
     width: 100%;
-    height: ~"calc(100% + 20px)";
-    max-width: @max-width;
+    position: relative;
+    height: ~"calc(100% + @{numbers-height})";
+    max-width: @max-width;              // От этого значения зависит максимальный размер базового шрифта
     max-height: @max-height;
     display: inline-block;
     padding-bottom: @numbers-height;
     overflow: hidden;
 
     .value {
-        color: #999;
+        color: var(--color-grey);
         position: absolute;
         bottom: 5px;
         font-size: 13px;        // Здесь пока не надо em
@@ -43,14 +37,13 @@
 .info {
     @info-width: 220px;
     @info-left: @info-width / 2;
-    @info-top: unit(90px / @max-height);
 
-    color: #333;
+    color: var(--color-body);
     position: absolute;
     width: @info-width;
     text-align: center;
     left: ~"calc(50% - @{info-left})";
-    top: ~"calc(@{info-top} * 100%)";
+    top: 5.75em;
     right: 0;
 }
 
@@ -66,26 +59,31 @@
 }
 
 .icon {
-    @icon-size: 48px;
-    @icon-left: unit(@icon-size / 2 / @max-width);
-    @icon-top: unit(32px / @max-height);
-    @icon-width: unit(@icon-size / @max-width);
-    @icon-height: unit(@icon-size / @max-height);
-
     position: absolute;
-    left: ~"calc(50% - @{icon-left} * 100%)";
-    top: ~"calc(@{icon-top} * 100%)";
-    width: ~"calc(@{icon-width} * 100%)";
-    height: ~"calc(@{icon-height} * 100%)";
-    max-width: @icon-size;
-    max-height: @icon-size;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background-color: #fdf4da;
-    border-radius: 50%;
+    left: calc(50% - 1.5em);
+    top: 2em;
+    width: 3em;
+    height: 3em;
 
     &:before {
-        font-size: 1.5em !important;
+        content: '';
+        background: var(--color-yellow);
+        opacity: 0.3;
+        border-radius: 50%;
+        width: 100%;
+        height: 100%;
+        position: absolute;
+        left: 0;
+        top: 0;
+    }
+
+    .inner {
+        font-size: 1.5em;
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--color-yellow);
     }
 }

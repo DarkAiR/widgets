@@ -1,4 +1,3 @@
-import s from '../../styles/_all.less';
 import w from './spline.less';
 import {settings as widgetSettings} from "./settings";
 
@@ -97,9 +96,7 @@ export class Spline extends Chart {
             const containLabel: boolean = leftAmount <= 1 && rightAmount <= 1 && topAmount <= 1 && bottomAmount <= 1;
 
             const legend: Object = SettingsHelper.getLegendSettings(this.widgetSettings.settings, this.chartData.settings);
-            const classicSeries: Object[] = this.getClassicSeries(timeSeriesData, yAxesData.axesToIndex);
-            const comparedSeries: Object[] = this.getComparedSeries(timeSeriesData, yAxesData.axesToIndex);
-            const series = classicSeries.concat(comparedSeries);
+            const series: Object[] = this.getClassicSeries(timeSeriesData, yAxesData.axesToIndex);
 
             const chartBackgroundSettings: ISettings = SettingsHelper.getGradientSettings(this.getWidgetSetting('chartBackground.color'));
             const chartBackground: Object = _isEmpty(chartBackgroundSettings) ? {} : { backgroundColor: chartBackgroundSettings };
@@ -178,7 +175,7 @@ export class Spline extends Chart {
             for (let idx = 0; idx < data.data.length; idx++) {
                 const dataSetSettings: ISettings = data.dataSets[idx].settings;
 
-                const currColor = this.getColor(dataSetSettings, 'color-yellow');
+                const currColor = this.getColor(dataSetSettings);
                 let seriesData = {};
                 switch (this.getDataSetSettings<ChartType>(dataSetSettings, 'chartType')) {
                     case "LINE":
@@ -191,201 +188,12 @@ export class Spline extends Chart {
                         continue;
                 }
 
-                // FIXME: Та же проблема, как в FIXME выше, мы разрешаем кому-то снаружи лезть напрямую в наш рендер
-                // "seriesSettings":{
-                //     "symbolSize":8,
-                //    + "name":"Эффективность",
-                //     "tooltip":{"formatter":"{a}<br>{b}.04.2019: {c}%"},
-                //    + "label":{"show":true,"formatter":"{c}%","color":"rgba(255,255,255,.6)"},
-                //    + "color":"rgba(255,255,255,.3)",
-                //    + "lineStyle":{"type":"dotted","color":"rgba(255,255,255,.3)"},
-                //    + "areaStyle":{"color":{"type":"linear","x":0,"y":0,"x2":0,"y2":1,"colorStops":[{"offset":0,"color":"rgba(255, 255, 255, .1)"},{"offset":1,"color":"rgba(255, 255, 255, .5)"}]}},
-                //     "z":0
-                // },
-                const seriesSettings = _get(dataSetSettings, 'seriesSettings', {});
-                for (const k in seriesSettings) {
-                    if (seriesSettings.hasOwnProperty(k)) {
-                        if (seriesSettings[k] !== undefined) {
-                            seriesData[k] = seriesSettings[k];
-                        }
-                    }
-                }
-
                 series.push({
                     data: timeSeriesData.values[idx],
                     yAxisIndex: axesToIndex[idx],
                     ...seriesData
                 });
             }
-        }
-        return series;
-    }
-
-    // FIXME Переписать, убрать все кастомные стили и классы
-    private getComparedSeries(timeSeriesData: TimeSeriesData, axesToIndex: {[dataSetIdx: number]: number}): Object[] {
-        const data: IChartData = this.chartData;
-        const series: Object[] = [];
-
-        if (TypeGuardsHelper.everyIsDataSetTemplate(data.dataSets)) {
-            let factData = [];
-            let factProps = {};
-            let factOpts = {};
-
-            let planData = [];
-            let planProps = {};
-            let planOpts = {};
-
-            // const overData = [];
-            let overProps = {};
-            let overOpts = {};
-            let overColor = '';
-
-            let underProps = {};
-            let underOpts = {};
-            let underColor = '';
-
-            let mainColor = '';
-
-            let comparedFlag = false;
-
-            for (let idx = 0; idx < data.data.length; idx++) {
-                const dataSetSettings: ISettings = data.dataSets[idx].settings;
-
-                const currColor = this.getColor(dataSetSettings, 'color-yellow');
-                switch (this.getDataSetSettings<ChartType>(dataSetSettings, 'chartType')) {
-                    case "COMPARED_PLAN":
-                        planData = timeSeriesData.values[idx];
-                        planProps = _get(dataSetSettings, 'seriesSettings', {});
-                        planOpts = this.getComparedHistogramSeries(idx, currColor);
-                        _merge(planOpts, {
-                            yAxisIndex: axesToIndex[idx]
-                        });
-
-                        overProps = _get(dataSetSettings, 'overSettings', {});
-                        overColor = _get(dataSetSettings, 'overColor', {});
-                        overOpts = this.getComparedHistogramSeries(idx, currColor);
-                        _merge(overOpts, {
-                            yAxisIndex: axesToIndex[idx]
-                        });
-
-                        underProps = _get(dataSetSettings, 'underSettings', {});
-                        underColor = _get(dataSetSettings, 'underColor', {});
-                        underOpts = this.getComparedHistogramSeries(0, currColor);
-                        _merge(underOpts, {
-                            yAxisIndex: axesToIndex[idx]
-                        });
-
-                        mainColor = _get(dataSetSettings, 'mainColor', {});
-
-                        comparedFlag = true;
-                        break;
-                    case "COMPARED_FACT":
-                        factData = timeSeriesData.values[idx];
-                        factProps = _get(dataSetSettings, 'seriesSettings', {});
-                        factOpts = this.getComparedHistogramSeries(0, currColor);
-                        _merge(factOpts, {
-                            yAxisIndex: axesToIndex[idx]
-                        });
-
-                        comparedFlag = true;
-                        break;
-                }
-            }
-
-            if (!comparedFlag) {
-                return series;
-            }
-
-            for (const a in factProps) {
-                if (factProps[a] !== undefined) {
-                    factOpts[a] = factProps[a];
-                }
-            }
-
-            for (const b in planProps) {
-                if (planProps[b] !== undefined) {
-                    planOpts[b] = planProps[b];
-                }
-            }
-
-            for (const c in overProps) {
-                if (overProps[c] !== undefined) {
-                    overOpts[c] = overProps[c];
-                }
-            }
-
-            for (const c in underProps) {
-                if (underProps[c] !== undefined) {
-                    underOpts[c] = underProps[c];
-                }
-            }
-
-            const dates = _map(timeSeriesData.dates, (v: string) => new Date(v).getDate());
-
-            for (let i = 0; i < timeSeriesData.dates.length; i++) {
-                const overValue = factData[i] - planData[i];
-                const underValue = planData[i] - factData[i];
-                const currTime = dates[i];
-                if (overValue > 0) {
-                    // удаляем бар факта
-                    factOpts['data'].push({
-                        value: [currTime, 0],
-                        name: currTime,
-                        itemStyle: {
-                            barBorderRadius: [500, 500, 0, 0]
-                        }
-                    });
-
-                    planOpts['data'].push({
-                        value: [currTime, planData[i]],
-                        name: currTime,
-                        itemStyle: {
-                            barBorderRadius: [0, 0, 0, 0]
-                        }
-                    });
-
-                    // добавляем over
-                    overOpts['data'].push({
-                        value: [currTime, overValue],
-                        name: currTime,
-                        itemStyle: {
-                            barBorderRadius: [500, 500, 0, 0],
-                            color: overColor
-                        }
-                    });
-                } else {
-                    // логика при недостатке
-                    // fact
-                    factOpts['data'].push({
-                        value: [currTime, factData[i]],
-                        name: currTime,
-                        itemStyle: {
-                            barBorderRadius: [500, 500, 0, 0]
-                        }
-                    });
-
-                    // plan
-                    planOpts['data'].push({
-                        value: [currTime, 0],
-                        name: currTime,
-                        itemStyle: {
-                            barBorderRadius: [0, 0, 0, 0]
-                        }
-                    });
-
-                    // over
-                    underOpts['data'].push({
-                        value: [currTime, underValue],
-                        name: currTime,
-                        itemStyle: {
-                            barBorderRadius: [500, 500, 0, 0],
-                            color: underColor
-                        }
-                    });
-                }
-            }
-
-            series.push(factOpts, planOpts, overOpts, underOpts);
         }
         return series;
     }
@@ -729,37 +537,6 @@ export class Spline extends Chart {
         });
     }
 
-    private getComparedHistogramSeries(idx: number, color: IColor): Object {
-        return this.applySettings(idx, 'HISTOGRAM', {
-            type: 'bar',
-            xAxisIndex: 0,
-            seriesLayoutBy: 'column',
-            stack: 'stackCompared',
-
-            color: color.hex,                   // Основной цвет
-            itemStyle: {
-                opacity: color.opacity          // Прозрачность влияет на весь подписи + метки
-            },
-            label: {
-                show: false,
-                color: color.hexWithAlpha,
-                position: 'inside',
-                distance: 0,
-                rotate: 0,
-                backgroundColor: '',
-                borderColor: '',
-                borderWidth: 1,
-                padding: [3, 5, 3, 5],
-                borderRadius: [1, 1, 1, 1]
-            },
-            animation: true,
-            animationDelay: 0,
-            animationDelayUpdate: 0,
-            showSymbol: true,
-            data: []
-        });
-    }
-
     /**
      * Добавляем стандартные настройки для каждого dataSet
      */
@@ -984,21 +761,21 @@ export class Spline extends Chart {
 
     getTemplate(): string {
         return `
-            <div class='${s['widget']}  ${w['widget']}' style="{{backgroundStyle}} {{paddingStyle}}">
+            <div class="${w['widget']}" style="{{backgroundStyle}} {{paddingStyle}}">
                 {{#showTitle}}
-                <div class='${w['row']}'>
+                <div class="${w['header']}">
                     <div class="${w['title']}" style="{{titleStyle}}">
                         {{title}}
                     </div>
                     {{#enableZoom}}
-                        <div class="${s['d-flex']} ${w['toolbox']}">
-                            <div class="${s['btn']} ${s['btn-icon']} ${w['toolbtn']}" {{#disableBtn}}disabled="disabled"{{/disableBtn}}>
+                        <div class="${w['toolbox']}">
+                            <div class="${w['btn']} ${w['btn-icon']} ${w['toolbtn']}" {{#disableBtn}}disabled="disabled"{{/disableBtn}}>
                                 <i class="mdi mdi-arrow-left"></i>
                             </div>
-                            <div class="${s['btn']} ${s['btn-icon']} ${w['toolbtn']}" {{#disableBtn}}disabled="disabled"{{/disableBtn}}>
+                            <div class="${w['btn']} ${w['btn-icon']} ${w['toolbtn']}" {{#disableBtn}}disabled="disabled"{{/disableBtn}}>
                                 <i class="mdi mdi-arrow-up"></i>
                             </div>
-                            <div class="${s['btn']} ${s['btn-icon']} ${w['toolbtn']}" {{#disableBtn}}disabled="disabled"{{/disableBtn}}>
+                            <div class="${w['btn']} ${w['btn-icon']} ${w['toolbtn']}" {{#disableBtn}}disabled="disabled"{{/disableBtn}}>
                                 <i class="mdi mdi-arrow-right"></i>
                             </div>
                         </div>
@@ -1006,7 +783,7 @@ export class Spline extends Chart {
                 </div>
                 {{/showTitle}}
 
-                <div class='${w['row']} ${w['chart']}'>
+                <div class="${w['chart']}">
                 </div>
             </div>
         `;

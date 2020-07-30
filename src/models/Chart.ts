@@ -169,11 +169,10 @@ export abstract class Chart implements IChart {
      */
     protected getColor(
         settings: ISettings,
-        defClassName: string,
         defColor: string = '#000000'
     ): IColor {
         const colorSetting: string = this.getDataSetSettings(settings, 'color');
-        return ColorHelper.hexToColor(!colorSetting ? defColor : colorSetting, defClassName);
+        return ColorHelper.hexToColor(!colorSetting ? defColor : colorSetting);
     }
 
     /**

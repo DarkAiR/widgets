@@ -1,21 +1,14 @@
-@import (reference) '~goodt-framework-css/src/_params.less';
-@import (reference) '../../styles/theme.less';
+@import "../../styles/_widget.less";
 
-.table {
-    td,
-    th {
-        border-right: 1px solid @color-grey-lighter;
+.widget {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
 
-        &:last-child {
-            border-right: none;
-        }
-    }
-
-    .title {
-        text-align: center;
-        white-space: nowrap;
-        border-bottom: 1px solid @color-grey-lighter;
-        margin-bottom: 6px;
-        padding-bottom: 2px;
-    }
+.title {
+    width: 100%;
+    max-width: 100%;
+    margin-bottom: var(--spacer3);
+    line-height: 1.5em;
 }

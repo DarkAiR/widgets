@@ -1,6 +1,5 @@
 export interface ISolidGaugeLess {
   'widget': string;
-  'widget-inner': string;
   'chart': string;
   'value': string;
   'minValue': string;
@@ -9,6 +8,7 @@ export interface ISolidGaugeLess {
   'current-value': string;
   'title': string;
   'icon': string;
+  'inner': string;
 }
 
 export const locals: ISolidGaugeLess;

@@ -1,14 +1,20 @@
-@import (reference) '~goodt-framework-css/src/_params.less';
-@import (reference) '../../styles/theme.less';
+@import (reference) "~goodt-framework-css/src/_params.less";
+@import (reference) "~goodt-framework-css/src/_helpers.less";
+@import (reference) "~goodt-framework-css/src/components/table.less";
+@import "../../styles/_widget.less";
 
 .widget {
     overflow: initial;      // Отключаем overflow т.к. таблицы не ресайзятся
 }
 
 .table {
+    &:extend(.table all);
+
+    width: 100%;
+
     td,
     th {
-        border-right: 1px solid @color-grey-lighter;
+        border-right: 1px solid var(--color-grey-lighter);
 
         &:last-child {
             border-right: none;
@@ -18,7 +24,6 @@
     .title {
         text-align: center;
         white-space: nowrap;
-        border-bottom: 1px solid @color-grey-lighter;
         margin-bottom: 6px;
         padding-bottom: 2px;
     }

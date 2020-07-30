@@ -1,4 +1,3 @@
-import {common} from './common';
 import {title} from './title';
 import {paddings} from './paddings';
 import {chartPaddings} from './chartPaddings';
@@ -14,7 +13,6 @@ import {legend} from "./legend";
 import {singleValue} from "./singleValue";
 
 const settingsPresets = {
-    common,
     title,
     chartPaddings,
     paddings,

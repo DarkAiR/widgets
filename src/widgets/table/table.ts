@@ -1,4 +1,3 @@
-import s from "../../styles/_all.less";
 import w from "./table.less";
 import {settings as widgetSettings} from "./settings";
 
@@ -156,45 +155,45 @@ export class Table extends Chart {
     /**
      * Анимирование значения от n1 до n2 за время time в ms
      */
-    animNumber(numbers: [[number, number]], time: number): Function {
-        return () => {
-            const animFunc = function (d: number): number {
-                return 1 - Math.pow((d - 1), 4);
-            };
-
-            let steps = 20;
-            const stepTime = MathHelper.trunc(time / steps);
-            let x = 0;
-            let resValues: string[] = [];
-            const timerId = setInterval(() => {
-                const k = animFunc(x) / animFunc(1);
-                resValues = [];
-                for (const num of numbers) {
-                    resValues.push((num[0] + k * (num[1] - num[0])).toFixed(2));
-                }
-                x += stepTime / time;
-                if (--steps <= 0) {
-                    resValues = [];
-                    for (const num of numbers) {
-                        resValues.push((num[1]).toFixed(2));
-                    }
-                    clearInterval(timerId);
-                }
-            }, stepTime);
-        };
-    }
+    // animNumber(numbers: [[number, number]], time: number): Function {
+    //     return () => {
+    //         const animFunc = function (d: number): number {
+    //             return 1 - Math.pow((d - 1), 4);
+    //         };
+    //
+    //         let steps = 20;
+    //         const stepTime = MathHelper.trunc(time / steps);
+    //         let x = 0;
+    //         let resValues: string[] = [];
+    //         const timerId = setInterval(() => {
+    //             const k = animFunc(x) / animFunc(1);
+    //             resValues = [];
+    //             for (const num of numbers) {
+    //                 resValues.push((num[0] + k * (num[1] - num[0])).toFixed(2));
+    //             }
+    //             x += stepTime / time;
+    //             if (--steps <= 0) {
+    //                 resValues = [];
+    //                 for (const num of numbers) {
+    //                     resValues.push((num[1]).toFixed(2));
+    //                 }
+    //                 clearInterval(timerId);
+    //             }
+    //         }, stepTime);
+    //     };
+    // }
 
     getTemplate(): string {
         return `
-            <div class='${s["widget"]} ${w["widget"]}'>
+            <div class="${w['widget']}">
                 <h4>{{title}}</h4>
-                <table class="${s['table']} ${s['w-100']} ${w['table']} table table-zebra">
+                <table class="${w['table']} ${w['table-zebra']}">
                 <thead>
                     <tr>
                         {{#header}}
-                            <th class="${s['table-w-auto']}">
-                                <div class="${w['title']}">{{.}}</div>
-                            </th>
+                        <th class="${w['table-w-auto']}">
+                            <div class="${w['title']}">{{.}}</div>
+                        </th>
                         {{/header}}
                     </tr>
                 </thead>
@@ -202,7 +201,7 @@ export class Table extends Chart {
                     {{#rows}}
                     <tr>
                         {{#cols}}
-                            <td class="table-small ${w['value']}" attr-key="{{value.k}}">{{value.v}}</td>
+                        <td class="table-small ${w['value']}" attr-key="{{value.k}}">{{value.v}}</td>
                         {{/cols}}
                     </tr>
                     {{/rows}}

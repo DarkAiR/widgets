@@ -143,12 +143,12 @@ module.exports = (env) => {
                             }, {
                                 from: './package-lib.json',
                                 to: 'package.json'
-                            }, {
+                            },
+
+                            // Copy styles if integration system doesn't have own ones
+                            {
                                 from: './src/styles/_styles.css',
                                 to: 'styles.css'
-                            }, {
-                                from: './node_modules/goodt-framework-css/dist/all.min.css',
-                                to: 'assets/all.min.css'
                             }, {
                                 from: './node_modules/@mdi/font/css/materialdesignicons.css',
                                 to: 'assets/materialdesignicons.css',

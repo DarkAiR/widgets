@@ -1,6 +1,5 @@
 /** DON'T pack this file in bundle anywhere */
 
-@import 'assets/all.min.css';
 @import 'assets/materialdesignicons.css';
 
 @font-face {

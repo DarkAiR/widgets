@@ -1,4 +1,3 @@
-import s from "../../styles/_all.less";
 import w from "./averageNumber.less";
 import {settings as widgetSettings} from "./settings";
 
@@ -21,49 +20,43 @@ export class AverageNumber extends Chart {
         const data: IChartData = this.chartData;
 
         if (TypeGuardsHelper.everyIsDataSetTemplate(data.dataSets)) {
-            const currValue = _get(data.data[0], '[0].value', 0);
-            const prevValue = _get(data.data[1], '[0].value', 0);
+            const currColor: string = this.getDataSetSettings(data.dataSets[0].settings, 'color');
+            const prevColor: string = this.getDataSetSettings(data.dataSets[1].settings, 'color');
+            const titleSettings = SettingsHelper.getTitleSettings(this.widgetSettings.settings, this.chartData.settings);
 
-            const currColor = this.getColor(data.dataSets[0].settings, 'color-yellow');
-            const prevColor = this.getColor(data.dataSets[1].settings, 'color-grey');
-            const backgroundStyle = SettingsHelper.getBackgroundStyle(this.getWidgetSetting('background.color'));
-
-            const str = `
-                <div class='${s["widget"]}' style="${backgroundStyle}">
-                    <div class='${s["row"]}'>
-                        <div class='${s["col"]} ${s["col-100"]}'>
-                            <div class="${w['title']}">
-                                ${this.getWidgetSetting('title')}
-                            </div>
-                        </div>
-                    </div>
-                    <div class='${s["row"]}'>
-                        <div class='${w['curr']} ${w['num']} ${w[currColor.className]}  ${s["col"]} ${s["s-w-12-24"]} ${s["col-vmid"]}'
-                             style='${currColor.style}'
-                        >
-                            ${currValue}
-                        </div>
-                        <div class='${w['prev']} ${w['num']} ${w[prevColor.className]}  ${s["col"]} ${s["s-w-12-24"]} ${s["col-vmid"]}'
-                             style='${prevColor.style}'
-                        >
-                            ${prevValue}
-                        </div>
-                    </div>
-                    <div class='${s["row"]}'>
-                        <div class='${w['curr']} ${w['text']} ${w[currColor.className]}  ${s["col"]} ${s["s-w-12-24"]}'
-                             style='${currColor.style}'
-                        >
-                            Текущие
-                        </div>
-                        <div class='${w['prev']} ${w['text']} ${w[prevColor.className]}  ${s["col"]} ${s["s-w-12-24"]}'
-                             style='${prevColor.style}'
-                        >
-                            Предыдущие
-                        </div>
-                    </div>
-                </div>
-            `;
-            this.config.element.innerHTML = str;
+            this.config.element.innerHTML = this.renderTemplate({
+                backgroundStyle: SettingsHelper.getBackgroundStyle(this.getWidgetSetting('background.color')),
+                showTitle: titleSettings.show,
+                title: titleSettings.name,
+                titleStyle: titleSettings.style,
+                currValue: _get(data.data[0], '[0].value', 0),
+                currStyle: currColor ? `color: ${currColor}` : '',
+                prevValue: _get(data.data[1], '[0].value', 0),
+                prevStyle: prevColor ? `color: ${prevColor}` : '',
+            });
         }
+    }
+
+    getTemplate(): string {
+        return `
+            <td class="${w['widget']}" style="{{backgroundStyle}}">
+                {{#showTitle}}
+                <div class="${w['title']}" style="{{titleStyle}}">
+                    {{title}}
+                </div>
+                {{/showTitle}}
+                
+                <table class="${w['table']}"><tbody>
+                    <tr>
+                        <td class="${w['curr']} ${w['num']}" style="{{currStyle}}">{{currValue}}</td>
+                        <td class="${w['prev']} ${w['num']}" style="{{prevStyle}}">{{prevValue}}</td>
+                    </tr>
+                    <tr>
+                        <td class="${w['curr']} ${w['text']}" style="{{currStyle}}">Текущие</td>
+                        <td class="${w['prev']} ${w['text']}" style="{{prevStyle}}">Предыдущие</td>
+                    </tr>
+                </tbody></table>
+            </div>
+        `;
     }
 }

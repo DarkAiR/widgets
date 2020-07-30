@@ -1,10 +1,8 @@
-import s from '../../styles/_all.less';
 import w from './category.less';
 import {settings as widgetSettings} from "./settings";
 
 import echarts from 'echarts';
 import {
-    DataSet,
     DataSetTemplate, DimensionFilter, DimensionInfo,
     DimensionUnit,
     IChartData, IColor, INameValue, ISettings,
@@ -12,10 +10,10 @@ import {
     XAxisData, YAxisData,
 } from '../../interfaces';
 import {
-    get as _get, set as _set, map as _map, forEach as _forEach,
+    map as _map,
     flow as _flow,
     min as _min, max as _max, cloneDeep as _cloneDeep, isEmpty as _isEmpty,
-    flatten as _flatten, toPairs as _toPairs,
+    flatten as _flatten,
     sortBy as _sortBy, values as _values,
     isEqual as _isEqual
 } from 'lodash';
@@ -192,7 +190,7 @@ export class Category extends Chart {
 
         const series: ISettings[] = [];
         data.forEach((pointsValues: TSPoint[], idx: number) => {
-            series[idx] = this.getHistogramSeries(idx, this.getColor(this.chartData.dataSets[idx].settings, 'color-yellow'));
+            series[idx] = this.getHistogramSeries(idx, this.getColor(this.chartData.dataSets[idx].settings));
             series[idx].data = res[idx].map((v: [INameValue[], number]) => ({value: [createKey(v[0]), v[1], v[0]]}));
         });
 
@@ -322,16 +320,14 @@ export class Category extends Chart {
 
     getTemplate(): string {
         return `
-            <div class='${s['widget']}  ${w['widget']}' style="{{backgroundStyle}} {{paddingStyle}}">
+            <div class="${w['widget']}" style="{{backgroundStyle}} {{paddingStyle}}">
                 {{#showTitle}}
-                <div class='${w['row']}'>
-                    <div class="${w['title']}" style="{{titleStyle}}">
-                        {{title}}
-                    </div>
+                <div class="${w['title']}" style="{{titleStyle}}">
+                    {{title}}
                 </div>
                 {{/showTitle}}
 
-                <div class='${w['row']} ${w['chart']}'>
+                <div class="${w['chart']}">
                 </div>
             </div>
         `;

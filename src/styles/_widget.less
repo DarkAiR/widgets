@@ -1,0 +1,9 @@
+@import (reference) "./_all.less";
+
+.widget {
+  overflow: hidden;   // Чтобы контент никогда не вылезал за пределы виджета
+  font-size: var(--font-size-base);
+
+  // Копируем базовые стили в виджет
+  &:extend(.widget html);
+}

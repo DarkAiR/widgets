@@ -1,4 +1,3 @@
-import s from '../../styles/_all.less';
 import w from './static.less';
 import {settings as widgetSettings} from "./settings";
 
@@ -95,7 +94,7 @@ export class Static extends Chart {
         if (TypeGuardsHelper.everyIsDataSetTemplate(data.dataSets)) {
             for (let idx = 0; idx < data.data.length; idx++) {
                 const dataSetSettings: ISettings = data.dataSets[idx].settings;
-                const color: IColor = this.getColor(dataSetSettings, 'color-yellow');
+                const color: IColor = this.getColor(dataSetSettings);
                 const points: Point[] = pointsData[idx];
 
                 const label: ISettings = SettingsHelper.getLabelSettings(this.widgetSettings.dataSet.settings, dataSetSettings);
@@ -208,16 +207,14 @@ export class Static extends Chart {
 
     getTemplate(): string {
         return `
-            <div class='${s['widget']}  ${w['widget']}' style="{{backgroundStyle}} {{paddingStyle}}">
+            <div class="${w['widget']}" style="{{backgroundStyle}} {{paddingStyle}}">
                 {{#showTitle}}
-                <div class='${w['row']}'>
-                    <div class="${w['title']}" style="{{titleStyle}}">
-                        {{title}}
-                    </div>
+                <div class="${w['title']}" style="{{titleStyle}}">
+                    {{title}}
                 </div>
                 {{/showTitle}}
 
-                <div class='${w['row']} ${w['chart']}'>
+                <div class="${w['chart']}">
                 </div>
             </div>
         `;

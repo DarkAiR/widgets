@@ -2,12 +2,12 @@ export * from "./typesGraphQL";
 
 // Типы виджетов
 // Каждый тип виджета может поддерживать определенное число различный viewType
-export type WidgetType = 'SPLINE' | 'CATEGORY' | 'AVERAGE_NUMBER' | 'SOLID_GAUGE' | 'INDICATORS_TABLE' | 'TABLE'
+export type WidgetType = 'SPLINE' | 'CATEGORY' | 'AVERAGE_NUMBER' | 'SOLID_GAUGE' | 'TABLE'
      | 'REPORT' | 'STATIC' | 'KPI' | 'DISTRIBUTION' | 'PROFILE';
 
 // Вид графика для spline
 // NOTE: Нельзя через enum, т.к. они не экспортируются, поэтому через массив значений + type
-export const ChartTypeValues = ['LINE', 'HISTOGRAM', 'COMPARED_FACT', 'COMPARED_PLAN'] as const;
+export const ChartTypeValues = ['LINE', 'HISTOGRAM'] as const;
 export type ChartType = typeof ChartTypeValues[number];
 
 // Стиль линии графиков
