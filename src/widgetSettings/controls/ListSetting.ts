@@ -8,6 +8,7 @@ import {INameValue} from "../../interfaces";
 
 export interface ListSetting<T> extends BaseSetting<T> {
     list: INameValue<T>[];
+    multiple: boolean;
 }
 
 // NOTE: Condition type нужен для обязательного вызова через указание типа,
@@ -16,7 +17,10 @@ export function makeList<T = void, U extends T = T>(
     name: string,
     label: string,
     def: U,
-    listValuesArray: ArrayLike<U>  // Константный массив, использованный для создания типа <U>
+    listValuesArray: ArrayLike<U>,  // Константный массив, использованный для создания типа <U>
+    data: {
+        multiple?: boolean
+    } = null
 ): SettingFunc {
     // Делаем из константного массива обычный
     const listValues: U[] = Object.values(listValuesArray);
@@ -30,6 +34,7 @@ export function makeList<T = void, U extends T = T>(
         type: 'list',
         default: def,
         list,
-        condition: ''
+        condition: '',
+        multiple: data?.multiple ?? false,
     });
 }
