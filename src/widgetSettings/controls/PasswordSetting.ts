@@ -12,6 +12,7 @@ export function makePassword(name: string, label: string): SettingFunc {
         label: label,
         type: 'password',
         default: '',
-        condition: ''
+        condition: '',
+        required: false
     });
 }

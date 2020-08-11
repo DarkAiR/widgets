@@ -13,6 +13,7 @@ export function makeGradient(name: string, label: string, def: DefaultType = nul
         label,
         type: 'gradient',
         default: def ?? {colors: [], rotate: 0},
-        condition: ''
+        condition: '',
+        required: false
     });
 }

@@ -43,6 +43,7 @@ export function makeSettingsGroup(
         collapse: data?.collapse ?? false,
         oneLineRows: data?.oneLineRows ?? false,
         condition: data?.condition ?? '',
-        hint: data?.hint ?? null
+        hint: data?.hint ?? null,
+        required: false
     });
 }

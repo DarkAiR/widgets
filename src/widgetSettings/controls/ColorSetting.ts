@@ -12,6 +12,7 @@ export function makeColor(name: string, label: string, def: DefaultType = ''): S
         label,
         type: 'color',
         default: def ?? '',
-        condition: ''
+        condition: '',
+        required: false
     });
 }

@@ -12,6 +12,7 @@ export function makeIcon(name: string, label: string, def: DefaultType): Setting
         label,
         type: 'icon',
         default: def,
-        condition: ''
+        condition: '',
+        required: false
     });
 }

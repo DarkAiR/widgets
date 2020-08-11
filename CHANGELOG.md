@@ -1,5 +1,9 @@
 ### ChangeLog
 
+##### 1.0.2 / 2020-08-11
+- добавлен required во все настройки
+- добавлен ResourceSelectSetting
+
 ##### 1.0.1 / 2020-08-10
 - добавлен multiple в ListSetting
 

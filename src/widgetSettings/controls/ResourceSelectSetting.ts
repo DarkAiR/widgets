@@ -1,12 +1,13 @@
 import {BaseSetting} from "./BaseSetting";
 import {SettingFunc} from "../types";
+import {StringSetting} from "./StringSetting";
 
 type DefaultType = string;
 
-export interface StringSetting extends BaseSetting<DefaultType> {
+export interface ResourceSelectSetting extends BaseSetting<DefaultType> {
 }
 
-export function makeString(
+export function makeResourceSelect(
     name: string,
     label: string,
     def: DefaultType = null,
@@ -14,10 +15,10 @@ export function makeString(
         required?: boolean;
     } = null
 ): SettingFunc {
-    return (): StringSetting => ({
+    return (): ResourceSelectSetting => ({
         name,
         label: label,
-        type: 'string',
+        type: 'resourceSelect',
         default: def ?? '',
         condition: '',
         required: data?.required ?? false

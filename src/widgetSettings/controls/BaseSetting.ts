@@ -6,4 +6,5 @@ export interface BaseSetting<T> {
     type: WidgetSettingsTypes;      // Тип настройки
     default: T | null;              // Значение по-умолчанию
     condition: string;              // Условие отображения
+    required: boolean;              // Обязательное или нет
 }

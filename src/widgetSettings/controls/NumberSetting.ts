@@ -13,9 +13,10 @@ export function makeNumber(
     label: string,
     def: DefaultType,
     data: {
-        min?: number,
-        max?: number
+        min?: number;
+        max?: number;
         condition?: string;         // Условия на JS в формате "${var1} === 'foo' && ${var2} > 2"
+        required?: boolean;
     } = null
 ): SettingFunc {
     return (): NumberSetting => ({
@@ -25,6 +26,7 @@ export function makeNumber(
         default: def,
         min: data?.min ?? null,
         max: data?.max ?? null,
-        condition: data?.condition ?? ''
+        condition: data?.condition ?? '',
+        required: data?.required ?? false
     });
 }

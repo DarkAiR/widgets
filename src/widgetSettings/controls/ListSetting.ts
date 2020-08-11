@@ -19,7 +19,8 @@ export function makeList<T = void, U extends T = T>(
     def: U,
     listValuesArray: ArrayLike<U>,  // Константный массив, использованный для создания типа <U>
     data: {
-        multiple?: boolean
+        multiple?: boolean;
+        required?: boolean;
     } = null
 ): SettingFunc {
     // Делаем из константного массива обычный
@@ -36,5 +37,6 @@ export function makeList<T = void, U extends T = T>(
         list,
         condition: '',
         multiple: data?.multiple ?? false,
+        required: data?.required ?? false
     });
 }
