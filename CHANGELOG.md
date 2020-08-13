@@ -1,5 +1,9 @@
 ### ChangeLog
 
+##### 1.0.3 / 2020-08-13
+- в ResourceSetting добавлены type и code
+- в StringSetting добавлен readonly
+
 ##### 1.0.2 / 2020-08-11
 - добавлен required во все настройки
 - добавлен ResourceSelectSetting

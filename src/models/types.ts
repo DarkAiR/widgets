@@ -32,3 +32,7 @@ export type ServerType = 'druid' | 'qlik';
 // Варианты отображения HISTOGRAM
 export const HistogramTypeValues = ['normal', 'stack', 'overlap'] as const;
 export type HistogramType = typeof HistogramTypeValues[number];
+
+// Типы ресурсов до которых разграничен доступ
+export const ResourceTypeValues = ['TEMPLATE'] as const;
+export type ResourceType = typeof ResourceTypeValues[number];
