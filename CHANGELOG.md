@@ -1,5 +1,9 @@
 ### ChangeLog
 
+##### 1.0.4 / 2020-08-16
+- Удален ResourceSelectSetting
+- Добавлен ResourceGroupsSetting
+
 ##### 1.0.3 / 2020-08-13
 - в ResourceSetting добавлены type и code
 - в StringSetting добавлен readonly

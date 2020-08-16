@@ -11,15 +11,15 @@ import {
     NumberSetting,
     SettingsGroupSetting,
     StringSetting,
-    PasswordSetting,
-    ResourceSelectSetting
+    PasswordSetting
 } from "./controls";
+import {ResourceGroupsSetting} from "./controls/ResourceGroupsSetting";
 
 export type SettingFunc = (...args: any) => WidgetSettingsItem;     // tslint:disable-line:no-any
 
 // Типы настроек
 export type WidgetSettingsTypes = 'string' | 'number' | 'boolean' | 'list' | 'color' | 'gradient' | 'icon'
-    | 'settingsGroup' | 'array' | 'password' | 'resourceSelect';
+    | 'settingsGroup' | 'array' | 'password' | 'resourceGroups';
 
 // Тип для hint SettingsGroupSetting
 export type SettingsGroupType = 'string' | 'widgetPaddings' | 'chartPaddings';
@@ -37,7 +37,7 @@ export type WidgetSettingsItem =
     SettingsGroupSetting |
     ArraySetting |
     PasswordSetting |
-    ResourceSelectSetting;
+    ResourceGroupsSetting;
 // tslint:enable:no-any
 
 export type WidgetSettingsArray = WidgetSettingsItem[];
