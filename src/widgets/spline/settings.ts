@@ -52,6 +52,7 @@ export const settings: IWidgetSettings = makeSettings({
             }),
             ...settingsPresets.fill,
             ...settingsPresets.label,
+            makeNumber('axisX', 'Номер оси X', 1),
             makeNumber('axisY', 'Номер оси Y', 1),
         ]
     }

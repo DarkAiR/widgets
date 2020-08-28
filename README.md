@@ -32,7 +32,7 @@ Less/Scss:
 @import '~abc-charts/styles.css';
 ```
 
-Running WidgetFactory for drawing widget from template.
+Running WidgetFactory to draw widget from template.
 Also you can use Promise for receiving signals about complete of loading widget or errors.
 
 For example:

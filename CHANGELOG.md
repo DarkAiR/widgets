@@ -1,5 +1,8 @@
 ### ChangeLog
 
+##### 1.1.0 / 2020-08-28
+- Поддержка множества осей Х
+
 ##### 1.0.4 / 2020-08-16
 - Удален ResourceSelectSetting
 - Добавлен ResourceGroupsSetting

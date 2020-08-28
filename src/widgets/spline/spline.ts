@@ -7,11 +7,11 @@ import {
     IChartData, IColor, ISettings,
     IWidgetVariables,
     SingleDataSource,
-    DataSetTemplate, IEventOrgUnits, XAxisData, YAxisData,
+    DataSetTemplate, IEventOrgUnits, XAxisData, YAxisData, TSPoint, TData,
 } from '../../interfaces';
 import {
     get as _get, set as _set, map as _map, forEach as _forEach,
-    fromPairs as _fromPairs, findKey as _findKey, merge as _merge, flow as _flow,
+    fromPairs as _fromPairs, findKey as _findKey, find as _find, merge as _merge, flow as _flow,
     min as _min, max as _max, cloneDeep as _cloneDeep, isEmpty as _isEmpty
 } from 'lodash';
 import {Chart} from '../../models/Chart';
@@ -36,13 +36,22 @@ interface Interval {
     cutTo: string;
 }
 
+interface DataByAxis {
+    dataSets: DataSet[];                    // Источники данных, пришедшие в шаблоне
+    data: TSPoint[][];                      // набор данных, каждый item описывает один набор данных, для одного графика/отчета
+    indexes: number[];                      // Индексы Timeseries
+    timeSeriesData: TimeSeriesData;
+    axisData: XAxisData;
+}
+
+
 export class Spline extends Chart {
     private interval: Interval = {
         currInterval: null,
         cutFrom: null,
         cutTo: null
     };
-    private shortestFrequency: Frequency = null;    // Самая короткая частота. Нужна для формирования подписей
+    private enableInterval: boolean = true;         // Включение работы с интервалами, если одна ось Х
     private clickTimeoutId: number = null;
 
     getVariables(): IWidgetVariables {
@@ -77,14 +86,48 @@ export class Spline extends Chart {
             const axisYDistance: number = this.getWidgetSetting('axisYDistance');
             const axisXDistance: number = this.getWidgetSetting('axisXDistance');
 
-            const timeSeriesData: TimeSeriesData = TimeSeriesHelper.convertTimeSeriesToData(data, this.interval.cutFrom, this.interval.cutTo);
+            // Разделяем данные по осям
+            const dataByAxes: {
+                [axisNumber: number]: DataByAxis
+            } = [];
+            for (let idx = 0; idx < data.data.length; idx++) {
+                const dataSetSettings: ISettings = data.dataSets[idx].settings;
+                const axisNumber: number = +this.getDataSetSettings(dataSetSettings, 'axisX');
+                if (dataByAxes[axisNumber] === undefined) {
+                    dataByAxes[axisNumber] = {
+                        data: [],
+                        dataSets: [],
+                        indexes: [],
+                        timeSeriesData: null,
+                        axisData: null
+                    };
+                }
+                dataByAxes[axisNumber].data.push(data.data[idx] as TSPoint[]);
+                dataByAxes[axisNumber].dataSets.push(data.dataSets[idx]);
+                dataByAxes[axisNumber].indexes.push(idx);
+            }
 
-            // shortestFrequency определяет размерность оси X
-            this.interval.currInterval = TimeSeriesHelper.calcInterval(timeSeriesData.dates);
-            [, this.shortestFrequency] = TimeSeriesHelper.getShortestInterval(data);
+            const dataByAxesKeys: string[] = Object.keys(dataByAxes);
 
-            const xAxesData = this.getXAxes(timeSeriesData);
-            const yAxesData = this.getYAxes(timeSeriesData);
+            // Считаем отдельно TimeSeries по осям
+            _forEach(dataByAxesKeys, (axisNumber: number) => {
+                dataByAxes[axisNumber].timeSeriesData = TimeSeriesHelper.convertTimeSeriesToData(
+                    dataByAxes[axisNumber].data,
+                    dataByAxes[axisNumber].dataSets,
+                    this.interval.cutFrom,
+                    this.interval.cutTo
+                );
+            });
+
+            // Отключаем интервалы
+            this.enableInterval = dataByAxesKeys.length === 1;
+            if (this.enableInterval) {
+                this.interval.currInterval = TimeSeriesHelper.calcInterval(dataByAxes[dataByAxesKeys[0]].timeSeriesData.dates);
+            }
+
+
+            const xAxesData = this.getXAxes(dataByAxes);
+            const yAxesData = this.getYAxes();
 
             // Вычисляем количество осей
             const leftAmount: number    = yAxesData.axes.filter((v: Object) => (v['position'] as YAxisPos) === 'left').length;
@@ -96,7 +139,7 @@ export class Spline extends Chart {
             const containLabel: boolean = leftAmount <= 1 && rightAmount <= 1 && topAmount <= 1 && bottomAmount <= 1;
 
             const legend: Object = SettingsHelper.getLegendSettings(this.widgetSettings.settings, this.chartData.settings);
-            const series: Object[] = this.getClassicSeries(timeSeriesData, yAxesData.axesToIndex);
+            const series: Object[] = this.getSeries(dataByAxes, xAxesData.axesToIndex, yAxesData.axesToIndex);
 
             const chartBackgroundSettings: ISettings = SettingsHelper.getGradientSettings(this.getWidgetSetting('chartBackground.color'));
             const chartBackground: Object = _isEmpty(chartBackgroundSettings) ? {} : { backgroundColor: chartBackgroundSettings };
@@ -139,7 +182,7 @@ export class Spline extends Chart {
                 titleStyle: titleSettings.style,
                 backgroundStyle: SettingsHelper.getBackgroundStyle(this.getWidgetSetting('background.color')),
                 paddingStyle: SettingsHelper.getPaddingStyle(this.getWidgetSetting('paddings')),
-                enableZoom,
+                enableZoom: enableZoom && this.enableInterval,
                 disableBtn: StatesHelper.isEmpty('interval')
             });
 
@@ -147,7 +190,7 @@ export class Spline extends Chart {
             const myChart = echarts.init(el);
             myChart.setOption(options);
 
-            if (enableZoom) {
+            if (enableZoom && this.enableInterval) {
                 if (this.interval.currInterval !== 'DAY') {
                     myChart.on('click', 'xAxis.category', (param: IEventAxisXClick) => this.onClickAxisX(param.value as string));
                 }
@@ -167,9 +210,14 @@ export class Spline extends Chart {
     /**
      * Получить данные для серий
      */
-    private getClassicSeries(timeSeriesData: TimeSeriesData, axesToIndex: {[dataSetIdx: number]: number}): Object[] {
+    private getSeries(
+        dataByAxes: { [axisNumber: number]: DataByAxis },
+        xAxesToIndex: {[dataSetIdx: number]: number},
+        yAxesToIndex: {[dataSetIdx: number]: number}
+    ): Object[] {
         const data: IChartData = this.chartData;
         const series: Object[] = [];
+        const dataByAxesKeys: string[] = Object.keys(dataByAxes);
 
         if (TypeGuardsHelper.everyIsDataSetTemplate(data.dataSets)) {
             for (let idx = 0; idx < data.data.length; idx++) {
@@ -188,11 +236,21 @@ export class Spline extends Chart {
                         continue;
                 }
 
-                series.push({
-                    data: timeSeriesData.values[idx],
-                    yAxisIndex: axesToIndex[idx],
-                    ...seriesData
+                const xAxisNumber: number = _find(dataByAxesKeys, (v: number) => {
+                    const axisData: DataByAxis = dataByAxes[v];
+                    return axisData.indexes.includes(idx);
                 });
+                if (xAxisNumber !== undefined) {
+                    // Ищем индекс в values для конкретного dataSet
+                    const valuesIndex: number = dataByAxes[xAxisNumber].indexes.indexOf(idx);
+                    // dataByAxes[xAxisNumber].axisData.
+                    series.push({
+                        data: dataByAxes[xAxisNumber].timeSeriesData.values[valuesIndex],
+                        xAxisIndex: xAxesToIndex[idx],
+                        yAxisIndex: yAxesToIndex[idx],
+                        ...seriesData
+                    });
+                }
             }
         }
         return series;
@@ -214,47 +272,39 @@ export class Spline extends Chart {
     /**
      * Получить данные для осей
      */
-    private getXAxes(timeSeriesData: TimeSeriesData): {
+    private getXAxes(dataByAxes: { [axisNumber: number]: DataByAxis }): {
         axes: Object[],
         axesToIndex: {[dataSetIdx: number]: number}
     } {
         const data: IChartData = this.chartData;
-        const axesData: {[key: number]: XAxisData} = {};
-        const timeSeriesArr = [timeSeriesData.dates];
+        const dataByAxesKeys: string[] = Object.keys(dataByAxes);
 
         // Готовим данные для осей
-        if (TypeGuardsHelper.everyIsDataSetTemplate(data.dataSets)) {
-            // const axesX = this.getWidgetSetting<unknown[]>('axesX');
-
-            for (let idx = 0; idx < timeSeriesArr.length; idx++) {
-                const axisNumber: number = 1;   // +this.getDataSetSettings(dataSetSettings, 'axisX');
-
-                if (axesData[axisNumber] !== undefined) {
-                    axesData[axisNumber].axesToIndex.push(idx);
-                } else {
-                    const color: string = this.getAxisSetting('axesX', 'color', axisNumber) as string;
-                    axesData[axisNumber] = {
-                        show: this.getAxisSetting('axesX', 'show', axisNumber),
-                        name: this.getAxisSetting('axesX', 'name', axisNumber),
-                        nameGap: this.getAxisSetting('axesX', 'nameGap', axisNumber),
-                        nameColor: this.getAxisSetting('axesX', 'nameColor', axisNumber),
-                        color: color,
-                        position: this.getAxisSetting('axesX', 'position', axisNumber),
-                        axesToIndex: [idx],
-                        showTick: this.getAxisSetting('axesX', 'showTick', axisNumber),
-                    };
-                }
-            }
-        }
+        _forEach(dataByAxesKeys, (axisNumber: number) => {
+            const axisData: DataByAxis = dataByAxes[axisNumber];
+            // NOTE: Цвет не берем из графика, т.к. оси могут быть обьединены
+            const color: string = this.getAxisSetting('axesX', 'color', axisNumber) as string;
+            axisData.axisData = {
+                show: this.getAxisSetting('axesX', 'show', axisNumber),
+                name: this.getAxisSetting('axesX', 'name', axisNumber),
+                nameGap: this.getAxisSetting('axesX', 'nameGap', axisNumber),
+                nameColor: this.getAxisSetting('axesX', 'nameColor', axisNumber),
+                color: color,
+                position: this.getAxisSetting('axesX', 'position', axisNumber),
+                axesToIndex: axisData.indexes,
+                showTick: this.getAxisSetting('axesX', 'showTick', axisNumber),
+            };
+        });
 
         // Готовим данные для echarts
         const axisXDistance: number = this.getWidgetSetting('axisXDistance');
         let topAxis = 0;
         let bottomAxis = 0;
 
-        const axes: Object[] = _map(axesData, (axisData: XAxisData, k: number): Object => {
+        const axes: Object[] = _map(dataByAxesKeys, (axisNumber: number): Object => {
+            const axData: DataByAxis = dataByAxes[axisNumber];
             let offset = 0;
-            switch (axisData.position) {
+            switch (axData.axisData.position) {
                 case 'top':
                     offset = topAxis * axisXDistance;
                     topAxis++;
@@ -268,12 +318,18 @@ export class Spline extends Chart {
             const enableZoom: boolean = this.getWidgetSetting('enableZoom');
             const monthNames = ["Янв", "Фев", "Март", "Апр", "Май", "Июнь", "Июль", "Авг", "Сент", "Окт", "Нояб", "Дек"];
             const res = SettingsHelper.getXAxisSettings(
-                axisData,
-                k,
+                axData.axisData,
+                axisNumber,
                 'category',
                 (value: string) => {
                     const date: Date = new Date(value);
-                    switch (this.shortestFrequency) {
+
+                    // Самая короткая частота. Нужна для формирования подписей
+                    // shortestFrequency определяет размерность оси X
+                    let shortestFrequency: Frequency = null;
+                    [, shortestFrequency] = TimeSeriesHelper.getShortestInterval(data.data as TSPoint[][], data.dataSets);
+
+                    switch (shortestFrequency) {
                         case 'YEAR':
                             return date.getFullYear();
                         case 'MONTH':
@@ -290,18 +346,19 @@ export class Spline extends Chart {
                 this.hasHistogram(),
                 enableZoom && this.interval.currInterval !== 'DAY'
             );
-            res.data = timeSeriesArr[axisData.axesToIndex[0]];      // FIXME: собирать данные со всех осей
+            res.data = axData.timeSeriesData.dates;
             return res;
         });
 
-        // {1: {axesToIndex: [11,22]}, 2: {axesToIndex: [33]} => {11:0, 22:0, 33:1}
-        // {[dataSetIdx: number] : axisIndex}
         const axesToIndex: {[key: number]: number} = _merge(
-            ..._map(axesData, (v: XAxisData, axisNumber: number) =>
-                _fromPairs( v.axesToIndex.map((dataSetIdx: number) => {
-                    return [dataSetIdx, _findKey(axes, (axesObj: Object) => axesObj['id'] === axisNumber) ?? 0];
-                }))
-            )
+            ..._map(dataByAxesKeys, (axisNumber: number): Object => {
+                const axData: DataByAxis = dataByAxes[axisNumber];
+                return _fromPairs(
+                    axData.indexes.map((dataSetIdx: number) =>
+                        [dataSetIdx, _findKey(axes, (axesObj: Object) => axesObj['id'] === axisNumber) ?? 0]
+                    )
+                );
+            })
         );
 
         return {
@@ -313,12 +370,13 @@ export class Spline extends Chart {
     /**
      * Получить данные для осей
      */
-    private getYAxes(timeSeriesData: TimeSeriesData): {
+    private getYAxes(): {
         axes: Object[],
         axesToIndex: {[key: number]: number}
     } {
         const data: IChartData = this.chartData;
         const axesData: {[key: number]: YAxisData} = {};
+        const timeSeriesData: TimeSeriesData = TimeSeriesHelper.convertTimeSeriesToData(data.data as TSPoint[][], data.dataSets, this.interval.cutFrom, this.interval.cutTo);
 
         // Готовим данные для осей
         if (TypeGuardsHelper.everyIsDataSetTemplate(data.dataSets)) {
@@ -450,7 +508,6 @@ export class Spline extends Chart {
             type: 'line',
             smooth: true,
             forComparing: 0,
-            xAxisIndex: 0,
             seriesLayoutBy: 'column',
             showSymbol: true,
             symbolSize: 4,
@@ -508,7 +565,6 @@ export class Spline extends Chart {
 
         return this.applySettings(idx, 'HISTOGRAM', {
             type: 'bar',
-            xAxisIndex: 0,
             seriesLayoutBy: 'column',
 
             color: color.hex,                   // Основной цвет
@@ -553,6 +609,7 @@ export class Spline extends Chart {
 
     /**
      * Переместиться влево по интервалам
+     * NOTE: Если интервалы недоступны, то этот метод не вызовется
      */
     private leftInterval(): void {
         let newDate: Date = null;
@@ -583,6 +640,7 @@ export class Spline extends Chart {
 
     /**
      * Переместиться вправо по интервалам
+     * NOTE: Если интервалы недоступны, то этот метод не вызовется
      */
     private rightInterval(): void {
         let newDate: Date = null;
@@ -613,6 +671,7 @@ export class Spline extends Chart {
 
     /**
      * Вернуться на верхний интервал
+     * NOTE: Если интервалы недоступны, то этот метод не вызовется
      */
     private revertInterval(): void {
         let changed: boolean = false;
@@ -631,6 +690,7 @@ export class Spline extends Chart {
 
     /**
      * Обработка нажатия на оси X
+     * NOTE: Если интервалы недоступны, то этот метод не вызовется
      */
     private onClickAxisX(paramDate: string): void {
         if (this.clickTimeoutId !== null) {

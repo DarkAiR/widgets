@@ -1,5 +1,5 @@
 import {TSPoint} from "../interfaces/graphQL";
-import {IChartData, ISettings} from '../interfaces';
+import {IChartData, ISettings, DataSet} from '../interfaces';
 import {Frequency} from "../models/typesGraphQL";
 import {TypeGuardsHelper} from "./typeGuards.helper";
 import {min as _min, max as _max, get as _get} from 'lodash';
@@ -29,9 +29,7 @@ export class TimeSeriesHelper {
      * }
      * При этом dates.length === values[dateSetIndex].length
      */
-    static convertTimeSeriesToData(chartData: IChartData, cutFrom: string = null, cutTo: string = null): TimeSeriesData {
-        const data: TSPoint[][] = chartData.data as TSPoint[][];
-
+    static convertTimeSeriesToData(data: TSPoint[][], dataSets: DataSet[], cutFrom: string = null, cutTo: string = null): TimeSeriesData {
         interface IValue {
             localDateTime: string;
             values: number[];
@@ -39,7 +37,7 @@ export class TimeSeriesHelper {
         let valuesArr: IValue[] = [];
 
         // Находим самый короткий интервал частот
-        const [shortestDataSetIdx, shortestFrequency] = TimeSeriesHelper.getShortestInterval(chartData) as [number, Frequency];
+        const [shortestDataSetIdx, shortestFrequency] = TimeSeriesHelper.getShortestInterval(data, dataSets) as [number, Frequency];
 
         const interval: ISettings = {
             minTimeInInterval: Number.MAX_VALUE,    // Минимальное значение в интервале shortestIdx
@@ -131,14 +129,12 @@ export class TimeSeriesHelper {
     /**
      * Получить частоту самого короткого интервала
      */
-    static getShortestInterval(chartData: IChartData): [number, Frequency] {
-        const data: TSPoint[][] = chartData.data as TSPoint[][];
-
+    static getShortestInterval(data: TSPoint[][], dataSets: DataSet[]): [number, Frequency] {
         let shortestFrequencyIdx: number = TimeSeriesHelper.frequencyPriority['ALL'];
         let shortestDataSetIdx: number = 0;
         data.forEach((dataValues: TSPoint[], idx: number) => {
-            if (TypeGuardsHelper.isDataSetTemplate(chartData.dataSets[idx])) {
-                const f: number = TimeSeriesHelper.frequencyPriority[chartData.dataSets[idx].frequency];
+            if (TypeGuardsHelper.isDataSetTemplate(dataSets[idx])) {
+                const f: number = TimeSeriesHelper.frequencyPriority[dataSets[idx].frequency];
                 if (f < shortestFrequencyIdx) {
                     shortestFrequencyIdx = f;
                     shortestDataSetIdx = idx;
@@ -151,14 +147,12 @@ export class TimeSeriesHelper {
     /**
      * Получить частоту самого длинного интервала
      */
-    static getLongestInterval(chartData: IChartData): [number, Frequency] {
-        const data: TSPoint[][] = chartData.data as TSPoint[][];
-
+    static getLongestInterval(data: TSPoint[][], dataSets: DataSet[]): [number, Frequency] {
         let longestFrequencyIdx: number = TimeSeriesHelper.frequencyPriority['NONE'];
         let longestDataSetIdx: number = null;
         data.forEach((dataValues: TSPoint[], idx: number) => {
-            if (TypeGuardsHelper.isDataSetTemplate(chartData.dataSets[idx])) {
-                const f: number = TimeSeriesHelper.frequencyPriority[chartData.dataSets[idx].frequency];
+            if (TypeGuardsHelper.isDataSetTemplate(dataSets[idx])) {
+                const f: number = TimeSeriesHelper.frequencyPriority[dataSets[idx].frequency];
                 if (f > longestFrequencyIdx) {
                     longestFrequencyIdx = f;
                     longestDataSetIdx = idx;
