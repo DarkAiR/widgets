@@ -137,6 +137,24 @@ export class SettingsHelper {
     }
 
     /**
+     * Получить настройки grid.border
+     */
+    static getBorderSettings(config: WidgetSettingsArray, settings: ISettings): ISettings {
+        const getSetting = <T = void>(path: string): T => SettingsHelper.getWidgetSetting<T>(config, settings, path);
+        const grid: ISettings = {};
+
+        if (getSetting<boolean>('chartBorder.show')) {
+            const color = getSetting<string>('chartBorder.color');
+            if (!!color) {
+                grid.borderColor = color;
+            }
+        } else {
+            grid.borderColor = 'transparent';
+        }
+        return grid;
+    }
+
+    /**
      * Получить настройки fill для echarts
      */
     static getFillSettings(config: WidgetSettingsArray, settings: ISettings, chartType: ChartType): ISettings {
@@ -209,7 +227,7 @@ export class SettingsHelper {
      */
     static getLabelSettings(config: WidgetSettingsArray, settings: ISettings): ISettings {
         const getSetting = <T = void>(path: string): T => SettingsHelper.getDataSetSettings<T>(config, settings, path);
-        const label: ISettings = {       // tslint:disable-line:no-any
+        const label: ISettings = {
             show: getSetting<boolean>('label.show')
         };
         if (label.show) {
@@ -256,6 +274,7 @@ export class SettingsHelper {
         };
         // Настройки оси
         const axisLine: ISettings = {
+            show: axisData.showLine,
             lineStyle: {}
         };
         if (!!axisData.color) {
@@ -325,6 +344,7 @@ export class SettingsHelper {
 
         // Настройки оси
         const axisLine: ISettings = {
+            show: axisData.showLine,
             lineStyle: {}
         };
 

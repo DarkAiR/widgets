@@ -135,6 +135,7 @@ export class Static extends Chart {
             max: max,
             min: min,
             axesToIndex: [],
+            showLine: this.getWidgetSetting('axisX.showLine'),
             showTick: this.getWidgetSetting('axisX.showTick'),
         };
 
@@ -167,6 +168,7 @@ export class Static extends Chart {
             max: max,
             min: min,
             axesToIndex: [],
+            showLine: this.getWidgetSetting('axisY.showLine'),
             showTick: this.getWidgetSetting('axisY.showTick')
         };
 

@@ -10,6 +10,7 @@ export interface AxisData<T> {
     max?: number;
     min?: number;
     axesToIndex: number[];
+    showLine: boolean;
     showTick: boolean;
 }
 

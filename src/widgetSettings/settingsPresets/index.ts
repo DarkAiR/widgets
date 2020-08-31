@@ -11,9 +11,11 @@ import {multiAxesX} from "./multiAxesX";
 import {multiAxesY} from "./multiAxesY";
 import {legend} from "./legend";
 import {singleValue} from "./singleValue";
+import {chartBorder} from "./chartBorder";
 
 const settingsPresets = {
     title,
+    chartBorder,
     chartPaddings,
     paddings,
     fill,

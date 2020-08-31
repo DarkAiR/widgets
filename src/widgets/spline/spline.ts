@@ -7,7 +7,7 @@ import {
     IChartData, IColor, ISettings,
     IWidgetVariables,
     SingleDataSource,
-    DataSetTemplate, IEventOrgUnits, XAxisData, YAxisData, TSPoint, TData,
+    DataSetTemplate, IEventOrgUnits, XAxisData, YAxisData, TSPoint
 } from '../../interfaces';
 import {
     get as _get, set as _set, map as _map, forEach as _forEach,
@@ -16,6 +16,7 @@ import {
 } from 'lodash';
 import {Chart} from '../../models/Chart';
 import {
+    ColorHelper,
     DateHelper,
     MathHelper,
     OrgUnitsHelper,
@@ -107,7 +108,7 @@ export class Spline extends Chart {
                 dataByAxes[axisNumber].indexes.push(idx);
             }
 
-            const dataByAxesKeys: string[] = Object.keys(dataByAxes);
+            const dataByAxesKeys: number[] = Object.keys(dataByAxes).map((v: string) => +v);
 
             // Считаем отдельно TimeSeries по осям
             _forEach(dataByAxesKeys, (axisNumber: number) => {
@@ -143,6 +144,7 @@ export class Spline extends Chart {
 
             const chartBackgroundSettings: ISettings = SettingsHelper.getGradientSettings(this.getWidgetSetting('chartBackground.color'));
             const chartBackground: Object = _isEmpty(chartBackgroundSettings) ? {} : { backgroundColor: chartBackgroundSettings };
+            const chartBorderColor: Object = SettingsHelper.getBorderSettings(this.widgetSettings.settings, this.chartData.settings);
 
             // NOTE: при containLabel=true ECharts правильно считает ширину отступа для нескольких осей,
             //       но не умеет располагать оси рядом, поэтому, при более чем одной оси, высчитываем отступы вручную
@@ -150,6 +152,7 @@ export class Spline extends Chart {
                 grid: {
                     show: true,
                     ...chartBackground,
+                    ...chartBorderColor,
                     top: +this.getWidgetSetting('chartPaddings.top') + (containLabel ? 0 : topAmount * axisXDistance),
                     bottom: +this.getWidgetSetting('chartPaddings.bottom') + (containLabel ? 0 : bottomAmount * axisXDistance),
                     right: +this.getWidgetSetting('chartPaddings.right') + (containLabel ? 0 : (rightAmount * axisYDistance)),
@@ -217,7 +220,7 @@ export class Spline extends Chart {
     ): Object[] {
         const data: IChartData = this.chartData;
         const series: Object[] = [];
-        const dataByAxesKeys: string[] = Object.keys(dataByAxes);
+        const dataByAxesKeys: number[] = Object.keys(dataByAxes).map((v: string) => +v);
 
         if (TypeGuardsHelper.everyIsDataSetTemplate(data.dataSets)) {
             for (let idx = 0; idx < data.data.length; idx++) {
@@ -262,7 +265,7 @@ export class Spline extends Chart {
     private getAxisSetting<T>(axisName: string, varName: string, axisNumber: number): T {        // unknown, чтобы обязательно указывать тип
         const axesData = this.getWidgetSetting<Object[]>(axisName);
         const item: WidgetSettingsItem = SettingsHelper.getWidgetSettingByPath(this.widgetSettings.settings, [axisName, varName]);
-        const dataObj = axesData.find((v: Object) => +_get(v, 'index') === axisNumber);
+        const dataObj = axesData.find((v: Object) => +_get(v, 'index') === +axisNumber);
         if (dataObj !== undefined) {
             return _get(dataObj, varName, item.default);
         }
@@ -277,7 +280,7 @@ export class Spline extends Chart {
         axesToIndex: {[dataSetIdx: number]: number}
     } {
         const data: IChartData = this.chartData;
-        const dataByAxesKeys: string[] = Object.keys(dataByAxes);
+        const dataByAxesKeys: number[] = Object.keys(dataByAxes).map((v: string) => +v);
 
         // Готовим данные для осей
         _forEach(dataByAxesKeys, (axisNumber: number) => {
@@ -292,6 +295,7 @@ export class Spline extends Chart {
                 color: color,
                 position: this.getAxisSetting('axesX', 'position', axisNumber),
                 axesToIndex: axisData.indexes,
+                showLine: this.getAxisSetting('axesX', 'showLine', axisNumber),
                 showTick: this.getAxisSetting('axesX', 'showTick', axisNumber),
             };
         });
@@ -421,6 +425,7 @@ export class Spline extends Chart {
                         max: 0,
                         min: min,
                         axesToIndex: [idx],
+                        showLine: this.getAxisSetting('axesY', 'showLine', axisNumber),
                         showTick: this.getAxisSetting('axesY', 'showTick', axisNumber),
                     };
                     if (histType === 'stack' && chartType === 'HISTOGRAM') {

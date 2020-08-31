@@ -26,7 +26,8 @@ function axisYFunc(enablePosition: boolean = true): SettingFunc[] {
                 makeColor('nameColor', 'Цвет подписи'),
                 makeNumber('nameGap', 'Отступ подписи', '')
             ], [
-                makeBoolean('showTick', 'Отображать насечки', true)
+                makeBoolean('showLine', 'Линия оси', true),
+                makeBoolean('showTick', 'Насечки', true)
             ]
         ], {collapse: true}),
     ];

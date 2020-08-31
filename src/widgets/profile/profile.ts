@@ -216,6 +216,7 @@ export class Profile extends Chart {
             color: this.getWidgetSetting('axisX.color'),
             position: this.getWidgetSetting('axisX.position'),
             axesToIndex: [],
+            showLine: this.getWidgetSetting('axisX.showLine'),
             showTick: this.getWidgetSetting('axisX.showTick'),
         };
 
@@ -260,6 +261,7 @@ export class Profile extends Chart {
             max: max,
             min: min,
             axesToIndex: [],
+            showLine: this.getWidgetSetting('axisY.showLine'),
             showTick: this.getWidgetSetting('axisY.showTick')
         };
 
