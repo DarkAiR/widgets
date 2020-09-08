@@ -16,7 +16,6 @@ import {
 } from 'lodash';
 import {Chart} from '../../models/Chart';
 import {
-    ColorHelper,
     DateHelper,
     MathHelper,
     OrgUnitsHelper,
@@ -30,6 +29,7 @@ import {TypeGuardsHelper} from "../../helpers";
 import {IWidgetSettings} from "../../widgetSettings";
 import {WidgetSettingsItem} from "../../widgetSettings/types";
 import {IEventAxisXClick} from "../../interfaces/echarts";
+import {WidgetConfigInner} from "../..";
 
 interface Interval {
     currInterval: Frequency;        // Текущий отображаемый интервал
@@ -79,6 +79,12 @@ export class Spline extends Chart {
         return widgetSettings;
     }
 
+    constructor(config: WidgetConfigInner) {
+        super(config);
+        // Инициализация в конструкторе, чтобы можно было вызвать инициализацию переменных до первого рендера
+        this.onEventBus = this.onEventBusFunc.bind(this);
+    }
+
     run(): void {
         const data: IChartData = this.chartData;
 
@@ -125,7 +131,6 @@ export class Spline extends Chart {
             if (this.enableInterval) {
                 this.interval.currInterval = TimeSeriesHelper.calcInterval(dataByAxes[dataByAxesKeys[0]].timeSeriesData.dates);
             }
-
 
             const xAxesData = this.getXAxes(dataByAxes);
             const yAxesData = this.getYAxes();
@@ -206,7 +211,6 @@ export class Spline extends Chart {
             this.onResize = (width: number, height: number): void => {
                 myChart.resize();
             };
-            this.onEventBus = this.onEventBusFunc.bind(this);
         }
     }
 

@@ -1,4 +1,4 @@
-import {IChart, IChartData, ISettings, RejectFunc, ResolveFunc, WidgetTemplate} from "../interfaces";
+import {IChart, RejectFunc, ResolveFunc, WidgetTemplate} from "../interfaces";
 import {DataProvider} from "../dataProvider";
 import * as widgets from "../widgets";
 import {StatesHelper, WidgetConfig, WidgetConfigInner} from "..";
@@ -54,7 +54,7 @@ export class WidgetFactory {
         const innerConfig: WidgetConfigInner = Object.assign(config, {
             template: template
         });
-        return this.createWidget(innerConfig, template);
+        return this.createWidget(innerConfig);
     }
 
     async runWithSource(config: WidgetConfig, template: WidgetTemplate): Promise<IChart> {
@@ -70,10 +70,10 @@ export class WidgetFactory {
         const innerConfig: WidgetConfigInner = Object.assign(config, {
             template: template
         });
-        return this.createWidget(innerConfig, template);
+        return this.createWidget(innerConfig);
     }
 
-    private async createWidget(config: WidgetConfigInner, template: WidgetTemplate): Promise<IChart> {
+    private async createWidget(config: WidgetConfigInner): Promise<IChart> {
         StatesHelper.clear();
 
         const widgetsArr: WidgetsArr = {
@@ -89,12 +89,20 @@ export class WidgetFactory {
             "DISTRIBUTION":     () => widgets.Distribution.Distribution
 
         };
-        if (!widgetsArr[template.widgetType]) {
-            throw new Error(`Widget type <${template.widgetType}> not supported`);
+        if (!widgetsArr[config.template.widgetType]) {
+            throw new Error(`Widget type <${config.template.widgetType}> not supported`);
         }
-        const data: IChartData = await this.dataProvider.parseTemplate(template);
-        const widget: Chart = new (widgetsArr[template.widgetType]())(config);
-        widget.create(data);
+        const widget: Chart = new (widgetsArr[config.template.widgetType]())(config);
+        widget.create();
+        if (config.afterCreate) {
+            // Здесь можно, нр, инициализировать переменные до первого рендера через EventBus
+            config.afterCreate(widget);
+        }
+        widget.initialized = true;
+
+        // Это должна быть единственная перерисовка при инициализации
+        await widget.redraw();
+
         this.addVersion(config);
         return widget as IChart;
     }

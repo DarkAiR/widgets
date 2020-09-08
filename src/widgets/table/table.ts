@@ -10,6 +10,7 @@ import {get as _get, map as _map, filter as _filter, keyBy as _keyBy} from "loda
 import {Chart} from "../../models/Chart";
 import {MathHelper, TypeGuardsHelper} from "../../helpers";
 import {IWidgetSettings} from "../../widgetSettings";
+import {WidgetConfigInner} from "../..";
 
 export class Table extends Chart {
     getVariables(): IWidgetVariables {
@@ -23,6 +24,12 @@ export class Table extends Chart {
 
     getSettings(): IWidgetSettings {
         return widgetSettings;
+    }
+
+    constructor(config: WidgetConfigInner) {
+        super(config);
+        // Инициализация в конструкторе, чтобы можно было вызвать инициализацию переменных до первого рендера
+        this.onEventBus = this.onEventBusFunc.bind(this);
     }
 
     run(): void {
@@ -82,8 +89,6 @@ export class Table extends Chart {
                 header,
                 rows
             });
-
-            this.onEventBus = this.onEventBusFunc.bind(this);
         }
     }
 

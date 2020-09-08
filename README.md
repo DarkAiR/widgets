@@ -35,25 +35,7 @@ Less/Scss:
 Running WidgetFactory to draw widget from template.
 Also you can use Promise for receiving signals about complete of loading widget or errors.
 
-For example:
-```
-class YourClass {
-    config = null;  // Here wiil be store the DataProvider
-
-    yourRenderMethod() {
-        this.config = new WidgetConfig();
-        this.config.templateId = 'TEMPLATE_ID';
-        this.config.element = document.getElementById('ELEMENT_ID');
-        this.config.apiUrl = 'YOUR GRAPHQL API';     // Optional
-        this.config.eventBus = <EventBusWrapper>
-
-        this.widgetFactory.run(this.config).then(
-            (widget: IChart) => complete,
-            () => error
-        );
-    }
-}
-```
+*(Looking example below...)*
 
 Interface IChart has method for getting available variables for EventBus:
 ```
@@ -67,6 +49,88 @@ where IWidgetVariables is
 {
     <VAR_NAME>: {
         description?: string;
+    }
+}
+```
+
+###### *Full example with massive sending*
+*Service:*
+```
+class EventBusService {
+    private eventBus: EventBus = null;
+
+    constructor() {
+        this.eventBus = new EventBus();
+        this.eventBus.useStateDeferredMerging = false;
+    }
+
+    getWrapper(): EventBusWrapper {
+        return new EventBusWrapper(this.eventBus);
+    }
+
+    appendWidgetVariables(eventBusWrapper: EventBusWrapper, widgetVars: IWidgetVariables): void {
+        eventBusWrapper.varAliases = Object.keys(widgetVars)
+            .reduce((obj, key) => {
+                obj[key] = {listen: key, trigger: key};
+                return obj;
+            }, {})
+    }
+
+    sendMassive(eventBusWrapper: EventBusWrapper, widgetVars: IWidgetVariables, values: NameValue[]): void {
+        let params: ISettings = {};
+        values.forEach((v: NameValue) => {
+            const regExp: RegExp = new RegExp(`^${v.name}`, 'g')
+            params = {
+                ...params,
+                ...Object.keys(widgetVars)
+                    .filter(v => regExp.test(v))
+                    .reduce((obj, key) => {
+                        obj[key] = v.value;
+                        return obj;
+                    }, {})
+            };
+        });
+        eventBusWrapper.triggerStateChange(params);
+    }
+}
+```
+
+*Main code:*
+```
+class Example {
+    private widget: IChart = null;
+
+    create() {
+        const eventBusWrapper: EventBusWrapper = eventBusService.getWrapper();
+        
+        this.widgetConfig = new WidgetConfig();
+        this.widgetConfig.apiUrl = <API URL>;
+        this.widgetConfig.eventBus = eventBus;
+        this.widgetConfig.templateId = <TEMPLATE ID>;
+        this.widgetConfig.element = <HTMLElement>;
+        this.widgetConfig.afterCreate = (widget: IChart) => {
+            // Function call after create before the first render
+            const widgetVars: IWidgetVariables = widget.getVariables();
+            eventBusService.appendWidgetVariables(eventBusWrapper, widgetVars);
+        
+            // First init of widget variables
+            eventBusService.sendMassive(eventBusWrapper, widgetVars, [
+                {name: 'start date', value: DateHelper.yyyymmdd(new Date())},
+                {name: 'finish date', value: DateHelper.yyyymmdd(new Date())},
+            ]);
+        }
+        
+        (new WidgetFactory).run(this.widgetConfig).then(
+            (widget: IChart) => this.widget = widget,
+            (err) => <ERROR FUNCTION>
+        );
+    }
+
+    destroy() {
+        if (this.widget) {
+            this.widget.destroy();      // Unsubscribe
+            this.widget = null
+        }
     }
 }
 ```

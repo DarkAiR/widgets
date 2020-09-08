@@ -15,6 +15,7 @@ import {
 import {Chart} from '../../models/Chart';
 import {IWidgetSettings} from "../../widgetSettings";
 import {MathHelper, OrgUnitsHelper, SettingsHelper, TypeGuardsHelper} from "../../helpers";
+import {WidgetConfigInner} from "../..";
 
 export class Static extends Chart {
     getVariables(): IWidgetVariables {
@@ -28,6 +29,12 @@ export class Static extends Chart {
 
     getSettings(): IWidgetSettings {
         return widgetSettings;
+    }
+
+    constructor(config: WidgetConfigInner) {
+        super(config);
+        // Инициализация в конструкторе, чтобы можно было вызвать инициализацию переменных до первого рендера
+        this.onEventBus = this.onEventBusFunc.bind(this);
     }
 
     run(): void {
@@ -83,7 +90,6 @@ export class Static extends Chart {
             this.onResize = (width: number, height: number) => {
                 myChart.resize();
             };
-            this.onEventBus = this.onEventBusFunc.bind(this);
         }
     }
 

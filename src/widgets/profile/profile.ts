@@ -19,6 +19,7 @@ import {ProfilePoint} from '../../interfaces';
 import {IWidgetSettings} from "../../widgetSettings";
 import {ChartType} from "../../models/types";
 import {MathHelper, OrgUnitsHelper, SettingsHelper, TypeGuardsHelper} from "../../helpers";
+import {WidgetConfigInner} from "../..";
 
 export class Profile extends Chart {
     getVariables(): IWidgetVariables {
@@ -32,6 +33,12 @@ export class Profile extends Chart {
 
     getSettings(): IWidgetSettings {
         return widgetSettings;
+    }
+
+    constructor(config: WidgetConfigInner) {
+        super(config);
+        // Инициализация в конструкторе, чтобы можно было вызвать инициализацию переменных до первого рендера
+        this.onEventBus = this.onEventBusFunc.bind(this);
     }
 
     run(): void {
@@ -92,7 +99,6 @@ export class Profile extends Chart {
         this.onResize = (width: number, height: number): void => {
             myChart.resize();
         };
-        this.onEventBus = this.onEventBusFunc.bind(this);
     }
 
     private getData(data: ProfilePoint[][]): {

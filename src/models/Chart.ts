@@ -23,6 +23,8 @@ export abstract class Chart implements IChart {
     // tslint:disable: no-any
     private readonly template: any = null;              // Скомпилированный шаблон
 
+    initialized: boolean = false;                       // Виджет прошел создание и может быть отрендерен
+
     abstract run(): void;                               // Запуск виджета
     abstract getSettings(): IWidgetSettings;            // Получить настройки виджета
     abstract getVariables(): IWidgetVariables;          // Получить переменные для общения по шине
@@ -95,16 +97,19 @@ export abstract class Chart implements IChart {
     /**
      * Создание виджета
      */
-    readonly create = (data: IChartData): void => {
+    readonly create = (): void => {
         this.widgetSettings = this.getSettings();
-        this.chartData = data;
-        this.run();
     }
 
     /**
      * Перерисовать виджет с текущими данными
      */
     async redraw(): Promise<void> {
+        if (!this.initialized) {
+            // Не перерисовываем, пока не закончилась инициализация
+            // Необходимо, чтобы изменение переменных по шине в момент создания виджета не вызывало перерисовку
+            return;
+        }
         this.config.dataProvider.parseTemplate(this.config.template).then(
             (templateData: IChartData) => {
                 this.chartData = templateData;
