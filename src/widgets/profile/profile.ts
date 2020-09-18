@@ -3,16 +3,19 @@ import {settings as widgetSettings} from "./settings";
 
 import echarts from 'echarts';
 import {
+    DataSet,
     DataSetTemplate,
     IChartData, IColor, IEventOrgUnits, ISettings,
-    IWidgetVariables, XAxisData, YAxisData
+    IWidgetVariables, SingleDataSource, XAxisData, YAxisData
 } from '../../interfaces';
 import {
+    set as _set,
     merge as _merge,
     min as _min,
     max as _max,
     flow as _flow,
-    isEmpty as _isEmpty
+    isEmpty as _isEmpty,
+    forEach as _forEach
 } from 'lodash';
 import {Chart} from '../../models/Chart';
 import {ProfilePoint} from '../../interfaces';
@@ -28,6 +31,17 @@ export class Profile extends Chart {
 
         addVar(0, 'org units', 'OrgUnits', 'Выбирается в отдельном виджете');
 
+        _forEach(this.config.template.dataSets, (v: DataSet, idx: number) => {
+            if (TypeGuardsHelper.isDataSetTemplate(v)) {
+                const nameStr: string = v.dataSource1.type === 'SINGLE' ? '(' + (<SingleDataSource>v.dataSource1).name + ')' : '';
+                addVar(idx, 'period', 'Период', `${nameStr}: формат см. документацию по template-api`);
+                addVar(idx, 'start date', 'Начало выборки', `${nameStr}: YYYY-mm-dd`);
+                addVar(idx, 'finish date', 'Окончание выборки', `${nameStr}: YYYY-mm-dd`);
+                addVar(idx, 'frequency', 'Частота конечной агрегации', `${nameStr}: YEAR | MONTH | WEEK | DAY | HOUR | ALL`);
+                addVar(idx, 'pre frequency', 'Частота выборки для которой выполняется операция, указанная в operation', `${nameStr}: YEAR | MONTH | WEEK | DAY | HOUR | ALL`);
+                addVar(idx, 'operation', 'операция, которую необходимо выполнить при агрегации из preFrequency во frequency', `${nameStr}: SUM | AVG | MIN | MAX | DIVIDE`);
+            }
+        });
         return res;
     }
 
@@ -315,7 +329,14 @@ export class Profile extends Chart {
         console.log('dataSourceId =', dataSourceId);
         console.groupEnd();
 
+        // NOTE: Делаем через switch, т.к. в общем случае каждая обработка может содержать дополнительную логику
+
         let needReload = false;
+        const setVar = (prop: string, v: string) => {
+            _set(this.config.template.dataSets[dataSourceId], prop, v);
+            needReload = true;
+        };
+
         switch (varName) {
             case 'org units':
                 if (TypeGuardsHelper.everyIsDataSetTemplate(this.config.template.dataSets)) {
@@ -325,6 +346,24 @@ export class Profile extends Chart {
                         }
                     });
                 }
+                break;
+            case 'start date':
+                setVar('from', value);
+                break;
+            case 'finish date':
+                setVar('to', value);
+                break;
+            case 'period':
+                setVar('period', value);
+                break;
+            case 'frequency':
+                setVar('frequency', value);
+                break;
+            case 'pre frequency':
+                setVar('preFrequency', value);
+                break;
+            case 'operation':
+                setVar('operation', value);
                 break;
         }
         return needReload;

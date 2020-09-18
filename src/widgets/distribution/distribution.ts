@@ -3,29 +3,55 @@ import {settings as widgetSettings} from "./settings";
 
 import echarts from 'echarts';
 import {
-    IChartData, IColor, ISettings,
-    IWidgetVariables, XAxisData, YAxisData
+    DataSet, DataSetTemplate,
+    IChartData, IColor, IEventOrgUnits, ISettings,
+    IWidgetVariables, SingleDataSource, XAxisData, YAxisData
 } from '../../interfaces';
 import {
+    set as _set,
     merge as _merge,
     min as _min,
     max as _max,
     flow as _flow,
-    isEmpty as _isEmpty
+    isEmpty as _isEmpty,
+    forEach as _forEach
 } from 'lodash';
 import {Chart} from '../../models/Chart';
 import {ProfilePoint} from '../../interfaces';
 import {IWidgetSettings} from "../../widgetSettings";
 import {ChartType} from "../../models/types";
-import {MathHelper, SettingsHelper} from "../../helpers";
+import {MathHelper, OrgUnitsHelper, SettingsHelper, TypeGuardsHelper} from "../../helpers";
+import {WidgetConfigInner} from "../..";
 
 export class Distribution extends Chart {
     getVariables(): IWidgetVariables {
-        return {};
+        const res: IWidgetVariables = {};
+        const addVar = this.addVar(res);
+
+        addVar(0, 'org units', 'OrgUnits', 'Выбирается в отдельном виджете');
+
+        _forEach(this.config.template.dataSets, (v: DataSet, idx: number) => {
+            if (TypeGuardsHelper.isDataSetTemplate(v)) {
+                const nameStr: string = v.dataSource1.type === 'SINGLE' ? '(' + (<SingleDataSource>v.dataSource1).name + ')' : '';
+                addVar(idx, 'period', 'Период', `${nameStr}: формат см. документацию по template-api`);
+                addVar(idx, 'start date', 'Начало выборки', `${nameStr}: YYYY-mm-dd`);
+                addVar(idx, 'finish date', 'Окончание выборки', `${nameStr}: YYYY-mm-dd`);
+                addVar(idx, 'frequency', 'Частота конечной агрегации', `${nameStr}: YEAR | MONTH | WEEK | DAY | HOUR | ALL`);
+                addVar(idx, 'pre frequency', 'Частота выборки для которой выполняется операция, указанная в operation', `${nameStr}: YEAR | MONTH | WEEK | DAY | HOUR | ALL`);
+                addVar(idx, 'operation', 'операция, которую необходимо выполнить при агрегации из preFrequency во frequency', `${nameStr}: SUM | AVG | MIN | MAX | DIVIDE`);
+            }
+        });
+        return res;
     }
 
     getSettings(): IWidgetSettings {
         return widgetSettings;
+    }
+
+    constructor(config: WidgetConfigInner) {
+        super(config);
+        // Инициализация в конструкторе, чтобы можно было вызвать инициализацию переменных до первого рендера
+        this.onEventBus = this.onEventBusFunc.bind(this);
     }
 
     run(): void {
@@ -289,6 +315,57 @@ export class Distribution extends Chart {
         _merge(seriesData, SettingsHelper.getFillSettings(this.widgetSettings.dataSet.settings, this.chartData.dataSets[idx].settings, chartType));
 
         return seriesData;
+    }
+
+    /**
+     * Обработка событий
+     * NOTE: все данные меняются в this.config.template
+     */
+    // tslint:disable-next-line:no-any
+    private onEventBusFunc(varName: string, value: any, dataSourceId: number): boolean {
+        console.groupCollapsed('Distribution EventBus data');
+        console.log(varName, '=', value);
+        console.log('dataSourceId =', dataSourceId);
+        console.groupEnd();
+
+        // NOTE: Делаем через switch, т.к. в общем случае каждая обработка может содержать дополнительную логику
+
+        let needReload = false;
+        const setVar = (prop: string, v: string) => {
+            _set(this.config.template.dataSets[dataSourceId], prop, v);
+            needReload = true;
+        };
+
+        switch (varName) {
+            case 'org units':
+                if (TypeGuardsHelper.everyIsDataSetTemplate(this.config.template.dataSets)) {
+                    this.config.template.dataSets.forEach((v: DataSetTemplate) => {
+                        if (OrgUnitsHelper.setOrgUnits(v.dataSource1, value as IEventOrgUnits)) {
+                            needReload = true;
+                        }
+                    });
+                }
+                break;
+            case 'start date':
+                setVar('from', value);
+                break;
+            case 'finish date':
+                setVar('to', value);
+                break;
+            case 'period':
+                setVar('period', value);
+                break;
+            case 'frequency':
+                setVar('frequency', value);
+                break;
+            case 'pre frequency':
+                setVar('preFrequency', value);
+                break;
+            case 'operation':
+                setVar('operation', value);
+                break;
+        }
+        return needReload;
     }
 
     getTemplate(): string {

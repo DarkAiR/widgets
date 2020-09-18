@@ -10,25 +10,37 @@ export class OrgUnitsHelper {
      * @return boolean needReload
      */
     static setOrgUnits(dataSource: DataSource, event: IEventOrgUnits): boolean {
+        console.log('setOrgUnits');
         let needReload = false;
         if (TypeGuardsHelper.isSingleDataSource(dataSource)) {
-            for (const dimName in event) {
-                if (!event.hasOwnProperty(dimName)) {
+            for (const dimName in event.orgUnits) {
+                if (!event.orgUnits.hasOwnProperty(dimName)) {
                     continue;
                 }
-                // NOTE: Нельзя проверять на event[dimName].length, т.к. тогда остануться данные с прошлого раза
-                const dim: DimensionFilter = dataSource.dimensions.find((d: DimensionFilter) => d.name === dimName);
-                if (dim) {
-                    dim.values = event[dimName];
+                // NOTE: Нельзя проверять на event.orgUnits[dimName].length, т.к. тогда остануться данные с прошлого раза
+                const dimIndex = dataSource.dimensions.findIndex((d: DimensionFilter) => d.name === dimName);
+                if (dimIndex !== -1) {
+                    // NOTE: Если пришли пустые orgUnits от удаляем предыдущие
+                    //       Это нужно для того, чтобы ранее установленные удалились
+                    if (!event.orgUnits[dimName] || (Array.isArray(event.orgUnits[dimName]) && event.orgUnits[dimName].length === 0)) {
+                        // Удаляем dimension
+                        dataSource.dimensions.splice(dimIndex, 1);
+                    } else {
+                        dataSource.dimensions[dimIndex].values = event.orgUnits[dimName];
+                    }
                 } else {
-                    // Пустые данные не приходят в виджет, поэтому dimension может и не быть
-                    const newFilter: DimensionFilter = {
-                        name: dimName,
-                        values: event[dimName],
-                        expression: '',
-                        groupBy: false
-                    };
-                    dataSource.dimensions.push(newFilter);
+                    if (!event.orgUnits[dimName] || (Array.isArray(event.orgUnits[dimName]) && event.orgUnits[dimName].length === 0)) {
+                        // Do nothing
+                    } else {
+                        // Пустые данные не приходят в виджет, поэтому dimension может и не быть
+                        const newFilter: DimensionFilter = {
+                            name: dimName,
+                            values: event.orgUnits[dimName],
+                            expression: '',
+                            groupBy: event.orgUnitsGroupBy.includes(dimName)
+                        };
+                        dataSource.dimensions.push(newFilter);
+                    }
                 }
                 needReload = true;
             }

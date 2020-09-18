@@ -1,3 +1,4 @@
 export interface IEventOrgUnits {
-    [orgUnitName: string]: string[];
+    orgUnits: {[orgUnitName: string]: string[]};
+    orgUnitsGroupBy: string[];
 }
