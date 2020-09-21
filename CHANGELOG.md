@@ -1,5 +1,8 @@
 ### ChangeLog
 
+##### 1.3.1 / 2020-09-21
+- отключены groupBy для изменения orgUnits по шине для всех виджетов, кроме table и category
+
 ##### 1.3.0 / 2020-09-18
 - для виджетов Category, Distribution и Profile добавлена обработка OrgUnits, событий дат и остальных
 - в событие 'org units' передается список групп с groupBy

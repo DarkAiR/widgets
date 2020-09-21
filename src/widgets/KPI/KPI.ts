@@ -71,7 +71,11 @@ export class KPI extends Chart {
             case 'org units':
                 if (TypeGuardsHelper.everyIsDataSetTemplate(this.config.template.dataSets)) {
                     this.config.template.dataSets.forEach((v: DataSetTemplate) => {
-                        if (OrgUnitsHelper.setOrgUnits(v.dataSource1, value as IEventOrgUnits)) {
+                        // Отключаем группировку
+                        const event: IEventOrgUnits = value as IEventOrgUnits;
+                        event.orgUnitsGroupBy = [];
+
+                        if (OrgUnitsHelper.setOrgUnits(v.dataSource1, event)) {
                             needReload = true;
                         }
                     });

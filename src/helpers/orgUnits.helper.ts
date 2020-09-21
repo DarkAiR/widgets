@@ -10,7 +10,6 @@ export class OrgUnitsHelper {
      * @return boolean needReload
      */
     static setOrgUnits(dataSource: DataSource, event: IEventOrgUnits): boolean {
-        console.log('setOrgUnits');
         let needReload = false;
         if (TypeGuardsHelper.isSingleDataSource(dataSource)) {
             for (const dimName in event.orgUnits) {
