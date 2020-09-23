@@ -120,7 +120,7 @@ class Example {
             ]);
         }
         
-        (new WidgetFactory).run(this.widgetConfig).then(
+        (new WidgetFactory).run(this.widgetConfig, <options?: WidgetOptions>).then(
             (widget: IChart) => this.widget = widget,
             (err) => <ERROR FUNCTION>
         );
@@ -142,6 +142,22 @@ The integration product must control authentication on its own and store it in L
 ```
 localStorage.setItem('authToken', btoa('login:pass'))
 ```
+
+#### Prevent logs
+
+You can hide logs specify WidgetOptions when creating the widget via WidgetFactory.
+```
+(new WidgetFactory).run(config: WidgetConfig, options: WidgetOptions);
+```
+where
+```
+WidgetOptions {
+    logs?: {
+        render?: boolean;               // Render logs (default: true)
+        eventBus?: boolean;             // Event bus logs (default: true)
+    };
+}        
+```  
 
 -----------------------
 

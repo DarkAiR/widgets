@@ -12,6 +12,7 @@ import {Chart} from "../../models/Chart";
 import {OrgUnitsHelper, SettingsHelper, TypeGuardsHelper} from "../../helpers";
 import {IWidgetSettings} from "../../widgetSettings";
 import {WidgetConfigInner} from "../..";
+import {WidgetOptions} from "../../models/widgetOptions";
 
 export class KPI extends Chart {
     getVariables(): IWidgetVariables {
@@ -27,8 +28,8 @@ export class KPI extends Chart {
         return widgetSettings;
     }
 
-    constructor(config: WidgetConfigInner) {
-        super(config);
+    constructor(config: WidgetConfigInner, options: WidgetOptions) {
+        super(config, options);
         // Инициализация в конструкторе, чтобы можно было вызвать инициализацию переменных до первого рендера
         this.onEventBus = this.onEventBusFunc.bind(this);
     }
@@ -59,11 +60,12 @@ export class KPI extends Chart {
      */
     // tslint:disable-next-line:no-any
     private onEventBusFunc(varName: string, value: any, dataSourceId: number): boolean {
-        console.groupCollapsed('KPI EventBus data');
-        console.log(varName, '=', value);
-        console.log('dataSourceId =', dataSourceId);
-        console.groupEnd();
-
+        if (this.options?.logs?.eventBus ?? true) {
+            console.groupCollapsed('KPI EventBus data');
+            console.log(varName, '=', value);
+            console.log('dataSourceId =', dataSourceId);
+            console.groupEnd();
+        }
         // NOTE: Делаем через switch, т.к. в общем случае каждая обработка может содержать дополнительную логику
 
         let needReload = false;

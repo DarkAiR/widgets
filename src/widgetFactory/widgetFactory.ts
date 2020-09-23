@@ -5,6 +5,7 @@ import {StatesHelper, WidgetConfig, WidgetConfigInner} from "..";
 import { WidgetType } from '../models/types';
 import {Chart} from "../models/Chart";
 import {IWidgetSettings} from "../widgetSettings";
+import { WidgetOptions } from '../models/widgetOptions';
 
 declare var __VERSION__: string;
 
@@ -37,7 +38,7 @@ export class WidgetFactory {
         });
     }
 
-    async run(config: WidgetConfig): Promise<IChart> {
+    async run(config: WidgetConfig, options?: WidgetOptions): Promise<IChart> {
         if (!config.element) {
             throw new Error('Required field "element" is not specified');
         }
@@ -54,10 +55,10 @@ export class WidgetFactory {
         const innerConfig: WidgetConfigInner = Object.assign(config, {
             template: template
         });
-        return this.createWidget(innerConfig);
+        return this.createWidget(innerConfig, options ?? {});
     }
 
-    async runWithSource(config: WidgetConfig, template: WidgetTemplate): Promise<IChart> {
+    async runWithSource(config: WidgetConfig, template: WidgetTemplate, options?: WidgetOptions): Promise<IChart> {
         if (!config.element) {
             throw new Error('Required field "element" is not specified');
         }
@@ -70,10 +71,10 @@ export class WidgetFactory {
         const innerConfig: WidgetConfigInner = Object.assign(config, {
             template: template
         });
-        return this.createWidget(innerConfig);
+        return this.createWidget(innerConfig, options ?? {});
     }
 
-    private async createWidget(config: WidgetConfigInner): Promise<IChart> {
+    private async createWidget(config: WidgetConfigInner, options: WidgetOptions): Promise<IChart> {
         StatesHelper.clear();
 
         const widgetsArr: WidgetsArr = {
@@ -92,7 +93,7 @@ export class WidgetFactory {
         if (!widgetsArr[config.template.widgetType]) {
             throw new Error(`Widget type <${config.template.widgetType}> not supported`);
         }
-        const widget: Chart = new (widgetsArr[config.template.widgetType]())(config);
+        const widget: Chart = new (widgetsArr[config.template.widgetType]())(config, options);
         widget.create();
         if (config.afterCreate) {
             // Здесь можно, нр, инициализировать переменные до первого рендера через EventBus

@@ -10,11 +10,13 @@ import {EventBusWrapper, EventBus, EventBusEvent} from 'goodteditor-event-bus';
 import {IWidgetSettings} from "../widgetSettings";
 import {ColorHelper, SettingsHelper, TypeGuardsHelper} from "../helpers";
 import {ChartType} from "./types";
+import {WidgetOptions} from "./widgetOptions";
 
 const hogan = require('hogan.js');
 
 export abstract class Chart implements IChart {
     protected config: WidgetConfigInner = null;         // Конфигурация для создания виджета
+    protected options: WidgetOptions = null;            // Дополнительные настройки, не связанные с виджетами
     protected widgetSettings: IWidgetSettings = null;   // Информация о настройках виджета
     protected chartData: IChartData = null;             // Данные, пришедшие из graphQL
 
@@ -41,8 +43,10 @@ export abstract class Chart implements IChart {
      */
     onEventBus: (varName: string, value: string, dataSourceId: number) => boolean = (...args) => false;
 
-    constructor(config: WidgetConfigInner) {
+    constructor(config: WidgetConfigInner, options: WidgetOptions) {
+        console.log('widgetFactory', options);
         this.config = config;
+        this.options = options;
 
         if (!this.config.eventBus) {
             this.config.eventBus = new EventBusWrapper(new EventBus());
