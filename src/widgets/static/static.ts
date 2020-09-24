@@ -138,6 +138,7 @@ export class Static extends Chart {
             name: this.getWidgetSetting('axisX.name'),
             nameGap: this.getWidgetSetting('axisX.nameGap'),
             nameColor: this.getWidgetSetting('axisX.nameColor'),
+            maxValueLength: this.getWidgetSetting('axisX.maxValueLength'),
             color: this.getWidgetSetting('axisX.color'),
             position: this.getWidgetSetting('axisX.position'),
             max: max,

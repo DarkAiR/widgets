@@ -80,9 +80,16 @@ export class Profile extends Chart {
                 containLabel: true
             },
             tooltip: {
+                extraCssText: "",
                 axisPointer: {
                     show: true,
                     type: 'line',
+                },
+                position: (point: [number, number], params: Object, dom: HTMLElement, rect: Object, size: ISettings) => {
+                    const x = point[0] < size.viewSize[0] / 2
+                        ? point[0] - dom.offsetWidth / 2
+                        : point[0] - dom.offsetWidth;
+                    return [x, point[1] - dom.offsetHeight];
                 },
                 formatter: '{c0}'
             },
@@ -235,6 +242,7 @@ export class Profile extends Chart {
             name: this.getWidgetSetting('axisX.name'),
             nameGap: this.getWidgetSetting('axisX.nameGap'),
             nameColor: this.getWidgetSetting('axisX.nameColor'),
+            maxValueLength: this.getWidgetSetting('axisX.maxValueLength'),
             color: this.getWidgetSetting('axisX.color'),
             position: this.getWidgetSetting('axisX.position'),
             axesToIndex: [],

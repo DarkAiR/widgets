@@ -22,6 +22,8 @@ export const multiAxesX: SettingFunc[] = [
             makeNumber('index', 'Номер оси', 1),            // Используется в getAxisSetting
             makeList<XAxisPos>('position', 'Положение оси', 'bottom', XAxisPosValues),
         ], [
+            makeNumber('maxValueLength', 'Макс. символов на строку значения', null)
+        ], [
             makeString('name', 'Подпись'),
         ], [
             makeColor('nameColor', 'Цвет подписи'),

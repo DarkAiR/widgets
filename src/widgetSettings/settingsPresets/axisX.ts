@@ -19,7 +19,9 @@ export const axisX: SettingFunc[] = [
         ], [
             makeList<XAxisPos>('position', 'Положение оси', 'bottom', XAxisPosValues),
         ], [
-            makeString('name', 'Подпись'),
+            makeNumber('maxValueLength', 'Макс. символов на строку значения', null)
+        ], [
+            makeString('name', 'Подпись')
         ], [
             makeColor('nameColor', 'Цвет подписи'),
             makeNumber('nameGap', 'Отступ подписи', '')

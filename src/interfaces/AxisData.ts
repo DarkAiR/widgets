@@ -1,9 +1,11 @@
 import {XAxisPos, YAxisPos} from "../models/types";
+import {makeNumber} from "../widgetSettings/controls";
 
 export interface AxisData<T> {
     name: string;
     nameGap: number;
     nameColor: string;
+    maxValueLength: number;       // Макс. символов в строке подписи
     color: string;
     position: T;
     show: boolean;
@@ -15,4 +17,5 @@ export interface AxisData<T> {
 }
 
 export type XAxisData = AxisData<XAxisPos>;
-export type YAxisData = AxisData<YAxisPos>;
+export type YAxisData = Omit<AxisData<YAxisPos>, 'maxValueLength'>;
+

@@ -269,9 +269,36 @@ export class SettingsHelper {
 
         // Цифры
         const axisLabel: ISettings = {
-            formatter,
             fontSize: 12
         };
+
+        if (axisData.maxValueLength) {
+            axisLabel.formatter = (param: string) => {
+                let str = '';
+                let len = 0;
+                param.split(' ').forEach((v: string) => {
+                    if (str === '') {
+                        str = v;
+                        len = v.length;
+                    } else {
+                        len += v.length;
+                        if (len <= axisData.maxValueLength) {
+                            str += (' ' + v);
+                        } else {
+                            str += ("\n" + v);
+                            len = v.length;
+                        }
+                    }
+                });
+                if (formatter !== null) {
+                    str = formatter(str);
+                }
+                return str;
+            };
+        } else {
+            axisLabel.formatter = formatter;
+        }
+
         // Настройки оси
         const axisLine: ISettings = {
             show: axisData.showLine,

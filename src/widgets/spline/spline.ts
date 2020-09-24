@@ -166,9 +166,16 @@ export class Spline extends Chart {
                     containLabel: containLabel
                 },
                 tooltip: {
+                    extraCssText: "",
                     axisPointer: {
                         show: true,
                         type: 'line',
+                    },
+                    position: (point: [number, number], params: Object, dom: HTMLElement, rect: Object, size: ISettings) => {
+                        const x = point[0] < size.viewSize[0] / 2
+                            ? point[0] - dom.offsetWidth / 2
+                            : point[0] - dom.offsetWidth;
+                        return [x, point[1] - dom.offsetHeight];
                     },
                     formatter: '{c0}'
                 },
@@ -298,6 +305,7 @@ export class Spline extends Chart {
                 name: this.getAxisSetting('axesX', 'name', axisNumber),
                 nameGap: this.getAxisSetting('axesX', 'nameGap', axisNumber),
                 nameColor: this.getAxisSetting('axesX', 'nameColor', axisNumber),
+                maxValueLength: this.getAxisSetting('axesX', 'maxValueLength', axisNumber),
                 color: color,
                 position: this.getAxisSetting('axesX', 'position', axisNumber),
                 axesToIndex: axisData.indexes,
