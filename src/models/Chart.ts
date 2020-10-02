@@ -1,14 +1,16 @@
 import {get as _get, forEach as _forEach, defaultTo as _defaultTo} from 'lodash';
 import ResizeObserver from 'resize-observer-polyfill';
 import {
+    DataSet,
+    DataSetTemplate,
     IChart,
-    IChartData, IColor, ISettings,
-    IWidgetVariables
+    IChartData, IColor, IEventOrgUnits, ISettings,
+    IWidgetVariables, JoinDataSetTemplate, TimeSeriesDataSetShort
 } from "../interfaces";
 import {WidgetConfigInner} from "./widgetConfig";
 import {EventBusWrapper, EventBus, EventBusEvent} from 'goodteditor-event-bus';
 import {IWidgetSettings} from "../widgetSettings";
-import {ColorHelper, SettingsHelper, TypeGuardsHelper} from "../helpers";
+import {ColorHelper, OrgUnitsHelper, SettingsHelper, TypeGuardsHelper} from "../helpers";
 import {ChartType} from "./types";
 import {WidgetOptions} from "./widgetOptions";
 
@@ -44,7 +46,6 @@ export abstract class Chart implements IChart {
     onEventBus: (varName: string, value: string, dataSourceId: number) => boolean = (...args) => false;
 
     constructor(config: WidgetConfigInner, options: WidgetOptions) {
-        console.log('widgetFactory', options);
         this.config = config;
         this.options = options;
 
@@ -122,6 +123,33 @@ export abstract class Chart implements IChart {
         ).catch((error: Error) => {
             throw error;
         });
+    }
+
+    /**
+     * Получить названия всех DataSources
+     * NOTE: На донный момент возвращает только SingleDataSource
+     * TODO: Передать на отельное поле DataSetId
+     */
+    getDataSources(): string[] {
+        const res: string[] = [];
+        this.config.template.dataSets.forEach((dataSet: DataSet) => {
+            const name: string = this.getDataSetSettings<string>(dataSet.settings, 'name');
+            if (name) {
+                res.push(name);
+            }
+        });
+        return res;
+    }
+
+    /**
+     * Получить индекс dataSource
+     */
+    getDataSourceIndex(dataSourceName: string): number | null {
+        const index: number = this.config.template.dataSets.findIndex((dataSet: DataSet) => {
+            const name: string = this.getDataSetSettings<string>(dataSet.settings, 'name');
+            return dataSourceName === name;
+        });
+        return index === -1 ? null : index;
     }
 
     /**
