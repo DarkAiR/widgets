@@ -133,7 +133,10 @@ export abstract class Chart implements IChart {
     getDataSources(): string[] {
         const res: string[] = [];
         this.config.template.dataSets.forEach((dataSet: DataSet) => {
-            const name: string = this.getDataSetSettings<string>(dataSet.settings, 'name');
+            let name: string = null;
+            try {
+                name = this.getDataSetSettings<string>(dataSet.settings, 'name.id');
+            } catch (err) {}
             if (name) {
                 res.push(name);
             }
@@ -146,7 +149,10 @@ export abstract class Chart implements IChart {
      */
     getDataSourceIndex(dataSourceName: string): number | null {
         const index: number = this.config.template.dataSets.findIndex((dataSet: DataSet) => {
-            const name: string = this.getDataSetSettings<string>(dataSet.settings, 'name');
+            let name: string = null;
+            try {
+                name = this.getDataSetSettings<string>(dataSet.settings, 'name.id');
+            } catch (err) {}
             return dataSourceName === name;
         });
         return index === -1 ? null : index;

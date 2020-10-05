@@ -237,7 +237,7 @@ export class Category extends Chart {
         const dataSetSettings: ISettings = this.chartData.dataSets[idx].settings;
         return {
             type: 'bar',
-            name: this.getDataSetSettings<string>(dataSetSettings, 'name') || ' ',    // Чтобы чтото отобразилось, нужно хотя бы пробел
+            name: this.getDataSetSettings<string>(dataSetSettings, 'name.name') || ' ',    // Чтобы чтото отобразилось, нужно хотя бы пробел
             xAxisIndex: 0,
             seriesLayoutBy: 'column',
 

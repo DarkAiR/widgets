@@ -320,7 +320,7 @@ export class Profile extends Chart {
     private applySettings(idx: number, chartType: ChartType, seriesData: Object): Object {
         const getSetting = <T = void>(path: string): T => this.getDataSetSettings<T>(this.chartData.dataSets[idx].settings, path);
 
-        seriesData['name'] = getSetting('name') || ' ';     // Чтобы чтото отобразилось, нужно хотя бы пробел
+        seriesData['name'] = getSetting('name.name') || ' ';     // Чтобы чтото отобразилось, нужно хотя бы пробел
 
         _merge(seriesData, SettingsHelper.getLabelSettings(this.widgetSettings.dataSet.settings, this.chartData.dataSets[idx].settings));
         _merge(seriesData, SettingsHelper.getFillSettings(this.widgetSettings.dataSet.settings, this.chartData.dataSets[idx].settings, chartType));

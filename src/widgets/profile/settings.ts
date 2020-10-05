@@ -27,7 +27,7 @@ export const settings: IWidgetSettings = makeSettings({
         initDataSets: [{viewType: 'PROFILE'}],
         canAdd: false,
         settings: [
-            makeString('name', 'Название'),
+            ...settingsPresets.dataSourceName,
             makeColor('color', ' Цвет'),
             makeList<ChartType>('chartType', 'Вид', 'LINE', ChartTypeValues),
             makeSettingsGroup('lineStyle', 'Стиль линии', [

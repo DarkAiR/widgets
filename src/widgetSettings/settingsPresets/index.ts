@@ -12,6 +12,7 @@ import {multiAxesY} from "./multiAxesY";
 import {legend} from "./legend";
 import {singleValue} from "./singleValue";
 import {chartBorder} from "./chartBorder";
+import {dataSourceName} from "./dataSourceName";
 
 const settingsPresets = {
     title,
@@ -28,6 +29,7 @@ const settingsPresets = {
     multiAxesX,
     multiAxesY,
     legend,
+    dataSourceName,
 
     func: {
         axisY: axisYFunc,

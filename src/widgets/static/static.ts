@@ -110,7 +110,7 @@ export class Static extends Chart {
                 label.label.formatter = SettingsHelper.formatScatterValue(this.getDataSetSettings(dataSetSettings, 'label'));
 
                 series.push({
-                    name: this.getDataSetSettings<string>(dataSetSettings, 'name') || ' ',     // Чтобы чтото отобразилось, нужно хотя бы пробел
+                    name: this.getDataSetSettings<string>(dataSetSettings, 'name.name') || ' ',     // Чтобы чтото отобразилось, нужно хотя бы пробел
                     color: color.hex,                   // Основной цвет
                     itemStyle: {
                         opacity: color.opacity          // Прозрачность влияет на весь подписи + метки

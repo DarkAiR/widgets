@@ -17,7 +17,7 @@ export const settings: IWidgetSettings = makeSettings({
         initDataSets: [{viewType: 'STATIC'}],
         canAdd: true,
         settings: [
-            makeString('name', 'Название'),
+            ...settingsPresets.dataSourceName,
             makeColor('color', ' Цвет'),
             ...settingsPresets.label,
             makeNumber('symbolSize', 'Размер символа', 20)

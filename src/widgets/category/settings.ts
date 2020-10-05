@@ -28,7 +28,7 @@ export const settings: IWidgetSettings = makeSettings({
         initDataSets: [{viewType: 'DYNAMIC'}],
         canAdd: true,
         settings: [
-            makeString('name', 'Название'),
+            ...settingsPresets.dataSourceName,
             makeColor('color', ' Цвет'),
             ...settingsPresets.fill,
             ...settingsPresets.label,

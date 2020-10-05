@@ -1,5 +1,9 @@
 ### ChangeLog
 
+##### 1.4.3 / 2020-10-05
+- настройка dataSource.settings.name перенесена в структуру с {name, id}
+- исправлено получение dataSource.settings.name.id
+
 ##### 1.4.2 / 2020-10-02
 - в виджет (IChart) добавлены методы для получения названий источников данных (getDataSources) и его индекса (getDataSourceIndex)
 
