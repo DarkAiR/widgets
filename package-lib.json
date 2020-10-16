@@ -1,6 +1,6 @@
 {
   "name": "abc-charts",
-  "version": "1.4.3",
+  "version": "1.4.5",
   "license": "MIT",
   "description": "Widget render for using in 'ABC consulting' projects",
   "keywords": ["abc", "widget", "charts", "goodt"],

@@ -58,7 +58,9 @@ export abstract class Chart implements IChart {
             this.template = hogan.compile(template);
         }
 
-        console.log('%cWidget add listeners', 'color: #b080ff');
+        if (this.options?.logs?.eventBus ?? true) {
+            console.log('%cWidget add listeners', 'color: #b080ff');
+        }
         // Подписаться на шину
         this.config.eventBus.listenStateChange((ev: EventBusEvent, eventObj: Object) => {
             // console.log('ListenStateChange:', ev, eventObj);
@@ -91,7 +93,9 @@ export abstract class Chart implements IChart {
     }
 
     destroy(): void {
-        console.log('%cWidget destroy listeners', 'color: #b080ff');
+        if (this.options?.logs?.eventBus ?? true) {
+            console.log('%cWidget destroy listeners', 'color: #b080ff');
+        }
         if (this.resizeObserver) {
             this.resizeObserver.disconnect();
             this.resizeObserver = null;

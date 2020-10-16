@@ -9,4 +9,3 @@ export * from './PasswordSetting';
 export * from './GradientSetting';
 export * from './ArraySetting';
 export * from './PasswordSetting';
-export * from './ResourceGroupsSetting';

@@ -53,7 +53,6 @@ export class DataProvider {
         })
             .then(this.handleError)
             .then((response: Response) => response.json());
-        console.log('Load template', template);
         return template;
     }
 

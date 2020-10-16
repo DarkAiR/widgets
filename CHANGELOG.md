@@ -1,5 +1,12 @@
 ### ChangeLog
 
+##### 1.4.5 / 2020-10-10
+- ResourceGroupsSettings перенесен в конструктор виджетов и удален из библиотеки 
+
+##### 1.4.4 / 2020-10-10
+- DimensionInfo::version
+- добавлен флаг logs::loadingTemplate и оставшиеся console.log внесены под флаги
+
 ##### 1.4.3 / 2020-10-05
 - настройка dataSource.settings.name перенесена в структуру с {name, id}
 - исправлено получение dataSource.settings.name.id

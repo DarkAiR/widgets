@@ -52,6 +52,11 @@ export class WidgetFactory {
             this.dataProvider = config.dataProvider;
         }
         const template: WidgetTemplate = await this.dataProvider.getTemplate(config.templateId);
+
+        if (options?.logs?.loadingTemplate ?? true) {
+            console.log('Load template', template);
+        }
+
         const innerConfig: WidgetConfigInner = Object.assign(config, {
             template: template
         });
