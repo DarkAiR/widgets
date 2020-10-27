@@ -3,6 +3,8 @@ import * as stringifyObject from 'stringify-object';
 
 export class AggregationDataSourceSerializer {
     static serialize(dataSource: AggregationDataSource): string {
+        // TODO: Проверять на name === '' и не формировать запрос (возвращать null)
+
         const firstDataSource = stringifyObject(dataSource.firstDataSource, {
             indent: ' ',
             singleQuotes: false
