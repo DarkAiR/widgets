@@ -70,23 +70,25 @@ export class DataProvider {
 
         // NOTE: idx - Сохраняем порядок dataSet
         const promises = template.dataSets.map(async (item: DataSet, idx: number) => {
-            data.data[idx] = await fetch(this.gqlLink, {
-                method: 'post',
-                body: requests[idx].request,
-                headers: {
-                    'Content-Type': 'application/json',
-                    ...this.authHeaders
-                },
-            })
-                .then(this.handleError)
-                .then((resp: Response) => resp.json())
-                .then((res: ISettings) => {
-                    if (res.errors.length) {
-                        throw new Error(res.errors[0].message);
-                    }
-                    return res;
+            if (requests[idx]?.request ?? null) {
+                data.data[idx] = await fetch(this.gqlLink, {
+                    method: 'post',
+                    body: requests[idx].request,
+                    headers: {
+                        'Content-Type': 'application/json',
+                        ...this.authHeaders
+                    },
                 })
-                .then((resp: ISettings) => _defaultTo(_get(resp, requests[idx].resultProp), []));
+                    .then(this.handleError)
+                    .then((resp: Response) => resp.json())
+                    .then((res: ISettings) => {
+                        if (res.errors.length) {
+                            throw new Error(res.errors[0].message);
+                        }
+                        return res;
+                    })
+                    .then((resp: ISettings) => _defaultTo(_get(resp, requests[idx].resultProp), []));
+            }
         });
         // Асинхронно загружаем все данные
         await Promise.all(promises);
@@ -138,13 +140,20 @@ export class DataProvider {
 
         // NOTE: idx - Сохраняем порядок dataSet
         template.dataSets.forEach((item: DataSet, idx: number) => {
-            res[idx] = {
-                request: JSON.stringify(
-                    // Выбор типа item автоматически в фции сериализации
-                    loadData[item.viewType].serializeFunc.call(this, item, template.server, template.widgetType, loadData[item.viewType].hasEntity ?? hasEntity)
-                ),
-                resultProp: loadData[item.viewType].resultProp
-            };
+            // Выбор типа item автоматически в фции сериализации
+            const serializedData: string = loadData[item.viewType].serializeFunc.call(
+                this,
+                item,
+                template.server,
+                template.widgetType,
+                loadData[item.viewType].hasEntity ?? hasEntity
+            );
+            if (serializedData !== null) {
+                res[idx] = {
+                    request: JSON.stringify(serializedData),
+                    resultProp: loadData[item.viewType].resultProp
+                };
+            }
         });
         return res;
     }
@@ -172,7 +181,7 @@ export class DataProvider {
                 body: JSON.stringify(this.makeGqlRequest(`
                     getDataSource(
                         dataSourceName: "${dataSourceName}"
-                    ){name, caption, dimensions{name, caption, hidden}, metrics{name, caption}}
+                    ){name, caption, dimensions{name, caption, hidden, version}, metrics{name, caption}}
                 `))
             }).then((response: Response) => {
                 if (!response.ok) {
@@ -258,18 +267,24 @@ export class DataProvider {
         return response;
     }
 
-    private serializeDataSource(dataSource: DataSource): string {
+    /**
+     * @return null - если нет распознан тип dataSource или name === ''
+     */
+    private serializeDataSource(dataSource: DataSource): string | null {
         if (TypeGuardsHelper.isSingleDataSource(dataSource)) {
             return serializers.SingleDataSourceSerializer.serialize(dataSource);
         }
         if (TypeGuardsHelper.isAggregationDataSource(dataSource)) {
             return serializers.AggregationDataSourceSerializer.serialize(dataSource);
         }
-        return '{}';
+        return null;
     }
 
     private serializeDynamicGQL(dataSet: DataSetTemplate, server: ServerType, widgetType: WidgetType, hasEntity: boolean): IGqlRequest | null {
         const dataSource = this.serializeDataSource(dataSet.dataSource1);
+        if (dataSource === null) {
+            return null;
+        }
 
         // NOTE: Типизировать возвращаемые данные не получится, т.к. не все поля являются строками
         //       Нр, frequency: HOUR, а значит, что не получится их сохранять в объекте и сериализовать
@@ -309,12 +324,13 @@ export class DataProvider {
 
         dataSet.dataSetTemplates.forEach((v: TimeSeriesDataSetShort) => {
             const dataSource = this.serializeDataSource(v.dataSource1);
-
-            dataSetArr.push(`{
-                preFrequency: ${v.preFrequency},
-                operation: ${v.operation},
-                dataSource1: ${dataSource}
-            }`);
+            if (dataSource !== null) {
+                dataSetArr.push(`{
+                    preFrequency: ${v.preFrequency},
+                    operation: ${v.operation},
+                    dataSource1: ${dataSource}
+                }`);
+            }
         });
 
         const dimensionsJson: string = stringifyObject(dataSet.dimensions, {
@@ -347,6 +363,9 @@ export class DataProvider {
     private serializeReportGQL(dataSet: DataSetTemplate, server: ServerType, widgetType: WidgetType, hasEntity: boolean): IGqlRequest | null {
         const dataSource1 = this.serializeDataSource(dataSet.dataSource1);
         const dataSource2 = this.serializeDataSource(dataSet.dataSource2);
+        if (dataSource1 === null || dataSource2 === null) {
+            return null;
+        }
 
         return {
             operationName: null,
@@ -376,6 +395,9 @@ export class DataProvider {
     private serializeStaticGQL(dataSet: DataSetTemplate, server: ServerType, widgetType: WidgetType, hasEntity: boolean): IGqlRequest | null {
         const dataSource1 = this.serializeDataSource(dataSet.dataSource1);
         const dataSource2 = this.serializeDataSource(dataSet.dataSource2);
+        if (dataSource1 === null || dataSource2 === null) {
+            return null;
+        }
 
         return {
             operationName: null,
@@ -401,6 +423,9 @@ export class DataProvider {
 
     private serializeProfileGQL(dataSet: DataSetTemplate, server: ServerType, widgetType: WidgetType, hasEntity: boolean): IGqlRequest | null {
         const dataSource1 = this.serializeDataSource(dataSet.dataSource1);
+        if (dataSource1 === null) {
+            return null;
+        }
 
         return {
             operationName: null,
@@ -425,6 +450,9 @@ export class DataProvider {
 
     private serializeDistributionGQL(dataSet: DataSetTemplate, server: ServerType, widgetType: WidgetType, hasEntity: boolean): IGqlRequest | null {
         const dataSource1 = this.serializeDataSource(dataSet.dataSource1);
+        if (dataSource1 === null) {
+            return null;
+        }
 
         return {
             operationName: null,
