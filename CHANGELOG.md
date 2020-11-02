@@ -1,5 +1,8 @@
 ### ChangeLog
 
+##### 1.4.9 / 2020-11-02
+- преобразование upperTime в строку
+
 ##### 1.4.8 / 2020-11-02
 - добавлена version для DataSource отдельным полем
 - getDataSource -> getDataSourceInfo
