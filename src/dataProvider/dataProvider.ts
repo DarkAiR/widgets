@@ -197,7 +197,7 @@ export class DataProvider {
                     : null;
             }).then((data: DataSourceInfo) => {
                 // Убираем версию
-                data.dimensions = data.dimensions.filter((v: DimensionInfo) => !v.version);
+                // data.dimensions = data.dimensions.filter((v: DimensionInfo) => !v.version);
 
                 if (this.cache.dataSources === null) {
                     this.cache.dataSources = [data];
@@ -238,7 +238,7 @@ export class DataProvider {
             }).then((data: DataSourceInfo[]) => {
                 this.cache.dataSources = data.map((ds: DataSourceInfo) => {
                     // Убираем версию
-                    ds.dimensions = ds.dimensions.filter((v: DimensionInfo) => !v.version);
+                    // ds.dimensions = ds.dimensions.filter((v: DimensionInfo) => !v.version);
                     return ds;
                 });
                 resolve(data);
