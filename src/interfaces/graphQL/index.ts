@@ -19,3 +19,4 @@ export * from './reportPoint';
 export * from './tableRow';
 export * from './timeSeriesDataSetShort';
 export * from './TSPoint';
+export * from './VersionFilter';

@@ -1,4 +1,4 @@
-import {DataSource, DimensionFilter, SingleDataSource} from "../interfaces/graphQL";
+import {DataSource, DimensionFilter} from "../interfaces/graphQL";
 import {TypeGuardsHelper} from "./typeGuards.helper";
 import {IEventOrgUnits} from "../interfaces/events";
 

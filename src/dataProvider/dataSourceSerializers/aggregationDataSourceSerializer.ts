@@ -2,7 +2,7 @@ import {AggregationDataSource} from "../../interfaces";
 import * as stringifyObject from 'stringify-object';
 
 export class AggregationDataSourceSerializer {
-    static serialize(dataSource: AggregationDataSource): string {
+    static async serialize(dataSource: AggregationDataSource): Promise<string> {
         // TODO: Проверять на name === '' и не формировать запрос (возвращать null)
 
         const firstDataSource = stringifyObject(dataSource.firstDataSource, {

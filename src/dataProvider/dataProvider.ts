@@ -1,5 +1,5 @@
 import 'whatwg-fetch';
-import {get as _get, defaultTo as _defaultTo, first as _first, cloneDeep as _cloneDeep} from 'lodash';
+import {get as _get, defaultTo as _defaultTo} from 'lodash';
 import {IGqlRequest} from "./IGqlRequest";
 import {ServerType, ViewType, WidgetType} from "../models/types";
 import {
@@ -8,7 +8,7 @@ import {
     DataSet,
     DataSetTemplate,
     JoinDataSetTemplate,
-    TimeSeriesDataSetShort, DataSource, ISettings, ResolveFunc, RejectFunc, DataSourceInfo, DimensionInfo, DimensionFilter
+    TimeSeriesDataSetShort, DataSource, ISettings, ResolveFunc, RejectFunc, DataSourceInfo, DimensionInfo
 } from "../interfaces";
 import {serializers} from '.';
 import * as stringifyObject from 'stringify-object';
@@ -162,13 +162,13 @@ export class DataProvider {
     }
 
     async getDimensionsInfo(dataSourceName: string, dimensions: string[]): Promise<DimensionInfo[]> {
-        const dataSource: DataSourceInfo = await this.getDataSource(dataSourceName);
+        const dataSource: DataSourceInfo = await this.getDataSourceInfo(dataSourceName);
         return dataSource
             ? dataSource.dimensions.filter((v: DimensionInfo) => dimensions.includes(v.name))
             : [];
     }
 
-    async getDataSource(dataSourceName: string): Promise<DataSourceInfo> {
+    async getDataSourceInfo(dataSourceName: string): Promise<DataSourceInfo> {
         const dataSource: DataSourceInfo = (this.cache.dataSources || []).find((info: DataSourceInfo) => info.name === dataSourceName);
         if (dataSource) {
             return dataSource;
@@ -184,7 +184,7 @@ export class DataProvider {
                 body: JSON.stringify(this.makeGqlRequest(`
                     getDataSource(
                         dataSourceName: "${dataSourceName}"
-                    ){name, caption, dimensions{name, caption, hidden, version}, metrics{name, caption}}
+                    ){name, caption, version{name, caption, hidden}, dimensions{name, caption, hidden, version}, metrics{name, caption}}
                 `))
             }).then((response: Response) => {
                 if (!response.ok) {
@@ -195,8 +195,10 @@ export class DataProvider {
                 return (data?.dataPresent || false)
                     ? (data?.data.getDataSource || null)
                     : null;
-            })
-            .then((data: DataSourceInfo) => {
+            }).then((data: DataSourceInfo) => {
+                // Убираем версию
+                data.dimensions = data.dimensions.filter((v: DimensionInfo) => !v.version);
+
                 if (this.cache.dataSources === null) {
                     this.cache.dataSources = [data];
                 } else {
@@ -222,7 +224,7 @@ export class DataProvider {
                     ...this.authHeaders
                 },
                 body: JSON.stringify(this.makeGqlRequest(
-                    'getDataSources{name, caption, dimensions{name, caption, hidden, version}, metrics{name, caption}}')
+                    'getDataSources{name, caption, version{name, caption, hidden}, dimensions{name, caption, hidden, version}, metrics{name, caption}}')
                 )
             }).then((response: Response) => {
                 if (!response.ok) {
@@ -234,7 +236,11 @@ export class DataProvider {
                     ? (data?.data.getDataSources || [])
                     : [];
             }).then((data: DataSourceInfo[]) => {
-                this.cache.dataSources = data;
+                this.cache.dataSources = data.map((ds: DataSourceInfo) => {
+                    // Убираем версию
+                    ds.dimensions = ds.dimensions.filter((v: DimensionInfo) => !v.version);
+                    return ds;
+                });
                 resolve(data);
             }).catch(() => {
                 this.cache.dataSources = null;
@@ -275,13 +281,6 @@ export class DataProvider {
      */
     private async serializeDataSource(dataSource: DataSource): Promise<string | null> {
         if (TypeGuardsHelper.isSingleDataSource(dataSource)) {
-
-            const dataSourceInfo = await this.getDataSource(dataSource.name);
-            // Берем только первое значение
-            const dimensionsWithVersion: DimensionInfo[] = (dataSourceInfo?.dimensions || []).filter((v: DimensionInfo) => v.version);
-            const dimNames: string[] =  dimensionsWithVersion.map((v: DimensionInfo) => v.name);
-
-            dataSource.dimensions = _cloneDeep(dataSource.dimensions.filter((v: DimensionFilter) => !dimNames.includes(v.name)));
             return serializers.SingleDataSourceSerializer.serialize(dataSource);
         }
         if (TypeGuardsHelper.isAggregationDataSource(dataSource)) {

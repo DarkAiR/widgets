@@ -6,4 +6,5 @@ export interface DataSourceInfo {
     caption: string;
     dimensions: DimensionInfo[];
     metrics: MetricInfo[];
+    version: DimensionInfo;
 }

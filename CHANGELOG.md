@@ -1,5 +1,10 @@
 ### ChangeLog
 
+##### 1.4.8 / 2020-11-02
+- добавлена version для DataSource отдельным полем
+- getDataSource -> getDataSourceInfo
+- фильтрация dimensions c version=true
+
 ##### 1.4.7 / 2020-10-29
 - Добавлена асинхронность во все сериализаторы для DataSource
 

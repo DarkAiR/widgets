@@ -3,12 +3,19 @@ import * as stringifyObject from 'stringify-object';
 import {get as _get, isEmpty as _isEmpty} from 'lodash';
 
 export class SingleDataSourceSerializer {
-    static serialize(dataSource: SingleDataSource): string {
+    static async serialize(dataSource: SingleDataSource): Promise<string> {
         // Для пустого имени нельзя возвращать значения,
         // т.к. в дальнейшем при создании TimeSeries на значениях по-умолчанию, будет создано слишком много данных (на каждый час)
         if (_isEmpty(dataSource.name)) {
             return null;
         }
+
+        const versionFilterJson: string = !dataSource.versionFilter
+            ? null
+            : stringifyObject(dataSource.versionFilter, {
+                indent: ' ',
+                singleQuotes: false
+            }).replace(/\n/g, '');
 
         const dimensionsJson: string = stringifyObject(dataSource.dimensions, {
             indent: ' ',
@@ -29,6 +36,7 @@ export class SingleDataSourceSerializer {
             type: ${dataSource.type},
             name: "${dataSource.name}"
             dimensions: ${dimensionsJson},
+            ${versionFilterJson ? `versionFilter: ${versionFilterJson},` : ''}
             metric: {
                 name: "${dataSource.metric.name}",
                 expression: "${expression}",
