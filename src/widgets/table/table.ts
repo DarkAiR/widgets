@@ -122,11 +122,12 @@ export class Table extends Chart {
         let needReload = false;
 
         // Типизированный обязательный switch
-        await (({
+        const switchArr: Record<VarNames, Function> = {
             'org units': () => {
                 needReload = this.processingOrgUnits(value as IEventOrgUnits);
             },
-        } as { [P in VarNames]: Function })[varName])();
+        };
+        await switchArr[varName]();
 
         return needReload;
     }

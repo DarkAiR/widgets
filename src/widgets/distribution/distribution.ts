@@ -347,7 +347,7 @@ export class Distribution extends Chart {
         let needReload = false;
 
         // Типизированный обязательный switch
-        await (({
+        const switchArr: Record<VarNames, Function> = {
             'org units': () => {
                 if (TypeGuardsHelper.everyIsDataSetTemplate(this.config.template.dataSets)) {
                     this.config.template.dataSets.forEach((v: DataSetTemplate) => {
@@ -378,7 +378,8 @@ export class Distribution extends Chart {
                     needReload = true;
                 }
             }
-        } as { [P in VarNames]: Function })[varName])();
+        };
+        await switchArr[varName]();
 
         return needReload;
     }
