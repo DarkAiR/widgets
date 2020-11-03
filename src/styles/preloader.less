@@ -1,0 +1,10 @@
+@import (reference) "./_all.less";
+
+@keyframes preloader {
+    0%      { transform: rotate(0deg); }
+    100%    { transform: rotate(360deg); }
+}
+.preloader {
+    &:extend(.widget .preloader all);
+}
+

@@ -3,12 +3,11 @@ import {settings as widgetSettings} from "./settings";
 
 import echarts from 'echarts';
 import {
-    DataSet, DataSetTemplate,
+    DataSet, DataSetTemplate, DataSourceInfo,
     IChartData, IColor, IEventOrgUnits, ISettings,
     IWidgetVariables, SingleDataSource, XAxisData, YAxisData
 } from '../../interfaces';
 import {
-    set as _set,
     merge as _merge,
     min as _min,
     max as _max,
@@ -16,7 +15,7 @@ import {
     isEmpty as _isEmpty,
     forEach as _forEach
 } from 'lodash';
-import {Chart} from '../../models/Chart';
+import {AddVarFunc, Chart} from '../../models/Chart';
 import {ProfilePoint} from '../../interfaces';
 import {IWidgetSettings} from "../../widgetSettings";
 import {ChartType} from "../../models/types";
@@ -24,10 +23,12 @@ import {MathHelper, OrgUnitsHelper, SettingsHelper, TypeGuardsHelper} from "../.
 import {WidgetConfigInner} from "../..";
 import {WidgetOptions} from "../../models/widgetOptions";
 
+type VarNames = 'org units' | 'period' | 'start date' | 'finish date' | 'frequency' | 'pre frequency' | 'operation' | 'version filter';
+
 export class Distribution extends Chart {
     getVariables(): IWidgetVariables {
         const res: IWidgetVariables = {};
-        const addVar = this.addVar(res);
+        const addVar: AddVarFunc<VarNames> = this.addVar(res);
 
         addVar(0, 'org units', 'OrgUnits', 'Выбирается в отдельном виджете');
 
@@ -38,8 +39,9 @@ export class Distribution extends Chart {
                 addVar(idx, 'start date', 'Начало выборки', `${nameStr}: YYYY-mm-dd`);
                 addVar(idx, 'finish date', 'Окончание выборки', `${nameStr}: YYYY-mm-dd`);
                 addVar(idx, 'frequency', 'Частота конечной агрегации', `${nameStr}: YEAR | MONTH | WEEK | DAY | HOUR | ALL`);
-                addVar(idx, 'pre frequency', 'Частота выборки для которой выполняется операция, указанная в operation', `${nameStr}: YEAR | MONTH | WEEK | DAY | HOUR | ALL`);
-                addVar(idx, 'operation', 'операция, которую необходимо выполнить при агрегации из preFrequency во frequency', `${nameStr}: SUM | AVG | MIN | MAX | DIVIDE`);
+                addVar(idx, 'pre frequency', 'Частота выборки для которой выполняется operation', `${nameStr}: YEAR | MONTH | WEEK | DAY | HOUR | ALL`);
+                addVar(idx, 'operation', 'Операция для агрегации из preFrequency во frequency', `${nameStr}: SUM | AVG | MIN | MAX | DIVIDE`);
+                addVar(idx, 'version filter', 'Версия', 'Версия');
             }
         });
         return res;
@@ -332,7 +334,7 @@ export class Distribution extends Chart {
      * NOTE: все данные меняются в this.config.template
      */
     // tslint:disable-next-line:no-any
-    private onEventBusFunc(varName: string, value: any, dataSourceId: number): boolean {
+    private async onEventBusFunc(varName: VarNames, value: any, dataSourceId: number): Promise<boolean> {
         if (this.options?.logs?.eventBus ?? true) {
             console.groupCollapsed('Distribution EventBus data');
             console.log(varName, '=', value);
@@ -341,14 +343,12 @@ export class Distribution extends Chart {
         }
         // NOTE: Делаем через switch, т.к. в общем случае каждая обработка может содержать дополнительную логику
 
+        const dataSet: DataSetTemplate = this.config.template.dataSets[dataSourceId] as DataSetTemplate;
         let needReload = false;
-        const setVar = (prop: string, v: string) => {
-            _set(this.config.template.dataSets[dataSourceId], prop, v);
-            needReload = true;
-        };
 
-        switch (varName) {
-            case 'org units':
+        // Типизированный обязательный switch
+        await (({
+            'org units': () => {
                 if (TypeGuardsHelper.everyIsDataSetTemplate(this.config.template.dataSets)) {
                     this.config.template.dataSets.forEach((v: DataSetTemplate) => {
                         // Отключаем группировку
@@ -360,26 +360,26 @@ export class Distribution extends Chart {
                         }
                     });
                 }
-                break;
-            case 'start date':
-                setVar('from', value);
-                break;
-            case 'finish date':
-                setVar('to', value);
-                break;
-            case 'period':
-                setVar('period', value);
-                break;
-            case 'frequency':
-                setVar('frequency', value);
-                break;
-            case 'pre frequency':
-                setVar('preFrequency', value);
-                break;
-            case 'operation':
-                setVar('operation', value);
-                break;
-        }
+            },
+            'start date':       () => { dataSet.from = value; needReload = true; },
+            'finish date':      () => { dataSet.to = value; needReload = true; },
+            'period':           () => { dataSet.period = value; needReload = true; },
+            'frequency':        () => { dataSet.frequency = value; needReload = true; },
+            'pre frequency':    () => { dataSet.preFrequency = value; needReload = true; },
+            'operation':        () => { dataSet.operation = value; needReload = true; },
+            'version filter':   async () => {
+                const dataSource: SingleDataSource = dataSet.dataSource1 as SingleDataSource;
+                const dsInfo: DataSourceInfo = await this.config.dataProvider.getDataSourceInfo(dataSource.name);
+                if (dsInfo.version && !dsInfo.version.hidden) {
+                    dataSource.versionFilter = {
+                        name: dsInfo.version.name,
+                        upperTime: value + ''       // versionFilter (number -> string)
+                    };
+                    needReload = true;
+                }
+            }
+        } as { [P in VarNames]: Function })[varName])();
+
         return needReload;
     }
 

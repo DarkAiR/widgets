@@ -8,16 +8,18 @@ import {
     IWidgetVariables,
     TSPoint
 } from "../../interfaces";
-import {Chart} from "../../models/Chart";
+import {AddVarFunc, Chart} from "../../models/Chart";
 import {OrgUnitsHelper, SettingsHelper, TypeGuardsHelper} from "../../helpers";
 import {IWidgetSettings} from "../../widgetSettings";
 import {WidgetConfigInner} from "../..";
 import {WidgetOptions} from "../../models/widgetOptions";
 
+type VarNames = 'org units';
+
 export class KPI extends Chart {
     getVariables(): IWidgetVariables {
         const res: IWidgetVariables = {};
-        const addVar = this.addVar(res);
+        const addVar: AddVarFunc<VarNames> = this.addVar(res);
 
         addVar(0, 'org units', 'OrgUnits', 'Выбирается в отдельном виджете');
 
@@ -59,7 +61,7 @@ export class KPI extends Chart {
      * NOTE: все данные меняются в this.config.template
      */
     // tslint:disable-next-line:no-any
-    private onEventBusFunc(varName: string, value: any, dataSourceId: number): boolean {
+    private async onEventBusFunc(varName: VarNames, value: any, dataSourceId: number): Promise<boolean> {
         if (this.options?.logs?.eventBus ?? true) {
             console.groupCollapsed('KPI EventBus data');
             console.log(varName, '=', value);
@@ -68,9 +70,12 @@ export class KPI extends Chart {
         }
         // NOTE: Делаем через switch, т.к. в общем случае каждая обработка может содержать дополнительную логику
 
+        // const dataSet: DataSetTemplate = this.config.template.dataSets[dataSourceId] as DataSetTemplate;
         let needReload = false;
-        switch (varName) {
-            case 'org units':
+
+        // Типизированный обязательный switch
+        await (({
+            'org units': () => {
                 if (TypeGuardsHelper.everyIsDataSetTemplate(this.config.template.dataSets)) {
                     this.config.template.dataSets.forEach((v: DataSetTemplate) => {
                         // Отключаем группировку
@@ -82,8 +87,9 @@ export class KPI extends Chart {
                         }
                     });
                 }
-                break;
-        }
+            },
+        } as { [P in VarNames]: Function })[varName])();
+
         return needReload;
     }
 

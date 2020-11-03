@@ -1,26 +1,29 @@
-import {get as _get, forEach as _forEach, defaultTo as _defaultTo} from 'lodash';
+import w from './../styles/preloader.less';
+import {get as _get, map as _map, defaultTo as _defaultTo} from 'lodash';
 import ResizeObserver from 'resize-observer-polyfill';
 import {
     DataSet,
-    DataSetTemplate,
     IChart,
-    IChartData, IColor, IEventOrgUnits, ISettings,
-    IWidgetVariables, JoinDataSetTemplate, TimeSeriesDataSetShort
+    IChartData, IColor, ISettings,
+    IWidgetVariables
 } from "../interfaces";
 import {WidgetConfigInner} from "./widgetConfig";
 import {EventBusWrapper, EventBus, EventBusEvent} from 'goodteditor-event-bus';
 import {IWidgetSettings} from "../widgetSettings";
-import {ColorHelper, OrgUnitsHelper, SettingsHelper, TypeGuardsHelper} from "../helpers";
+import {ColorHelper, SettingsHelper, TypeGuardsHelper} from "../helpers";
 import {ChartType} from "./types";
 import {WidgetOptions} from "./widgetOptions";
 
 const hogan = require('hogan.js');
+
+export type AddVarFunc<T> = (dataSourceIndex: number, name: T, description: string, hint: string) => void;
 
 export abstract class Chart implements IChart {
     protected config: WidgetConfigInner = null;         // Конфигурация для создания виджета
     protected options: WidgetOptions = null;            // Дополнительные настройки, не связанные с виджетами
     protected widgetSettings: IWidgetSettings = null;   // Информация о настройках виджета
     protected chartData: IChartData = null;             // Данные, пришедшие из graphQL
+    protected loading: boolean = false;                 // Идет загрузка данных
 
     private resizeObserver: ResizeObserver = null;
 
@@ -37,13 +40,13 @@ export abstract class Chart implements IChart {
     getTemplate(): string | null { return null; }
 
     // Обработчик изменения размера
-    onResize: (width: number, height: number) => void = (w, h) => {};
+    onResize: (width: number, height: number) => void = (width, height) => {};
 
     /**
      * Обработчик сообщений от шины
      * @return true - если необходима перерисовка
      */
-    onEventBus: (varName: string, value: string, dataSourceId: number) => boolean = (...args) => false;
+    onEventBus: (varName: string, value: string, dataSourceId: number) => Promise<boolean> = async (...args): Promise<boolean> => false;
 
     constructor(config: WidgetConfigInner, options: WidgetOptions) {
         this.config = config;
@@ -62,23 +65,26 @@ export abstract class Chart implements IChart {
             console.log('%cWidget add listeners', 'color: #b080ff');
         }
         // Подписаться на шину
-        this.config.eventBus.listenStateChange((ev: EventBusEvent, eventObj: Object) => {
+        this.config.eventBus.listenStateChange(async (ev: EventBusEvent, eventObj: Object) => {
             // console.log('ListenStateChange:', ev, eventObj);
             let needReload = false;
             const widgetVars: IWidgetVariables = this.getVariables();
-            _forEach(eventObj, (value: string, name: string) => {
-                const res = /(.*?)(?: (\d*))?$/.exec(name);
-                const varName: string = _defaultTo(_get(res, '1'), '');
-                const dataSourceId: number = _defaultTo(_get(res, '2'), 0);
 
-                if (widgetVars[varName] !== undefined) {
-                    if (this.onEventBus(varName, value, dataSourceId)) {
-                        needReload = true;
+            await Promise.all(
+                _map(eventObj, async (value: string, name: string) => {
+                    const res = /(.*?)(?: (\d*))?$/.exec(name);
+                    const varName: string = _defaultTo(_get(res, '1'), '');
+                    const dataSourceId: number = _defaultTo(_get(res, '2'), 0);
+
+                    if (widgetVars[varName] !== undefined) {
+                        if (await this.onEventBus(varName, value, dataSourceId)) {
+                            needReload = true;
+                        }
                     }
-                }
-            });
+                })
+            );
             if (needReload) {
-                this.redraw().then();
+                await this.redraw();
             }
         });
 
@@ -119,8 +125,10 @@ export abstract class Chart implements IChart {
             // Необходимо, чтобы изменение переменных по шине в момент создания виджета не вызывало перерисовку
             return;
         }
+        this.startLoading();
         this.config.dataProvider.parseTemplate(this.config.template).then(
             (templateData: IChartData) => {
+                this.stopLoading();
                 this.chartData = templateData;
                 this.run();
             }
@@ -132,9 +140,9 @@ export abstract class Chart implements IChart {
     /**
      * Получить названия всех DataSources
      * NOTE: На донный момент возвращает только SingleDataSource
-     * TODO: Передать на отельное поле DataSetId
+     * TODO: Передать на отдельное поле DataSetId
      */
-    getDataSources(): string[] {
+    getDataSourceNameIds(): string[] {
         const res: string[] = [];
         this.config.template.dataSets.forEach((dataSet: DataSet) => {
             let name: string = null;
@@ -165,9 +173,9 @@ export abstract class Chart implements IChart {
     /**
      * Добавить переменную для управления виджетом извне
      */
-    protected addVar(res: IWidgetVariables): Function {
+    protected addVar<T = string>(res: IWidgetVariables): AddVarFunc<T> {
         let sortIndex = 0;
-        return (dataSourceIndex: number, name: string, description: string, hint: string) => {
+        return (dataSourceIndex: number, name: T, description: string, hint: string) => {
             res[name + (dataSourceIndex === 0 ? '' : ' ' + dataSourceIndex)] = {
                 description,
                 hint,
@@ -245,5 +253,23 @@ export abstract class Chart implements IChart {
         return this.template
             ? this.template.render(data)
             : '';
+    }
+
+    private startLoading(): void {
+        this.config.element.innerHTML = `
+            <div style="
+                position: absolute; z-index: 1; left: 0; top: 0; right: 0; bottom: 0;
+                display: flex;
+                align-items: safe center;
+                justify-content: safe center;
+                width: 100%;
+                height: 100%;
+            ">
+                <div class="${w['preloader']}" style="padding: 1rem"></div>
+            </div>
+        `;
+    }
+    private stopLoading(): void {
+        // Do nothing
     }
 }

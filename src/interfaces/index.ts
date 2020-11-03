@@ -1,6 +1,7 @@
 export * from "./template";
 export * from './graphQL';
 export * from './events';
+export * from './echarts';
 
 export * from "./IChart";
 export * from "./IChartData";
