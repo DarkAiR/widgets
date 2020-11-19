@@ -10,11 +10,6 @@ export class SingleDataSourceSerializer {
             return null;
         }
 
-        // Чиним versionFilter (number -> string)
-        if (dataSource.versionFilter) {
-            dataSource.versionFilter.upperTime = dataSource.versionFilter.upperTime + '';
-        }
-
         const versionFilterJson: string = !dataSource.versionFilter
             ? null
             : stringifyObject(dataSource.versionFilter, {

@@ -1,5 +1,8 @@
 ### ChangeLog
 
+##### 1.5.2 / 2020-11-19
+- Убран фикс по конвертации upperTime в строку из числа
+
 ##### 1.5.1 / 2020-11-03
 - fix name of import VersionFilter
 - switch событий переписан на Record
