@@ -4,7 +4,7 @@ import ResizeObserver from 'resize-observer-polyfill';
 import {
     DataSet,
     IChart,
-    IChartData, IColor, ISettings,
+    IChartData, IColor, IEventData, ISettings,
     IWidgetVariables
 } from "../interfaces";
 import {WidgetConfigInner} from "./widgetConfig";
@@ -65,7 +65,7 @@ export abstract class Chart implements IChart {
             console.log('%cWidget add listeners', 'color: #b080ff');
         }
         // Подписаться на шину
-        this.config.eventBus.listenStateChange(async (ev: EventBusEvent, eventObj: Object) => {
+        this.config.eventBus.listenStateChange(async (ev: EventBusEvent, eventObj: IEventData) => {
             // console.log('ListenStateChange:', ev, eventObj);
             let needReload = false;
             const widgetVars: IWidgetVariables = this.getVariables();
@@ -85,6 +85,10 @@ export abstract class Chart implements IChart {
             );
             if (needReload) {
                 await this.redraw();
+            }
+
+            if (eventObj._cb && typeof eventObj._cb.func === 'function') {
+                eventObj._cb.func();
             }
         });
 

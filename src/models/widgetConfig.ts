@@ -11,7 +11,7 @@ export class WidgetConfig {
     apiUrl?: string;                        // Url для API на GraphQL (по-умолчанию используется дефолтный)
     eventBus?: EventBusWrapper;             // Шина данных
     dataProvider: DataProvider;             // Провайдер данных для перезагрузки данных виджетами
-    afterCreate: (widget: IChart) => void;  // Функция, вызываемая после создания виджета до первого рендера
+    afterCreate: (widget: IChart) => Promise<void>;  // Функция, вызываемая после создания виджета до первого рендера
 }
 
 export class WidgetConfigInner extends WidgetConfig {

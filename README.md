@@ -69,28 +69,34 @@ class EventBusService {
     }
 
     appendWidgetVariables(eventBusWrapper: EventBusWrapper, widgetVars: IWidgetVariables): void {
-        eventBusWrapper.varAliases = Object.keys(widgetVars)
+        eventBusWrapper.varAliases = [...Object.keys(widgetVars), '_cb']
             .reduce((obj, key) => {
                 obj[key] = {listen: key, trigger: key};
                 return obj;
             }, {})
     }
 
-    sendMassive(eventBusWrapper: EventBusWrapper, widgetVars: IWidgetVariables, values: NameValue[]): void {
-        let params: ISettings = {};
-        values.forEach((v: NameValue) => {
-            const regExp: RegExp = new RegExp(`^${v.name}`, 'g')
-            params = {
-                ...params,
-                ...Object.keys(widgetVars)
-                    .filter(v => regExp.test(v))
-                    .reduce((obj, key) => {
-                        obj[key] = v.value;
-                        return obj;
-                    }, {})
+    async sendMassive(eventBusWrapper: EventBusWrapper, widgetVars: IWidgetVariables, values: NameValue[]): Promise<void> {
+        return new Promise(resolve => {
+            let params: IEventData = {
+                _cb: {
+                    func: resolve
+                }
             };
-        });
-        eventBusWrapper.triggerStateChange(params);
+            values.forEach((v: NameValue) => {
+                const regExp: RegExp = new RegExp(`^${v.name}`, 'g')
+                params = {
+                    ...params,
+                    ...Object.keys(widgetVars)
+                        .filter(v => regExp.test(v))
+                        .reduce((obj, key) => {
+                            obj[key] = v.value;
+                            return obj;
+                        }, {})
+                };
+            });
+            eventBusWrapper.triggerStateChange(params);
+        }
     }
 }
 ```
@@ -108,13 +114,13 @@ class Example {
         this.widgetConfig.eventBus = eventBus;
         this.widgetConfig.templateId = <TEMPLATE ID>;
         this.widgetConfig.element = <HTMLElement>;
-        this.widgetConfig.afterCreate = (widget: IChart) => {
+        this.widgetConfig.afterCreate = async (widget: IChart): Promise<void> => {
             // Function call after create before the first render
             const widgetVars: IWidgetVariables = widget.getVariables();
             eventBusService.appendWidgetVariables(eventBusWrapper, widgetVars);
         
             // First init of widget variables
-            eventBusService.sendMassive(eventBusWrapper, widgetVars, [
+            await eventBusService.sendMassive(eventBusWrapper, widgetVars, [
                 {name: 'start date', value: DateHelper.yyyymmdd(new Date())},
                 {name: 'finish date', value: DateHelper.yyyymmdd(new Date())},
             ]);
@@ -259,7 +265,7 @@ getVariables(): IWidgetVariables {
 Обработчик изменения размера.   
 *NOTE: Реализован через переменную, для сохранения контекста вызова*
 
-###### onEventBus: (ev: EventBusEvent, eventObj: Object) => void
+###### onEventBus: (ev: EventBusEvent, eventObj: IEventData) => void
 Обработчик сообщений от шины   
 *NOTE: Реализован через переменную, для сохранения контекста вызова*
  

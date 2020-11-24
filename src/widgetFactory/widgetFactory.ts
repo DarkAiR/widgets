@@ -102,8 +102,10 @@ export class WidgetFactory {
         widget.create();
         if (config.afterCreate) {
             // Здесь можно, нр, инициализировать переменные до первого рендера через EventBus
-            config.afterCreate(widget);
+            await config.afterCreate(widget);
         }
+
+        // И только когда отработал afterCreate, можно заканчивать инициализацию
         widget.initialized = true;
 
         // Это должна быть единственная перерисовка при инициализации
