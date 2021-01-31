@@ -264,7 +264,7 @@ export class DataProvider {
                         errStr = 'Unknown error';
                         try {
                             const json = await response.json();
-                            errStr = json?.message ?? errStr;
+                            errStr = json?.message || json?.error || errStr;
                         } catch (e) {
                             // Do nothing
                         }

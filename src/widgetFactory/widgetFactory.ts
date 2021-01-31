@@ -51,7 +51,8 @@ export class WidgetFactory {
         } else {
             this.dataProvider = config.dataProvider;
         }
-        const template: WidgetTemplate = await this.dataProvider.getTemplate(config.templateId);
+        const template: WidgetTemplate = await this.dataProvider.getTemplate(config.templateId)
+            .catch((e: Error) => { throw new Error(`Widget '${config.templateId}' not loaded`); });
 
         if (options?.logs?.loadingTemplate ?? true) {
             console.log('Load template', template);
