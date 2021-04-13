@@ -1,3 +1,5 @@
+import {MetricFilterType} from "../../models/typesGraphQL";
+
 export interface MetricFilter {
     name: string;
     expression?: string;
@@ -5,4 +7,5 @@ export interface MetricFilter {
     lowerStrict?: boolean;          // Использовать строго сравнение
     upper?: number;                 // Удаляются значения выше указанного
     upperStrict?: boolean;          // Использовать строго сравнение
+    type?: MetricFilterType;        // Показывает, на каком этапе применяет фильтр метрик
 }

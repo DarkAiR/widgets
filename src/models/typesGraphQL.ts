@@ -17,3 +17,6 @@ export type Operation = 'SUM' | 'AVG' | 'MIN' | 'MAX';
 
 // Операция в DataSource для типа AGGREGATION
 export type ArithmeticOperation = 'SUM' | 'SUBTRACT' | 'MULTIPLY' | 'DIVIDE';
+
+// Типы применения фильтров метрик
+export type MetricFilterType = 'RAW' | 'FINAL';

@@ -10,9 +10,9 @@ import {
     JoinDataSetTemplate,
     TimeSeriesDataSetShort, DataSource, ISettings, ResolveFunc, RejectFunc, DataSourceInfo, DimensionInfo
 } from "../interfaces";
-import {serializers} from '.';
 import * as stringifyObject from 'stringify-object';
 import {TypeGuardsHelper} from "../helpers";
+import {Serializer} from "./serializer";
 
 type SerializeFunc = (dataSet: DataSet, server: ServerType, widgetType: WidgetType, hasEntity: boolean) => Promise<IGqlRequest | null>;
 
@@ -277,16 +277,10 @@ export class DataProvider {
     }
 
     /**
-     * @return null - если нет распознан тип dataSource или name === ''
+     * @return null - если не распознан тип dataSource или name === ''
      */
     private async serializeDataSource(dataSource: DataSource): Promise<string | null> {
-        if (TypeGuardsHelper.isSingleDataSource(dataSource)) {
-            return serializers.SingleDataSourceSerializer.serialize(dataSource);
-        }
-        if (TypeGuardsHelper.isAggregationDataSource(dataSource)) {
-            return serializers.AggregationDataSourceSerializer.serialize(dataSource);
-        }
-        return null;
+        return Serializer.serialize(dataSource);
     }
 
     private async serializeDynamicGQL(dataSet: DataSetTemplate, server: ServerType, widgetType: WidgetType, hasEntity: boolean): Promise<IGqlRequest | null> {

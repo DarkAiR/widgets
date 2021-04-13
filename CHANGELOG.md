@@ -1,5 +1,11 @@
 ### ChangeLog
 
+##### 1.6.4 / 2021-03-31
+- Изменен сериализатор агрегированных данных
+
+##### 1.6.3 / 2021-02-14
+- MetricFilterType
+
 ##### 1.6.2 / 2021-02-01
 - Для виждета KPI добавлены настройки paddings и dataSourceName
 - Для виждета KPI добавлена обработка period, dateFrom, dateTo, versionFilter
