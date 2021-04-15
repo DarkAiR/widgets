@@ -130,7 +130,7 @@ export abstract class Chart implements IChart {
             return;
         }
         this.startLoading();
-        this.config.dataProvider.parseTemplate(this.config.template).then(
+        return this.config.dataProvider.parseTemplate(this.config.template).then(
             (templateData: IChartData) => {
                 this.stopLoading();
                 this.chartData = templateData;

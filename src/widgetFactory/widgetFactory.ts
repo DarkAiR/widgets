@@ -110,7 +110,9 @@ export class WidgetFactory {
         widget.initialized = true;
 
         // Это должна быть единственная перерисовка при инициализации
-        await widget.redraw();
+        await widget.redraw().catch((e: Error) => {
+            throw e;
+        });
 
         this.addVersion(config);
         return widget as IChart;
