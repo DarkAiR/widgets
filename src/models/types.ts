@@ -34,5 +34,5 @@ export const HistogramTypeValues = ['normal', 'stack', 'overlap'] as const;
 export type HistogramType = typeof HistogramTypeValues[number];
 
 // Типы ресурсов до которых разграничен доступ
-export const ResourceTypeValues = ['TEMPLATE'] as const;
+export const ResourceTypeValues = ['TEMPLATE', 'DATASOURCE', 'DASHBOARD'] as const;
 export type ResourceType = typeof ResourceTypeValues[number];
