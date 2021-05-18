@@ -1,35 +1,29 @@
-import w from './category.less';
+import w from './pie.less';
 import {settings as widgetSettings} from "./settings";
 
 import * as echarts from 'echarts';
 import {
     DataSet,
     DataSetTemplate, DataSourceInfo, DimensionInfo,
-    IChartData, IColor, IEventOrgUnits, INameValue, ISettings,
+    IChartData, IEventOrgUnits, INameValue, ISettings,
     IWidgetVariables, SingleDataSource, TSPoint,
-    XAxisData, YAxisData,
 } from '../../interfaces';
-import {
-    map as _map,
-    flow as _flow,
-    min as _min, max as _max, isEmpty as _isEmpty,
-    flatten as _flatten,
-    forEach as _forEach
-} from 'lodash';
+import {forEach as _forEach} from 'lodash';
 import {AddVarFunc, Chart} from '../../models/Chart';
 import {
-    CategoryDataHelper, ColorHelper,
-    MathHelper, OrgUnitsHelper,
+    CategoryDataHelper,
+    OrgUnitsHelper,
     SettingsHelper
 } from '../../helpers';
 import {TypeGuardsHelper} from "../../helpers";
 import {IWidgetSettings} from "../../widgetSettings";
 import {WidgetConfigInner} from "../..";
 import {WidgetOptions} from "../../models/widgetOptions";
+import {PieLabelAlign} from "../../models/types";
 
 type VarNames = 'org units' | 'period' | 'start date' | 'finish date' | 'frequency' | 'pre frequency' | 'operation' | 'version filter';
 
-export class Category extends Chart {
+export class Pie extends Chart {
     getVariables(): IWidgetVariables {
         const res: IWidgetVariables = {};
         const addVar: AddVarFunc<VarNames> = this.addVar(res);
@@ -67,47 +61,19 @@ export class Category extends Chart {
         (async () => {
             if (TypeGuardsHelper.everyIsDataSetTemplate(data.dataSets)) {
                 const dimInfos: DimensionInfo[] = await this.getDimensionInfos(data.dataSets);
-
                 const seriesData = this.getData(data.data as TSPoint[][], dimInfos);
 
-                const xAxisData = this.getXAxis(seriesData.xAxisValues);
-                const yAxisData = this.getYAxis(seriesData.series);
-
-                const legend: Object = SettingsHelper.getLegendSettings(this.widgetSettings.settings, this.chartData.settings);
-
-                const chartBackgroundSettings: ISettings = SettingsHelper.getGradientSettings(this.getWidgetSetting('chartBackground.color'));
-                const chartBackground: Object = _isEmpty(chartBackgroundSettings) ? {} : { backgroundColor: chartBackgroundSettings };
-
                 const options = {
-                    grid: {
-                        show: true,
-                        ...chartBackground,
-                        top: +this.getWidgetSetting('chartPaddings.top'),
-                        bottom: +this.getWidgetSetting('chartPaddings.bottom'),
-                        right: +this.getWidgetSetting('chartPaddings.right'),
-                        left: +this.getWidgetSetting('chartPaddings.left'),
-                        containLabel: true
-                    },
                     tooltip: {
-                        extraCssText: "",
-                        axisPointer: {
-                            show: true,
-                            type: 'line',
-                        },
-                        position: (point: [number, number], params: Object, dom: HTMLElement, rect: Object, size: ISettings) => {
-                            const x = point[0] < size.viewSize[0] / 2
-                                ? point[0] - dom.offsetWidth / 2
-                                : point[0] - dom.offsetWidth;
-                            return [x, point[1] - dom.offsetHeight];
-                        },
+                        trigger: 'item',
                         formatter: (p: ISettings) => {
                             // p.data.value[0]: INameValue[]
                             const content: string = `
                                 <tr>
                                     <td style='text-align: right'>${p.marker}</td>
                                     <td>&nbsp;:&nbsp;</td>
-                                    <td>${p.data.value[1]}</td>
-                                </tr>` + p.data.value[2].map((v: INameValue) => `
+                                    <td>${p.data.value}</td>
+                                </tr>` + p.data.myValue.map((v: INameValue) => `
                                  <tr>
                                     <td style='text-align: right'>${v.name}</td>
                                     <td>&nbsp;:&nbsp;</td>
@@ -117,14 +83,12 @@ export class Category extends Chart {
                             return `<table width="100%" style='padding: 0; margin: 0; border: 0'>${content}</table>`;
                         }
                     },
-                    legend: legend,
-                    xAxis: xAxisData,
-                    yAxis: yAxisData,
+                    legend: SettingsHelper.getLegendSettings(this.widgetSettings.settings, this.chartData.settings),
                     series: seriesData.series
                 };
 
                 if (this.options?.logs?.render ?? true) {
-                    console.groupCollapsed('Category eChart options');
+                    console.groupCollapsed('Pie eChart options');
                     console.log(options);
                     console.log(JSON.stringify(options));
                     console.groupEnd();
@@ -154,6 +118,10 @@ export class Category extends Chart {
         return CategoryDataHelper.getDimensionInfos(this.config.dataProvider, dataSets);
     }
 
+    /**
+     * @param data Массив всех точек всех датасорсов
+     * @param dimInfos Массив всех дименшинов
+     */
     private getData(data: TSPoint[][], dimInfos: DimensionInfo[]): {
         xAxisValues: string[],
         series: ISettings[]
@@ -162,141 +130,43 @@ export class Category extends Chart {
 
         const series: ISettings[] = [];
         data.forEach((pointsValues: TSPoint[], idx: number) => {
-            series[idx] = this.getHistogramSeries(idx);
-            series[idx].data = res.data[idx];
+            const palette: Array<{color: string}> = this.getDataSetSettings(idx, 'palette');
+
+            series[idx] = this.getSeriesData(idx);
+            series[idx].data = res.data[idx].map(
+                (v: {value: [string, number, INameValue[]]}, categoryIdx: number) => {
+                    const itemStyle: ISettings = palette[categoryIdx]?.color
+                        ? {itemStyle: { color: palette[categoryIdx].color }}
+                        : {};
+                    return {
+                        value: v.value[1],
+                        name: v.value[0],
+                        myValue: v.value[2],
+                        ...itemStyle,
+                    };
+                }
+            );
         });
+
         return {
             xAxisValues: res.labels,
             series
         };
     }
 
-    private getHistogramSeries(idx: number): ISettings {
-        const dataSetSettings: ISettings = this.chartData.dataSets[idx].settings;
-
-        const colorSetting: string = this.getDataSetSettings(idx, 'color');
-        const color: IColor = colorSetting ? ColorHelper.hexToColor(colorSetting) : null;
-
+    private getSeriesData(idx: number): ISettings {
         return {
-            type: 'bar',
+            type: 'pie',
             name: this.getDataSetSettings<string>(idx, 'name.name') || ' ',    // Чтобы чтото отобразилось, нужно хотя бы пробел
-            xAxisIndex: 0,
-            seriesLayoutBy: 'column',
-            ...(!color ? {} : {
-                color: color.hex                // Основной цвет
-            }),
-            ...(!color ? {} : {
-                itemStyle: {
-                    opacity: color.opacity      // Прозрачность влияет на все подписи + метки
-                }
-            }),
-
+            radius: [`${this.getDataSetSettings<number>(idx, 'radius.radius1') || 0}%`, `${this.getDataSetSettings<number>(idx, 'radius.radius2') || 75}%`],
+            center: ['50%', '50%'],
+            selectedMode: 'single',
             label: {
-                show: false,
-                position: 'inside',
-                distance: 0,
-                rotate: 90,
-                backgroundColor: '',
-                borderColor: '',
-                borderWidth: 1,
-                padding: [3, 5, 3, 5],
-                borderRadius: [1, 1, 1, 1],
-                ...SettingsHelper.getLabelSettings(this.widgetSettings.dataSet.settings, dataSetSettings).label,
-            },
-            animation: true,
-            animationDelay: 0,
-            animationDelayUpdate: 0,
-            showSymbol: true,
-            barGap: this.getWidgetSetting('histogram.barGap') + '%',
-            barCategoryGap: this.getWidgetSetting('histogram.barCategoryGap') + '%',
-            ...SettingsHelper.getFillSettings(this.widgetSettings.dataSet.settings, dataSetSettings, 'HISTOGRAM'),
+                distanceToLabelLine: this.getDataSetSettings<number>(idx, 'label.distanceToLabelLine'),
+                alignTo: this.getDataSetSettings<PieLabelAlign>(idx, 'label.alignTo'),
+                ...SettingsHelper.getLabelSettings(this.widgetSettings.dataSet.settings, this.chartData.dataSets[idx].settings).label,
+            }
         };
-    }
-
-    /**
-     * Получить данные для осей
-     */
-    private getXAxis(xAxisValues: string[]): ISettings {
-        const axisData: XAxisData = {
-            show: this.getWidgetSetting('axisX.show'),
-            name: this.getWidgetSetting('axisX.name'),
-            nameGap: this.getWidgetSetting('axisX.nameGap'),
-            nameColor: this.getWidgetSetting('axisX.nameColor'),
-            maxValueLength: this.getWidgetSetting('axisX.maxValueLength'),
-            color: this.getWidgetSetting('axisX.color'),
-            position: this.getWidgetSetting('axisX.position'),
-            axesToIndex: [],
-            showLine: this.getWidgetSetting('axisX.showLine'),
-            showTick: this.getWidgetSetting('axisX.showTick'),
-        };
-
-        const res = SettingsHelper.getXAxisSettings(
-            axisData,
-            0,
-            'category',
-            null,
-            0,
-            true,
-            false
-        );
-        res.data = xAxisValues;
-        return res;
-    }
-
-    /**
-     * Получить данные для осей
-     */
-    private getYAxis(seriesData: ISettings[]): ISettings {
-        let color: string = this.getWidgetSetting('axisY.color');
-        if (!color) {
-            // Получаем цвет из цвета графика
-            color = this.getDataSetSettings(0, 'color');
-        }
-
-        const values: number[] = _flatten(
-            _map(seriesData, (series: ISettings): number[] =>
-                series.data.map((v: {value: [string, number]}): number => v.value[1])
-            )
-        );
-
-        let max: number = _max(values);
-        let min: number = _flow(
-            _min,
-            (v: number) => v > 0 ? 0 : v
-        )(values);
-        [max, min] = MathHelper.roundInterval(max, min);
-
-        const axisData: YAxisData = {
-            show: this.getWidgetSetting('axisY.show'),
-            name: this.getWidgetSetting('axisY.name'),
-            nameGap: this.getWidgetSetting('axisY.nameGap'),
-            nameColor: this.getWidgetSetting('axisY.nameColor'),
-            color: color,
-            position: this.getWidgetSetting('axisY.position'),
-            max: max,
-            min: min,
-            axesToIndex: [],
-            showLine: this.getWidgetSetting('axisY.showLine'),
-            showTick: this.getWidgetSetting('axisY.showTick')
-        };
-
-        let nameRotate = 0;
-        switch (axisData.position) {
-            case 'left':
-                nameRotate = 90;
-                break;
-            case 'right':
-                nameRotate = 270;
-                break;
-        }
-
-        return SettingsHelper.getYAxisSettings(
-            axisData,
-            0,
-            'value',
-            0,
-            nameRotate
-        );
     }
 
     /**

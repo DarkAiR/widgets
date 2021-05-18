@@ -1,7 +1,7 @@
 import w from './distribution.less';
 import {settings as widgetSettings} from "./settings";
 
-import echarts from 'echarts';
+import * as echarts from 'echarts';
 import {
     DataSet, DataSetTemplate, DataSourceInfo,
     IChartData, IColor, IEventOrgUnits, ISettings,
@@ -19,7 +19,7 @@ import {AddVarFunc, Chart} from '../../models/Chart';
 import {ProfilePoint} from '../../interfaces';
 import {IWidgetSettings} from "../../widgetSettings";
 import {ChartType} from "../../models/types";
-import {MathHelper, OrgUnitsHelper, SettingsHelper, TypeGuardsHelper} from "../../helpers";
+import {ColorHelper, MathHelper, OrgUnitsHelper, SettingsHelper, TypeGuardsHelper} from "../../helpers";
 import {WidgetConfigInner} from "../..";
 import {WidgetOptions} from "../../models/widgetOptions";
 
@@ -116,7 +116,7 @@ export class Distribution extends Chart {
             paddingStyle: SettingsHelper.getPaddingStyle(this.getWidgetSetting('paddings'))
         });
 
-        const el = this.config.element.getElementsByClassName(w['chart'])[0];
+        const el: HTMLElement = this.config.element.getElementsByClassName(w['chart'])[0] as HTMLElement;
         const myChart = echarts.init(el);
         myChart.setOption(options);
 
@@ -131,17 +131,15 @@ export class Distribution extends Chart {
     } {
         const series: ISettings[] = [];
         const xAxisValues: number[] = [];
-        const dataSetSettings: ISettings = this.chartData.dataSets[0].settings;
-        const currColor: IColor = this.getColor(dataSetSettings);
 
         data.forEach((item: ProfilePoint[]) => {
             let seriesData: ISettings = {};
-            switch (this.getDataSetSettings<ChartType>(dataSetSettings, 'chartType')) {
+            switch (this.getDataSetSettings<ChartType>(0, 'chartType')) {
                 case "LINE":
-                    seriesData = this.getLineSeries(0, currColor);
+                    seriesData = this.getLineSeries(0);
                     break;
                 case "HISTOGRAM":
-                    seriesData = this.getHistogramSeries(0, currColor);
+                    seriesData = this.getHistogramSeries(0);
                     break;
             }
 
@@ -160,7 +158,10 @@ export class Distribution extends Chart {
         };
     }
 
-    private getLineSeries(idx: number, color: IColor): Object {
+    private getLineSeries(idx: number): Object {
+        const colorSetting: string = this.getDataSetSettings(idx, 'color');
+        const color: IColor = colorSetting ? ColorHelper.hexToColor(colorSetting) : null;
+
         return this.applySettings(idx, 'LINE', {
             type: 'line',
             smooth: true,
@@ -171,16 +172,22 @@ export class Distribution extends Chart {
             showSymbol: true,
             symbolSize: 4,
 
-            color: color.hex,                   // Основной цвет
-            itemStyle: {
-                opacity: color.opacity          // Прозрачность влияет на весь подписи + метки
-            },
+            ...(!color ? {} : {
+                color: color.hex                // Основной цвет
+            }),
+            ...(!color ? {} : {
+                itemStyle: {
+                    opacity: color.opacity      // Прозрачность влияет на все подписи + метки
+                }
+            }),
             lineStyle: {
                 shadowBlur: 2,
                 shadowColor: 'rgba(0, 0, 0, 0.3)',
-                type: this.getDataSetSettings(this.chartData.dataSets[idx].settings, 'lineStyle.type'),
-                width: this.getDataSetSettings(this.chartData.dataSets[idx].settings, 'lineStyle.width'),
-                opacity: color.opacity,         // Прозрачность линии
+                type: this.getDataSetSettings(idx, 'lineStyle.type'),
+                width: this.getDataSetSettings(idx, 'lineStyle.width'),
+                ...(!color ? {} : {
+                    opacity: color.opacity,         // Прозрачность линии
+                })
             },
             label: {
                 show: false,
@@ -204,17 +211,23 @@ export class Distribution extends Chart {
         });
     }
 
-    private getHistogramSeries(idx: number, color: IColor): Object {
-        const dataSetSettings: ISettings = this.chartData.dataSets[0].settings;
+    private getHistogramSeries(idx: number): Object {
+        const colorSetting: string = this.getDataSetSettings(idx, 'color');
+        const color: IColor = colorSetting ? ColorHelper.hexToColor(colorSetting) : null;
+
         return this.applySettings(idx, 'HISTOGRAM', {
             type: 'bar',
             xAxisIndex: 0,
             seriesLayoutBy: 'column',
 
-            color: color.hex,                   // Основной цвет
-            itemStyle: {
-                opacity: color.opacity          // Прозрачность влияет на весь подписи + метки
-            },
+            ...(!color ? {} : {
+                color: color.hex                // Основной цвет
+            }),
+            ...(!color ? {} : {
+                itemStyle: {
+                    opacity: color.opacity      // Прозрачность влияет на все подписи + метки
+                }
+            }),
             label: {
                 show: false,
                 position: 'inside',
@@ -230,7 +243,7 @@ export class Distribution extends Chart {
             animationDelay: 0,
             animationDelayUpdate: 0,
             showSymbol: true,
-            barCategoryGap: this.getDataSetSettings(dataSetSettings, 'histogram.barCategoryGap') + '%',
+            barCategoryGap: this.getDataSetSettings(0, 'histogram.barCategoryGap') + '%',
         });
     }
 
@@ -268,11 +281,10 @@ export class Distribution extends Chart {
      * Получить данные для осей
      */
     private getYAxis(seriesData: number): Object {
-        const dataSetSettings: ISettings = this.chartData.dataSets[0].settings;
         let color: string = this.getWidgetSetting('axisY.color');
         if (!color) {
             // Получаем цвет из цвета графика
-            color = this.getDataSetSettings(dataSetSettings, 'color');
+            color = this.getDataSetSettings(0, 'color');
         }
 
         let max: number = _max(seriesData);
@@ -319,9 +331,7 @@ export class Distribution extends Chart {
      * Добавляем стандартные настройки для каждого dataSet
      */
     private applySettings(idx: number, chartType: ChartType, seriesData: Object): Object {
-        const getSetting = <T = void>(path: string): T => this.getDataSetSettings<T>(this.chartData.dataSets[idx].settings, path);
-
-        seriesData['name'] = getSetting('name.name') || ' ';     // Чтобы чтото отобразилось, нужно хотя бы пробел
+        seriesData['name'] = this.getDataSetSettings(idx, 'name.name') || ' ';     // Чтобы чтото отобразилось, нужно хотя бы пробел
 
         _merge(seriesData, SettingsHelper.getLabelSettings(this.widgetSettings.dataSet.settings, this.chartData.dataSets[idx].settings));
         _merge(seriesData, SettingsHelper.getFillSettings(this.widgetSettings.dataSet.settings, this.chartData.dataSets[idx].settings, chartType));

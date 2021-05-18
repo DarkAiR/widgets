@@ -55,9 +55,8 @@ export class KPI extends Chart {
         const points: TSPoint[][] = data.data as TSPoint[][];
 
         if (TypeGuardsHelper.everyIsDataSetTemplate(data.dataSets)) {
-            const dataSetSettings: ISettings = data.dataSets[0].settings;
             const titleSettings = SettingsHelper.getTitleSettings(this.widgetSettings.settings, data.settings);
-            const [value, valueStyle]: [string, string] = SettingsHelper.getSingleValueStyle(points[0][0].value || 0, this.getDataSetSettings(dataSetSettings, 'value'));
+            const [value, valueStyle]: [string, string] = SettingsHelper.getSingleValueStyle(points[0][0].value || 0, this.getDataSetSettings(0, 'value'));
 
             this.config.element.innerHTML = this.renderTemplate({
                 backgroundStyle: SettingsHelper.getBackgroundStyle(this.getWidgetSetting('background.color')),

@@ -1,7 +1,7 @@
 import w from './static.less';
 import {settings as widgetSettings} from "./settings";
 
-import echarts from 'echarts';
+import * as echarts from 'echarts';
 import {
     max as _max, min as _min,
     isEmpty as _isEmpty,
@@ -14,7 +14,7 @@ import {
 } from '../../interfaces';
 import {AddVarFunc, Chart} from '../../models/Chart';
 import {IWidgetSettings} from "../../widgetSettings";
-import {MathHelper, OrgUnitsHelper, SettingsHelper, TypeGuardsHelper} from "../../helpers";
+import {ColorHelper, MathHelper, OrgUnitsHelper, SettingsHelper, TypeGuardsHelper} from "../../helpers";
 import {WidgetConfigInner} from "../..";
 import {WidgetOptions} from "../../models/widgetOptions";
 
@@ -87,7 +87,7 @@ export class Static extends Chart {
                 paddingStyle: SettingsHelper.getPaddingStyle(this.getWidgetSetting('paddings'))
             });
 
-            const el = this.config.element.getElementsByClassName(w['chart'])[0];
+            const el: HTMLElement = this.config.element.getElementsByClassName(w['chart'])[0] as HTMLElement;
             const myChart = echarts.init(el);
             myChart.setOption(options);
 
@@ -104,23 +104,29 @@ export class Static extends Chart {
         if (TypeGuardsHelper.everyIsDataSetTemplate(data.dataSets)) {
             for (let idx = 0; idx < data.data.length; idx++) {
                 const dataSetSettings: ISettings = data.dataSets[idx].settings;
-                const color: IColor = this.getColor(dataSetSettings);
                 const points: Point[] = pointsData[idx];
+
+                const colorSetting: string = this.getDataSetSettings(idx, 'color');
+                const color: IColor = colorSetting ? ColorHelper.hexToColor(colorSetting) : null;
 
                 const label: ISettings = SettingsHelper.getLabelSettings(this.widgetSettings.dataSet.settings, dataSetSettings);
                 label.label.position = 'top';
-                label.label.formatter = SettingsHelper.formatScatterValue(this.getDataSetSettings(dataSetSettings, 'label'));
+                label.label.formatter = SettingsHelper.formatScatterValue(this.getDataSetSettings(idx, 'label'));
 
                 series.push({
-                    name: this.getDataSetSettings<string>(dataSetSettings, 'name.name') || ' ',     // Чтобы чтото отобразилось, нужно хотя бы пробел
-                    color: color.hex,                   // Основной цвет
-                    itemStyle: {
-                        opacity: color.opacity          // Прозрачность влияет на весь подписи + метки
-                    },
+                    type: "scatter",
+                    name: this.getDataSetSettings<string>(idx, 'name.name') || ' ',     // Чтобы чтото отобразилось, нужно хотя бы пробел
+                    ...(!color ? {} : {
+                        color: color.hex                // Основной цвет
+                    }),
+                    ...(!color ? {} : {
+                        itemStyle: {
+                            opacity: color.opacity      // Прозрачность влияет на все подписи + метки
+                        }
+                    }),
                     emphasis: label,
-                    symbolSize: this.getDataSetSettings(dataSetSettings, 'symbolSize'),
-                    data: _sortBy(points.map((obj: Point) => [obj.xValue, obj.yValue]), 0),
-                    type: "scatter"
+                    symbolSize: this.getDataSetSettings(idx, 'symbolSize'),
+                    data: _sortBy(points.map((obj: Point) => [obj.xValue, obj.yValue]), 0)
                 });
             }
         }

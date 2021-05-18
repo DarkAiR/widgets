@@ -22,7 +22,7 @@ export const settings: IWidgetSettings = makeSettings({
                 makeNumber('barCategoryGap', 'Расст. между категориями, в %', 20),
                 makeNumber('barGap', 'Расст. между источниками, в %', 30, {condition: '${type} === "normal"'}),
             ]
-        ])
+        ], {collapse: true})
     ],
     dataSet: {
         initDataSets: [{viewType: 'DYNAMIC'}],

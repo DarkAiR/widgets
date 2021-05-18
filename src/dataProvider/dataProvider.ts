@@ -295,6 +295,7 @@ export class DataProvider {
         let dimensions: string = '';
         switch (widgetType) {
             case 'CATEGORY':
+            case 'PIE':
                 dimensions = `dimensions { name value entity {name, outerId} }`;
                 break;
             default:

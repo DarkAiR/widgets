@@ -42,7 +42,6 @@ export class Table extends Chart {
         // NOTE: Для таблицы существует только один источник, если его нет, то это Exception
         if (TypeGuardsHelper.isJoinDataSetTemplate(data.dataSets[0])) {
             const dataSet: JoinDataSetTemplate = data.dataSets[0];
-            const settings: ISettings = dataSet.settings ?? {};
             const points: TableRow[] = dataByDataSources[0];
 
             const dimensions: string[] = _map(
@@ -64,7 +63,7 @@ export class Table extends Chart {
                 'Date',
                 ...dimensions,
                 ...metrics
-            ], this.getDataSetSettings(settings, 'columnNames'));
+            ], this.getDataSetSettings(0, 'columnNames'));
             let key = 0;
             const rows: Array<{cols: INameValue<{k: number, v: string}>[]}> = points.map((v: TableRow) => {
                 const row = [];

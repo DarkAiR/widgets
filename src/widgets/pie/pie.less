@@ -1,0 +1,25 @@
+@import "../../styles/_widget.less";
+
+.widget {
+    overflow: initial;      // Чтобы тултипы были видны
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.title {
+    width: 100%;
+    max-width: 100%;
+    margin-bottom: var(--spacer3);
+    line-height: 1.5em;
+}
+
+.chart {
+    width: 100%;
+    position: relative;
+    display: flex;
+    flex-basis: 100%;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: stretch;
+}

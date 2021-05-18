@@ -8,5 +8,6 @@ import * as KPI from './KPI';
 import * as Profile from './profile';
 import * as Distribution from './distribution';
 import * as Category from './category';
+import * as Pie from './pie';
 
-export {AverageNumber, Report, SolidGauge, Spline, Table, Static, KPI, Profile, Distribution, Category};
+export {AverageNumber, Report, SolidGauge, Spline, Table, Static, KPI, Profile, Distribution, Category, Pie};
