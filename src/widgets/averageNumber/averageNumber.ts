@@ -20,8 +20,8 @@ export class AverageNumber extends Chart {
         const data: IChartData = this.chartData;
 
         if (TypeGuardsHelper.everyIsDataSetTemplate(data.dataSets)) {
-            const currColor: string = this.getDataSetSettings(data.dataSets[0].settings, 'color');
-            const prevColor: string = this.getDataSetSettings(data.dataSets[1].settings, 'color');
+            const currColor: string = this.getDataSetSettings(0, 'color');
+            const prevColor: string = this.getDataSetSettings(1, 'color');
             const titleSettings = SettingsHelper.getTitleSettings(this.widgetSettings.settings, this.chartData.settings);
 
             this.config.element.innerHTML = this.renderTemplate({

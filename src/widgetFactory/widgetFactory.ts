@@ -27,6 +27,7 @@ export class WidgetFactory {
             'KPI':              () => import('../widgets/KPI/settings'),
             'DISTRIBUTION':     () => import('../widgets/distribution/settings'),
             'PROFILE':          () => import('../widgets/profile/settings'),
+            'PIE':              () => import('../widgets/pie/settings')
         };
         return new Promise((resolve: ResolveFunc, reject: RejectFunc) => {
             if (!widgetTypeToImport[widgetType]) {
@@ -92,8 +93,9 @@ export class WidgetFactory {
             "REPORT":           () => widgets.Report.Report,
             "STATIC":           () => widgets.Static.Static,
             "KPI":              () => widgets.KPI.KPI,
+            "DISTRIBUTION":     () => widgets.Distribution.Distribution,
             "PROFILE":          () => widgets.Profile.Profile,
-            "DISTRIBUTION":     () => widgets.Distribution.Distribution
+            "PIE":              () => widgets.Pie.Pie
 
         };
         if (!widgetsArr[config.template.widgetType]) {

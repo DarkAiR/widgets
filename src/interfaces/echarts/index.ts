@@ -1,1 +1,1 @@
-export * from './IEventAxisXClick';
+export * from './AxisEventData';

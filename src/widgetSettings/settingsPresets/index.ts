@@ -2,7 +2,7 @@ import {title} from './title';
 import {paddings} from './paddings';
 import {chartPaddings} from './chartPaddings';
 import {fill} from './fill';
-import {label} from './label';
+import {label, labelFields} from './label';
 import {background} from './background';
 import {chartBackground} from "./chartBackground";
 import {axisX} from "./axisX";
@@ -13,6 +13,7 @@ import {legend} from "./legend";
 import {singleValue} from "./singleValue";
 import {chartBorder} from "./chartBorder";
 import {dataSourceName} from "./dataSourceName";
+import {lineStyle} from "./lineStyle";
 
 const settingsPresets = {
     title,
@@ -20,7 +21,7 @@ const settingsPresets = {
     chartPaddings,
     paddings,
     fill,
-    label,
+    label, labelFields,
     singleValue,
     background,
     chartBackground,
@@ -30,6 +31,7 @@ const settingsPresets = {
     multiAxesY,
     legend,
     dataSourceName,
+    lineStyle,
 
     func: {
         axisY: axisYFunc,

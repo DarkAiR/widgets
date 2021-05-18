@@ -1,17 +1,14 @@
 import {IWidgetSettings, makeSettings} from "../../widgetSettings";
 import {
     ChartType,
-    ChartTypeValues, HistogramType, HistogramTypeValues,
-    LineType,
-    LineTypeValues,
+    ChartTypeValues, HistogramType, HistogramTypeValues
 } from "../../models/types";
 import {
     makeBoolean,
     makeColor,
     makeList,
     makeNumber,
-    makeSettingsGroup,
-    makeString
+    makeSettingsGroup
 } from "../../widgetSettings/controls";
 import settingsPresets from "../../widgetSettings/settingsPresets";
 
@@ -33,7 +30,7 @@ export const settings: IWidgetSettings = makeSettings({
                 makeNumber('barCategoryGap', 'Расст. между категориями, в %', 20),
                 makeNumber('barGap', 'Расст. между источниками, в %', 30, {condition: '${type} === "normal"'}),
             ]
-        ]),
+        ], {collapse: true}),
         makeBoolean('enableZoom', 'Включить zoom', false)
     ],
     dataSet: {
@@ -43,14 +40,7 @@ export const settings: IWidgetSettings = makeSettings({
             ...settingsPresets.dataSourceName,
             makeColor('color', ' Цвет'),
             makeList<ChartType>('chartType', 'Вид', 'LINE', ChartTypeValues),
-            makeSettingsGroup('lineStyle', 'Стиль линии', [
-                [
-                    makeList<LineType>('type', 'Тип', 'solid', LineTypeValues),
-                    makeNumber('width', 'Ширина', 2)
-                ],
-            ], {
-                condition: '${chartType} === "LINE"'
-            }),
+            ...settingsPresets.lineStyle,
             ...settingsPresets.fill,
             ...settingsPresets.label,
             makeNumber('axisX', 'Номер оси X', 1),

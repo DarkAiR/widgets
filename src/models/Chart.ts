@@ -4,13 +4,13 @@ import ResizeObserver from 'resize-observer-polyfill';
 import {
     DataSet,
     IChart,
-    IChartData, IColor, IEventData, ISettings,
+    IChartData, IEventData, ISettings,
     IWidgetVariables
 } from "../interfaces";
 import {WidgetConfigInner} from "./widgetConfig";
 import {EventBusWrapper, EventBus, EventBusEvent} from 'goodteditor-event-bus';
 import {IWidgetSettings} from "../widgetSettings";
-import {ColorHelper, SettingsHelper, TypeGuardsHelper} from "../helpers";
+import {SettingsHelper, TypeGuardsHelper} from "../helpers";
 import {ChartType} from "./types";
 import {WidgetOptions} from "./widgetOptions";
 
@@ -212,26 +212,15 @@ export abstract class Chart implements IChart {
 
     /**
      * Возвращает настройку из датасета
-     * @param settings Объект с настройками
+     * @param settings Объект с настройками или индекс dataSource с настройками
      * @param path название поля
      * @return возвращает значение того типа, к которому присваивается результат, поэтому нужен тип T
      */
-    protected getDataSetSettings<T = void>(settings: ISettings, path: string): T {
+    protected getDataSetSettings<T = void>(settings: ISettings | number, path: string): T {
+        if (typeof settings === 'number') {
+            settings = this.chartData.dataSets[settings].settings ?? {};
+        }
         return SettingsHelper.getDataSetSettings<T>(this.widgetSettings.dataSet.settings, settings, path);
-    }
-
-    /**
-     * Возвращает строку стилей и имя класса
-     * Оба значения можно использовать как есть в виде class=`${className}` style=`${colorStyle}`
-     * По-умолчанию альфа-канал не используется, поэтому хранится в отдельных переменных
-     * @return Всегда возвращает валидный цвет для подстановки
-     */
-    protected getColor(
-        settings: ISettings,
-        defColor: string = '#000000'
-    ): IColor {
-        const colorSetting: string = this.getDataSetSettings(settings, 'color');
-        return ColorHelper.hexToColor(!colorSetting ? defColor : colorSetting);
     }
 
     /**
@@ -242,7 +231,7 @@ export abstract class Chart implements IChart {
         const data: IChartData = this.chartData;
         if (TypeGuardsHelper.everyIsDataSetTemplate(data.dataSets)) {
             for (let idx = 0; idx < data.data.length; idx++) {
-                if (this.getDataSetSettings<ChartType>(data.dataSets[idx].settings, 'chartType') === 'HISTOGRAM') {
+                if (this.getDataSetSettings<ChartType>(idx, 'chartType') === 'HISTOGRAM') {
                     return true;
                 }
             }

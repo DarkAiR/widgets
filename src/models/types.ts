@@ -1,12 +1,14 @@
 export * from "./typesGraphQL";
 
+// NOTE: Экспортируются и значения и сами типы. Значения используются во внешних проектах.
+//       Нельзя через enum, т.к. они не экспортируются, поэтому через массив значений + type
+
 // Типы виджетов
 // Каждый тип виджета может поддерживать определенное число различный viewType
 export type WidgetType = 'SPLINE' | 'CATEGORY' | 'AVERAGE_NUMBER' | 'SOLID_GAUGE' | 'TABLE'
-     | 'REPORT' | 'STATIC' | 'KPI' | 'DISTRIBUTION' | 'PROFILE';
+     | 'REPORT' | 'STATIC' | 'KPI' | 'DISTRIBUTION' | 'PROFILE' | 'PIE';
 
 // Вид графика для spline
-// NOTE: Нельзя через enum, т.к. они не экспортируются, поэтому через массив значений + type
 export const ChartTypeValues = ['LINE', 'HISTOGRAM'] as const;
 export type ChartType = typeof ChartTypeValues[number];
 
@@ -36,3 +38,12 @@ export type HistogramType = typeof HistogramTypeValues[number];
 // Типы ресурсов до которых разграничен доступ
 export const ResourceTypeValues = ['TEMPLATE', 'DATASOURCE', 'DASHBOARD'] as const;
 export type ResourceType = typeof ResourceTypeValues[number];
+
+// Выравнивание label для pie
+// label: alignTo
+// 'none' (default): label lines have fixed length as labelLine.length and labelLine.length2.
+// 'labelLine': aligning to the end of label lines and the length of the shortest horizontal label lines is configured by labelLine.length2.
+// 'edge': aligning to text and the distance between the edges of text and the viewport is configured by label.edgeDistance
+export const PieLabelAlignValues = ['none', 'labelLine', 'edge'] as const;
+export type PieLabelAlign = typeof PieLabelAlignValues[number];
+

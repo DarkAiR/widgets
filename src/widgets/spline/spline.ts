@@ -1,13 +1,13 @@
 import w from './spline.less';
 import {settings as widgetSettings} from "./settings";
 
-import echarts from 'echarts';
+import * as echarts from 'echarts';
 import {
     DataSet,
     IChartData, IColor, ISettings,
     IWidgetVariables,
     SingleDataSource,
-    DataSetTemplate, IEventOrgUnits, XAxisData, YAxisData, TSPoint, IEventAxisXClick, DataSourceInfo
+    DataSetTemplate, IEventOrgUnits, XAxisData, YAxisData, TSPoint, DataSourceInfo, AxisEventData
 } from '../../interfaces';
 import {
     get as _get, map as _map, forEach as _forEach,
@@ -16,6 +16,7 @@ import {
 } from 'lodash';
 import {AddVarFunc, Chart} from '../../models/Chart';
 import {
+    ColorHelper,
     DateHelper,
     MathHelper,
     OrgUnitsHelper,
@@ -30,6 +31,7 @@ import {IWidgetSettings} from "../../widgetSettings";
 import {WidgetSettingsItem} from "../../widgetSettings/types";
 import {WidgetConfigInner} from "../..";
 import {WidgetOptions} from "../../models/widgetOptions";
+import {ECEventData} from "echarts/types/src/util/types";
 
 interface Interval {
     currInterval: Frequency;        // Текущий отображаемый интервал
@@ -101,8 +103,7 @@ export class Spline extends Chart {
                 [axisNumber: number]: DataByAxis
             } = [];
             for (let idx = 0; idx < data.data.length; idx++) {
-                const dataSetSettings: ISettings = data.dataSets[idx].settings;
-                const axisNumber: number = +this.getDataSetSettings(dataSetSettings, 'axisX');
+                const axisNumber: number = +this.getDataSetSettings(idx, 'axisX');
                 if (dataByAxes[axisNumber] === undefined) {
                     dataByAxes[axisNumber] = {
                         data: [],
@@ -205,15 +206,15 @@ export class Spline extends Chart {
                 disableBtn: StatesHelper.isEmpty('interval')
             });
 
-            const el = this.config.element.getElementsByClassName(w['chart'])[0];
+            const el: HTMLElement = this.config.element.getElementsByClassName(w['chart'])[0] as HTMLElement;
             const myChart = echarts.init(el);
             myChart.setOption(options);
 
             if (enableZoom && this.enableInterval) {
                 if (this.interval.currInterval !== 'DAY') {
-                    myChart.on('click', 'xAxis.category', (param: IEventAxisXClick) => this.onClickAxisX(param.value as string));
+                    myChart.on('click', 'xAxis.category', (param: ECEventData) => this.onClickAxisX((param as AxisEventData).value as string));
                 }
-                const buttons = this.config.element.getElementsByClassName(w['toolbtn']);
+                const buttons: HTMLCollectionOf<HTMLElement> = this.config.element.getElementsByClassName(w['toolbtn']) as HTMLCollectionOf<HTMLElement>;
                 buttons[0].addEventListener("click", this.leftInterval.bind(this));
                 buttons[1].addEventListener("click", this.revertInterval.bind(this));
                 buttons[2].addEventListener("click", this.rightInterval.bind(this));
@@ -239,16 +240,13 @@ export class Spline extends Chart {
 
         if (TypeGuardsHelper.everyIsDataSetTemplate(data.dataSets)) {
             for (let idx = 0; idx < data.data.length; idx++) {
-                const dataSetSettings: ISettings = data.dataSets[idx].settings;
-
-                const currColor = this.getColor(dataSetSettings);
                 let seriesData = {};
-                switch (this.getDataSetSettings<ChartType>(dataSetSettings, 'chartType')) {
+                switch (this.getDataSetSettings<ChartType>(idx, 'chartType')) {
                     case "LINE":
-                        seriesData = this.getLineSeries(idx, currColor);
+                        seriesData = this.getLineSeries(idx);
                         break;
                     case "HISTOGRAM":
-                        seriesData = this.getHistogramSeries(idx, currColor);
+                        seriesData = this.getHistogramSeries(idx);
                         break;
                     default:
                         continue;
@@ -405,10 +403,8 @@ export class Spline extends Chart {
             const histType: HistogramType = this.getWidgetSetting('histogram.type');
 
             for (let idx = 0; idx < data.data.length; idx++) {
-                const dataSetSettings: ISettings = data.dataSets[idx].settings;
-
-                const axisNumber: number = +this.getDataSetSettings(dataSetSettings, 'axisY');
-                const chartType: ChartType = this.getDataSetSettings(dataSetSettings, 'chartType');
+                const axisNumber: number = +this.getDataSetSettings(idx, 'axisY');
+                const chartType: ChartType = this.getDataSetSettings(idx, 'chartType');
 
                 let max: number = _max(timeSeriesData.values[idx]);
                 let min: number = _flow(
@@ -429,7 +425,7 @@ export class Spline extends Chart {
                     let color: string = this.getAxisSetting('axesY', 'color', axisNumber) as string;
                     if (!color) {
                         // Получаем цвет из цвета графика
-                        color = this.getDataSetSettings(dataSetSettings, 'color');
+                        color = this.getDataSetSettings(idx, 'color');
                     }
                     axesData[axisNumber] = {
                         show: this.getAxisSetting('axesY', 'show', axisNumber),
@@ -524,7 +520,10 @@ export class Spline extends Chart {
             color: (заливка)
         }
      */
-    private getLineSeries(idx: number, color: IColor): Object {
+    private getLineSeries(idx: number): Object {
+        const colorSetting: string = this.getDataSetSettings(idx, 'color');
+        const color: IColor = colorSetting ? ColorHelper.hexToColor(colorSetting) : null;
+
         return this.applySettings(idx, 'LINE', {
             type: 'line',
             smooth: true,
@@ -533,16 +532,22 @@ export class Spline extends Chart {
             showSymbol: true,
             symbolSize: 4,
 
-            color: color.hex,                   // Основной цвет
-            itemStyle: {
-                opacity: color.opacity          // Прозрачность влияет на весь подписи + метки
-            },
+            ...(!color ? {} : {
+                color: color.hex                // Основной цвет
+            }),
+            ...(!color ? {} : {
+                itemStyle: {
+                    opacity: color.opacity      // Прозрачность влияет на все подписи + метки
+                }
+            }),
             lineStyle: {
                 shadowBlur: 2,
                 shadowColor: 'rgba(0, 0, 0, 0.3)',
-                type: this.getDataSetSettings(this.chartData.dataSets[idx].settings, 'lineStyle.type'),
-                width: this.getDataSetSettings(this.chartData.dataSets[idx].settings, 'lineStyle.width'),
-                opacity: color.opacity,         // Прозрачность линии
+                type: this.getDataSetSettings(idx, 'lineStyle.type'),
+                width: this.getDataSetSettings(idx, 'lineStyle.width'),
+                ...(!color ? {} : {
+                    opacity: color.opacity,         // Прозрачность линии
+                })
             },
             label: {
                 show: false,
@@ -566,9 +571,10 @@ export class Spline extends Chart {
         });
     }
 
-    private getHistogramSeries(idx: number, color: IColor): Object {
-        const dataSetSettings: ISettings = this.chartData.dataSets[idx].settings;
-        const axisNumber: number = +this.getDataSetSettings(dataSetSettings, 'axisY');
+    private getHistogramSeries(idx: number): Object {
+        const axisNumber: number = +this.getDataSetSettings(idx, 'axisY');
+        const colorSetting: string = this.getDataSetSettings(idx, 'color');
+        const color: IColor = colorSetting ? ColorHelper.hexToColor(colorSetting) : null;
 
         let histogramType: ISettings = {};
         switch (this.getWidgetSetting<HistogramType>('histogram.type')) {
@@ -588,10 +594,14 @@ export class Spline extends Chart {
             type: 'bar',
             seriesLayoutBy: 'column',
 
-            color: color.hex,                   // Основной цвет
-            itemStyle: {
-                opacity: color.opacity          // Прозрачность влияет на весь bar подписи + метки
-            },
+            ...(!color ? {} : {
+                color: color.hex                // Основной цвет
+            }),
+            ...(!color ? {} : {
+                itemStyle: {
+                    opacity: color.opacity      // Прозрачность влияет на все подписи + метки
+                }
+            }),
             label: {
                 show: false,
                 position: 'inside',
@@ -618,9 +628,7 @@ export class Spline extends Chart {
      * Добавляем стандартные настройки для каждого dataSet
      */
     private applySettings(idx: number, chartType: ChartType, seriesData: Object): Object {
-        const getSetting = <T = void>(path: string): T => this.getDataSetSettings<T>(this.chartData.dataSets[idx].settings, path);
-
-        seriesData['name'] = getSetting('name.name') || ' ';     // Чтобы чтото отобразилось, нужно хотя бы пробел
+        seriesData['name'] = this.getDataSetSettings(idx, 'name.name') || ' ';     // Чтобы чтото отобразилось, нужно хотя бы пробел
 
         _merge(seriesData, SettingsHelper.getLabelSettings(this.widgetSettings.dataSet.settings, this.chartData.dataSets[idx].settings));
         _merge(seriesData, SettingsHelper.getFillSettings(this.widgetSettings.dataSet.settings, this.chartData.dataSets[idx].settings, chartType));
