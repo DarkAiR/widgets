@@ -115,7 +115,7 @@ export class Static extends Chart {
 
                 series.push({
                     type: "scatter",
-                    name: this.getDataSetSettings<string>(idx, 'name.name') || ' ',     // Чтобы чтото отобразилось, нужно хотя бы пробел
+                    name: this.getDataSetSettings(idx, 'name.name') || ' ',     // Чтобы чтото отобразилось, нужно хотя бы пробел
                     ...(!color ? {} : {
                         color: color.hex                // Основной цвет
                     }),

@@ -1,4 +1,9 @@
+import dayjs, {Dayjs} from 'dayjs';
+require('dayjs/locale/ru');
+
 export class DateHelper {
+    static months: string[] = null;
+
     static getDaysInYear(date: Date): number {
         return [...new Array(12)]
             .map((v: never, month: number) => new Date(date.getFullYear(), month + 1, 0).getDate())
@@ -9,12 +14,29 @@ export class DateHelper {
         return new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
     }
 
-    static yyyymmdd(date: Date): string {
-        return date.getFullYear() + '-' + ['0' + (date.getMonth() + 1), '0' + date.getDate()].map((vv: string) => vv.slice(-2)).join('-');
+    static yyyymmdd(dateIn?: Dayjs): string {
+        if (!dateIn) {
+            dateIn = dayjs();
+        }
+        return dateIn.format('YYYY-MM-DD');
+    }
+
+    static ddmmyyyy(dateIn?: Dayjs): string {
+        if (!dateIn) {
+            dateIn = dayjs();
+        }
+        return dateIn.format('DD.MM.YYYY');
+    }
+
+    static time(dateIn?: Dayjs): string {
+        if (!dateIn) {
+            dateIn = dayjs();
+        }
+        return dateIn.format('hh:mm:ss');
     }
 
     /**
-     * Правильная конвертация в ISO, с учетом TimeZone
+     * Конвертация в усеченный ISO, с учетом TimeZone
      */
     static toISOString(date: Date): string {
         const pad = function (num: number): string {
@@ -30,5 +52,24 @@ export class DateHelper {
 
     static addDate(date: Date, year: number, month: number, day: number): Date {
         return new Date(date.getFullYear() + year, date.getMonth() + month, date.getDate() + day, date.getHours(), date.getMinutes(), date.getSeconds(), date.getMilliseconds());
+    }
+
+    static getMonthsAbbr(): string[] {
+        if (DateHelper.months === null) {
+            DateHelper.months = [...new Array(12)].map((v: unknown, i: number) => {
+                let month: string = dayjs().locale('ru').set('month', i).format('MMM');
+
+                // firstLetterUppercase
+                month = month.charAt(0).toUpperCase() + month.substring(1, month.length);
+
+                // rtrim('.')
+                const arr: string[] = [...month];
+                if (arr[arr.length - 1] === '.') {
+                    arr.pop();
+                }
+                return arr.join('');
+            });
+        }
+        return DateHelper.months;
     }
 }

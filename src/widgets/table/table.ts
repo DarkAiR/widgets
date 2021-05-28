@@ -8,10 +8,12 @@ import {
 } from "../../interfaces";
 import {get as _get, map as _map, filter as _filter, keyBy as _keyBy} from "lodash";
 import {AddVarFunc, Chart} from "../../models/Chart";
-import {TypeGuardsHelper} from "../../helpers";
+import {DateHelper, TypeGuardsHelper} from "../../helpers";
 import {IWidgetSettings} from "../../widgetSettings";
 import {WidgetConfigInner} from "../..";
 import {WidgetOptions} from "../../models/widgetOptions";
+import dayjs, {Dayjs} from "dayjs";
+import {Frequency} from "../../models/typesGraphQL";
 
 type VarNames = 'org units';
 
@@ -65,32 +67,56 @@ export class Table extends Chart {
                 ...metrics
             ], this.getDataSetSettings(0, 'columnNames'));
             let key = 0;
-            const rows: Array<{cols: INameValue<{k: number, v: string}>[]}> = points.map((v: TableRow) => {
-                const row = [];
-                const pointDimensionsName: string = _keyBy(v.dimensions, 'name');
-                const pointMetricsName: string = _keyBy(v.metrics, 'name');
+            const rows: Array<{cols: INameValue<{k: number, v: string}>[]}> = points
+                .sort((a: TableRow, b: TableRow) => {
+                    const v1: number = dayjs(a.localDateTime).valueOf();
+                    const v2: number = dayjs(b.localDateTime).valueOf();
+                    return v1 < v2 ? -1 : (v1 === v2 ? 0 : 1);
+                })
+                .map((v: TableRow) => {
+                    const row = [];
+                    const pointDimensionsName: string = _keyBy(v.dimensions, 'name');
+                    const pointMetricsName: string = _keyBy(v.metrics, 'name');
 
-                row.push({name: 'localDateTime', value: {k: key++, v: new Date(v.localDateTime).toLocaleDateString()}});   // Конвертируем даты
-                dimensions.forEach((dimName: string) => {
-                    row.push({
-                        name: dimName,
-                        value: {
-                            k: key++,
-                            v: _get(pointDimensionsName[dimName], 'entity.name', _get(pointDimensionsName[dimName], 'value', ''))
-                        }
+                    row.push({name: 'localDateTime', value: {k: key++, v: this.getDateStr(dataSet.frequency, v.localDateTime)}});   // Конвертируем даты
+                    dimensions.forEach((dimName: string) => {
+                        row.push({
+                            name: dimName,
+                            value: {
+                                k: key++,
+                                v: _get(pointDimensionsName[dimName], 'entity.name', _get(pointDimensionsName[dimName], 'value', ''))
+                            }
+                        });
                     });
+                    metrics.forEach((metricName: string) => {
+                        row.push({name: metricName, value: {k: key++, v: _get(pointMetricsName[metricName], 'value', '')}});
+                    });
+                    return {cols: row};
                 });
-                metrics.forEach((metricName: string) => {
-                    row.push({name: metricName, value: {k: key++, v: _get(pointMetricsName[metricName], 'value', '')}});
-                });
-                return {cols: row};
-            });
 
             this.config.element.innerHTML = this.renderTemplate({
                 title: this.getWidgetSetting('title'),
                 header,
                 rows
             });
+        }
+    }
+
+    private getDateStr(frequency: Frequency, localDateTime: string): string {
+        const date: Dayjs = dayjs(localDateTime);
+        switch (frequency) {
+            default:
+            case "ALL":
+                return date.format('DD.MM.YYYY');
+            case "YEAR":
+                return date.format('YYYY');
+            case "MONTH":
+                return DateHelper.getMonthsAbbr()[date.month()];
+            case "WEEK":
+            case "DAY":
+                return date.format('DD.MM.YYYY');
+            case "HOUR":
+                return date.format('DD.MM.YYYY HH:mm');
         }
     }
 
