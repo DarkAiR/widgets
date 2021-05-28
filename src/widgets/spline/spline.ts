@@ -32,6 +32,7 @@ import {WidgetSettingsItem} from "../../widgetSettings/types";
 import {WidgetConfigInner} from "../..";
 import {WidgetOptions} from "../../models/widgetOptions";
 import {ECEventData} from "echarts/types/src/util/types";
+import dayjs from 'dayjs';
 
 interface Interval {
     currInterval: Frequency;        // Текущий отображаемый интервал
@@ -334,7 +335,6 @@ export class Spline extends Chart {
             }
 
             const enableZoom: boolean = this.getWidgetSetting('enableZoom');
-            const monthNames = ["Янв", "Фев", "Март", "Апр", "Май", "Июнь", "Июль", "Авг", "Сент", "Окт", "Нояб", "Дек"];
             const res = SettingsHelper.getXAxisSettings(
                 axData.axisData,
                 axisNumber,
@@ -351,7 +351,7 @@ export class Spline extends Chart {
                         case 'YEAR':
                             return date.getFullYear();
                         case 'MONTH':
-                            return monthNames[date.getMonth()];
+                            return DateHelper.getMonthsAbbr()[date.getMonth()];
                         case 'HOUR':
                             if (this.interval.currInterval === 'DAY') {
                                 return ('0' + date.getHours()).slice(-2) + ':00';
@@ -660,8 +660,8 @@ export class Spline extends Chart {
         // Выставляем новые интервалы
         this.chartData.dataSets.forEach((dataSet: DataSetTemplate, idx: number) => {
             dataSet.period = null;
-            dataSet.from = DateHelper.yyyymmdd(new Date(this.interval.cutFrom));
-            dataSet.to = DateHelper.yyyymmdd(new Date(this.interval.cutTo));
+            dataSet.from = DateHelper.yyyymmdd(dayjs(this.interval.cutFrom));
+            dataSet.to = DateHelper.yyyymmdd(dayjs(this.interval.cutTo));
         });
 
         this.redraw().then();
@@ -691,8 +691,8 @@ export class Spline extends Chart {
         // Выставляем новые интервалы
         this.chartData.dataSets.forEach((dataSet: DataSetTemplate, idx: number) => {
             dataSet.period = null;
-            dataSet.from = DateHelper.yyyymmdd(new Date(this.interval.cutFrom));
-            dataSet.to = DateHelper.yyyymmdd(new Date(this.interval.cutTo));
+            dataSet.from = DateHelper.yyyymmdd(dayjs(this.interval.cutFrom));
+            dataSet.to = DateHelper.yyyymmdd(dayjs(this.interval.cutTo));
         });
 
         this.redraw().then();
@@ -761,8 +761,8 @@ export class Spline extends Chart {
                 dataSet.preFrequency = TimeSeriesHelper.decreaseFrequency(dataSet.preFrequency, 'HOUR');
             }
             dataSet.period = null;
-            dataSet.from = DateHelper.yyyymmdd(new Date(this.interval.cutFrom));
-            dataSet.to = DateHelper.yyyymmdd(new Date(this.interval.cutTo));
+            dataSet.from = DateHelper.yyyymmdd(dayjs(this.interval.cutFrom));
+            dataSet.to = DateHelper.yyyymmdd(dayjs(this.interval.cutTo));
         });
 
         // Refresh widget

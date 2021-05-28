@@ -20,7 +20,7 @@ export const settings: IWidgetSettings = makeSettings({
                     makeNumber('radius1', 'Внутренний, %', 0, {min: 0, max: 100}),
                     makeNumber('radius2', 'Внешний, %', 75, {min: 0, max: 100})
                 ]
-            ], {collapse: true}),
+            ]),
             makeSettingsGroup('label', 'Формат вывода значений', [
                 ...settingsPresets.labelFields,
                 [

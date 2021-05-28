@@ -27,7 +27,7 @@ export abstract class Chart implements IChart {
 
     private resizeObserver: ResizeObserver = null;
 
-    // tslint:disable: no-any
+    // tslint:disable-next-line: no-any
     private readonly template: any = null;              // Скомпилированный шаблон
 
     initialized: boolean = false;                       // Виджет прошел создание и может быть отрендерен
@@ -151,7 +151,7 @@ export abstract class Chart implements IChart {
         this.config.template.dataSets.forEach((dataSet: DataSet) => {
             let name: string = null;
             try {
-                name = this.getDataSetSettings<string>(dataSet.settings, 'name.id');
+                name = this.getDataSetSettings(dataSet.settings, 'name.id');
             } catch (err) {}
             if (name) {
                 res.push(name);
@@ -167,7 +167,7 @@ export abstract class Chart implements IChart {
         const index: number = this.config.template.dataSets.findIndex((dataSet: DataSet) => {
             let name: string = null;
             try {
-                name = this.getDataSetSettings<string>(dataSet.settings, 'name.id');
+                name = this.getDataSetSettings(dataSet.settings, 'name.id');
             } catch (err) {}
             return dataSourceName === name;
         });

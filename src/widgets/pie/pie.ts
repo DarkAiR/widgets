@@ -62,7 +62,6 @@ export class Pie extends Chart {
             if (TypeGuardsHelper.everyIsDataSetTemplate(data.dataSets)) {
                 const dimInfos: DimensionInfo[] = await this.getDimensionInfos(data.dataSets);
                 const seriesData = this.getData(data.data as TSPoint[][], dimInfos);
-
                 const options = {
                     tooltip: {
                         trigger: 'item',
@@ -157,12 +156,12 @@ export class Pie extends Chart {
     private getSeriesData(idx: number): ISettings {
         return {
             type: 'pie',
-            name: this.getDataSetSettings<string>(idx, 'name.name') || ' ',    // Чтобы чтото отобразилось, нужно хотя бы пробел
+            name: this.getDataSetSettings(idx, 'name.name') || ' ',    // Чтобы чтото отобразилось, нужно хотя бы пробел
             radius: [`${this.getDataSetSettings<number>(idx, 'radius.radius1') || 0}%`, `${this.getDataSetSettings<number>(idx, 'radius.radius2') || 75}%`],
             center: ['50%', '50%'],
             selectedMode: 'single',
             label: {
-                distanceToLabelLine: this.getDataSetSettings<number>(idx, 'label.distanceToLabelLine'),
+                distanceToLabelLine: +this.getDataSetSettings<number>(idx, 'label.distanceToLabelLine'),
                 alignTo: this.getDataSetSettings<PieLabelAlign>(idx, 'label.alignTo'),
                 ...SettingsHelper.getLabelSettings(this.widgetSettings.dataSet.settings, this.chartData.dataSets[idx].settings).label,
             }
