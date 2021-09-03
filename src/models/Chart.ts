@@ -35,6 +35,7 @@ export abstract class Chart implements IChart {
     abstract run(): void;                               // Запуск виджета
     abstract getSettings(): IWidgetSettings;            // Получить настройки виджета
     abstract getVariables(): IWidgetVariables;          // Получить переменные для общения по шине
+    abstract getStyles(): ISettings;                    // Получить уникальные для виджета стили
 
     // Получить шаблон. Если не перегружена (null), то шаблонизатор не используется
     getTemplate(): string | null { return null; }
@@ -56,7 +57,15 @@ export abstract class Chart implements IChart {
             this.config.eventBus = new EventBusWrapper(new EventBus());
         }
 
-        const template = this.getTemplate();
+        let template = this.getTemplate();
+
+        console.log('TEMPLATE BEFORE:');
+        console.log(template);
+
+        template = this.replaceTemplateClasses(template);
+        console.log('TEMPLATE AFTER:');
+        console.log(template);
+
         if (template) {
             this.template = hogan.compile(template);
         }
@@ -237,6 +246,26 @@ export abstract class Chart implements IChart {
             }
         }
         return false;
+    }
+
+    /**
+     * Заменить все названия классов на нужные
+     * @param template
+     */
+    protected replaceTemplateClasses(template: string): string {
+        const styles: ISettings = this.getStyles();
+        const classesRegexp = /(\sclass=)(["'])([\s\S]*?)(\2)/gm;
+        const classNameRegexp = /(\s*)(\S+)/g;
+
+        return template.replaceAll(classesRegexp, (srcStr: string, p1: string, p2: string, classes: string, p4: string) => {
+            classes = classes.replaceAll(classNameRegexp, (subStr2: string, c1: string, className: string) => {
+                return className.indexOf('mdi') === 0       // Исключаем mid-классы из преобразования
+                    ? `${c1}${className}`
+                    : `${c1}${styles[className]}`;
+            });
+            return `${p1}${p2}${classes}${p4}`;
+        });
+        return template;
     }
 
     /**

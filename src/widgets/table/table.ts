@@ -239,7 +239,7 @@ export class Table extends Chart {
                     {{#rows}}
                     <tr>
                         {{#cols}}
-                        <td class="table-small ${w['value']}" attr-key="{{value.k}}">{{value.v}}</td>
+                        <td class="${w['value']}" attr-key="{{value.k}}">{{value.v}}</td>
                         {{/cols}}
                     </tr>
                     {{/rows}}

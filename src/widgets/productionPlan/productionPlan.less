@@ -1,0 +1,68 @@
+@import (reference) "~goodt-framework-css/src/_params.less";
+@import (reference) "~goodt-framework-css/src/_helpers.less";
+@import (reference) "~goodt-framework-css/src/components/table.less";
+@import (reference) "~goodt-framework-css/src/components/badge.less";
+@import "~goodt-framework-css/src/utility.less";
+@import "../../styles/_widget.less";
+
+.widget {
+    overflow: initial;      // Отключаем overflow т.к. таблицы не ресайзятся
+}
+
+.header {
+    display: flex;
+    padding: var(--spacer4);
+}
+
+.badge {
+    &:extend(.badge all);
+
+    padding: var(--spacer2);
+    display: flex;
+    align-items: safe center;
+    justify-content: center;
+
+    &.lateness,
+    &.earlyDeparture {
+        width: 1.75rem;
+        height: 1.75rem;
+    }
+
+    &.rating {
+        min-width: var(--spacer8);
+        height: 1.75rem;
+        background: var(--color-grey-lighter);
+        color: var(--color-grey-dark);
+    }
+}
+
+.table {
+    &:extend(.table all);
+
+    width: 100%;
+    border-top: @table-borders-row-border;
+    border-bottom: @table-borders-row-border;
+
+    th {
+        font-weight: normal;
+        text-align: left;
+        white-space: nowrap;
+        padding: var(--spacer4) var(-spacer3);
+
+        &:first-child {
+            padding: var(--spacer4);
+        }
+    }
+
+    td:first-child {
+        padding-left: 0;
+    }
+
+    td:last-child {
+        padding-right: 0;
+    }
+
+    .fio {
+        line-height: 1.15rem;
+    }
+}

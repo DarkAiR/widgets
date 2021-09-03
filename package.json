@@ -1,6 +1,7 @@
 {
   "scripts": {
     "dev": "npm run lint  &&  SET \"NODE_ENV=dev\"  &&  webpack --display-error-details --config webpack.dev.js",
+    "dev-2": "SET \"NODE_ENV=dev\"  &&  webpack --display-error-details --config webpack.dev.js",
     "dev-unix": "NODE_ENV=dev  &&  npm run lint  &&  webpack --display-error-details --config webpack.dev.js",
     "build": "npm run lint  &&  SET \"NODE_ENV=prod\"  &&  webpack --config webpack.prod.js",
     "build-unix": "NODE_ENV=prod  &&  npm run lint  &&  webpack --config webpack.prod.js",
@@ -39,7 +40,7 @@
     "css-loader": "^1.0.1",
     "dayjs": "^1.10.5",
     "echarts": "^5.1.1",
-    "goodt-framework-css": "^1.0.22",
+    "goodt-framework-css": "^1.1.3",
     "goodteditor-event-bus": "^1.1.2",
     "hammerjs": "^2.0.8",
     "hogan.js": "^3.0.2",

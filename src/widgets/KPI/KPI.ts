@@ -5,7 +5,6 @@ import {
     DataSetTemplate, DataSourceInfo,
     IChartData,
     IEventOrgUnits,
-    ISettings,
     IWidgetVariables, SingleDataSource,
     TSPoint
 } from "../../interfaces";

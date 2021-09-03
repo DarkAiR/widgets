@@ -20,6 +20,7 @@ export interface ISplineLess {
   'btn-icon': string;
   'icon': string;
   'btn-group': string;
+  'btn-wrap': string;
   'widget': string;
   'title': string;
   'chart': string;
