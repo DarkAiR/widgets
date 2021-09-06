@@ -20,12 +20,13 @@ export interface ISplineLess {
   'btn-icon': string;
   'icon': string;
   'btn-group': string;
+  'btn-wrap': string;
   'widget': string;
   'title': string;
   'chart': string;
+  'toolbtn': string;
   'header': string;
   'toolbox': string;
-  'toolbtn': string;
 }
 
 export const locals: ISplineLess;

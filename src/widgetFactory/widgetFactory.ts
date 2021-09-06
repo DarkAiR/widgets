@@ -17,17 +17,19 @@ export class WidgetFactory {
     static loadWidgetConfig(widgetType: WidgetType): Promise<IWidgetSettings> {
         type T = Promise<{settings: IWidgetSettings}>;
         const widgetTypeToImport: Record<WidgetType, () => T> = {
-            'SPLINE':           () => import('../widgets/spline/settings'),
-            'CATEGORY':         () => import('../widgets/category/settings'),
-            'AVERAGE_NUMBER':   () => import('../widgets/averageNumber/settings'),
-            'SOLID_GAUGE':      () => import('../widgets/solidGauge/settings'),
-            'TABLE':            () => import('../widgets/table/settings'),
-            'REPORT':           () => import('../widgets/report/settings'),
-            'STATIC':           () => import('../widgets/static/settings'),
-            'KPI':              () => import('../widgets/KPI/settings'),
-            'DISTRIBUTION':     () => import('../widgets/distribution/settings'),
-            'PROFILE':          () => import('../widgets/profile/settings'),
-            'PIE':              () => import('../widgets/pie/settings')
+            'SPLINE':               () => import('../widgets/spline/settings'),
+            'CATEGORY':             () => import('../widgets/category/settings'),
+            'AVERAGE_NUMBER':       () => import('../widgets/averageNumber/settings'),
+            'SOLID_GAUGE':          () => import('../widgets/solidGauge/settings'),
+            'TABLE':                () => import('../widgets/table/settings'),
+            'REPORT':               () => import('../widgets/report/settings'),
+            'STATIC':               () => import('../widgets/static/settings'),
+            'KPI':                  () => import('../widgets/KPI/settings'),
+            'DISTRIBUTION':         () => import('../widgets/distribution/settings'),
+            'PROFILE':              () => import('../widgets/profile/settings'),
+            'PIE':                  () => import('../widgets/pie/settings'),
+            "PRODUCTION_PLAN":      () => import('../widgets/productionPlan/settings'),
+            "DISCIPLINE_REPORT":    () => import('../widgets/disciplineReport/settings')
         };
         return new Promise((resolve: ResolveFunc, reject: RejectFunc) => {
             if (!widgetTypeToImport[widgetType]) {
@@ -85,17 +87,19 @@ export class WidgetFactory {
         StatesHelper.clear();
 
         const widgetsArr: WidgetsArr = {
-            "SPLINE":           () => widgets.Spline.Spline,
-            "CATEGORY":         () => widgets.Category.Category,
-            "AVERAGE_NUMBER":   () => widgets.AverageNumber.AverageNumber,
-            "SOLID_GAUGE":      () => widgets.SolidGauge.SolidGauge,
-            "TABLE":            () => widgets.Table.Table,
-            "REPORT":           () => widgets.Report.Report,
-            "STATIC":           () => widgets.Static.Static,
-            "KPI":              () => widgets.KPI.KPI,
-            "DISTRIBUTION":     () => widgets.Distribution.Distribution,
-            "PROFILE":          () => widgets.Profile.Profile,
-            "PIE":              () => widgets.Pie.Pie
+            "SPLINE":               () => widgets.Spline.Spline,
+            "CATEGORY":             () => widgets.Category.Category,
+            "AVERAGE_NUMBER":       () => widgets.AverageNumber.AverageNumber,
+            "SOLID_GAUGE":          () => widgets.SolidGauge.SolidGauge,
+            "TABLE":                () => widgets.Table.Table,
+            "REPORT":               () => widgets.Report.Report,
+            "STATIC":               () => widgets.Static.Static,
+            "KPI":                  () => widgets.KPI.KPI,
+            "DISTRIBUTION":         () => widgets.Distribution.Distribution,
+            "PROFILE":              () => widgets.Profile.Profile,
+            "PIE":                  () => widgets.Pie.Pie,
+            "PRODUCTION_PLAN":      () => widgets.ProductionPlan.ProductionPlan,
+            "DISCIPLINE_REPORT":    () => widgets.DisciplineReport.DisciplineReport,
 
         };
         if (!widgetsArr[config.template.widgetType]) {

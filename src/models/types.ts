@@ -4,9 +4,10 @@ export * from "./typesGraphQL";
 //       Нельзя через enum, т.к. они не экспортируются, поэтому через массив значений + type
 
 // Типы виджетов
-// Каждый тип виджета может поддерживать определенное число различный viewType
+// Каждый тип виджета может поддерживать определенное число различных viewType
 export type WidgetType = 'SPLINE' | 'CATEGORY' | 'AVERAGE_NUMBER' | 'SOLID_GAUGE' | 'TABLE'
-     | 'REPORT' | 'STATIC' | 'KPI' | 'DISTRIBUTION' | 'PROFILE' | 'PIE';
+     | 'REPORT' | 'STATIC' | 'KPI' | 'DISTRIBUTION' | 'PROFILE' | 'PIE'
+     | 'PRODUCTION_PLAN' | 'DISCIPLINE_REPORT';
 
 // Вид графика для spline
 export const ChartTypeValues = ['LINE', 'HISTOGRAM'] as const;

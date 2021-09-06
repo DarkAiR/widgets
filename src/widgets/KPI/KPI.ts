@@ -1,11 +1,10 @@
-import w from "./KPI.less";
+import widgetStyles from "./KPI.less";
 import {settings as widgetSettings} from "./settings";
 import {
     DataSet,
     DataSetTemplate, DataSourceInfo,
     IChartData,
-    IEventOrgUnits,
-    ISettings,
+    IEventOrgUnits, ISettings,
     IWidgetVariables, SingleDataSource,
     TSPoint
 } from "../../interfaces";
@@ -22,6 +21,12 @@ import {WidgetOptions} from "../../models/widgetOptions";
 type VarNames = 'org units' | 'period' | 'start date' | 'finish date' | 'version filter';
 
 export class KPI extends Chart {
+    constructor(config: WidgetConfigInner, options: WidgetOptions) {
+        super(config, options);
+        // Инициализация в конструкторе, чтобы можно было вызвать инициализацию переменных до первого рендера
+        this.onEventBus = this.onEventBusFunc.bind(this);
+    }
+
     getVariables(): IWidgetVariables {
         const res: IWidgetVariables = {};
         const addVar: AddVarFunc<VarNames> = this.addVar(res);
@@ -44,10 +49,8 @@ export class KPI extends Chart {
         return widgetSettings;
     }
 
-    constructor(config: WidgetConfigInner, options: WidgetOptions) {
-        super(config, options);
-        // Инициализация в конструкторе, чтобы можно было вызвать инициализацию переменных до первого рендера
-        this.onEventBus = this.onEventBusFunc.bind(this);
+    getStyles(): ISettings {
+        return widgetStyles;
     }
 
     run(): void {
@@ -124,9 +127,9 @@ export class KPI extends Chart {
 
     getTemplate(): string {
         return `
-            <div class="${w['widget']}" style="{{backgroundStyle}} {{paddingStyle}}">
+            <div class="widget" style="{{backgroundStyle}} {{paddingStyle}}">
                 {{#showTitle}}
-                <div class="${w['title']}" style="{{titleStyle}}">
+                <div class="title" style="{{titleStyle}}">
                     {{title}}
                 </div>
                 {{/showTitle}}

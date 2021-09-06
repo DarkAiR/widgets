@@ -16,6 +16,7 @@ import {WidgetOptions} from "./widgetOptions";
 
 const hogan = require('hogan.js');
 
+type EventBusFunc = (varName: string, value: string, dataSourceId: number) => Promise<boolean>;
 export type AddVarFunc<T> = (dataSourceIndex: number, name: T, description: string, hint: string) => void;
 
 export abstract class Chart implements IChart {
@@ -35,18 +36,21 @@ export abstract class Chart implements IChart {
     abstract run(): void;                               // Запуск виджета
     abstract getSettings(): IWidgetSettings;            // Получить настройки виджета
     abstract getVariables(): IWidgetVariables;          // Получить переменные для общения по шине
+    abstract getStyles(): ISettings;                    // Получить уникальные для виджета стили
 
     // Получить шаблон. Если не перегружена (null), то шаблонизатор не используется
     getTemplate(): string | null { return null; }
 
     // Обработчик изменения размера
+    // По-умолчанию пустой
     onResize: (width: number, height: number) => void = (width, height) => {};
 
     /**
      * Обработчик сообщений от шины
+     * По-умолчанию пустой и возвращает false
      * @return true - если необходима перерисовка
      */
-    onEventBus: (varName: string, value: string, dataSourceId: number) => Promise<boolean> = async (...args): Promise<boolean> => false;
+    onEventBus: EventBusFunc = async (...args): Promise<boolean> => false;
 
     constructor(config: WidgetConfigInner, options: WidgetOptions) {
         this.config = config;
@@ -56,7 +60,8 @@ export abstract class Chart implements IChart {
             this.config.eventBus = new EventBusWrapper(new EventBus());
         }
 
-        const template = this.getTemplate();
+        let template = this.getTemplate();
+        template = this.replaceTemplateClasses(template);
         if (template) {
             this.template = hogan.compile(template);
         }
@@ -237,6 +242,26 @@ export abstract class Chart implements IChart {
             }
         }
         return false;
+    }
+
+    /**
+     * Заменить все названия классов на нужные
+     * @param template
+     */
+    protected replaceTemplateClasses(template: string): string {
+        const styles: ISettings = this.getStyles();
+        const classesRegexp = /(\sclass=)(["'])([\s\S]*?)(\2)/gm;
+        const classNameRegexp = /(\s*)(\S+)/g;
+
+        return template.replaceAll(classesRegexp, (srcStr: string, p1: string, p2: string, classes: string, p4: string) => {
+            classes = classes.replaceAll(classNameRegexp, (subStr2: string, c1: string, className: string) => {
+                return className.indexOf('mdi') === 0       // Исключаем mid-классы из преобразования
+                    ? `${c1}${className}`
+                    : `${c1}${styles[className]}`;
+            });
+            return `${p1}${p2}${classes}${p4}`;
+        });
+        return template;
     }
 
     /**

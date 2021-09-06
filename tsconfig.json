@@ -21,7 +21,8 @@
      "lib": [
        "es2015",
        "es2016",
-       "dom"
+       "dom",
+       "ESNext.String"
      ]
 //    "baseUrl": "src",
 //    "paths": {

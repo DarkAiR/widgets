@@ -12,7 +12,7 @@ npm i abc-charts --save
 Importing needed classes 
 
 ```js
-import {WidgetConfig} from 'abc-charts';
+import {WidgetConfig} from 'abc-charts/widgetConfig';
 import {WidgetFactory} from 'abc-charts/widgetFactory';     // Фабрика
 import {dataProvider} from "abc-charts/dataProvider";       // Провайдер данных
 import {Constants} from "abc-charts/constants";             // Значения литеральных типов и перечислений
@@ -222,6 +222,12 @@ private createWidget(...) {
 - Добавляем новый тип виджета в файл```src/models/types.ts```
 
 ```type WidgetType = ... | 'WIDGET_TYPE' ```
+
+#### Deploy
+
+- Меняем версию в ```package-lib.json```
+- Корректно вносим изменения в ```CHANGELOG.md```
+- Вызываем ```npm run postversion``` 
 
 #### Структура виджета
 

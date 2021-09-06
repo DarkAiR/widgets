@@ -26,6 +26,7 @@ module.exports = (env) => {
         entry: {
             "abc-charts":       path.resolve(__dirname, 'src', 'index.ts'),
             widgetFactory:      path.resolve(__dirname, 'src', 'widgetFactory', 'index.ts'),
+            widgetConfig:       path.resolve(__dirname, 'src', 'models', 'widgetConfig.ts'),
             dataProvider:       path.resolve(__dirname, 'src', 'dataProvider', 'dataProvider.ts'),
             constants:          path.resolve(__dirname, 'src', 'models', 'constants.ts'),
             settings:           path.resolve(__dirname, 'src', 'widgetSettings', 'controls', 'index.ts'),
@@ -41,8 +42,9 @@ module.exports = (env) => {
        },
         optimization: {
             // runtimeChunk: true,         // exclude webpackBootstrap
+            removeAvailableModules: true,
             splitChunks: {
-                chunks: 'async',
+                chunks: 'async'
             }
         },
         module: {

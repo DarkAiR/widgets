@@ -1,14 +1,14 @@
-import widgetStyles from "./table.less";
+import widgetStyles from "./productionPlan.less";
 import {settings as widgetSettings} from "./settings";
 
 import {
     DimensionFilter,
-    IChartData, IEventOrgUnits, INameValue, ISettings,
-    IWidgetVariables, JoinDataSetTemplate, TableRow, TimeSeriesDataSetShort
+    IChartData, IEventOrgUnits, INameValue,
+    IWidgetVariables, JoinDataSetTemplate, TableRow, TimeSeriesDataSetShort, ISettings
 } from "../../interfaces";
-import {get as _get, map as _map, filter as _filter, keyBy as _keyBy} from "lodash";
+import {get as _get, map as _map, filter as _filter} from "lodash";
 import {AddVarFunc, Chart} from "../../models/Chart";
-import {DateHelper, TypeGuardsHelper} from "../../helpers";
+import {DateHelper, SettingsHelper, TypeGuardsHelper} from "../../helpers";
 import {IWidgetSettings} from "../../widgetSettings";
 import {WidgetConfigInner} from "../..";
 import {WidgetOptions} from "../../models/widgetOptions";
@@ -17,7 +17,26 @@ import {Frequency} from "../../models/typesGraphQL";
 
 type VarNames = 'org units';
 
-export class Table extends Chart {
+interface ProductionPlanData {
+    info: {
+        id: number;
+        fio: string;
+        position: string;
+    };
+    lateness: {
+        count: string;
+        interval: string;
+    };
+    earlyDeparture: {
+        count: string;
+        interval: string;
+    };
+    rating: {
+        value: string;
+    };
+}
+
+export class ProductionPlan extends Chart {
     constructor(config: WidgetConfigInner, options: WidgetOptions) {
         super(config, options);
         // Инициализация в конструкторе, чтобы можно было вызвать инициализацию переменных до первого рендера
@@ -64,42 +83,52 @@ export class Table extends Chart {
                 }
             );
 
+            if (metrics.length < 3) {
+                throw new Error('You should set up at least 3 metrics');
+            }
+
             // Готовим данные, формируем общий список метрик
             const header: string[] = this.mapToNames([
-                'Date',
-                ...dimensions,
-                ...metrics
+                'Сотрудники',
+                ...metrics.splice(0, 3)
             ], this.getDataSetSettings(0, 'columnNames'));
-            let key = 0;
-            const rows: Array<{cols: INameValue<{k: number, v: string}>[]}> = points
-                .sort((a: TableRow, b: TableRow) => {
-                    const v1: number = dayjs(a.localDateTime).valueOf();
-                    const v2: number = dayjs(b.localDateTime).valueOf();
-                    return v1 < v2 ? -1 : (v1 === v2 ? 0 : 1);
-                })
-                .map((v: TableRow) => {
-                    const row = [];
-                    const pointDimensionsName: string = _keyBy(v.dimensions, 'name');
-                    const pointMetricsName: string = _keyBy(v.metrics, 'name');
 
-                    row.push({name: 'localDateTime', value: {k: key++, v: this.getDateStr(dataSet.frequency, v.localDateTime)}});   // Конвертируем даты
-                    dimensions.forEach((dimName: string) => {
-                        row.push({
-                            name: dimName,
-                            value: {
-                                k: key++,
-                                v: _get(pointDimensionsName[dimName], 'entity.name', _get(pointDimensionsName[dimName], 'value', ''))
-                            }
-                        });
-                    });
-                    metrics.forEach((metricName: string) => {
-                        row.push({name: metricName, value: {k: key++, v: _get(pointMetricsName[metricName], 'value', '')}});
-                    });
-                    return {cols: row};
+            const rnd: Function = (v: number) => ~~(Math.random() * v);
+            const padd: Function = (num: number, size: number) => ([...new Array(size)].reduce((acc: string) => acc + '0', '') + num).substr(-size);
+
+            let key = 1;
+            const rows: ProductionPlanData[] = points
+                .map((v: TableRow) => {
+                    const latenessDate: Dayjs = dayjs().set('hours', rnd(10));
+                    const earlyDepartureDate: Dayjs = dayjs().set('hours', rnd(10));
+                    return {
+                        info: {
+                            id: key++,
+                            fio: ['Иванов', 'Петров', 'Сидоров'][rnd(3)] + ' ' + ['Олег', 'Иван', 'Василий'][rnd(3)] + ' ' + ['Андреевич', 'Иванович', 'Петрович'][rnd(3)],
+                            position: ['Директор', 'Зам.директора', 'Работник'][rnd(3)],
+                        },
+                        lateness: {
+                            count: Number(v.metrics[0].value).toFixed(0).substr(-2),
+                            interval: `${padd(latenessDate.hour(), 2)}:${padd(latenessDate.minute(), 2)}`
+                        },
+                        earlyDeparture: {
+                            count: Number(v.metrics[1].value).toFixed(0).substr(-2),
+                            interval: `${padd(earlyDepartureDate.hour(), 2)}:${padd(earlyDepartureDate.minute(), 2)}`
+                        },
+                        rating: {
+                            value: Number(v.metrics[2].value).toFixed(0)
+                        }
+                    };
                 });
 
+            const titleSettings = SettingsHelper.getTitleSettings(this.widgetSettings.settings, this.chartData.settings);
+
             this.config.element.innerHTML = this.renderTemplate({
-                title: this.getWidgetSetting('title'),
+                showTitle: titleSettings.show,
+                title: titleSettings.name,
+                titleStyle: titleSettings.style,
+                backgroundStyle: SettingsHelper.getBackgroundStyle(this.getWidgetSetting('background.color')),
+                paddingStyle: SettingsHelper.getPaddingStyle(this.getWidgetSetting('paddings')),
                 header,
                 rows
             });
@@ -108,20 +137,16 @@ export class Table extends Chart {
 
     private getDateStr(frequency: Frequency, localDateTime: string): string {
         const date: Dayjs = dayjs(localDateTime);
-        switch (frequency) {
-            default:
-            case "ALL":
-                return date.format('DD.MM.YYYY');
-            case "YEAR":
-                return date.format('YYYY');
-            case "MONTH":
-                return DateHelper.getMonthsAbbr()[date.month()];
-            case "WEEK":
-            case "DAY":
-                return date.format('DD.MM.YYYY');
-            case "HOUR":
-                return date.format('DD.MM.YYYY HH:mm');
-        }
+        const frequencyFunc: Record<Frequency, Function> = {
+            'NONE':     () => date.format('DD.MM.YYYY'),
+            'ALL':      () => date.format('DD.MM.YYYY'),
+            'YEAR':     () => date.format('YYYY'),
+            'MONTH':    () => DateHelper.getMonthsAbbr()[date.month()],
+            'WEEK':     () => date.format('DD.MM.YYYY'),
+            'DAY':      () => date.format('DD.MM.YYYY'),
+            'HOUR':     () => date.format('DD.MM.YYYY HH:mm'),
+        };
+        return frequencyFunc[frequency]() ?? date.format('DD.MM.YYYY');
     }
 
     private mapToNames(src: string[], arr: INameValue[]): string[] {
@@ -194,47 +219,23 @@ export class Table extends Chart {
         return needReload;
     }
 
-    /**
-     * Анимирование значения от n1 до n2 за время time в ms
-     */
-    // animNumber(numbers: [[number, number]], time: number): Function {
-    //     return () => {
-    //         const animFunc = function (d: number): number {
-    //             return 1 - Math.pow((d - 1), 4);
-    //         };
-    //
-    //         let steps = 20;
-    //         const stepTime = MathHelper.trunc(time / steps);
-    //         let x = 0;
-    //         let resValues: string[] = [];
-    //         const timerId = setInterval(() => {
-    //             const k = animFunc(x) / animFunc(1);
-    //             resValues = [];
-    //             for (const num of numbers) {
-    //                 resValues.push((num[0] + k * (num[1] - num[0])).toFixed(2));
-    //             }
-    //             x += stepTime / time;
-    //             if (--steps <= 0) {
-    //                 resValues = [];
-    //                 for (const num of numbers) {
-    //                     resValues.push((num[1]).toFixed(2));
-    //                 }
-    //                 clearInterval(timerId);
-    //             }
-    //         }, stepTime);
-    //     };
-    // }
-
     getTemplate(): string {
         return `
-            <div class="widget">
-                <h4>{{title}}</h4>
-                <table class="table table-zebra">
+            <div class="widget" style="{{backgroundStyle}} {{paddingStyle}}">
+                {{#showTitle}}
+                <div class="header">
+                    <div class="title" style="{{titleStyle}}">
+                        {{title}}
+                    </div>
+                </div>
+                {{/showTitle}}
+                
+                <table class="table table-vmid table-borders">
                 <thead>
                     <tr>
                         {{#header}}
-                        <th class="table-w-auto">
-                            <div class="title">{{.}}</div>
+                        <th class="table-w-auto color-grey text-small">
+                            {{.}}
                         </th>
                         {{/header}}
                     </tr>
@@ -242,9 +243,44 @@ export class Table extends Chart {
                 <tbody>
                     {{#rows}}
                     <tr>
-                        {{#cols}}
-                        <td class="value" attr-key="{{value.k}}">{{value.v}}</td>
-                        {{/cols}}
+                        <td class="w-100" attr-key="{{info.id}}_1">
+                            <div class="d-flex flex-v-center">
+                                <div class="text-large text-bold mar-h-5">{{info.id}}</div>
+                                <div class="text-left fio">
+                                    <div>{{info.fio}}</div>
+                                    <div class="color-grey text-small">{{info.position}}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td attr-key="{{info.id}}_2">
+                            <div class="d-flex flex-v-center">
+                                <div class="badge badge-error
+                                            text-small lateness
+                                            mar-right-3
+                                ">
+                                    {{ lateness.count }}
+                                </div>
+                                <div class="color-red text-small">{{ lateness.interval }}</div>
+                            </div>
+                        </td>
+                        <td attr-key="{{info.id}}_3">
+                            <div class="d-flex flex-v-center">
+                                <div class="badge badge-error
+                                            text-small earlyDeparture
+                                            mar-right-3
+                                ">
+                                    {{ earlyDeparture.count }}
+                                </div>
+                                <div class="color-red text-small">{{ earlyDeparture.interval }}</div>
+                            </div>
+                        </td>
+                        <td attr-key="{{info.id}}_4">
+                            <div class="d-flex flex-h-end">
+                                <div class="badge text-small rating">
+                                    {{ rating.value }}
+                                </div>
+                            </div>
+                        </td>
                     </tr>
                     {{/rows}}
                 </tbody>

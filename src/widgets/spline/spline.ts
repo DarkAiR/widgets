@@ -1,4 +1,4 @@
-import w from './spline.less';
+import widgetStyles from './spline.less';
 import {settings as widgetSettings} from "./settings";
 
 import * as echarts from 'echarts';
@@ -60,6 +60,12 @@ export class Spline extends Chart {
     private enableInterval: boolean = true;         // Включение работы с интервалами, если одна ось Х
     private clickTimeoutId: number = null;
 
+    constructor(config: WidgetConfigInner, options: WidgetOptions) {
+        super(config, options);
+        // Инициализация в конструкторе, чтобы можно было вызвать инициализацию переменных до первого рендера
+        this.onEventBus = this.onEventBusFunc.bind(this);
+    }
+
     getVariables(): IWidgetVariables {
         const res: IWidgetVariables = {};
         const addVar: AddVarFunc<VarNames> = this.addVar(res);
@@ -85,10 +91,8 @@ export class Spline extends Chart {
         return widgetSettings;
     }
 
-    constructor(config: WidgetConfigInner, options: WidgetOptions) {
-        super(config, options);
-        // Инициализация в конструкторе, чтобы можно было вызвать инициализацию переменных до первого рендера
-        this.onEventBus = this.onEventBusFunc.bind(this);
+    getStyles(): ISettings {
+        return widgetStyles;
     }
 
     run(): void {
@@ -207,7 +211,7 @@ export class Spline extends Chart {
                 disableBtn: StatesHelper.isEmpty('interval')
             });
 
-            const el: HTMLElement = this.config.element.getElementsByClassName(w['chart'])[0] as HTMLElement;
+            const el: HTMLElement = this.config.element.getElementsByClassName(widgetStyles['chart'])[0] as HTMLElement;
             const myChart = echarts.init(el);
             myChart.setOption(options);
 
@@ -215,7 +219,7 @@ export class Spline extends Chart {
                 if (this.interval.currInterval !== 'DAY') {
                     myChart.on('click', 'xAxis.category', (param: ECEventData) => this.onClickAxisX((param as AxisEventData).value as string));
                 }
-                const buttons: HTMLCollectionOf<HTMLElement> = this.config.element.getElementsByClassName(w['toolbtn']) as HTMLCollectionOf<HTMLElement>;
+                const buttons: HTMLCollectionOf<HTMLElement> = this.config.element.getElementsByClassName(widgetStyles['toolbtn']) as HTMLCollectionOf<HTMLElement>;
                 buttons[0].addEventListener("click", this.leftInterval.bind(this));
                 buttons[1].addEventListener("click", this.revertInterval.bind(this));
                 buttons[2].addEventListener("click", this.rightInterval.bind(this));
@@ -854,21 +858,21 @@ export class Spline extends Chart {
 
     getTemplate(): string {
         return `
-            <div class="${w['widget']}" style="{{backgroundStyle}} {{paddingStyle}}">
+            <div class="widget" style="{{backgroundStyle}} {{paddingStyle}}">
                 {{#showTitle}}
-                <div class="${w['header']}">
-                    <div class="${w['title']}" style="{{titleStyle}}">
+                <div class="header">
+                    <div class="title" style="{{titleStyle}}">
                         {{title}}
                     </div>
                     {{#enableZoom}}
-                        <div class="${w['toolbox']}">
-                            <div class="${w['btn']} ${w['btn-icon']} ${w['toolbtn']}" {{#disableBtn}}disabled="disabled"{{/disableBtn}}>
+                        <div class="toolbox">
+                            <div class="btn btn-icon toolbtn" {{#disableBtn}}disabled="disabled"{{/disableBtn}}>
                                 <i class="mdi mdi-arrow-left"></i>
                             </div>
-                            <div class="${w['btn']} ${w['btn-icon']} ${w['toolbtn']}" {{#disableBtn}}disabled="disabled"{{/disableBtn}}>
+                            <div class="btn btn-icon toolbtn" {{#disableBtn}}disabled="disabled"{{/disableBtn}}>
                                 <i class="mdi mdi-arrow-up"></i>
                             </div>
-                            <div class="${w['btn']} ${w['btn-icon']} ${w['toolbtn']}" {{#disableBtn}}disabled="disabled"{{/disableBtn}}>
+                            <div class="btn btn-icon toolbtn" {{#disableBtn}}disabled="disabled"{{/disableBtn}}>
                                 <i class="mdi mdi-arrow-right"></i>
                             </div>
                         </div>
@@ -876,7 +880,7 @@ export class Spline extends Chart {
                 </div>
                 {{/showTitle}}
 
-                <div class="${w['chart']}">
+                <div class="chart">
                 </div>
             </div>
         `;

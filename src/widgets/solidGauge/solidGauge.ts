@@ -1,7 +1,7 @@
-import w from "./solidGauge.less";
+import widgetStyles from "./solidGauge.less";
 import {settings as widgetSettings} from "./settings";
 
-import {IChartData, IWidgetVariables} from "../../interfaces";
+import {IChartData, ISettings, IWidgetVariables} from "../../interfaces";
 import {get as _get} from "lodash";
 import {Chart} from "../../models/Chart";
 import {SettingsHelper, TypeGuardsHelper} from "../../helpers";
@@ -14,6 +14,10 @@ export class SolidGauge extends Chart {
 
     getSettings(): IWidgetSettings {
         return widgetSettings;
+    }
+
+    getStyles(): ISettings {
+        return widgetStyles;
     }
 
     run(): void {
@@ -43,8 +47,8 @@ export class SolidGauge extends Chart {
             this.config.element.innerHTML = output;
 
             this.onResize = (width: number, height: number) => {
-                const widgetInner = this.config.element.querySelector(`.${w['widget']} > div`);
-                const chart = this.config.element.querySelector(`.${w['chart']}`);
+                const widgetInner = this.config.element.querySelector(`.${widgetStyles['widget']} > div`);
+                const chart = this.config.element.querySelector(`.${widgetStyles['chart']}`);
                 let maxWidth = getComputedStyle(chart)["max-width"];
                 if (maxWidth === undefined) {
                     maxWidth = '1px';
@@ -57,15 +61,15 @@ export class SolidGauge extends Chart {
 
     getTemplate(): string {
         return `
-            <div class="${w['widget']}" style="{{backgroundStyle}}">
+            <div class="widget" style="{{backgroundStyle}}">
                 <div do-not-remove>
-                    <div class="${w['info']}">
-                        <div class="${w['current-value']}">{{currValue}}</div>
-                        <div class="${w['title']}">{{title}}</div>
+                    <div class="info">
+                        <div class="current-value">{{currValue}}</div>
+                        <div class="title">{{title}}</div>
                     </div>
-                    <div class="${w['chart']}">
-                        <span class="${w['icon']}">
-                            <span class="${w['inner']}">
+                    <div class="chart">
+                        <span class="icon">
+                            <span class="inner">
                                 <span class="mdi {{icon}}"></span>
                             </span>
                         </span>
@@ -80,8 +84,8 @@ export class SolidGauge extends Chart {
                                 stroke-dasharray={{magicLengthOfSvgPath}} stroke-dashoffset={{sdo}} />
                         </svg>
 
-                        <div class="${w['value']} ${w['minValue']}">{{minValue}}</div>
-                        <div class="${w['value']} ${w['maxValue']}">{{maxValue}}</div>
+                        <div class="value minValue">{{minValue}}</div>
+                        <div class="value maxValue">{{maxValue}}</div>
                     </div>
                 </div>
             </div>
