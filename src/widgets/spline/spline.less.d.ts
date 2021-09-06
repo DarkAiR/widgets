@@ -24,9 +24,9 @@ export interface ISplineLess {
   'widget': string;
   'title': string;
   'chart': string;
+  'toolbtn': string;
   'header': string;
   'toolbox': string;
-  'toolbtn': string;
 }
 
 export const locals: ISplineLess;

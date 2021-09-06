@@ -1,4 +1,4 @@
-import w from './profile.less';
+import widgetStyles from './profile.less';
 import {settings as widgetSettings} from "./settings";
 
 import * as echarts from 'echarts';
@@ -27,6 +27,12 @@ import {WidgetOptions} from "../../models/widgetOptions";
 type VarNames = 'org units' | 'period' | 'start date' | 'finish date' | 'frequency' | 'pre frequency' | 'operation' | 'version filter';
 
 export class Profile extends Chart {
+    constructor(config: WidgetConfigInner, options: WidgetOptions) {
+        super(config, options);
+        // Инициализация в конструкторе, чтобы можно было вызвать инициализацию переменных до первого рендера
+        this.onEventBus = this.onEventBusFunc.bind(this);
+    }
+
     getVariables(): IWidgetVariables {
         const res: IWidgetVariables = {};
         const addVar: AddVarFunc<VarNames> = this.addVar(res);
@@ -52,10 +58,8 @@ export class Profile extends Chart {
         return widgetSettings;
     }
 
-    constructor(config: WidgetConfigInner, options: WidgetOptions) {
-        super(config, options);
-        // Инициализация в конструкторе, чтобы можно было вызвать инициализацию переменных до первого рендера
-        this.onEventBus = this.onEventBusFunc.bind(this);
+    getStyles(): ISettings {
+        return widgetStyles;
     }
 
     run(): void {
@@ -117,7 +121,7 @@ export class Profile extends Chart {
             paddingStyle: SettingsHelper.getPaddingStyle(this.getWidgetSetting('paddings'))
         });
 
-        const el: HTMLElement = this.config.element.getElementsByClassName(w['chart'])[0] as HTMLElement;
+        const el: HTMLElement = this.config.element.getElementsByClassName(widgetStyles['chart'])[0] as HTMLElement;
         const myChart = echarts.init(el);
         myChart.setOption(options);
 
@@ -397,14 +401,14 @@ export class Profile extends Chart {
 
     getTemplate(): string {
         return `
-            <div class="${w['widget']}" style="{{backgroundStyle}} {{paddingStyle}}">
+            <div class="widget" style="{{backgroundStyle}} {{paddingStyle}}">
                 {{#showTitle}}
-                <div class="${w['title']}" style="{{titleStyle}}">
+                <div class="title" style="{{titleStyle}}">
                     {{title}}
                 </div>
                 {{/showTitle}}
 
-                <div class="${w['chart']}">
+                <div class="chart">
                 </div>
             </div>
         `;

@@ -1,5 +1,5 @@
 import {IWidgetSettings, makeSettings} from "../../widgetSettings";
-import {makeArray, makeColor, makeList, makeNumber, makeSettingsGroup, makeString} from "../../widgetSettings/controls";
+import {makeColor} from "../../widgetSettings/controls";
 import settingsPresets from "../../widgetSettings/settingsPresets";
 
 export const settings: IWidgetSettings = makeSettings({
@@ -11,6 +11,8 @@ export const settings: IWidgetSettings = makeSettings({
     dataSet: {
         initDataSets: [{viewType: 'DYNAMIC'}],      // FIXME: Set right view type
         canAdd: false,
-        settings: []
+        settings: [
+            makeColor('color', ' Цвет')
+        ]
     }
 });

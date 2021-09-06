@@ -1,4 +1,4 @@
-import w from "./table.less";
+import widgetStyles from "./table.less";
 import {settings as widgetSettings} from "./settings";
 
 import {
@@ -18,6 +18,12 @@ import {Frequency} from "../../models/typesGraphQL";
 type VarNames = 'org units';
 
 export class Table extends Chart {
+    constructor(config: WidgetConfigInner, options: WidgetOptions) {
+        super(config, options);
+        // Инициализация в конструкторе, чтобы можно было вызвать инициализацию переменных до первого рендера
+        this.onEventBus = this.onEventBusFunc.bind(this);
+    }
+
     getVariables(): IWidgetVariables {
         const res: IWidgetVariables = {};
         const addVar: AddVarFunc<VarNames> = this.addVar(res);
@@ -31,10 +37,8 @@ export class Table extends Chart {
         return widgetSettings;
     }
 
-    constructor(config: WidgetConfigInner, options: WidgetOptions) {
-        super(config, options);
-        // Инициализация в конструкторе, чтобы можно было вызвать инициализацию переменных до первого рендера
-        this.onEventBus = this.onEventBusFunc.bind(this);
+    getStyles(): ISettings {
+        return widgetStyles;
     }
 
     run(): void {
@@ -223,14 +227,14 @@ export class Table extends Chart {
 
     getTemplate(): string {
         return `
-            <div class="${w['widget']}">
+            <div class="widget">
                 <h4>{{title}}</h4>
-                <table class="${w['table']} ${w['table-zebra']}">
+                <table class="table table-zebra">
                 <thead>
                     <tr>
                         {{#header}}
-                        <th class="${w['table-w-auto']}">
-                            <div class="${w['title']}">{{.}}</div>
+                        <th class="table-w-auto">
+                            <div class="title">{{.}}</div>
                         </th>
                         {{/header}}
                     </tr>
@@ -239,7 +243,7 @@ export class Table extends Chart {
                     {{#rows}}
                     <tr>
                         {{#cols}}
-                        <td class="${w['value']}" attr-key="{{value.k}}">{{value.v}}</td>
+                        <td class="value" attr-key="{{value.k}}">{{value.v}}</td>
                         {{/cols}}
                     </tr>
                     {{/rows}}

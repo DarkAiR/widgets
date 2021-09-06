@@ -1,7 +1,7 @@
-import w from "./averageNumber.less";
+import widgetStyles from "./averageNumber.less";
 import {settings as widgetSettings} from "./settings";
 
-import {IChartData, IWidgetVariables} from "../../interfaces";
+import {IChartData, ISettings, IWidgetVariables} from "../../interfaces";
 import {get as _get} from "lodash";
 import {Chart} from "../../models/Chart";
 import {SettingsHelper, TypeGuardsHelper} from "../../helpers";
@@ -14,6 +14,10 @@ export class AverageNumber extends Chart {
 
     getSettings(): IWidgetSettings {
         return widgetSettings;
+    }
+
+    getStyles(): ISettings {
+        return widgetStyles;
     }
 
     run(): void {
@@ -39,21 +43,21 @@ export class AverageNumber extends Chart {
 
     getTemplate(): string {
         return `
-            <td class="${w['widget']}" style="{{backgroundStyle}}">
+            <td class="widget" style="{{backgroundStyle}}">
                 {{#showTitle}}
-                <div class="${w['title']}" style="{{titleStyle}}">
+                <div class="title" style="{{titleStyle}}">
                     {{title}}
                 </div>
                 {{/showTitle}}
                 
-                <table class="${w['table']}"><tbody>
+                <table class="table"><tbody>
                     <tr>
-                        <td class="${w['curr']} ${w['num']}" style="{{currStyle}}">{{currValue}}</td>
-                        <td class="${w['prev']} ${w['num']}" style="{{prevStyle}}">{{prevValue}}</td>
+                        <td class="curr num" style="{{currStyle}}">{{currValue}}</td>
+                        <td class="prev num" style="{{prevStyle}}">{{prevValue}}</td>
                     </tr>
                     <tr>
-                        <td class="${w['curr']} ${w['text']}" style="{{currStyle}}">Текущие</td>
-                        <td class="${w['prev']} ${w['text']}" style="{{prevStyle}}">Предыдущие</td>
+                        <td class="curr text" style="{{currStyle}}">Текущие</td>
+                        <td class="prev text" style="{{prevStyle}}">Предыдущие</td>
                     </tr>
                 </tbody></table>
             </div>

@@ -122,7 +122,7 @@ export class SettingsHelper {
         }
         const textStyle: ISettings = {};
         const color: string = getSetting('legend.color');
-        if (!color) {
+        if (color) {
             textStyle.color = color;
         }
         _merge(obj, {

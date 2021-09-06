@@ -1,24 +1,28 @@
-import w from "./disciplineReport.less";
+import widgetStyles from "./disciplineReport.less";
 import {settings as widgetSettings} from "./settings";
 
 import {
     IChartData,
-    INameValue,
     IWidgetVariables,
     ReportPoint,
-    ReportItem,
-    IEventOrgUnits, DataSetTemplate
+    IEventOrgUnits, DataSetTemplate, ISettings
 } from "../../interfaces";
-import {isEmpty as _isEmpty} from "lodash";
 import {AddVarFunc, Chart} from "../../models/Chart";
-import {OrgUnitsHelper, SettingsHelper, TypeGuardsHelper} from "../../helpers";
+import {ColorHelper, OrgUnitsHelper, SettingsHelper, TypeGuardsHelper} from "../../helpers";
 import {IWidgetSettings} from "../../widgetSettings";
 import {WidgetConfigInner} from "../..";
 import {WidgetOptions} from "../../models/widgetOptions";
+import * as echarts from "echarts";
 
 type VarNames = 'org units';
 
 export class DisciplineReport extends Chart {
+    constructor(config: WidgetConfigInner, options: WidgetOptions) {
+        super(config, options);
+        // Инициализация в конструкторе, чтобы можно было вызвать инициализацию переменных до первого рендера
+        this.onEventBus = this.onEventBusFunc.bind(this);
+    }
+
     getVariables(): IWidgetVariables {
         const res: IWidgetVariables = {};
         const addVar: AddVarFunc<VarNames> = this.addVar(res);
@@ -32,10 +36,8 @@ export class DisciplineReport extends Chart {
         return widgetSettings;
     }
 
-    constructor(config: WidgetConfigInner, options: WidgetOptions) {
-        super(config, options);
-        // Инициализация в конструкторе, чтобы можно было вызвать инициализацию переменных до первого рендера
-        this.onEventBus = this.onEventBusFunc.bind(this);
+    getStyles(): ISettings {
+        return widgetStyles;
     }
 
     run(): void {
@@ -47,73 +49,73 @@ export class DisciplineReport extends Chart {
 
             const titleSettings = SettingsHelper.getTitleSettings(this.widgetSettings.settings, this.chartData.settings);
 
-            const valueStyle = [
-                `color: ${this.getWidgetSetting('value.color')}`,
-                !_isEmpty(this.getWidgetSetting('value.size'))
-                    ? `font-size: ${this.getWidgetSetting('value.size')}px`
-                    : '',
-                `text-align: ${this.getWidgetSetting('value.align')}`
-            ];
-
-            const rows: INameValue[] = point.items.map((v: ReportItem) => ({
-                name: v.key,
-                value: (v.value * 100).toFixed(2) + '%'
-            }));
+            let color: string = this.getDataSetSettings(0, 'color');
+            if (!color) {
+                color = ColorHelper.getCssColor('--color-primary-light');
+            }
 
             this.config.element.innerHTML = this.renderTemplate({
-                backgroundStyle: SettingsHelper.getBackgroundStyle(this.getWidgetSetting('background.color')),
                 showTitle: titleSettings.show,
                 title: titleSettings.name,
                 titleStyle: titleSettings.style,
-                rows,
-                valueStyle: valueStyle.join(';'),
+                backgroundStyle: SettingsHelper.getBackgroundStyle(this.getWidgetSetting('background.color')),
+                paddingStyle: SettingsHelper.getPaddingStyle(this.getWidgetSetting('paddings'))
             });
-        }
 
-        const options = `
-            series: [{
-                type: 'gauge',
-                startAngle: -360,
-                endAngle: 0,
-                clockwise: false,
-                pointer: {
-                    show: false
-                },
-                progress: {
-                    show: true,
-                    overlap: false,
-                    roundCap: false,
-                    clip: false,
-                    itemStyle: {
-                        borderWidth: 0,
-                        borderColor: '#464646'
-                    }
-                },
-                axisLine: {
-                    lineStyle: {
-                        width: 16
-                    }
-                },
-                splitLine: {
-                    show: false
-                },
-                axisTick: {
-                    show: false
-                },
-                axisLabel: {
-                    show: false,
-                },
-                data: [{
-                    value: 20,
-                    title: {
+            const options = {
+                series: [{
+                    type: 'gauge',
+                    startAngle: -360,
+                    endAngle: 0,
+                    clockwise: false,
+                    radius: '100%',
+                    pointer: {
                         show: false
                     },
-                    detail: {
+                    progress: {
+                        show: true,
+                        overlap: false,
+                        roundCap: false,
+                        clip: false,
+                        itemStyle: {
+                            borderWidth: 0,
+                            color: `${color}`
+                        }
+                    },
+                    axisLine: {
+                        lineStyle: {
+                            width: 8
+                        }
+                    },
+                    splitLine: {
+                        show: false
+                    },
+                    axisTick: {
+                        show: false
+                    },
+                    axisLabel: {
                         show: false,
-                    }
-                }],
-            }]
-        `;
+                    },
+                    data: [{
+                        value: 20,
+                        title: {
+                            show: false
+                        },
+                        detail: {
+                            show: false,
+                        }
+                    }],
+                }]
+            };
+
+            const el: HTMLElement = this.config.element.getElementsByClassName(widgetStyles['progress'])[0] as HTMLElement;
+            const myChart = echarts.init(el);
+            myChart.setOption(options);
+
+            this.onResize = (width: number, height: number): void => {
+                myChart.resize();
+            };
+        }
     }
 
     /**
@@ -159,9 +161,9 @@ export class DisciplineReport extends Chart {
 
     getTemplate(): string {
         return `
-            <div class="${w['widget']}" style="{{backgroundStyle}}">
+            <div class="widget" style="{{backgroundStyle}} {{paddingStyle}}">
                 {{#showTitle}}
-                <div class="${w['title']}" style="{{titleStyle}}">
+                <div class="title" style="{{titleStyle}}">
                     {{title}}
                 </div>
                 {{/showTitle}}
@@ -169,8 +171,9 @@ export class DisciplineReport extends Chart {
                 <div class="d-flex flex-h-space-between">
                     <div class="d-flex">
                         <div class="progress mar-right-4"></div>
+                        
                         <div class="d-flex flex-h-end flex-col text-left">
-                            <div class="text-xsmall color-grey-light">
+                            <div class="text-xsmall color-grey">
                                 Обьем производства
                             </div>
                             <div class="text-h2">
@@ -179,7 +182,7 @@ export class DisciplineReport extends Chart {
                         </div>
                     </div>
     
-                    <div class="flex-grow d-flex flex-col flex-h-end color-grey-light text-xsmall">
+                    <div class="flex-grow d-flex flex-col flex-h-end color-grey text-xsmall">
                         <div class="text-right">
                             План
                         </div>

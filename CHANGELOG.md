@@ -1,5 +1,18 @@
 ### ChangeLog
 
+##### 1.8.0 / 2021-09-06
+- widget disciplineReport
+- widget productionPlan
+- autoreplace class names in template
+- remove "table-small" class from table
+- use external font-family instead of internal
+- refresh README
+- update goodt-framework-css@1.1.3
+- changed webpack.common
+    - widgetConfig put outside general library
+    - changing lib size
+
+
 ##### 1.7.2 / 2021-05-28
 - исправлена ошибка в pie - label:distanceToLabelLine
 - добавлено форматирование даты в таблице в зависимости от выбранной frequency

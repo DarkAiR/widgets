@@ -1,4 +1,4 @@
-import w from "./report.less";
+import widgetStyles from "./report.less";
 import {settings as widgetSettings} from "./settings";
 
 import {
@@ -7,7 +7,7 @@ import {
     IWidgetVariables,
     ReportPoint,
     ReportItem,
-    IEventOrgUnits, DataSetTemplate
+    IEventOrgUnits, DataSetTemplate, ISettings
 } from "../../interfaces";
 import {isEmpty as _isEmpty} from "lodash";
 import {AddVarFunc, Chart} from "../../models/Chart";
@@ -19,6 +19,12 @@ import {WidgetOptions} from "../../models/widgetOptions";
 type VarNames = 'org units';
 
 export class Report extends Chart {
+    constructor(config: WidgetConfigInner, options: WidgetOptions) {
+        super(config, options);
+        // Инициализация в конструкторе, чтобы можно было вызвать инициализацию переменных до первого рендера
+        this.onEventBus = this.onEventBusFunc.bind(this);
+    }
+
     getVariables(): IWidgetVariables {
         const res: IWidgetVariables = {};
         const addVar: AddVarFunc<VarNames> = this.addVar(res);
@@ -32,10 +38,8 @@ export class Report extends Chart {
         return widgetSettings;
     }
 
-    constructor(config: WidgetConfigInner, options: WidgetOptions) {
-        super(config, options);
-        // Инициализация в конструкторе, чтобы можно было вызвать инициализацию переменных до первого рендера
-        this.onEventBus = this.onEventBusFunc.bind(this);
+    getStyles(): ISettings {
+        return widgetStyles;
     }
 
     run(): void {
@@ -114,13 +118,13 @@ export class Report extends Chart {
 
     getTemplate(): string {
         return `
-            <div class="${w['widget']}" style="{{backgroundStyle}}">
+            <div class="widget" style="{{backgroundStyle}}">
                 {{#showTitle}}
-                <div class="${w['title']}" style="{{titleStyle}}">
+                <div class="title" style="{{titleStyle}}">
                     {{title}}
                 </div>
                 {{/showTitle}}
-                <table class="${w['table']}">
+                <table class="table">
                 <tbody>
                     {{#rows}}
                     <tr>

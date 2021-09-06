@@ -1,10 +1,10 @@
-import w from "./productionPlan.less";
+import widgetStyles from "./productionPlan.less";
 import {settings as widgetSettings} from "./settings";
 
 import {
     DimensionFilter,
     IChartData, IEventOrgUnits, INameValue,
-    IWidgetVariables, JoinDataSetTemplate, TableRow, TimeSeriesDataSetShort
+    IWidgetVariables, JoinDataSetTemplate, TableRow, TimeSeriesDataSetShort, ISettings
 } from "../../interfaces";
 import {get as _get, map as _map, filter as _filter} from "lodash";
 import {AddVarFunc, Chart} from "../../models/Chart";
@@ -37,6 +37,12 @@ interface ProductionPlanData {
 }
 
 export class ProductionPlan extends Chart {
+    constructor(config: WidgetConfigInner, options: WidgetOptions) {
+        super(config, options);
+        // Инициализация в конструкторе, чтобы можно было вызвать инициализацию переменных до первого рендера
+        this.onEventBus = this.onEventBusFunc.bind(this);
+    }
+
     getVariables(): IWidgetVariables {
         const res: IWidgetVariables = {};
         const addVar: AddVarFunc<VarNames> = this.addVar(res);
@@ -50,10 +56,8 @@ export class ProductionPlan extends Chart {
         return widgetSettings;
     }
 
-    constructor(config: WidgetConfigInner, options: WidgetOptions) {
-        super(config, options);
-        // Инициализация в конструкторе, чтобы можно было вызвать инициализацию переменных до первого рендера
-        this.onEventBus = this.onEventBusFunc.bind(this);
+    getStyles(): ISettings {
+        return widgetStyles;
     }
 
     run(): void {
@@ -217,20 +221,20 @@ export class ProductionPlan extends Chart {
 
     getTemplate(): string {
         return `
-            <div class="${w['widget']}" style="{{backgroundStyle}} {{paddingStyle}}">
+            <div class="widget" style="{{backgroundStyle}} {{paddingStyle}}">
                 {{#showTitle}}
-                <div class="${w['header']}">
-                    <div class="${w['title']}" style="{{titleStyle}}">
+                <div class="header">
+                    <div class="title" style="{{titleStyle}}">
                         {{title}}
                     </div>
                 </div>
                 {{/showTitle}}
                 
-                <table class="${w['table']} ${w['table-vmid']} ${w['table-borders']}">
+                <table class="table table-vmid table-borders">
                 <thead>
                     <tr>
                         {{#header}}
-                        <th class="${w['table-w-auto']} ${w['color-grey']} ${w['text-small']}">
+                        <th class="table-w-auto color-grey text-small">
                             {{.}}
                         </th>
                         {{/header}}
@@ -239,42 +243,40 @@ export class ProductionPlan extends Chart {
                 <tbody>
                     {{#rows}}
                     <tr>
-                        <td class="${w['w-100']}" attr-key="{{info.id}}_1">
-                            <div class="${w['d-flex']} ${w['flex-v-center']}">
-                                <div class="${w['text-large']} ${w['text-bold']} ${w['mar-h-5']}">{{info.id}}</div>
-                                <div class="${w['text-left']} ${w['fio']}">
-                                    <div class="">{{info.fio}}</div>
-                                    <div class="${w['color-grey']} ${w['text-small']}">{{info.position}}</div>
+                        <td class="w-100" attr-key="{{info.id}}_1">
+                            <div class="d-flex flex-v-center">
+                                <div class="text-large text-bold mar-h-5">{{info.id}}</div>
+                                <div class="text-left fio">
+                                    <div>{{info.fio}}</div>
+                                    <div class="color-grey text-small">{{info.position}}</div>
                                 </div>
                             </div>
                         </td>
                         <td attr-key="{{info.id}}_2">
-                            <div class="${w['d-flex']} ${w['flex-v-center']}">
-                                <div class="${w['badge']} ${w['badge-error']}
-                                            ${w['text-small']} ${w['lateness']}
-                                            ${w['mar-right-3']}
+                            <div class="d-flex flex-v-center">
+                                <div class="badge badge-error
+                                            text-small lateness
+                                            mar-right-3
                                 ">
                                     {{ lateness.count }}
                                 </div>
-                                <div class="${w['color-red']} ${w['text-small']}">{{ lateness.interval }}</div>
+                                <div class="color-red text-small">{{ lateness.interval }}</div>
                             </div>
                         </td>
                         <td attr-key="{{info.id}}_3">
-                            <div class="${w['d-flex']} ${w['flex-v-center']}">
-                                <div class="${w['badge']} ${w['badge-error']}
-                                            ${w['text-small']} ${w['earlyDeparture']}
-                                            ${w['mar-right-3']}
+                            <div class="d-flex flex-v-center">
+                                <div class="badge badge-error
+                                            text-small earlyDeparture
+                                            mar-right-3
                                 ">
                                     {{ earlyDeparture.count }}
                                 </div>
-                                <div class="${w['color-red']} ${w['text-small']}">{{ earlyDeparture.interval }}</div>
+                                <div class="color-red text-small">{{ earlyDeparture.interval }}</div>
                             </div>
                         </td>
                         <td attr-key="{{info.id}}_4">
-                            <div class="${w['d-flex']} ${w['flex-h-end']}">
-                                <div class="${w['badge']}
-                                            ${w['text-small']} ${w['rating']}
-                                ">
+                            <div class="d-flex flex-h-end">
+                                <div class="badge text-small rating">
                                     {{ rating.value }}
                                 </div>
                             </div>

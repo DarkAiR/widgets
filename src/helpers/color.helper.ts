@@ -44,4 +44,12 @@ export class ColorHelper {
 
         return {hex, hexWithAlpha, style, styleWithAlpha, opacity: parseInt(rgbaHex.a, 16) / 255};
     }
+
+    /**
+     * Возвращает значение css-переменной
+     * @param varName
+     */
+    static getCssColor(varName: string): string {
+        return window.getComputedStyle(document.documentElement).getPropertyValue(varName).trim();
+    }
 }

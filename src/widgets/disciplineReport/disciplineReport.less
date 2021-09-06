@@ -1,3 +1,5 @@
+@import (reference) "~goodt-framework-css/src/components/table.less";
+@import "~goodt-framework-css/src/utility.less";
 @import "../../styles/_widget.less";
 
 .title {
@@ -8,13 +10,10 @@
 }
 
 .table {
-    width: 100%;
+    &:extend(.table all);
+}
 
-    td, th {
-        border-right: 1px solid var(--color-grey-lighter);
-
-        &:last-child {
-            border-right: none;
-        }
-    }
+.progress {
+    height: 50px;
+    width: 50px;
 }
