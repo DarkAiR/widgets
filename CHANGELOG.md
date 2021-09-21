@@ -1,5 +1,8 @@
 ### ChangeLog
 
+##### 1.8.1 / 2021-09-20
+- Добавлена проверка на пустую строку при отображении заголовка
+
 ##### 1.8.0 / 2021-09-06
 - widget disciplineReport
 - widget productionPlan

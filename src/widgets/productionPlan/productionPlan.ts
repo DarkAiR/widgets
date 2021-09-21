@@ -124,7 +124,7 @@ export class ProductionPlan extends Chart {
             const titleSettings = SettingsHelper.getTitleSettings(this.widgetSettings.settings, this.chartData.settings);
 
             this.config.element.innerHTML = this.renderTemplate({
-                showTitle: titleSettings.show,
+                showTitle: titleSettings.show && titleSettings.name.trim().length ,
                 title: titleSettings.name,
                 titleStyle: titleSettings.style,
                 backgroundStyle: SettingsHelper.getBackgroundStyle(this.getWidgetSetting('background.color')),

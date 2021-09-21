@@ -30,7 +30,7 @@ export class AverageNumber extends Chart {
 
             this.config.element.innerHTML = this.renderTemplate({
                 backgroundStyle: SettingsHelper.getBackgroundStyle(this.getWidgetSetting('background.color')),
-                showTitle: titleSettings.show,
+                showTitle: titleSettings.show && titleSettings.name.trim().length,
                 title: titleSettings.name,
                 titleStyle: titleSettings.style,
                 currValue: _get(data.data[0], '[0].value', 0),
