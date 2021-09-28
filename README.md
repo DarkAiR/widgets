@@ -227,7 +227,7 @@ private createWidget(...) {
 
 - Меняем версию в ```package-lib.json```
 - Корректно вносим изменения в ```CHANGELOG.md```
-- Вызываем ```npm run postversion``` 
+- Вызываем ```npm run npm:publish``` 
 
 #### Структура виджета
 
