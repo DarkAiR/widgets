@@ -5,8 +5,8 @@
     "dev-unix": "NODE_ENV=dev  &&  npm run lint  &&  webpack --display-error-details --config webpack.dev.js",
     "build": "npm run lint  &&  SET \"NODE_ENV=prod\"  &&  webpack --config webpack.prod.js",
     "build-unix": "NODE_ENV=prod  &&  npm run lint  &&  webpack --config webpack.prod.js",
-    "postversion": "npm run build  &&  copy package-lib.json lib\\package.json /Y && cd lib && npm publish",
-    "postversion-unix": "npm run build-unix  &&  cp package-lib.json lib/package.json && cd lib && npm publish",
+    "npm:publish": "npm run build  &&  copy package-lib.json lib\\package.json /Y && npm publish .\\lib",
+    "npm:publish-unix": "npm run build-unix  &&  cp package-lib.json lib/package.json && npm publish ./lib",
     "lint": "tslint -t prose -p tsconfig.json"
   },
   "name": "abc-charts",
