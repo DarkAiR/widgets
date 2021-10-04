@@ -1,6 +1,6 @@
 {
   "name": "abc-charts",
-  "version": "1.8.7",
+  "version": "1.8.9",
   "license": "MIT",
   "description": "Widget render for using in 'ABC consulting' projects",
   "keywords": ["abc", "widget", "charts", "goodt"],
@@ -9,7 +9,7 @@
 
   "main": "abc-charts.js",
   "types": "index.d.js",
-  "files": ["/"],
+  "files": ["*"],
 
   "devDependencies": {
   },

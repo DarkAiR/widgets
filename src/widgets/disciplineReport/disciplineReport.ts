@@ -147,9 +147,6 @@ export class DisciplineReport extends Chart {
                         if (OrgUnitsHelper.setOrgUnits(v.dataSource1, event)) {
                             needReload = true;
                         }
-                        if (OrgUnitsHelper.setOrgUnits(v.dataSource2, event)) {
-                            needReload = true;
-                        }
                     });
                 }
             }
