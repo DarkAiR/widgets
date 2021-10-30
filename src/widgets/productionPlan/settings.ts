@@ -1,15 +1,19 @@
 import {IWidgetSettings, makeSettings} from "../../widgetSettings";
-import {makeColor} from "../../widgetSettings/controls";
+import {makeBoolean, makeColor, makeList, makeNumber, makeSettingsGroup, makeString} from "../../widgetSettings/controls";
 import settingsPresets from "../../widgetSettings/settingsPresets";
 
 export const settings: IWidgetSettings = makeSettings({
     settings: [
-        ...settingsPresets.title,
+        makeSettingsGroup('title', 'Заголовок', [
+            [
+                makeString('name', 'Заголовок')
+            ]
+        ], {collapse: false}),
         ...settingsPresets.paddings,
         ...settingsPresets.background,
     ],
     dataSet: {
-        initDataSets: [{viewType: 'DYNAMIC'}],      // FIXME: Set right view type
+        initDataSets: [{viewType: 'DYNAMIC'}, {viewType: 'DYNAMIC'}],
         canAdd: false,
         settings: [
             makeColor('color', ' Цвет')

@@ -1,4 +1,4 @@
-export interface IProductionPlanLess {
+export interface IDisciplineReportLess {
   'table': string;
   'text-truncate': string;
   'table-w-auto': string;
@@ -1171,4 +1171,4 @@ export interface IProductionPlanLess {
   'fio': string;
 }
 
-export const locals: IProductionPlanLess;
+export const locals: IDisciplineReportLess;
