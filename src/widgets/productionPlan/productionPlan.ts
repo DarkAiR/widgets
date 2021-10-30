@@ -1,12 +1,14 @@
-import widgetStyles from "./disciplineReport.less";
+import widgetStyles from "./productionPlan.less";
 import {settings as widgetSettings} from "./settings";
 
 import {
     IChartData,
     IWidgetVariables,
-    ReportPoint,
-    IEventOrgUnits, DataSetTemplate, ISettings
+    IEventOrgUnits, DataSetTemplate, ISettings, DataSet, SingleDataSource
 } from "../../interfaces";
+import {
+    forEach as _forEach
+} from 'lodash';
 import {AddVarFunc, Chart} from "../../models/Chart";
 import {ColorHelper, OrgUnitsHelper, SettingsHelper, TypeGuardsHelper} from "../../helpers";
 import {IWidgetSettings} from "../../widgetSettings";
@@ -14,9 +16,9 @@ import {WidgetConfigInner} from "../..";
 import {WidgetOptions} from "../../models/widgetOptions";
 import * as echarts from "echarts";
 
-type VarNames = 'org units';
+type VarNames = 'org units' | 'start date' | 'finish date';
 
-export class DisciplineReport extends Chart {
+export class ProductionPlan extends Chart {
     constructor(config: WidgetConfigInner, options: WidgetOptions) {
         super(config, options);
         // Инициализация в конструкторе, чтобы можно было вызвать инициализацию переменных до первого рендера
@@ -27,8 +29,14 @@ export class DisciplineReport extends Chart {
         const res: IWidgetVariables = {};
         const addVar: AddVarFunc<VarNames> = this.addVar(res);
 
-        addVar(0, 'org units', 'OrgUnits', 'Выбирается в отдельном виджете');
-
+        _forEach(this.config.template.dataSets, (v: DataSet, idx: number) => {
+            if (TypeGuardsHelper.isDataSetTemplate(v)) {
+                const nameStr: string = v.dataSource1.type === 'SINGLE' ? '(' + (<SingleDataSource>v.dataSource1).name + ')' : '';
+                addVar(idx, 'org units', 'OrgUnits', 'Выбирается в отдельном виджете');
+                addVar(idx, 'start date', 'Начало выборки', `${nameStr}: YYYY-mm-dd`);
+                addVar(idx, 'finish date', 'Окончание выборки', `${nameStr}: YYYY-mm-dd`);
+            }
+        });
         return res;
     }
 
@@ -42,24 +50,23 @@ export class DisciplineReport extends Chart {
 
     run(): void {
         const data: IChartData = this.chartData;
-        const reportPoints: ReportPoint[] = data.data as ReportPoint[];
-
         if (TypeGuardsHelper.everyIsDataSetTemplate(data.dataSets)) {
-            const point: ReportPoint = reportPoints[0];
-
-            const titleSettings = SettingsHelper.getTitleSettings(this.widgetSettings.settings, this.chartData.settings);
+            const title: string = SettingsHelper.getWidgetSetting(this.widgetSettings.settings, this.chartData.settings, 'title.name');
 
             let color: string = this.getDataSetSettings(0, 'color');
             if (!color) {
                 color = ColorHelper.getCssColor('--color-primary-light');
             }
 
+            const volume: number = data.data[0]?.[0]?.value ?? 0;
+            const plan: number = data.data[1]?.[0]?.value ?? 0;
+
             this.config.element.innerHTML = this.renderTemplate({
-                showTitle: titleSettings.show && titleSettings.name.trim().length,
-                title: titleSettings.name,
-                titleStyle: titleSettings.style,
+                title,
                 backgroundStyle: SettingsHelper.getBackgroundStyle(this.getWidgetSetting('background.color')),
-                paddingStyle: SettingsHelper.getPaddingStyle(this.getWidgetSetting('paddings'))
+                paddingStyle: SettingsHelper.getPaddingStyle(this.getWidgetSetting('paddings')),
+                volume,
+                plan
             });
 
             const options = {
@@ -97,7 +104,7 @@ export class DisciplineReport extends Chart {
                         show: false,
                     },
                     data: [{
-                        value: 20,
+                        value: Math.min(Math.round(volume / plan * 100), 100),
                         title: {
                             show: false
                         },
@@ -132,7 +139,7 @@ export class DisciplineReport extends Chart {
         }
         // NOTE: Делаем через switch, т.к. в общем случае каждая обработка может содержать дополнительную логику
 
-        // const dataSet: DataSetTemplate = this.config.template.dataSets[dataSourceId] as DataSetTemplate;
+        const dataSet: DataSetTemplate = this.config.template.dataSets[dataSourceId] as DataSetTemplate;
         let needReload = false;
 
         // Типизированный обязательный switch
@@ -149,7 +156,9 @@ export class DisciplineReport extends Chart {
                         }
                     });
                 }
-            }
+            },
+            'start date': () => { dataSet.from = value; needReload = true; },
+            'finish date': () => { dataSet.to = value; needReload = true; },
         };
         await switchArr[varName]();
 
@@ -159,32 +168,26 @@ export class DisciplineReport extends Chart {
     getTemplate(): string {
         return `
             <div class="widget" style="{{backgroundStyle}} {{paddingStyle}}">
-                {{#showTitle}}
-                <div class="title" style="{{titleStyle}}">
-                    {{title}}
-                </div>
-                {{/showTitle}}
-                
-                <div class="d-flex flex-h-space-between">
-                    <div class="d-flex">
-                        <div class="progress mar-right-4"></div>
-                        
+                <div class="d-flex">
+                    <div class="progress mar-right-5"></div>
+                    
+                    <div class="flex-grow d-flex flex-h-space-between flex-v-end scroll-hide">
                         <div class="d-flex flex-h-end flex-col text-left">
-                            <div class="text-xsmall color-grey">
-                                Обьем производства
+                            <div class="text-xsmall color-grey pad-bot-3">
+                                {{title}}
                             </div>
                             <div class="text-h2">
-                                1234
+                                {{volume}}
                             </div>
                         </div>
-                    </div>
-    
-                    <div class="flex-grow d-flex flex-col flex-h-end color-grey text-xsmall">
-                        <div class="text-right">
-                            План
-                        </div>
-                        <div class="text-right">
-                            10 000
+
+                        <div class="flex-grow d-flex flex-col flex-h-end color-grey text-xsmall">
+                            <div class="text-right">
+                                План
+                            </div>
+                            <div class="text-right">
+                                {{plan}}
+                            </div>
                         </div>
                     </div>
                 </div>

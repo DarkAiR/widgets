@@ -1,4 +1,4 @@
-import widgetStyles from "./productionPlan.less";
+import widgetStyles from "./disciplineReport.less";
 import {settings as widgetSettings} from "./settings";
 
 import {
@@ -17,7 +17,7 @@ import {Frequency} from "../../models/typesGraphQL";
 
 type VarNames = 'org units';
 
-interface ProductionPlanData {
+interface DisciplineReportData {
     info: {
         id: number;
         fio: string;
@@ -36,7 +36,7 @@ interface ProductionPlanData {
     };
 }
 
-export class ProductionPlan extends Chart {
+export class DisciplineReport extends Chart {
     constructor(config: WidgetConfigInner, options: WidgetOptions) {
         super(config, options);
         // Инициализация в конструкторе, чтобы можно было вызвать инициализацию переменных до первого рендера
@@ -97,7 +97,7 @@ export class ProductionPlan extends Chart {
             const padd: Function = (num: number, size: number) => ([...new Array(size)].reduce((acc: string) => acc + '0', '') + num).substr(-size);
 
             let key = 1;
-            const rows: ProductionPlanData[] = points
+            const rows: DisciplineReportData[] = points
                 .map((v: TableRow) => {
                     const latenessDate: Dayjs = dayjs().set('hours', rnd(10));
                     const earlyDepartureDate: Dayjs = dayjs().set('hours', rnd(10));
