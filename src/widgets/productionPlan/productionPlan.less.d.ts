@@ -1,4 +1,4 @@
-export interface IProductionPlanLess {
+export interface IDisciplineReportLess {
   'table': string;
   'text-truncate': string;
   'table-w-auto': string;
@@ -10,13 +10,6 @@ export interface IProductionPlanLess {
   'table-borders': string;
   'table-zebra': string;
   'table-hover': string;
-  'badge': string;
-  'btn': string;
-  'badge-primary': string;
-  'badge-success': string;
-  'badge-warn': string;
-  'badge-error': string;
-  'badge-misc': string;
   'thumb': string;
   'thumbnail': string;
   'icon': string;
@@ -1164,11 +1157,8 @@ export interface IProductionPlanLess {
   's-show': string;
   's-hide': string;
   'widget': string;
-  'header': string;
-  'lateness': string;
-  'earlyDeparture': string;
-  'rating': string;
-  'fio': string;
+  'title': string;
+  'progress': string;
 }
 
-export const locals: IProductionPlanLess;
+export const locals: IDisciplineReportLess;
