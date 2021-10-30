@@ -1,5 +1,5 @@
 import {IWidgetSettings, makeSettings} from "../../widgetSettings";
-import {makeArray, makeString} from "../../widgetSettings/controls";
+import {makeColor} from "../../widgetSettings/controls";
 import settingsPresets from "../../widgetSettings/settingsPresets";
 
 export const settings: IWidgetSettings = makeSettings({
@@ -9,15 +9,10 @@ export const settings: IWidgetSettings = makeSettings({
         ...settingsPresets.background,
     ],
     dataSet: {
-        initDataSets: [{viewType: 'TABLE'}],
+        initDataSets: [{viewType: 'DYNAMIC'}],      // FIXME: Set right view type
         canAdd: false,
         settings: [
-            makeArray('columnNames', 'Названия колонок', [
-                [
-                    makeString('name', ''),
-                    makeString('value', '')
-                ]
-            ])
+            makeColor('color', ' Цвет')
         ]
     }
 });
