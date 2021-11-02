@@ -1,4 +1,6 @@
-@import (reference) "~goodt-framework-css/src/components/table.less";
+@import (reference) "~goodt-framework-css/src/_params.less";
+@import (reference) "~goodt-framework-css/src/_helpers.less";
+@import "~goodt-framework-css/src/typography.less";
 @import "~goodt-framework-css/src/utility.less";
 @import "../../styles/_widget.less";
 
@@ -9,14 +11,14 @@
     line-height: 1.5em;
 }
 
-.table {
-    &:extend(.table all);
-}
-
 .progress {
     height: var(--spacer-layout5);
     width: var(--spacer-layout5);
 
     min-height: var(--spacer-layout5);
     min-width: var(--spacer-layout5);
+}
+
+.d-grid {
+    display: grid;
 }

@@ -1,15 +1,23 @@
 export interface IProductionPlanLess {
-  'table': string;
-  'text-truncate': string;
-  'table-w-auto': string;
-  'table-vtop': string;
-  'table-vmid': string;
-  'table-vbot': string;
-  'table-vbase': string;
-  'table-responsive': string;
-  'table-borders': string;
-  'table-zebra': string;
-  'table-hover': string;
+  'h1': string;
+  'h2': string;
+  'h3': string;
+  'h4': string;
+  'p': string;
+  'section': string;
+  'link': string;
+  'unstyled': string;
+  'mark': string;
+  'code': string;
+  'del': string;
+  'sup': string;
+  'sub': string;
+  'small': string;
+  'pre': string;
+  'resp': string;
+  'responsive': string;
+  'dashed': string;
+  'dotted': string;
   'thumb': string;
   'thumbnail': string;
   'icon': string;
@@ -191,6 +199,7 @@ export interface IProductionPlanLess {
   'text-normal': string;
   'text-muted': string;
   'text-nowrap': string;
+  'text-truncate': string;
   'text-upper': string;
   'color-link': string;
   'color-link-light': string;
@@ -1159,6 +1168,7 @@ export interface IProductionPlanLess {
   'widget': string;
   'title': string;
   'progress': string;
+  'd-grid': string;
 }
 
 export const locals: IProductionPlanLess;

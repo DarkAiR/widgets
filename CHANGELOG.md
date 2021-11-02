@@ -1,5 +1,8 @@
 ### ChangeLog
 
+##### 1.8.11 / 2021-11-02
+- Верстка виджета productionPlan
+
 ##### 1.8.10 / 2021-10-31
 - Поменяны местами виджеты disciplineReport и productionPlan
 - Исправлены стили в productionPlan

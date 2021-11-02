@@ -173,11 +173,13 @@ export class ProductionPlan extends Chart {
                     
                     <div class="flex-grow d-flex flex-h-space-between flex-v-end scroll-hide">
                         <div class="d-flex flex-h-end flex-col text-left">
-                            <div class="text-xsmall color-grey pad-bot-3">
-                                {{title}}
-                            </div>
-                            <div class="text-h2">
-                                {{volume}}
+                            <div class="d-grid">
+                                <div class="text-xsmall text-truncate color-grey pad-bot-3">
+                                    {{title}}
+                                </div>
+                                <div class="text-h2">
+                                    {{volume}}
+                                </div>
                             </div>
                         </div>
 
