@@ -1,6 +1,6 @@
 import {TSPoint} from "../interfaces/graphQL";
 import {IChartData, ISettings, DataSet} from '../interfaces';
-import {Frequency} from "../models/typesGraphQL";
+import {Frequency} from "../types/graphQL";
 import {TypeGuardsHelper} from "./typeGuards.helper";
 import {min as _min, max as _max, get as _get} from 'lodash';
 import { DateHelper } from './date.helper';

@@ -51,7 +51,6 @@
     "less-vars-loader": "^1.1.0",
     "lodash": "^4.17.15",
     "normalize.css": "^8.0.1",
-    "popper.js": "^1.16.1",
     "require": "^2.4.20",
     "requirejs": "^2.3.6",
     "stringify-object": "^3.3.0",

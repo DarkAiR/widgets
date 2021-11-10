@@ -1,7 +1,7 @@
 /**
  * Типы для описания инициализации датасетов
  */
-import {ViewType} from "../models/typesGraphQL";
+import {ViewType} from "../types/graphQL";
 
 export interface InitDataSetsItem {
     viewType: ViewType;

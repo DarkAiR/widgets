@@ -25,7 +25,7 @@ import {
     TimeSeriesData,
     TimeSeriesHelper
 } from '../../helpers';
-import {ChartType, Frequency, HistogramType, XAxisPos, YAxisPos} from "../../models/types";
+import {ChartType, Frequency, HistogramType, XAxisPos, YAxisPos} from "../../types/types";
 import {TypeGuardsHelper} from "../../helpers";
 import {IWidgetSettings} from "../../widgetSettings";
 import {WidgetSettingsItem} from "../../widgetSettings/types";
@@ -803,7 +803,7 @@ export class Spline extends Chart {
 
     /**
      * Обработка событий
-     * NOTE: все данные меняются в this.config.template
+     * NOTE: все данные меняются прямо в this.config.template
      */
     // tslint:disable-next-line:no-any
     private async onEventBusFunc(varName: VarNames, value: any, dataSourceId: number): Promise<boolean> {

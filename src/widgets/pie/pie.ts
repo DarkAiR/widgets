@@ -19,7 +19,7 @@ import {TypeGuardsHelper} from "../../helpers";
 import {IWidgetSettings} from "../../widgetSettings";
 import {WidgetConfigInner} from "../..";
 import {WidgetOptions} from "../../models/widgetOptions";
-import {PieLabelAlign} from "../../models/types";
+import {PieLabelAlign} from "../../types/types";
 
 type VarNames = 'org units' | 'period' | 'start date' | 'finish date' | 'frequency' | 'pre frequency' | 'operation' | 'version filter';
 
