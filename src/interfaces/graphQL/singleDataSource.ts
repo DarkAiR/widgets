@@ -3,7 +3,7 @@
  */
 import {DimensionFilter} from "./dimensionFilter";
 import {Metric} from "./metric";
-import {DataSourceType} from "../../models/types";
+import {DataSourceType} from "../../types/types";
 import {MetricFilter} from "./metricFilter";
 import {VersionFilter} from "./versionFilter";
 

@@ -1,4 +1,4 @@
-import {WidgetType, ServerType} from "../../models/types";
+import {WidgetType, ServerType} from "../../types/types";
 import { DataSet } from './dataSet';
 import {ISettings} from "../ISettings";
 

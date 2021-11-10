@@ -2,20 +2,21 @@ import widgetStyles from "./table.less";
 import {settings as widgetSettings} from "./settings";
 
 import {
-    DimensionFilter,
+    DimensionFilter, DimensionUnit,
     IChartData, IEventOrgUnits, INameValue, ISettings,
-    IWidgetVariables, JoinDataSetTemplate, TableRow, TimeSeriesDataSetShort
+    IWidgetVariables, JoinDataSetTemplate, MetricUnit, TableRow, TimeSeriesDataSetShort
 } from "../../interfaces";
 import {get as _get, map as _map, filter as _filter, keyBy as _keyBy} from "lodash";
 import {AddVarFunc, Chart} from "../../models/Chart";
-import {DateHelper, TypeGuardsHelper} from "../../helpers";
+import {DateHelper, OrgUnitsHelper, TypeGuardsHelper} from "../../helpers";
 import {IWidgetSettings} from "../../widgetSettings";
 import {WidgetConfigInner} from "../..";
 import {WidgetOptions} from "../../models/widgetOptions";
 import dayjs, {Dayjs} from "dayjs";
-import {Frequency} from "../../models/typesGraphQL";
+import {Frequency} from "../../types/graphQL";
 
-type VarNames = 'org units';
+// NOTE: <VarNames | string> только для таблиц выставляем общие dimensions наружу
+type VarNames = 'org units' | string;
 
 export class Table extends Chart {
     constructor(config: WidgetConfigInner, options: WidgetOptions) {
@@ -29,6 +30,14 @@ export class Table extends Chart {
         const addVar: AddVarFunc<VarNames> = this.addVar(res);
 
         addVar(0, 'org units', 'OrgUnits', 'Выбирается в отдельном виджете');
+
+        // NOTE: Для таблицы существует только один источник, если его нет, то это Exception
+        if (TypeGuardsHelper.isJoinDataSetTemplate(this.config.template.dataSets[0])) {
+            const dimensions: string[] = _map(this.config.template.dataSets[0].dimensions, 'name');
+            dimensions.forEach((dimName: string) => {
+                addVar(0, dimName, dimName, '');
+            });
+        }
 
         return res;
     }
@@ -79,8 +88,8 @@ export class Table extends Chart {
                 })
                 .map((v: TableRow) => {
                     const row = [];
-                    const pointDimensionsName: string = _keyBy(v.dimensions, 'name');
-                    const pointMetricsName: string = _keyBy(v.metrics, 'name');
+                    const pointDimensionsName: {[dimName: string]: DimensionUnit} = _keyBy(v.dimensions, 'name');
+                    const pointMetricsName: {[metricName: string]: MetricUnit} = _keyBy(v.metrics, 'name');
 
                     row.push({name: 'localDateTime', value: {k: key++, v: this.getDateStr(dataSet.frequency, v.localDateTime)}});   // Конвертируем даты
                     dimensions.forEach((dimName: string) => {
@@ -153,44 +162,11 @@ export class Table extends Chart {
         // Типизированный обязательный switch
         const switchArr: Record<VarNames, Function> = {
             'org units': () => {
-                needReload = this.processingOrgUnits(value as IEventOrgUnits);
+                needReload = OrgUnitsHelper.setOrgUnitsForTable(this.config.template.dataSets, value as IEventOrgUnits);
             },
         };
-        await switchArr[varName]();
+        switchArr[varName]();
 
-        return needReload;
-    }
-
-    private processingOrgUnits(event: IEventOrgUnits): boolean {
-        let needReload = false;
-        if (TypeGuardsHelper.everyIsJoinDataSetTemplate(this.config.template.dataSets)) {
-            this.config.template.dataSets.forEach((joinDataSet: JoinDataSetTemplate) => {
-                joinDataSet.dataSetTemplates.forEach((v: TimeSeriesDataSetShort) => {
-                    if (TypeGuardsHelper.isSingleDataSource(v.dataSource1)) {
-                        for (const dimName in event) {
-                            if (!event.hasOwnProperty(dimName)) {
-                                continue;
-                            }
-                            // NOTE: Нельзя проверять на event[dimName].length, т.к. тогда остануться данные с прошлого раза
-                            const dim: DimensionFilter = joinDataSet.dimensions.find((d: DimensionFilter) => d.name === dimName);
-                            if (dim) {
-                                dim.values = event[dimName];
-                                dim.groupBy = event[dimName].length > 0;
-                            } else {
-                                const newFilter: DimensionFilter = {
-                                    name: dimName,
-                                    values: event[dimName],
-                                    expression: '',
-                                    groupBy: true
-                                };
-                                joinDataSet.dimensions.push(newFilter);
-                            }
-                            needReload = true;
-                        }
-                    }
-                });
-            });
-        }
         return needReload;
     }
 

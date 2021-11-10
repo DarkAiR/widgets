@@ -1,11 +1,12 @@
-import {IChart, RejectFunc, ResolveFunc, WidgetTemplate} from "../interfaces";
+import {IChart, WidgetTemplate} from "../interfaces";
 import {DataProvider} from "../dataProvider";
 import * as widgets from "../widgets";
 import {StatesHelper, WidgetConfig, WidgetConfigInner} from "..";
-import { WidgetType } from '../models/types';
+import { WidgetType } from '../types/types';
 import {Chart} from "../models/Chart";
 import {IWidgetSettings} from "../widgetSettings";
 import { WidgetOptions } from '../models/widgetOptions';
+import {RejectFunc, ResolveFunc} from "../types/promise";
 
 declare var __VERSION__: string;
 
