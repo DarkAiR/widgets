@@ -3,7 +3,6 @@ import {ISettings} from "../interfaces";
 import * as stringifyObject from 'stringify-object';
 import {get as _get, isEmpty as _isEmpty} from 'lodash';
 import {TypeGuardsHelper} from "../helpers";
-import {Data} from "popper.js";
 
 export class Serializer {
     static async serialize(dataSource: DataSource): Promise<string | null> {

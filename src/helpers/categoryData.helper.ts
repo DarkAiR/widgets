@@ -3,7 +3,7 @@ import {DataSetTemplate} from "../interfaces/template/dataSet";
 import {DimensionFilter, DimensionInfo, DimensionUnit, TSPoint} from "../interfaces/graphQL";
 import {TypeGuardsHelper} from "./typeGuards.helper";
 import {DataProvider} from "../dataProvider";
-import {INameValue, ISettings} from "../interfaces";
+import {INameValue} from "../interfaces";
 
 interface CategoryData {
     [dataSetIdx: number]: Array<{value: [string, number, INameValue[]]}>;

@@ -1,7 +1,7 @@
 import {IWidgetSettings, makeSettings} from "../../widgetSettings";
 import settingsPresets from "../../widgetSettings/settingsPresets";
 import {makeArray, makeColor, makeList, makeNumber, makeSettingsGroup, makeString} from "../../widgetSettings/controls";
-import {PieLabelAlign, PieLabelAlignValues} from "../../models/types";
+import {PieLabelAlign, PieLabelAlignValues} from "../../types/types";
 
 export const settings: IWidgetSettings = makeSettings({
     settings: [

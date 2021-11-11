@@ -9,7 +9,7 @@ import {
     makeString
 } from "../controls";
 import {SettingFunc} from "../types";
-import {YAxisPos, YAxisPosValues} from "../../models/types";
+import {YAxisPos, YAxisPosValues} from "../../types/types";
 
 function axisYFunc(enablePosition: boolean = true): SettingFunc[] {
     return [

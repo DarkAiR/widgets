@@ -8,7 +8,6 @@ export * from "./IChartData";
 export * from "./ISettings";
 export * from "./IWidgetVariables";
 export * from "./INameValue";
-export * from './promise';
 export * from './IColor';
 export * from './IGradient';
 export * from './AxisData';

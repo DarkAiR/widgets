@@ -1,5 +1,19 @@
 ### ChangeLog
 
+##### 1.9.2 / 2021-11-11
+- revert
+
+##### 1.9.1 / 2021-11-11
+- отменено переименование widgetFactory
+- из interfaces убран import для promise
+
+##### 1.9.0 / 2021-11-10
+- Изменены названия файлов на CamelCase
+- типы вынесены в отдельную директорию
+  - models/types -> types/types
+  - models/typesGraphQL -> types/graphQL
+  - interfaces/promise -> types/promise
+
 ##### 1.8.11 / 2021-11-02
 - Верстка виджета productionPlan
 

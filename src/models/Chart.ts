@@ -11,12 +11,13 @@ import {WidgetConfigInner} from "./widgetConfig";
 import {EventBusWrapper, EventBus, EventBusEvent} from 'goodteditor-event-bus';
 import {IWidgetSettings} from "../widgetSettings";
 import {SettingsHelper, TypeGuardsHelper} from "../helpers";
-import {ChartType} from "./types";
+import {ChartType} from "../types/types";
 import {WidgetOptions} from "./widgetOptions";
 
 const hogan = require('hogan.js');
 
-type EventBusFunc = (varName: string, value: string, dataSourceId: number) => Promise<boolean>;
+// tslint:disable-next-line:no-any
+type EventBusFunc = (varName: string, value: any, dataSourceId: number) => Promise<boolean>;
 export type AddVarFunc<T> = (dataSourceIndex: number, name: T, description: string, hint: string) => void;
 
 export abstract class Chart implements IChart {
@@ -76,7 +77,8 @@ export abstract class Chart implements IChart {
             const widgetVars: IWidgetVariables = this.getVariables();
 
             await Promise.all(
-                _map(eventObj, async (value: string, name: string) => {
+                // tslint:disable-next-line:no-any
+                _map(eventObj, async (value: any, name: string) => {
                     const res = /(.*?)(?: (\d*))?$/.exec(name);
                     const varName: string = _defaultTo(_get(res, '1'), '');
                     const dataSourceId: number = _defaultTo(_get(res, '2'), 0);

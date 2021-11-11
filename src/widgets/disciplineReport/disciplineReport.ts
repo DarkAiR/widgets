@@ -3,19 +3,19 @@ import {settings as widgetSettings} from "./settings";
 
 import {
     DimensionFilter,
-    IChartData, IEventOrgUnits, INameValue,
-    IWidgetVariables, JoinDataSetTemplate, TableRow, TimeSeriesDataSetShort, ISettings
+    IChartData, IEventOrgUnits,
+    IWidgetVariables, JoinDataSetTemplate, TableRow, TimeSeriesDataSetShort, ISettings, DimensionUnit, MetricUnit, DataSet
 } from "../../interfaces";
 import {map as _map, filter as _filter} from "lodash";
 import {AddVarFunc, Chart} from "../../models/Chart";
-import {DateHelper, SettingsHelper, TypeGuardsHelper} from "../../helpers";
+import {DateHelper, OrgUnitsHelper, SettingsHelper, TypeGuardsHelper} from "../../helpers";
 import {IWidgetSettings} from "../../widgetSettings";
 import {WidgetConfigInner} from "../..";
 import {WidgetOptions} from "../../models/widgetOptions";
 import dayjs, {Dayjs} from "dayjs";
-import {Frequency} from "../../models/typesGraphQL";
+import {Frequency} from "../../types/graphQL";
 
-type VarNames = 'org units';
+type VarNames = 'org units' | 'employees';
 
 interface DisciplineReportData {
     info: {
@@ -43,11 +43,31 @@ export class DisciplineReport extends Chart {
         this.onEventBus = this.onEventBusFunc.bind(this);
     }
 
+    // TODO: Распространить на все остальные виджеты
+    private help(): string {
+        return `
+            Дименшины:
+            - Все дименшины (с groupBy) попадают в первую колонку в том порядке, в котором пришли в соотв. с версткой
+            - Первый дименшин - ФИО сотрудника
+            - Второй дименшин - должность
+            - Остальные дименшины будут игнорироваться
+            
+            Источники данных:
+            - 1: количество опозданий
+            - 2: время опозданий в секундах
+            - 3: количество ранних уходов
+            - 4: время ранних уходов в секундах
+            - 5: общее количество плановых смен (planned_shift_count)
+            - Остальные источники будут игнорироваться
+        `;
+    }
+
     getVariables(): IWidgetVariables {
         const res: IWidgetVariables = {};
         const addVar: AddVarFunc<VarNames> = this.addVar(res);
 
         addVar(0, 'org units', 'OrgUnits', 'Выбирается в отдельном виджете');
+        addVar(0, 'employees', 'Employees', 'Сотрудники');
 
         return res;
     }
@@ -83,40 +103,61 @@ export class DisciplineReport extends Chart {
                 }
             );
 
-            if (metrics.length < 3) {
-                throw new Error('You should set up at least 3 metrics');
+            const maxLength: number = 5;
+            if (metrics.length < maxLength) {
+                throw new Error(`You should set up at least ${maxLength} metrics`);
             }
 
             // Готовим данные, формируем общий список метрик
-            const header: string[] = this.mapToNames([
+            const header: string[] = [
                 'Сотрудники',
-                ...metrics.splice(0, 3)
-            ], this.getDataSetSettings(0, 'columnNames'));
+                'Опоздания',
+                'Ранний уход',
+                'Плановые смены'
+            ];
 
-            const rnd: Function = (v: number) => ~~(Math.random() * v);
             const padd: Function = (num: number, size: number) => ([...new Array(size)].reduce((acc: string) => acc + '0', '') + num).substr(-size);
 
             let key = 1;
             const rows: DisciplineReportData[] = points
                 .map((v: TableRow) => {
-                    const latenessDate: Dayjs = dayjs().set('hours', rnd(10));
-                    const earlyDepartureDate: Dayjs = dayjs().set('hours', rnd(10));
+                    // FIXME: Здесь идет жесткая привязка к названиям dimensions и metrics
+                    const employee = v.dimensions.find((d: DimensionUnit) => d.name === 'employee');
+                    const position = v.dimensions.find((d: DimensionUnit) => d.name === 'positions');
+                    const lateCount = v.metrics.find((d: MetricUnit) => d.name === 'late_count');
+                    const timeLate = v.metrics.find((d: MetricUnit) => d.name === 'time_late');
+                    const earlyDepartureCount = v.metrics.find((d: MetricUnit) => d.name === 'early_departure_count');
+                    const timeEarlyDeparture = v.metrics.find((d: MetricUnit) => d.name === 'time_early_departure');
+                    const plannedShiftCount = v.metrics.find((d: MetricUnit) => d.name === 'planned_shift_count');
+
+                    const latenessDate: Dayjs = dayjs()
+                        .set('hours', ~~(timeLate.value / 60 / 60))
+                        .set('minutes', ~~((timeLate.value / 60) % 60))
+                        .set('seconds', timeLate.value % 60);
+                    const earlyDepartureDate: Dayjs = dayjs()
+                        .set('hours', ~~(timeEarlyDeparture.value / 60 / 60))
+                        .set('minutes', ~~((timeEarlyDeparture.value / 60) % 60))
+                        .set('seconds', timeEarlyDeparture.value % 60);
+
+                    const latenessCount: number = Number(lateCount.value);
+                    const earlyCount: number = Number(earlyDepartureCount.value);
+
                     return {
                         info: {
                             id: key++,
-                            fio: ['Иванов', 'Петров', 'Сидоров'][rnd(3)] + ' ' + ['Олег', 'Иван', 'Василий'][rnd(3)] + ' ' + ['Андреевич', 'Иванович', 'Петрович'][rnd(3)],
-                            position: ['Директор', 'Зам.директора', 'Работник'][rnd(3)],
+                            fio: employee ? (employee.entity?.name ?? '') : '',
+                            position: position ? (position.entity?.name ?? '') : '',
                         },
                         lateness: {
-                            count: Number(v.metrics[0].value).toFixed(0).substr(-2),
+                            count: latenessCount.toFixed(0),
                             interval: `${padd(latenessDate.hour(), 2)}:${padd(latenessDate.minute(), 2)}`
                         },
                         earlyDeparture: {
-                            count: Number(v.metrics[1].value).toFixed(0).substr(-2),
+                            count: earlyCount.toFixed(0),
                             interval: `${padd(earlyDepartureDate.hour(), 2)}:${padd(earlyDepartureDate.minute(), 2)}`
                         },
                         rating: {
-                            value: Number(v.metrics[2].value).toFixed(0)
+                            value: Number(plannedShiftCount.value).toFixed(0)
                         }
                     };
                 });
@@ -149,16 +190,6 @@ export class DisciplineReport extends Chart {
         return frequencyFunc[frequency]() ?? date.format('DD.MM.YYYY');
     }
 
-    private mapToNames(src: string[], arr: INameValue[]): string[] {
-        arr.forEach((v: INameValue) => {
-            const idx: number = src.findIndex((srcValue: string) => srcValue === v.name);
-            if (idx !== -1) {
-                src[idx] = v.value;
-            }
-        });
-        return src;
-    }
-
     /**
      * Обработка событий
      * NOTE: все данные меняются в this.config.template
@@ -166,7 +197,7 @@ export class DisciplineReport extends Chart {
     // tslint:disable-next-line:no-any
     private async onEventBusFunc(varName: VarNames, value: any, dataSourceId: number): Promise<boolean> {
         if (this.options?.logs?.eventBus ?? true) {
-            console.groupCollapsed('Table EventBus data');
+            console.groupCollapsed('DisciplineReport EventBus data');
             console.log(varName, '=', value);
             console.log('dataSourceId =', dataSourceId);
             console.groupEnd();
@@ -178,40 +209,42 @@ export class DisciplineReport extends Chart {
         // Типизированный обязательный switch
         const switchArr: Record<VarNames, Function> = {
             'org units': () => {
-                needReload = this.processingOrgUnits(value as IEventOrgUnits);
+                needReload = OrgUnitsHelper.setOrgUnitsForTable(this.config.template.dataSets, value as IEventOrgUnits);
             },
+            'employees': () => {
+                needReload = this.processEmployees((value as Array<string | number>).map((v: number | string) => '' + v));
+            }
         };
-        await switchArr[varName]();
+        switchArr[varName]();
 
         return needReload;
     }
 
-    private processingOrgUnits(event: IEventOrgUnits): boolean {
+    private processEmployees(employeeIds: string[]): boolean {
         let needReload = false;
-        if (TypeGuardsHelper.everyIsJoinDataSetTemplate(this.config.template.dataSets)) {
-            this.config.template.dataSets.forEach((joinDataSet: JoinDataSetTemplate) => {
+        const dataSets: DataSet[] = this.config.template.dataSets;
+        const dimName: string = 'employee';     // FIXME: здесь требуется конкретный dimension
+        if (TypeGuardsHelper.everyIsJoinDataSetTemplate(dataSets)) {
+            dataSets.forEach((joinDataSet: JoinDataSetTemplate) => {
                 joinDataSet.dataSetTemplates.forEach((v: TimeSeriesDataSetShort) => {
                     if (TypeGuardsHelper.isSingleDataSource(v.dataSource1)) {
-                        for (const dimName in event) {
-                            if (!event.hasOwnProperty(dimName)) {
-                                continue;
-                            }
-                            // NOTE: Нельзя проверять на event[dimName].length, т.к. тогда остануться данные с прошлого раза
-                            const dim: DimensionFilter = joinDataSet.dimensions.find((d: DimensionFilter) => d.name === dimName);
-                            if (dim) {
-                                dim.values = event[dimName];
-                                dim.groupBy = event[dimName].length > 0;
-                            } else {
-                                const newFilter: DimensionFilter = {
-                                    name: dimName,
-                                    values: event[dimName],
-                                    expression: '',
-                                    groupBy: true
-                                };
-                                joinDataSet.dimensions.push(newFilter);
-                            }
-                            needReload = true;
+
+                        // NOTE: Нельзя проверять на event.orgUnits[dimName].length, т.к. тогда останутся данные с прошлого раза
+                        const dimIndex: number = joinDataSet.dimensions.findIndex((d: DimensionFilter) => d.name === dimName);
+                        if (dimIndex !== -1) {
+                            joinDataSet.dimensions[dimIndex].values = employeeIds;
+                            joinDataSet.dimensions[dimIndex].groupBy = true;
+                        } else {
+                            // Пустые данные не приходят в виджет, поэтому dimension может и не быть
+                            const newFilter: DimensionFilter = {
+                                name: dimName,
+                                values: employeeIds,
+                                expression: '',
+                                groupBy: true
+                            };
+                            joinDataSet.dimensions.push(newFilter);
                         }
+                        needReload = true;
                     }
                 });
             });
@@ -253,26 +286,34 @@ export class DisciplineReport extends Chart {
                             </div>
                         </td>
                         <td attr-key="{{info.id}}_2">
+                            {{#lateness}}
                             <div class="d-flex flex-v-center">
                                 <div class="badge badge-error
                                             text-small lateness
                                             mar-right-3
                                 ">
-                                    {{ lateness.count }}
+                                    {{ count }}
                                 </div>
-                                <div class="color-red text-small">{{ lateness.interval }}</div>
+                                <div class="color-red text-small">
+                                    {{ interval }}
+                                </div>
                             </div>
+                            {{/lateness}}
                         </td>
                         <td attr-key="{{info.id}}_3">
+                            {{#earlyDeparture}}
                             <div class="d-flex flex-v-center">
                                 <div class="badge badge-error
                                             text-small earlyDeparture
                                             mar-right-3
                                 ">
-                                    {{ earlyDeparture.count }}
+                                    {{ count }}
                                 </div>
-                                <div class="color-red text-small">{{ earlyDeparture.interval }}</div>
+                                <div class="color-red text-small">
+                                    {{ interval }}
+                                </div>
                             </div>
+                            {{/earlyDeparture}}
                         </td>
                         <td attr-key="{{info.id}}_4">
                             <div class="d-flex flex-h-end">

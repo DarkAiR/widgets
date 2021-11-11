@@ -9,7 +9,7 @@ import {
     makeString
 } from "../controls";
 import {SettingFunc} from "../types";
-import {XAxisPos, XAxisPosValues} from "../../models/types";
+import {XAxisPos, XAxisPosValues} from "../../types/types";
 
 export const axisX: SettingFunc[] = [
     makeSettingsGroup('axisX', 'Ось X', [
