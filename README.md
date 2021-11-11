@@ -14,7 +14,7 @@ Importing needed classes
 ```js
 import {WidgetConfig} from 'abc-charts/widgetConfig';
 import {WidgetFactory} from 'abc-charts/widgetFactory';     // Фабрика
-import {dataProvider} from "abc-charts/dataProvider";       // Провайдер данных
+import {DataProvider} from "abc-charts/dataProvider";       // Провайдер данных
 import {Constants} from "abc-charts/constants";             // Значения литеральных типов и перечислений
 import {SomeInterface} from 'abc-charts/interfaces';
 import {SomeType} from 'abc-charts/models/types';

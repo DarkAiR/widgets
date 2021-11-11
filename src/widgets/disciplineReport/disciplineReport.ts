@@ -252,39 +252,6 @@ export class DisciplineReport extends Chart {
         return needReload;
     }
 
-    private processOrgUnits(event: IEventOrgUnits): boolean {
-        let needReload = false;
-        if (TypeGuardsHelper.everyIsJoinDataSetTemplate(this.config.template.dataSets)) {
-            this.config.template.dataSets.forEach((joinDataSet: JoinDataSetTemplate) => {
-                joinDataSet.dataSetTemplates.forEach((v: TimeSeriesDataSetShort) => {
-                    if (TypeGuardsHelper.isSingleDataSource(v.dataSource1)) {
-                        for (const dimName in event) {
-                            if (!event.hasOwnProperty(dimName)) {
-                                continue;
-                            }
-                            // NOTE: Нельзя проверять на event[dimName].length, т.к. тогда остануться данные с прошлого раза
-                            const dim: DimensionFilter = joinDataSet.dimensions.find((d: DimensionFilter) => d.name === dimName);
-                            if (dim) {
-                                dim.values = event[dimName];
-                                dim.groupBy = event[dimName].length > 0;
-                            } else {
-                                const newFilter: DimensionFilter = {
-                                    name: dimName,
-                                    values: event[dimName],
-                                    expression: '',
-                                    groupBy: true
-                                };
-                                joinDataSet.dimensions.push(newFilter);
-                            }
-                            needReload = true;
-                        }
-                    }
-                });
-            });
-        }
-        return needReload;
-    }
-
     getTemplate(): string {
         return `
             <div class="widget" style="{{backgroundStyle}} {{paddingStyle}}">
