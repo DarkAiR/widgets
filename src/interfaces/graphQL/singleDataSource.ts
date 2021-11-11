@@ -14,5 +14,5 @@ export interface SingleDataSource {
     dimensions: DimensionFilter[];      // набор фильтров по полям (применим только для SINGLE)
     metric: Metric;                     // метрика которую надо расчитать
     metricFilters: MetricFilter[];      // Дополнительные условия для фильтрации по метрикам
-    versionFilter: VersionFilter;       // Фильтр версий
+    versionFilter?: VersionFilter;      // Фильтр версий
 }
