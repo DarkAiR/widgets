@@ -1,5 +1,8 @@
 ### ChangeLog
 
+##### 1.9.3 / 2021-11-11
+- hide DisciplineReport
+
 ##### 1.9.2 / 2021-11-11
 - revert
 

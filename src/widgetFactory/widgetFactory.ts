@@ -30,7 +30,7 @@ export class WidgetFactory {
             'PROFILE':              () => import('../widgets/profile/settings'),
             'PIE':                  () => import('../widgets/pie/settings'),
             "PRODUCTION_PLAN":      () => import('../widgets/productionPlan/settings'),
-            "DISCIPLINE_REPORT":    () => import('../widgets/disciplineReport/settings')
+            // "DISCIPLINE_REPORT":    () => import('../widgets/disciplineReport/settings')
         };
         return new Promise((resolve: ResolveFunc, reject: RejectFunc) => {
             if (!widgetTypeToImport[widgetType]) {
@@ -100,7 +100,7 @@ export class WidgetFactory {
             "PROFILE":              () => widgets.Profile.Profile,
             "PIE":                  () => widgets.Pie.Pie,
             "PRODUCTION_PLAN":      () => widgets.ProductionPlan.ProductionPlan,
-            "DISCIPLINE_REPORT":    () => widgets.DisciplineReport.DisciplineReport,
+            // "DISCIPLINE_REPORT":    () => widgets.DisciplineReport.DisciplineReport,
 
         };
         if (!widgetsArr[config.template.widgetType]) {
