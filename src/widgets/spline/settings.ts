@@ -2,7 +2,7 @@ import {IWidgetSettings, makeSettings} from "../../widgetSettings";
 import {
     ChartType,
     ChartTypeValues, HistogramType, HistogramTypeValues
-} from "../../models/types";
+} from "../../types/types";
 import {
     makeBoolean,
     makeColor,

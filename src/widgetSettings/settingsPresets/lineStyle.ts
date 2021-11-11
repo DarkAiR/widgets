@@ -7,7 +7,7 @@ import {
     makeNumber, makeSettingsGroup,
 } from "../controls";
 import {SettingFunc} from "../types";
-import {LineType, LineTypeValues} from "../../models/types";
+import {LineType, LineTypeValues} from "../../types/types";
 
 export const lineStyle: SettingFunc[] = [
     makeSettingsGroup('lineStyle', 'Стиль линии', [

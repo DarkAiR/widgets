@@ -10,7 +10,7 @@ import {
     makeString
 } from "../controls";
 import {SettingFunc} from "../types";
-import {XAxisPos, XAxisPosValues} from "../../models/types";
+import {XAxisPos, XAxisPosValues} from "../../types/types";
 
 export const multiAxesX: SettingFunc[] = [
     makeNumber('axisXDistance', 'Расстояние между осями X', 20),

@@ -8,7 +8,7 @@ import {
     makeNumber, makeSettingsGroup,
 } from "../controls";
 import {SettingFunc} from "../types";
-import {LegendPos, LegendPosValues} from "../../models/types";
+import {LegendPos, LegendPosValues} from "../../types/types";
 
 export const legend: SettingFunc[] = [
     makeSettingsGroup('legend', 'Легенда', [

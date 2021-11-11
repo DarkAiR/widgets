@@ -1,4 +1,4 @@
-import {ViewType, Frequency, Operation, MethodType} from '../../../models/types';
+import {ViewType, Frequency, Operation, MethodType} from '../../../types/types';
 import {DataSource} from "../../graphQL";
 import {ISettings} from "../../ISettings";
 

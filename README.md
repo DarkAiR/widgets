@@ -9,12 +9,12 @@ npm i abc-charts --save
 ```
 ### Usage
 
-Importing needed classes 
+Importing needed classes
 
 ```js
 import {WidgetConfig} from 'abc-charts/widgetConfig';
 import {WidgetFactory} from 'abc-charts/widgetFactory';     // Фабрика
-import {dataProvider} from "abc-charts/dataProvider";       // Провайдер данных
+import {DataProvider} from "abc-charts/dataProvider";       // Провайдер данных
 import {Constants} from "abc-charts/constants";             // Значения литеральных типов и перечислений
 import {SomeInterface} from 'abc-charts/interfaces';
 import {SomeType} from 'abc-charts/models/types';
@@ -167,7 +167,7 @@ WidgetOptions {
 
 -----------------------
 
-### Local development
+## Local development
 
 Use ```npm link``` for making reference to package ```widget-render``` from your package.
 
@@ -181,11 +181,11 @@ For example:
 
 Don't forget local link will be reset after any npm-operations in your package.
 
-#### Добавление нового виджета
+### Добавление нового виджета
 
 **NOTE:** Все названия директорий и компонентов в **lowerCamelCase**
 
-**NOTE:** CodeStyle регламентируется файлом ```tslint.json```. Требуется настроить свою IDE для работы с правилами линтера. 
+**NOTE:** CodeStyle регламентируется файлом ```tslint.json```. Требуется настроить свою IDE для работы с правилами линтера.
 
 - Создаем (копируем из существующего виджета) директорию видa
 ```
@@ -198,7 +198,7 @@ Don't forget local link will be reset after any npm-operations in your package.
 Уникальное имя файла нужно для того, чтобы имена классов собирались изолировано.
 
 Текущее правило для css-классов [name]-[local].
-В противном случае классы виджетов пересекуться и использовать их на одной странице станет затруднительно. 
+В противном случае классы виджетов пересекуться и использовать их на одной странице станет затруднительно.
 
 
 - Добавляем в /src/widgets/index.ts экспорт.
@@ -223,33 +223,35 @@ private createWidget(...) {
 
 ```type WidgetType = ... | 'WIDGET_TYPE' ```
 
-#### Deploy
+### Deploy
 
 - Меняем версию в ```package-lib.json```
 - Корректно вносим изменения в ```CHANGELOG.md```
-- Вызываем ```npm run npm:publish``` 
+- Вызываем ```npm run npm:publish```
 
-#### Структура виджета
+### Структура виджета
 
-##### ```<widgetName>.ts```
+#### ```<widgetName>.ts```
 Компонент виджета наследуется от класса ```Chart``` , который, в свою очередь, реализует интерфейс ```IChart```, для управления виджетом из вызывающего проекта.
 
 В компоненте необходимо реализовать все abstract методы, в частности метод ```run```,
 
 *Реализация метода ```run``` не регламентирована ничем, кроме CodeStyle, и каждый виджет может быть написан с использованием уникальных для него подходов (нр, HTML-верстка, SVG, echarts и т.д.).*
 
-###### run()
+##### run()
 Запуск виджета.  
 Принимает конфигуратор с DOM-элементом, куда записывает результат своей работы.
 
-###### destroy()
+##### destroy()
 Уничтожает виджет, в частности все обработчики, которые на него повешаны.
 
-###### redraw()
+##### redraw()
 Перерисовать виджет с текущими данными без пересоздания самого виджета.
 
-###### getVariables(): IWidgetVariables
-Возвращает переменные для общения по шине.  
+----
+
+##### getVariables(): IWidgetVariables
+Возвращает переменные для общения по шине.
 *NOTE: Реализовано через generic, чтобы гарантировать правильное использование. Не менять!*
 ```
 getVariables(): IWidgetVariables {
@@ -260,26 +262,30 @@ getVariables(): IWidgetVariables {
 } 
 ```
 
+**Если по шине передаются данные привязанные к конкретным dimensions, надо ОБЯЗАТЕЛЬНО проверять, есть ли такие dimensions (нр, organizationUnit) и не добавлять внешнее событие через addVar, если dimensions нет.**
+
+----
+##### onEventBus: (ev: EventBusEvent, eventObj: IEventData) => void
+Обработчик сообщений от шины.    
+*NOTE: Реализован через переменную, для сохранения контекста вызова*
+
+----
 ##### getSettings: IWidgetSettings
 Возвращает настройки конкретного виджета для доступа в базовом классе.
 Сделано через метод, чтобы нельзя было забыть про возврат этих значений (нр, в противовес вызову super.run())
 
-###### getTemplate(): string | null
+##### getTemplate(): string | null
 Получить шаблон. Если не перегружена (null), то шаблонизатор не используется.
 
-###### onResize: (width: number, height: number) => void
+##### onResize: (width: number, height: number) => void
 Обработчик изменения размера.   
 *NOTE: Реализован через переменную, для сохранения контекста вызова*
 
-###### onEventBus: (ev: EventBusEvent, eventObj: IEventData) => void
-Обработчик сообщений от шины   
-*NOTE: Реализован через переменную, для сохранения контекста вызова*
- 
-##### ```<widgetName>.less```
+#### ```<widgetName>.less```
 
 Файл стилей, который будет собран в изолированное пространство css-классов, исходя из уникальности имени файла.
- 
-##### ```settings.ts```
+
+#### ```settings.ts```
 
 Файл с настройками, уникальными для конкретного виджета.
 См. ниже "Добавление нового типа настройки"
@@ -289,7 +295,7 @@ getVariables(): IWidgetVariables {
 
 В проекте используется шаблонизатор [hogan.js](https://twitter.github.io/hogan.js/) синтаксис которого базируется на [mustache.js](https://github.com/janl/mustache.js#usage)
 
-##### Пример использования
+#### Пример использования
 
 Если нужно рендерить вручную, то можно не переопределять метод ```getTemplate```.
 
@@ -310,17 +316,17 @@ class Widget extends Chart {
 ```
 
 
-#### Добавление нового типа настройки
+### Добавление нового типа настройки
 
 Все необходимые файлы лежат в папке ```/widgetInfo```
 
-1.  добавляем новый тип setting к ```WidgetSettingsTypes```.   
-2.  в ```/widgetInfo/settings``` в файле ```<YourType>Setting.ts``` описываем структуру данных и функцию создания ```make<YourType>(...): SettingFunc```    
-3.  добавляем новый тип данных к типу ```WidgetInfoSettingsItem```    
-4.  Все! Можно использовать вашу функцию для создания новой настройки в конфиге    
+1.  добавляем новый тип setting к ```WidgetSettingsTypes```.
+2.  в ```/widgetInfo/settings``` в файле ```<YourType>Setting.ts``` описываем структуру данных и функцию создания ```make<YourType>(...): SettingFunc```
+3.  добавляем новый тип данных к типу ```WidgetInfoSettingsItem```
+4.  Все! Можно использовать вашу функцию для создания новой настройки в конфиге
 
 
-Пример создания настройки ```MyTypeSetting.ts```:    
+Пример создания настройки ```MyTypeSetting.ts```:
 ```
 >>> 1. задаем тип дефолтного значения
 type DefaultType = boolean;
@@ -343,7 +349,7 @@ export function makeBoolean(name: string, label: string, def: DefaultType): Sett
 
 Пример конфигурации ```widgets\<MyWidget>\settings.ts```:   
 *Примечание: Конфиг задается через функции makeSettings и make<MySetting>, чтобы гарантировать правильность структуры данных.
-Например, чтобы избежать попыток записать в конфиг несуществующие переменные foo и boo: ```settings: [ {name, value, foo, boo} ]```* 
+Например, чтобы избежать попыток записать в конфиг несуществующие переменные foo и boo: ```settings: [ {name, value, foo, boo} ]```*
 
 ```
 export const settings: IWidgetInfo = makeSettings({

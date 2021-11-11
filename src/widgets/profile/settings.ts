@@ -7,7 +7,7 @@ import {
 import {
     ChartType,
     ChartTypeValues
-} from "../../models/types";
+} from "../../types/types";
 import settingsPresets from "../../widgetSettings/settingsPresets";
 
 export const settings: IWidgetSettings = makeSettings({

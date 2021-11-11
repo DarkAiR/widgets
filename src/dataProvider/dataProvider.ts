@@ -1,18 +1,18 @@
 import 'whatwg-fetch';
 import {get as _get, defaultTo as _defaultTo} from 'lodash';
 import {IGqlRequest} from "./IGqlRequest";
-import {ServerType, ViewType, WidgetType} from "../models/types";
+import {ServerType, ViewType, WidgetType} from "../types/types";
 import {
     IChartData,
     WidgetTemplate,
     DataSet,
     DataSetTemplate,
     JoinDataSetTemplate,
-    TimeSeriesDataSetShort, DataSource, ISettings, ResolveFunc, RejectFunc, DataSourceInfo, DimensionInfo
+    TimeSeriesDataSetShort, DataSource, ISettings, DataSourceInfo, DimensionInfo
 } from "../interfaces";
 import * as stringifyObject from 'stringify-object';
-import {TypeGuardsHelper} from "../helpers";
 import {Serializer} from "./serializer";
+import {RejectFunc, ResolveFunc} from "../types/promise";
 
 type SerializeFunc = (dataSet: DataSet, server: ServerType, widgetType: WidgetType, hasEntity: boolean) => Promise<IGqlRequest | null>;
 
