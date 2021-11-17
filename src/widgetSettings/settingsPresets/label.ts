@@ -16,12 +16,12 @@ export const labelFields: Array<SettingFunc[]> = [
         makeBoolean('show', 'Показывать значение', false)
     ], [
         makeColor('color', 'Цвет'),
-        makeNumber('fontSize', 'Размер шрифта', 12)
+        makeNumber('fontSize', 'Размер шрифта, px', 12)
     ], [
         makeString('delimiter', 'Разделитель', '.'),
         makeNumber('precision', 'Точность в знаках', 2)
     ], [
-        makeString('measure', 'Единица измерения'),
+        makeString('measure', 'Единица измерения значения'),
         makeBoolean('showMeasure', 'Показывать единицу изменения', false)
     ]
 ];

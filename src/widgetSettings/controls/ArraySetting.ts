@@ -1,6 +1,6 @@
 import {BaseSetting} from "./BaseSetting";
-import {SettingFunc, WidgetSettingsArray} from "../types";
 import {ISettings} from "../../interfaces";
+import {SettingFunc, WidgetSettingsArray} from "../types";
 
 type DefaultType = ISettings[];
 

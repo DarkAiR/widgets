@@ -1,5 +1,4 @@
-import {XAxisPos, YAxisPos} from "../types/types";
-import {makeNumber} from "../widgetSettings/controls";
+import {XAxisPos, YAxisPos} from "../types";
 
 export interface AxisData<T> {
     name: string;

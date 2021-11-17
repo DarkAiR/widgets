@@ -28,11 +28,11 @@ export class DateHelper {
         return dateIn.format('DD.MM.YYYY');
     }
 
-    static time(dateIn?: Dayjs): string {
+    static time(dateIn?: Dayjs, useSeconds: boolean = true): string {
         if (!dateIn) {
             dateIn = dayjs();
         }
-        return dateIn.format('hh:mm:ss');
+        return dateIn.format(useSeconds ? 'hh:mm:ss' : 'hh:mm');
     }
 
     /**

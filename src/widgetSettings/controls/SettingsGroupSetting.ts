@@ -21,7 +21,7 @@ export function makeSettingsGroup(
     data: {
         collapse?: boolean;         // Сворачивание при инициализации,
         oneLineRows?: boolean;      // Группа, в которой все элементы это отдельный строка,
-        condition?: string;         // Условия на JS в формате "${var1} === 'foo' && ${var2} > 2"
+        condition?: string;         // Условия отображения контрола, условия на JS в формате "${var1} === 'foo' && ${var2} > 2"
         hint?: {type: SettingsGroupType, text?: string}
     } = null
 ): SettingFunc {

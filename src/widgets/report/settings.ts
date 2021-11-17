@@ -1,5 +1,11 @@
-import {IWidgetSettings, makeSettings} from "../../widgetSettings";
-import {makeColor, makeList, makeNumber, makeSettingsGroup} from "../../widgetSettings/controls";
+import {
+    IWidgetSettings,
+    makeSettings,
+    makeColor,
+    makeList,
+    makeNumber,
+    makeSettingsGroup
+} from "../../widgetSettings";
 import settingsPresets from "../../widgetSettings/settingsPresets";
 
 export const settings: IWidgetSettings = makeSettings({
@@ -9,7 +15,7 @@ export const settings: IWidgetSettings = makeSettings({
             [
                 makeColor('color', 'Цвет', '#2c2c2c'),
             ], [
-                makeNumber('size', 'Размер шрифта', 14),
+                makeNumber('size', 'Размер шрифта, px', 14),
                 makeList<string>('align', 'Выравнивание', 'left', ['left', 'center', 'right'])
             ]
         ]),

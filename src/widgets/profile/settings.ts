@@ -1,13 +1,14 @@
-import {IWidgetSettings, makeSettings} from "../../widgetSettings";
 import {
+    IWidgetSettings,
+    makeSettings,
     makeColor,
     makeList, makeNumber,
     makeSettingsGroup,
-} from "../../widgetSettings/controls";
+} from "../../widgetSettings";
 import {
     ChartType,
     ChartTypeValues
-} from "../../types/types";
+} from "../../types";
 import settingsPresets from "../../widgetSettings/settingsPresets";
 
 export const settings: IWidgetSettings = makeSettings({

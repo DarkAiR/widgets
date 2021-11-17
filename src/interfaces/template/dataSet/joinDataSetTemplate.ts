@@ -1,4 +1,4 @@
-import {Frequency, ViewType} from '../../../types/types';
+import {Frequency, ViewType} from '../../../types';
 import {DimensionFilter, TimeSeriesDataSetShort} from "../../graphQL";
 import {ISettings} from "../../ISettings";
 

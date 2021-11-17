@@ -6,17 +6,21 @@ import {
     IChartData, IEventOrgUnits, INameValue, ISettings,
     IWidgetVariables, JoinDataSetTemplate, MetricUnit, TableRow, TimeSeriesDataSetShort
 } from "../../interfaces";
-import {get as _get, map as _map, filter as _filter, keyBy as _keyBy} from "lodash";
+import {get as _get, map as _map, filter as _filter, keyBy as _keyBy, defaultTo as _defaultTo} from "lodash";
 import {AddVarFunc, Chart} from "../../models/Chart";
 import {DateHelper, OrgUnitsHelper, TypeGuardsHelper} from "../../helpers";
 import {IWidgetSettings} from "../../widgetSettings";
 import {WidgetConfigInner} from "../..";
 import {WidgetOptions} from "../../models/widgetOptions";
 import dayjs, {Dayjs} from "dayjs";
-import {Frequency} from "../../types/graphQL";
+import {Frequency} from "../../types";
 
 // NOTE: <VarNames | string> только для таблиц выставляем общие dimensions наружу
 type VarNames = 'org units' | string;
+
+interface TemplateRow {
+    cols: INameValue<string>[];
+}
 
 export class Table extends Chart {
     constructor(config: WidgetConfigInner, options: WidgetOptions) {
@@ -79,30 +83,29 @@ export class Table extends Chart {
                 ...dimensions,
                 ...metrics
             ], this.getDataSetSettings(0, 'columnNames'));
-            let key = 0;
-            const rows: Array<{cols: INameValue<{k: number, v: string}>[]}> = points
+            const rows: TemplateRow[] = points
                 .sort((a: TableRow, b: TableRow) => {
                     const v1: number = dayjs(a.localDateTime).valueOf();
                     const v2: number = dayjs(b.localDateTime).valueOf();
                     return v1 < v2 ? -1 : (v1 === v2 ? 0 : 1);
                 })
                 .map((v: TableRow) => {
-                    const row = [];
+                    const row: INameValue<string>[] = [];
                     const pointDimensionsName: {[dimName: string]: DimensionUnit} = _keyBy(v.dimensions, 'name');
                     const pointMetricsName: {[metricName: string]: MetricUnit} = _keyBy(v.metrics, 'name');
 
-                    row.push({name: 'localDateTime', value: {k: key++, v: this.getDateStr(dataSet.frequency, v.localDateTime)}});   // Конвертируем даты
+                    row.push({name: 'localDateTime', value: this.getDateStr(dataSet.frequency, v.localDateTime)});   // Конвертируем даты
                     dimensions.forEach((dimName: string) => {
                         row.push({
                             name: dimName,
-                            value: {
-                                k: key++,
-                                v: _get(pointDimensionsName[dimName], 'entity.name', _get(pointDimensionsName[dimName], 'value', ''))
-                            }
+                            value: _defaultTo(
+                                _get(pointDimensionsName[dimName], 'entity.name'),
+                                _get(pointDimensionsName[dimName], 'value', '')
+                            )
                         });
                     });
                     metrics.forEach((metricName: string) => {
-                        row.push({name: metricName, value: {k: key++, v: _get(pointMetricsName[metricName], 'value', '')}});
+                        row.push({name: metricName, value: _get(pointMetricsName[metricName], 'value', '')});
                     });
                     return {cols: row};
                 });
@@ -134,13 +137,14 @@ export class Table extends Chart {
     }
 
     private mapToNames(src: string[], arr: INameValue[]): string[] {
+        const res: string[] = [...src];
         arr.forEach((v: INameValue) => {
-            const idx: number = src.findIndex((srcValue: string) => srcValue === v.name);
+            const idx: number = res.findIndex((srcValue: string) => srcValue === v.name);
             if (idx !== -1) {
-                src[idx] = v.value;
+                res[idx] = v.value;
             }
         });
-        return src;
+        return res;
     }
 
     /**
@@ -204,7 +208,9 @@ export class Table extends Chart {
     getTemplate(): string {
         return `
             <div class="widget">
-                <h4>{{title}}</h4>
+                {{#title}}
+                    <h4>{{title}}</h4>
+                {{/title}}
                 <table class="table table-zebra">
                 <thead>
                     <tr>
@@ -219,7 +225,7 @@ export class Table extends Chart {
                     {{#rows}}
                     <tr>
                         {{#cols}}
-                        <td class="value" attr-key="{{value.k}}">{{value.v}}</td>
+                        <td>{{value}}</td>
                         {{/cols}}
                     </tr>
                     {{/rows}}

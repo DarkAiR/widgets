@@ -1,8 +1,7 @@
 import {get as _get, isEmpty as _isEmpty, merge as _merge} from 'lodash';
 import {IGradient, ISettings, XAxisData, YAxisData} from "../interfaces";
-import {WidgetSettingsArray, WidgetSettingsItem} from "../widgetSettings/types";
-import {SettingsGroupSetting} from "../widgetSettings/controls";
-import {ChartType, LegendPos} from "../types/types";
+import {WidgetSettingsArray, WidgetSettingsItem, SettingsGroupSetting} from "../widgetSettings";
+import {ChartType, LegendPos} from "../types";
 
 export class SettingsHelper {
     /**

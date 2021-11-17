@@ -19,7 +19,7 @@ import {
 import {AddVarFunc, Chart} from '../../models/Chart';
 import {ProfilePoint} from '../../interfaces';
 import {IWidgetSettings} from "../../widgetSettings";
-import {ChartType} from "../../types/types";
+import {ChartType} from "../../types";
 import {ColorHelper, MathHelper, OrgUnitsHelper, SettingsHelper, TypeGuardsHelper} from "../../helpers";
 import {WidgetConfigInner} from "../..";
 import {WidgetOptions} from "../../models/widgetOptions";

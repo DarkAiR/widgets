@@ -25,10 +25,9 @@ import {
     TimeSeriesData,
     TimeSeriesHelper
 } from '../../helpers';
-import {ChartType, Frequency, HistogramType, XAxisPos, YAxisPos} from "../../types/types";
+import {ChartType, Frequency, HistogramType, XAxisPos, YAxisPos} from "../../types";
 import {TypeGuardsHelper} from "../../helpers";
-import {IWidgetSettings} from "../../widgetSettings";
-import {WidgetSettingsItem} from "../../widgetSettings/types";
+import {IWidgetSettings, WidgetSettingsItem} from "../../widgetSettings";
 import {WidgetConfigInner} from "../..";
 import {WidgetOptions} from "../../models/widgetOptions";
 import {ECEventData} from "echarts/types/src/util/types";

@@ -10,6 +10,10 @@ import * as Distribution from './distribution';
 import * as Category from './category';
 import * as Pie from './pie';
 import * as ProductionPlan from './productionPlan';
-import * as DisciplineReport from './disciplineReport';
+// import * as DisciplineReport from './disciplineReport';
+import * as InventiveTable from './inventiveTable';
 
-export {AverageNumber, Report, SolidGauge, Spline, Table, Static, KPI, Profile, Distribution, Category, Pie, ProductionPlan, DisciplineReport};
+export {
+    AverageNumber, Report, SolidGauge, Spline, Table, Static, KPI, Profile, Distribution, Category, Pie,
+    ProductionPlan, InventiveTable
+};

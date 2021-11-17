@@ -7,6 +7,17 @@ The library for visualisation data via charts.
 ```npm
 npm i abc-charts --save
 ```
+
+### Exported modules
+
+- ```abc-charts``` - almost all the modules, except below
+- ```abc-charts/widgetFactory``` - factory to create widgets
+- ```abc-charts/widgetConfig``` - config to provide to the widget factory
+- ```abc-charts/dataProvider``` - data provider for GraphQL
+- ```abc-charts/constants``` - constants for using in selectors only
+- ```abc-charts/settings``` - widget settings, helping functions and controls
+- ```abc-charts/types``` - general types
+
 ### Usage
 
 Importing needed classes
@@ -17,7 +28,7 @@ import {WidgetFactory} from 'abc-charts/widgetFactory';     // Фабрика
 import {DataProvider} from "abc-charts/dataProvider";       // Провайдер данных
 import {Constants} from "abc-charts/constants";             // Значения литеральных типов и перечислений
 import {SomeInterface} from 'abc-charts/interfaces';
-import {SomeType} from 'abc-charts/models/types';
+import {SomeType} from 'abc-charts/types';
 ```
 
 If your intergration system does not includes "material design" or needed fonts you can import these from the "abc-charts".  

@@ -3,7 +3,7 @@
  * Используется для последующей комбинации двух вложенных источников данных.
  * result = firstDataSource {operation} secondDataSource
  */
-import {ArithmeticOperation, DataSourceType} from '../../types/types';
+import {ArithmeticOperation, DataSourceType} from '../../types';
 import {DataSource} from "./dataSource";
 
 export interface AggregationDataSource {

@@ -15,7 +15,7 @@ export function makeNumber(
     data: {
         min?: number;
         max?: number;
-        condition?: string;         // Условия на JS в формате "${var1} === 'foo' && ${var2} > 2"
+        condition?: string;         // Условия отображения контрола, на JS в формате "${var1} === 'foo' && ${var2} > 2"
         required?: boolean;
     } = null
 ): SettingFunc {

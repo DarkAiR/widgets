@@ -11,7 +11,7 @@ import {WidgetConfigInner} from "./widgetConfig";
 import {EventBusWrapper, EventBus, EventBusEvent} from 'goodteditor-event-bus';
 import {IWidgetSettings} from "../widgetSettings";
 import {SettingsHelper, TypeGuardsHelper} from "../helpers";
-import {ChartType} from "../types/types";
+import {ChartType} from "../types";
 import {WidgetOptions} from "./widgetOptions";
 
 const hogan = require('hogan.js');
@@ -197,8 +197,11 @@ export abstract class Chart implements IChart {
 
     /**
      * Возвращает настройку из сеттингов виджета
-     * @param settings Объект с настройками
-     * @param path название поля
+     * В зависимости от количества параметров, использует данные настройки чарта или настройки из параметра
+     * @param {ISettings} args[0] - settings Объект с настройками
+     * @param {string} args[1] - path название поля
+     * или
+     * @param {string} args[0] - path название поля
      * @return возвращает значение того типа, к которому присваивается результат, поэтому нужен тип T
      */
     protected getWidgetSetting<T = void>(...args: Array<ISettings | string>): T {

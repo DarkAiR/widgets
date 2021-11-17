@@ -1,9 +1,11 @@
 @import (reference) "~goodt-framework-css/src/_params.less";
 @import (reference) "~goodt-framework-css/src/_helpers.less";
 @import (reference) "~goodt-framework-css/src/components/table.less";
+@import "~goodt-framework-css/src/utility.less";
 @import "../../styles/_widget.less";
 
 .widget {
+    @import "~goodt-framework-css/src/typography.less";
     overflow: initial;      // Отключаем overflow т.к. таблицы не ресайзятся
 }
 
@@ -15,16 +17,8 @@
     td,
     th {
         border-right: 1px solid var(--color-grey-lighter);
-
         &:last-child {
             border-right: none;
         }
-    }
-
-    .title {
-        text-align: center;
-        white-space: nowrap;
-        margin-bottom: 6px;
-        padding-bottom: 2px;
     }
 }
