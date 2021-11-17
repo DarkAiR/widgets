@@ -324,18 +324,18 @@ export class InventiveTable extends Chart {
                 {{#title}}
                     <h4>{{title}}</h4>
                 {{/title}}
-                <table class="table table-borders">
+                <table class="table table-borders table-vmid">
                 <tbody>
                     <!-- header 1 -->
                     <tr style="{{headerStyle1}}">
                         {{#headersMainColumns}}
                         <td class="table-w-auto" colspan="{{dimensionsName.length}}">
-                            <div class="mar-bot-3 nobr">{{.}}</div>
+                            <div class="nobr">{{.}}</div>
                         </td>
                         {{/headersMainColumns}}
                         {{#headersSecondColumns}}
                         <td class="table-w-auto" colspan="{{metricsName.length}}">
-                            <div class="mar-bot-3 nobr text-center">{{.}}</div>
+                            <div class="nobr text-center">{{.}}</div>
                         </td>
                         {{/headersSecondColumns}}
                     </tr>
@@ -343,14 +343,14 @@ export class InventiveTable extends Chart {
                     <!-- header 2 -->
                     <tr style="{{headerStyle2}}">
                         {{#dimensionsName}}
-                        <td class="min-width" >
-                            <div class="mar-bot-3 nobr">{{.}}</div>
+                        <td>
+                            <div class="nobr">{{.}}</div>
                         </td>
                         {{/dimensionsName}}
                         {{#headersSecondColumns}}
                             {{#metricsName}}
-                            <td class="min-width">
-                                <div class="mar-bot-3 nobr text-center">{{.}}</div>
+                            <td>
+                                <div class="nobr text-center">{{.}}</div>
                             </td>
                             {{/metricsName}}
                         {{/headersSecondColumns}}
