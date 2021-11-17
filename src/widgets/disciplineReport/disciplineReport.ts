@@ -13,7 +13,7 @@ import {IWidgetSettings} from "../../widgetSettings";
 import {WidgetConfigInner} from "../..";
 import {WidgetOptions} from "../../models/widgetOptions";
 import dayjs, {Dayjs} from "dayjs";
-import {Frequency} from "../../types/graphQL";
+import {Frequency} from "../../types";
 
 type VarNames = 'org units' | 'employees';
 
@@ -174,20 +174,6 @@ export class DisciplineReport extends Chart {
                 rows
             });
         }
-    }
-
-    private getDateStr(frequency: Frequency, localDateTime: string): string {
-        const date: Dayjs = dayjs(localDateTime);
-        const frequencyFunc: Record<Frequency, Function> = {
-            'NONE':     () => date.format('DD.MM.YYYY'),
-            'ALL':      () => date.format('DD.MM.YYYY'),
-            'YEAR':     () => date.format('YYYY'),
-            'MONTH':    () => DateHelper.getMonthsAbbr()[date.month()],
-            'WEEK':     () => date.format('DD.MM.YYYY'),
-            'DAY':      () => date.format('DD.MM.YYYY'),
-            'HOUR':     () => date.format('DD.MM.YYYY HH:mm'),
-        };
-        return frequencyFunc[frequency]() ?? date.format('DD.MM.YYYY');
     }
 
     /**

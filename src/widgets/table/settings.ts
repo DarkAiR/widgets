@@ -1,5 +1,4 @@
-import {IWidgetSettings, makeSettings} from "../../widgetSettings";
-import {makeArray, makeString} from "../../widgetSettings/controls";
+import {IWidgetSettings, makeSettings, makeArray, makeString} from "../../widgetSettings";
 
 export const settings: IWidgetSettings = makeSettings({
     settings: [

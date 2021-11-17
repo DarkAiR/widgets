@@ -1,4 +1,4 @@
-import {MetricFilterType} from "../../types/graphQL";
+import {MetricFilterType} from "../../types";
 
 export interface MetricFilter {
     name: string;

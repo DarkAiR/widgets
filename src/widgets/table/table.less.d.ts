@@ -12,7 +12,6 @@ export interface ITableLess {
   'table-hover': string;
   'widget': string;
   'title': string;
-  'value': string;
 }
 
 export const locals: ITableLess;

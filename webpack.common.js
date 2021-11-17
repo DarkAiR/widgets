@@ -29,7 +29,8 @@ module.exports = (env) => {
             widgetConfig:       path.resolve(__dirname, 'src', 'models', 'widgetConfig.ts'),
             dataProvider:       path.resolve(__dirname, 'src', 'dataProvider', 'dataProvider.ts'),
             constants:          path.resolve(__dirname, 'src', 'models', 'constants.ts'),
-            settings:           path.resolve(__dirname, 'src', 'widgetSettings', 'controls', 'index.ts'),
+            settings:           path.resolve(__dirname, 'src', 'widgetSettings', 'index.ts'),
+            types:              path.resolve(__dirname, 'src', 'types', 'index.ts'),
             ...widgets
         },
         output: {

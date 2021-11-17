@@ -10,7 +10,7 @@ import {
     makeString
 } from "../controls";
 import {SettingFunc} from "../types";
-import {YAxisPos, YAxisPosValues} from "../../types/types";
+import {YAxisPos, YAxisPosValues} from "../../types";
 
 export const multiAxesY: SettingFunc[] = [
     makeNumber('axisYDistance', 'Расстояние между осями Y', 50),

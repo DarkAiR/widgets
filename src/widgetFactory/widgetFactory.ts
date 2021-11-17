@@ -2,11 +2,10 @@ import {IChart, WidgetTemplate} from "../interfaces";
 import {DataProvider} from "../dataProvider";
 import * as widgets from "../widgets";
 import {StatesHelper, WidgetConfig, WidgetConfigInner} from "..";
-import { WidgetType } from '../types/types';
+import { WidgetType, RejectFunc, ResolveFunc } from '../types';
 import {Chart} from "../models/Chart";
 import {IWidgetSettings} from "../widgetSettings";
 import { WidgetOptions } from '../models/widgetOptions';
-import {RejectFunc, ResolveFunc} from "../types/promise";
 
 declare var __VERSION__: string;
 
@@ -29,7 +28,8 @@ export class WidgetFactory {
             'DISTRIBUTION':         () => import('../widgets/distribution/settings'),
             'PROFILE':              () => import('../widgets/profile/settings'),
             'PIE':                  () => import('../widgets/pie/settings'),
-            "PRODUCTION_PLAN":      () => import('../widgets/productionPlan/settings'),
+            'PRODUCTION_PLAN':      () => import('../widgets/productionPlan/settings'),
+            'INVENTIVE_TABLE':      () => import('../widgets/inventiveTable/settings'),
             // "DISCIPLINE_REPORT":    () => import('../widgets/disciplineReport/settings')
         };
         return new Promise((resolve: ResolveFunc, reject: RejectFunc) => {
@@ -100,6 +100,7 @@ export class WidgetFactory {
             "PROFILE":              () => widgets.Profile.Profile,
             "PIE":                  () => widgets.Pie.Pie,
             "PRODUCTION_PLAN":      () => widgets.ProductionPlan.ProductionPlan,
+            "INVENTIVE_TABLE":      () => widgets.InventiveTable.InventiveTable,
             // "DISCIPLINE_REPORT":    () => widgets.DisciplineReport.DisciplineReport,
 
         };

@@ -1,5 +1,17 @@
 ### ChangeLog
 
+##### 1.10.0 / 2021-11.15
+- виджет InventiveTable
+- Таблица
+  - исправлено получение названий в dimensions в колонках (mapToNames)
+  - исправлено отображение заголовка
+- в DateHelper::time добавлен флаг отображения секунд
+- в widgetSettings/index.ts добавлен widgetSettings/types.ts
+- изменен модуль settings с widgetSettings/controls/ -> widgetSettings/
+- Для типов (src/types/) делан отдельный модуль abc-charts/types
+- Дополнены описания настроек виджетов, комментарии к функциям и README
+- 
+
 ##### 1.9.3 / 2021-11-11
 - hide DisciplineReport
 

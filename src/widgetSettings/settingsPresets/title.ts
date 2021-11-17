@@ -19,7 +19,7 @@ export const title: SettingFunc[] = [
         ], [
             makeString('name', 'Заголовок')
         ], [
-            makeNumber('size', 'Размер шрифта', 14),
+            makeNumber('size', 'Размер шрифта, px', 14),
             makeList<string>('align', 'Выравнивание', 'left', ['left', 'center', 'right'])
         ]
     ], {collapse: true}),

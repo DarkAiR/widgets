@@ -1,4 +1,4 @@
-import {Frequency, Operation, ViewType} from "../../types/types";
+import {Frequency, Operation, ViewType} from "../../types";
 import {DataSource} from "./dataSource";
 
 export interface TimeSeriesDataSetShort {

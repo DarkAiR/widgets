@@ -17,13 +17,13 @@ export const singleValue: SettingFunc[] = [
         [
             makeColor('color', 'Цвет', '#2c2c2c'),
         ], [
-            makeNumber('size', 'Размер шрифта', 14),
+            makeNumber('size', 'Размер шрифта, px', 14),
             makeList<string>('align', 'Выравнивание', 'left', ['left', 'center', 'right'])
         ], [
             makeString('delimiter', 'Разделитель', '.'),
             makeNumber('precision', 'Точность в знаках', 2)
         ], [
-            makeString('measure', 'Единица измерения'),
+            makeString('measure', 'Единица измерения значения'),
             makeBoolean('showMeasure', 'Показывать единицу изменения', false)
         ]
     ])

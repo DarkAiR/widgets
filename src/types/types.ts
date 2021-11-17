@@ -7,7 +7,7 @@ export * from "./graphQL";
 // Каждый тип виджета может поддерживать определенное число различных viewType
 export type WidgetType = 'SPLINE' | 'CATEGORY' | 'AVERAGE_NUMBER' | 'SOLID_GAUGE' | 'TABLE'
      | 'REPORT' | 'STATIC' | 'KPI' | 'DISTRIBUTION' | 'PROFILE' | 'PIE'
-     | 'PRODUCTION_PLAN';
+     | 'PRODUCTION_PLAN' | 'INVENTIVE_TABLE';
     // 'DISCIPLINE_REPORT';
 
 // Вид графика для spline
@@ -49,3 +49,5 @@ export type ResourceType = typeof ResourceTypeValues[number];
 export const PieLabelAlignValues = ['none', 'labelLine', 'edge'] as const;
 export type PieLabelAlign = typeof PieLabelAlignValues[number];
 
+export const MinWidthValues = ['auto', '×1', '×1.5', '×2', '×2.5', '×3', '×4', '×5', '×6', '×7', '×8'] as const;
+export type MinWidth = typeof MinWidthValues[number];
