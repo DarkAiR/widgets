@@ -10,7 +10,6 @@
 - изменен модуль settings с widgetSettings/controls/ -> widgetSettings/
 - Для типов (src/types/) делан отдельный модуль abc-charts/types
 - Дополнены описания настроек виджетов, комментарии к функциям и README
-- 
 
 ##### 1.9.3 / 2021-11-11
 - hide DisciplineReport
