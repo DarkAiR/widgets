@@ -12,7 +12,7 @@ export const settings: IWidgetSettings = makeSettings({
             ], [
                 makeNumber('fontSize', 'Размер шрифта, px', null)
             ]
-        ]),
+        ], {collapse: true}),
         makeSettingsGroup('header2', 'Вторая строка', [
             [
                 makeColor('color', 'Цвет'),
@@ -21,7 +21,7 @@ export const settings: IWidgetSettings = makeSettings({
             ], [
                 makeNumber('fontSize', 'Размер шрифта, px', null)
             ]
-        ]),
+        ], {collapse: true}),
         makeSettingsGroup('column', 'Первая колонка', [
             [
                 makeColor('color', 'Цвет'),
@@ -34,7 +34,7 @@ export const settings: IWidgetSettings = makeSettings({
             ], [
                 makeBoolean('noWrap', 'В одну строку', false)
             ]
-        ]),
+        ], {collapse: true}),
         makeSettingsGroup('cell', 'Ячейка', [
             [
                 makeColor('selectBackgroundColor', 'Цвет выделенного значения'),
@@ -43,7 +43,7 @@ export const settings: IWidgetSettings = makeSettings({
             ], [
                 makeList<MinWidth>('minWidth', 'Минимальная ширина, в условных ед.', 'auto', MinWidthValues),
             ]
-        ]),
+        ], {collapse: true}),
     ],
     dataSet: {
         initDataSets: [{viewType: 'TABLE'}],
