@@ -78,7 +78,7 @@ export class Table extends Chart {
             );
 
             // Готовим данные, формируем общий список метрик
-            const header: string[] = this.mapToNames([
+            const header: INameValue<string>[] = this.mapToNames([
                 'Date',
                 ...dimensions,
                 ...metrics
@@ -105,7 +105,7 @@ export class Table extends Chart {
                         });
                     });
                     metrics.forEach((metricName: string) => {
-                        row.push({name: metricName, value: _get(pointMetricsName[metricName], 'value', '')});
+                        row.push({name: metricName, value: '' + pointMetricsName[metricName]?.value ?? ''});
                     });
                     return {cols: row};
                 });
@@ -136,12 +136,16 @@ export class Table extends Chart {
         }
     }
 
-    private mapToNames(src: string[], arr: INameValue[]): string[] {
-        const res: string[] = [...src];
+    /**
+     * Получаем названия для колонок
+     * key => value нужно, т.к. порядок в запросе может не соотв порядку в ответе
+     */
+    private mapToNames(src: string[], arr: INameValue[]): INameValue<string>[] {
+        const res: INameValue<string>[] = src.map((v: string) => ({name: v, value: v}));
         arr.forEach((v: INameValue) => {
-            const idx: number = res.findIndex((srcValue: string) => srcValue === v.name);
+            const idx: number = res.findIndex((srcValue: INameValue<string>) => srcValue.name === v.name);
             if (idx !== -1) {
-                res[idx] = v.value;
+                res[idx].value = v.value;
             }
         });
         return res;
@@ -216,7 +220,7 @@ export class Table extends Chart {
                     <tr>
                         {{#header}}
                         <th class="table-w-auto">
-                            <div class="title">{{.}}</div>
+                            <div class="title">{{value}}</div>
                         </th>
                         {{/header}}
                     </tr>

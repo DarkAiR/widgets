@@ -88,7 +88,7 @@ export class InventiveTable extends Chart {
             /*
              Первая строка - основные колонки
              */
-            const headersMainColumns: string[] = this.mapToNames(
+            const headersMainColumns: INameValue<string>[] = this.mapToNames(
                 ['Date'],
                 columnNames
             );
@@ -102,7 +102,7 @@ export class InventiveTable extends Chart {
                 _filter(dataSet.dimensions, (v: DimensionFilter) => v.groupBy),
                 (v: DimensionFilter) => v.name
             );
-            const dimensionsName: string[] = this.mapToNames(
+            const dimensionsName: INameValue<string>[] = this.mapToNames(
                 dimensions,
                 columnNames
             );
@@ -115,7 +115,7 @@ export class InventiveTable extends Chart {
                     return '';
                 }
             );
-            const metricsName: string[] = this.mapToNames(
+            const metricsName: INameValue<string>[] = this.mapToNames(
                 metrics,
                 columnNames
             );
@@ -134,8 +134,13 @@ export class InventiveTable extends Chart {
                     if (r === null) {
                         metricsName.forEach(() => row.push({value: ''}));
                     } else {
-                        r.metrics.forEach((metric: MetricUnit) => {
-                            row.push({value: '' + (metric.value || '')});
+                        metricsName.forEach((v: INameValue<string>) => {
+                            const metric: MetricUnit = r.metrics.find((m: MetricUnit) => m.name === v.name);
+                            if (metric) {
+                                row.push({value: '' + (metric.value || '')});
+                            } else {
+                                row.push({value: ''});
+                            }
                         });
                     }
                 });
@@ -208,12 +213,16 @@ export class InventiveTable extends Chart {
         }
     }
 
-    private mapToNames(src: string[], arr: INameValue[]): string[] {
-        const res: string[] = [...src];
+    /**
+     * Получаем названия для колонок
+     * key => value нужно, т.к. порядок в запросе может не соотв порядку в ответе
+     */
+    private mapToNames(src: string[], arr: INameValue[]): INameValue<string>[] {
+        const res: INameValue<string>[] = src.map((v: string) => ({name: v, value: v}));
         arr.forEach((v: INameValue) => {
-            const idx: number = res.findIndex((srcValue: string) => srcValue === v.name);
+            const idx: number = res.findIndex((srcValue: INameValue<string>) => srcValue.name === v.name);
             if (idx !== -1) {
-                res[idx] = v.value;
+                res[idx].value = v.value;
             }
         });
         return res;
@@ -330,7 +339,7 @@ export class InventiveTable extends Chart {
                     <tr style="{{headerStyle1}}">
                         {{#headersMainColumns}}
                         <td class="table-w-auto" colspan="{{dimensionsName.length}}">
-                            <div class="nobr">{{.}}</div>
+                            <div class="nobr">{{value}}</div>
                         </td>
                         {{/headersMainColumns}}
                         {{#headersSecondColumns}}
@@ -344,13 +353,13 @@ export class InventiveTable extends Chart {
                     <tr style="{{headerStyle2}}">
                         {{#dimensionsName}}
                         <td>
-                            <div class="nobr">{{.}}</div>
+                            <div class="nobr">{{value}}</div>
                         </td>
                         {{/dimensionsName}}
                         {{#headersSecondColumns}}
                             {{#metricsName}}
                             <td>
-                                <div class="nobr text-center">{{.}}</div>
+                                <div class="nobr text-center">{{value}}</div>
                             </td>
                             {{/metricsName}}
                         {{/headersSecondColumns}}
