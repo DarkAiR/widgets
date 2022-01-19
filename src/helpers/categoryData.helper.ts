@@ -1,8 +1,8 @@
 import {cloneDeep as _cloneDeep, sortBy as _sortBy, values as _values, isEqual as _isEqual} from "lodash";
 import {DataSetTemplate} from "../interfaces/template/dataSet";
-import {DimensionFilter, DimensionInfo, DimensionUnit, TSPoint} from "../interfaces/graphQL";
+import {DataSourceInfo, DimensionFilter, DimensionInfo, DimensionUnit, TSPoint} from "../interfaces/graphQL";
 import {TypeGuardsHelper} from "./typeGuards.helper";
-import {DataProvider} from "../dataProvider";
+import {IDataProvider} from "../dataProvider";
 import {INameValue} from "../interfaces";
 
 interface CategoryData {
@@ -14,14 +14,15 @@ export class CategoryDataHelper {
      * Получить данные по dimensions для всех dataSet
      * @param dataSets
      */
-    static async getDimensionInfos(dataProvider: DataProvider, dataSets: DataSetTemplate[]): Promise<DimensionInfo[]> {
+    static async getDimensionInfos(dataProvider: IDataProvider, dataSets: DataSetTemplate[]): Promise<DimensionInfo[]> {
         const dimInfos: DimensionInfo[] = [];
         const cmp = (a: DimensionInfo, b: DimensionInfo) => a.name === b.name;
 
         let dataSet: DataSetTemplate;
         for (dataSet of dataSets) {
             if (TypeGuardsHelper.isSingleDataSource(dataSet.dataSource1)) {
-                const res: DimensionInfo[] = await dataProvider.getDimensionsInfo(
+                const res: DimensionInfo[] = await CategoryDataHelper.getDimensionsInfo(
+                    dataProvider,
                     dataSet.dataSource1.name,
                     dataSet.dataSource1.dimensions
                         .filter((d: DimensionFilter) => d.groupBy)
@@ -34,6 +35,13 @@ export class CategoryDataHelper {
             }
         }
         return dimInfos;
+    }
+
+    static async getDimensionsInfo(dataProvider: IDataProvider, dataSourceName: string, dimensions: string[]): Promise<DimensionInfo[]> {
+        const dataSource: DataSourceInfo = await dataProvider.getDataSourceInfo(dataSourceName);
+        return dataSource
+            ? dataSource.dimensions.filter((v: DimensionInfo) => dimensions.includes(v.name))
+            : [];
     }
 
     /**
