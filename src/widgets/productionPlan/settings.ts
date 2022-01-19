@@ -3,7 +3,7 @@ import {
     makeSettings,
     makeColor,
     makeSettingsGroup,
-    makeString
+    makeString, makeBoolean
 } from "../../widgetSettings";
 import settingsPresets from "../../widgetSettings/settingsPresets";
 
@@ -16,6 +16,7 @@ export const settings: IWidgetSettings = makeSettings({
         ], {collapse: false}),
         ...settingsPresets.paddings,
         ...settingsPresets.background,
+        makeBoolean('enableEvents', 'Включить события', false)
     ],
     dataSet: {
         initDataSets: [{viewType: 'DYNAMIC'}, {viewType: 'DYNAMIC'}],

@@ -1169,6 +1169,11 @@ export interface IProductionPlanLess {
   'title': string;
   'progress': string;
   'd-grid': string;
+  'inverted-bg': string;
+  'js-title': string;
+  'js-volume': string;
+  'js-plan': string;
+  'js-background': string;
 }
 
 export const locals: IProductionPlanLess;

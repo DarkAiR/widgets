@@ -1,5 +1,11 @@
 ### ChangeLog
 
+##### 1.11.0 / 2022-01-20
+- IDataProvider
+- README, section DataProvider
+- DataProvider:getDimensionsInfo moved to categoryData.helper
+- rewrite productionPlan widget
+
 ##### 1.10.2 / 2021-11-30
 - исправлен порядок вывода метрик в inventiveTable
 

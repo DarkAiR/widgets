@@ -230,6 +230,11 @@ export class Spline extends Chart {
         }
     }
 
+    destroy(): void {
+        super.destroy();
+        // TODO: removeEventListener on click
+    }
+
     /**
      * Получить данные для серий
      */

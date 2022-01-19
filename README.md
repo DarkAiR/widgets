@@ -376,3 +376,16 @@ export const settings: IWidgetInfo = makeSettings({
     }
 });
 ```
+
+### DataProvider
+
+Для доступа к данным из GraphQL используется класс ```DataProvider``` из библиотеки.    
+Класс можно заменить собственной реализацией, расширив интерфейс ```IDataProvider``` и передав его через конфигурацию:
+```vue
+class MyDataProvider implements IDataProvider {
+    ...
+}
+
+const config: WidgetConfig = WidgetConfig();
+config.dataProvider = MyDataProvier()
+```

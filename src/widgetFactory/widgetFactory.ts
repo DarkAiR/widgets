@@ -1,5 +1,5 @@
 import {IChart, WidgetTemplate} from "../interfaces";
-import {DataProvider} from "../dataProvider";
+import {DataProvider, IDataProvider} from "../dataProvider";
 import * as widgets from "../widgets";
 import {StatesHelper, WidgetConfig, WidgetConfigInner} from "..";
 import { WidgetType, RejectFunc, ResolveFunc } from '../types';
@@ -12,7 +12,7 @@ declare var __VERSION__: string;
 type WidgetsArr = Record<WidgetType, Function>;
 
 export class WidgetFactory {
-    dataProvider: DataProvider = null;
+    dataProvider: IDataProvider = null;
 
     static loadWidgetConfig(widgetType: WidgetType): Promise<IWidgetSettings> {
         type T = Promise<{settings: IWidgetSettings}>;

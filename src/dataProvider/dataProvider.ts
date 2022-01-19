@@ -12,6 +12,7 @@ import {
 } from "../interfaces";
 import * as stringifyObject from 'stringify-object';
 import {Serializer} from "./serializer";
+import {IDataProvider} from "./IDataProvider";
 
 type SerializeFunc = (dataSet: DataSet, server: ServerType, widgetType: WidgetType, hasEntity: boolean) => Promise<IGqlRequest | null>;
 
@@ -20,7 +21,7 @@ interface Cache {
     dataSourcesPromise: Promise<DataSourceInfo[]>;
 }
 
-export class DataProvider {
+export class DataProvider implements IDataProvider {
     private readonly apiUrl: string;
     private cache: Cache = {
         dataSources: null,
@@ -158,13 +159,6 @@ export class DataProvider {
         await Promise.all(promises);
 
         return res;
-    }
-
-    async getDimensionsInfo(dataSourceName: string, dimensions: string[]): Promise<DimensionInfo[]> {
-        const dataSource: DataSourceInfo = await this.getDataSourceInfo(dataSourceName);
-        return dataSource
-            ? dataSource.dimensions.filter((v: DimensionInfo) => dimensions.includes(v.name))
-            : [];
     }
 
     async getDataSourceInfo(dataSourceName: string): Promise<DataSourceInfo> {

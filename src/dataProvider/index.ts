@@ -1,3 +1,3 @@
-import {DataProvider} from "./dataProvider";
+export * from "./dataProvider";
+export * from "./IDataProvider";
 
-export {DataProvider};
