@@ -64,7 +64,7 @@ export class Pie extends Chart {
 
         (async () => {
             if (TypeGuardsHelper.everyIsDataSetTemplate(data.dataSets)) {
-                const dimInfos: DimensionInfo[] = await this.getDimensionInfos(data.dataSets);
+                const dimInfos: DimensionInfo[] = await CategoryDataHelper.getDimensionInfos(this.config.dataProvider, data.dataSets);
                 const seriesData = this.getData(data.data as TSPoint[][], dimInfos);
                 const options = {
                     tooltip: {
@@ -76,13 +76,19 @@ export class Pie extends Chart {
                                     <td style='text-align: right'>${p.marker}</td>
                                     <td>&nbsp;:&nbsp;</td>
                                     <td>${p.data.value}</td>
-                                </tr>` + p.data.myValue.map((v: INameValue) => `
-                                 <tr>
-                                    <td style='text-align: right'>${v.name}</td>
-                                    <td>&nbsp;:&nbsp;</td>
-                                    <td>${v.value}</td>
-                                </tr>
-                            `).join('');
+                                </tr>` +
+                                p.data.myValue.map((v: INameValue) => {
+                                    // Поддерживается как версия с "Dimension : Value", так и просто с Value
+                                    return v.name
+                                        ? ` <tr>
+                                                <td style='text-align: right'>${v.name}</td>
+                                                <td>&nbsp;:&nbsp;</td>
+                                                <td>${v.value}</td>
+                                            </tr>`
+                                        : ` <tr>
+                                                <td colspan="3">${v.value}</td>
+                                            </tr>`;
+                                }).join('');
                             return `<table width="100%" style='padding: 0; margin: 0; border: 0'>${content}</table>`;
                         }
                     },
@@ -117,10 +123,6 @@ export class Pie extends Chart {
         })();
     }
 
-    private async getDimensionInfos(dataSets: DataSetTemplate[]): Promise<DimensionInfo[]> {
-        return CategoryDataHelper.getDimensionInfos(this.config.dataProvider, dataSets);
-    }
-
     /**
      * @param data Массив всех точек всех датасорсов
      * @param dimInfos Массив всех дименшинов
@@ -133,42 +135,43 @@ export class Pie extends Chart {
 
         const series: ISettings[] = [];
         data.forEach((pointsValues: TSPoint[], idx: number) => {
+            // Получаем палитру цветов для категорий
             const palette: Array<{color: string}> = this.getDataSetSettings(idx, 'palette');
 
-            series[idx] = this.getSeriesData(idx);
-            series[idx].data = res.data[idx].map(
-                (v: {value: [string, number, INameValue[]]}, categoryIdx: number) => {
-                    const itemStyle: ISettings = palette[categoryIdx]?.color
-                        ? {itemStyle: { color: palette[categoryIdx].color }}
-                        : {};
-                    return {
-                        value: v.value[1],
-                        name: v.value[0],
-                        myValue: v.value[2],
-                        ...itemStyle,
-                    };
-                }
-            );
+            series[idx] = {
+                type: 'pie',
+                name: this.getDataSetSettings(idx, 'name.name') || ' ',    // Чтобы чтото отобразилось, нужно хотя бы пробел
+                radius: [`${this.getDataSetSettings<number>(idx, 'radius.radius1') || 0}%`, `${this.getDataSetSettings<number>(idx, 'radius.radius2') || 75}%`],
+                center: ['50%', '50%'],
+                top: +this.getWidgetSetting('chartPaddings.top'),
+                bottom: +this.getWidgetSetting('chartPaddings.bottom'),
+                right: +this.getWidgetSetting('chartPaddings.right'),
+                left: +this.getWidgetSetting('chartPaddings.left'),
+                selectedMode: 'none',       // Убираем анимацию при нажатии
+                label: {
+                    distanceToLabelLine: +this.getDataSetSettings<number>(idx, 'label.distanceToLabelLine'),
+                    alignTo: this.getDataSetSettings<PieLabelAlign>(idx, 'label.alignTo'),
+                    ...SettingsHelper.getLabelSettings(this.widgetSettings.dataSet.settings, this.chartData.dataSets[idx].settings).label,
+                },
+                data: res.data[idx].map(
+                    (v: { value: [string, number, INameValue[]] }, categoryIdx: number) => {
+                        const itemStyle: ISettings = palette[categoryIdx]?.color
+                            ? {itemStyle: {color: palette[categoryIdx].color}}
+                            : {};
+                        return {
+                            value: v.value[1],
+                            name: v.value[0],
+                            myValue: v.value[2],
+                            ...itemStyle,
+                        };
+                    }
+                )
+            };
         });
 
         return {
             xAxisValues: res.labels,
             series
-        };
-    }
-
-    private getSeriesData(idx: number): ISettings {
-        return {
-            type: 'pie',
-            name: this.getDataSetSettings(idx, 'name.name') || ' ',    // Чтобы чтото отобразилось, нужно хотя бы пробел
-            radius: [`${this.getDataSetSettings<number>(idx, 'radius.radius1') || 0}%`, `${this.getDataSetSettings<number>(idx, 'radius.radius2') || 75}%`],
-            center: ['50%', '50%'],
-            selectedMode: 'single',
-            label: {
-                distanceToLabelLine: +this.getDataSetSettings<number>(idx, 'label.distanceToLabelLine'),
-                alignTo: this.getDataSetSettings<PieLabelAlign>(idx, 'label.alignTo'),
-                ...SettingsHelper.getLabelSettings(this.widgetSettings.dataSet.settings, this.chartData.dataSets[idx].settings).label,
-            }
         };
     }
 

@@ -5,6 +5,8 @@
 - README, section DataProvider
 - DataProvider:getDimensionsInfo moved to categoryData.helper
 - rewrite productionPlan widget
+- Added setting "legend.oneRow" to display legend with scroll in one row 
+- Fixed "pie" tooltip
 
 ##### 1.10.2 / 2021-11-30
 - исправлен порядок вывода метрик в inventiveTable

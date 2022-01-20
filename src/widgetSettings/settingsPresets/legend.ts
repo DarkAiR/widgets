@@ -18,6 +18,8 @@ export const legend: SettingFunc[] = [
         ], [
             makeList<LegendPos>('position', 'Расположение', 'bottom', LegendPosValues),
             makeNumber('gap', 'Отступ', 0)
+        ], [
+            makeBoolean('oneRow', 'В одну строку', false)
         ]
     ], {collapse: true})
 ];

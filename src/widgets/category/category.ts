@@ -70,7 +70,7 @@ export class Category extends Chart {
 
         (async () => {
             if (TypeGuardsHelper.everyIsDataSetTemplate(data.dataSets)) {
-                const dimInfos: DimensionInfo[] = await this.getDimensionInfos(data.dataSets);
+                const dimInfos: DimensionInfo[] = await CategoryDataHelper.getDimensionInfos(this.config.dataProvider, data.dataSets);
 
                 const seriesData = this.getData(data.data as TSPoint[][], dimInfos);
 
@@ -152,10 +152,6 @@ export class Category extends Chart {
                 };
             }
         })();
-    }
-
-    private async getDimensionInfos(dataSets: DataSetTemplate[]): Promise<DimensionInfo[]> {
-        return CategoryDataHelper.getDimensionInfos(this.config.dataProvider, dataSets);
     }
 
     private getData(data: TSPoint[][], dimInfos: DimensionInfo[]): {
