@@ -125,12 +125,13 @@ export class SettingsHelper {
             textStyle.color = color;
         }
         _merge(obj, {
-            show: getSetting('legend.show'),
-            type: 'plain',
+            show: getSetting<boolean>('legend.show'),
+            type: getSetting<boolean>('legend.oneRow') ? 'scroll' : 'plain',
             align: 'left',
             textStyle: {
                 ...textStyle
-            }
+            },
+            icon: 'circle'
         });
         return obj;
     }

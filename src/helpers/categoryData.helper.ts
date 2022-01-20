@@ -28,6 +28,7 @@ export class CategoryDataHelper {
                         .filter((d: DimensionFilter) => d.groupBy)
                         .map((d: DimensionFilter) => d.name)
                 );
+                // Если в dimInfos нет dimension, то добавляем
                 const tmpArr: DimensionInfo[] = _cloneDeep(dimInfos);
                 res.forEach((v1: DimensionInfo) => tmpArr.some((v2: DimensionInfo) => cmp(v1, v2)) ? false : dimInfos.push(v1));
             } else {

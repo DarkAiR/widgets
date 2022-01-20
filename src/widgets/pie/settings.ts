@@ -14,6 +14,7 @@ export const settings: IWidgetSettings = makeSettings({
     settings: [
         ...settingsPresets.title,
         ...settingsPresets.paddings,
+        ...settingsPresets.chartPaddings,
         ...settingsPresets.background,
         ...settingsPresets.legend,
     ],
