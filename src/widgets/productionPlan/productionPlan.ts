@@ -145,6 +145,9 @@ export class ProductionPlan extends Chart {
             this.onResize = (width: number, height: number): void => {
                 myChart.resize();
             };
+
+            // Вызываем дополнительно здесь, т.к. иногда прелоадер не успевает удалиться до прихода события selected
+            this.setClasses();
         }
     }
 
@@ -187,6 +190,11 @@ export class ProductionPlan extends Chart {
         const planElement: HTMLElement = this.config.element.getElementsByClassName(widgetStyles['js-plan'])[0] as HTMLElement;
         const volumeElement: HTMLElement = this.config.element.getElementsByClassName(widgetStyles['js-volume'])[0] as HTMLElement;
         const backgroundElement: HTMLElement = this.config.element.getElementsByClassName(widgetStyles['js-background'])[0] as HTMLElement;
+
+        // NOTE: Не всегда успевает удалиться прелоадер и selected может прийти раньше run()
+        if (!titleElement || !planElement || !volumeElement || !backgroundElement) {
+            return;
+        }
 
         if (this.selected || this.hovered) {
             titleElement.classList.remove(widgetStyles['color-grey']);

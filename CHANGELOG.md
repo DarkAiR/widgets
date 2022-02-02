@@ -1,12 +1,18 @@
 ### ChangeLog
 
+##### 1.11.1 / 2002-02-03
+- Добавлена проверка на существование DOM-элементов в productionPlan
+- Переименована команда сборки без линтера
+
 ##### 1.11.0 / 2022-01-20
 - IDataProvider
 - README, section DataProvider
 - DataProvider:getDimensionsInfo moved to categoryData.helper
 - rewrite productionPlan widget
-- Added setting "legend.oneRow" to display legend with scroll in one row 
+- Added setting "legend.oneRow" to display legend with a scroll in one row
+- Changed legend icon from "rectRound" to "circle" 
 - Fixed "pie" tooltip
+- Added "chartPaddings" to "pie"
 
 ##### 1.10.2 / 2021-11-30
 - исправлен порядок вывода метрик в inventiveTable
