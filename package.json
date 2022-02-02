@@ -1,7 +1,7 @@
 {
   "scripts": {
     "dev": "npm run lint  &&  SET \"NODE_ENV=dev\"  &&  webpack --display-error-details --config webpack.dev.js",
-    "dev-2": "SET \"NODE_ENV=dev\"  &&  webpack --display-error-details --config webpack.dev.js",
+    "dev-without-lint": "SET \"NODE_ENV=dev\"  &&  webpack --display-error-details --config webpack.dev.js",
     "dev-unix": "NODE_ENV=dev  &&  npm run lint  &&  webpack --display-error-details --config webpack.dev.js",
     "build": "npm run lint  &&  SET \"NODE_ENV=prod\"  &&  webpack --config webpack.prod.js",
     "build-unix": "NODE_ENV=prod  &&  npm run lint  &&  webpack --config webpack.prod.js",
