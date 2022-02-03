@@ -46,6 +46,7 @@ export class DataProvider implements IDataProvider {
     }
 
     async getTemplate(templateId: string): Promise<WidgetTemplate> {
+        // NOTE: Если кешировать шаблоны, то нужно ОБЯЗАТЕЛЬНО делать cloneDeep, иначе по ссылке на общий шаблон один виджет сможет изменять данные другого
         const template = await fetch(this.templatesLink + '/' + templateId, {
             headers: {
                 ...this.authHeaders

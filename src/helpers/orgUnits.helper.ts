@@ -20,7 +20,7 @@ export class OrgUnitsHelper {
                 // NOTE: Нельзя проверять на event.orgUnits[dimName].length, т.к. тогда остануться данные с прошлого раза
                 const dimIndex: number = dataSource.dimensions.findIndex((d: DimensionFilter) => d.name === dimName);
                 if (dimIndex !== -1) {
-                    // NOTE: Если пришли пустые orgUnits от удаляем предыдущие
+                    // NOTE: Если пришли пустые orgUnits, то удаляем предыдущие
                     //       Это нужно для того, чтобы ранее установленные удалились
                     if (!event.orgUnits[dimName] || (Array.isArray(event.orgUnits[dimName]) && event.orgUnits[dimName].length === 0)) {
                         // Удаляем dimension

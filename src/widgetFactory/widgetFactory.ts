@@ -1,3 +1,4 @@
+import {cloneDeep as _cloneDeep} from "lodash";
 import {IChart, WidgetTemplate} from "../interfaces";
 import {DataProvider, IDataProvider} from "../dataProvider";
 import * as widgets from "../widgets";
@@ -78,8 +79,10 @@ export class WidgetFactory {
         } else {
             this.dataProvider = config.dataProvider;
         }
+        // NOTE: Для предотвращения изменения одним виджетом данных другого через ссылку на общий шаблон
+        //       ОБЯЗАТЕЛЬНО клонируем входящие данные шаблона перед использованием
         const innerConfig: WidgetConfigInner = Object.assign(config, {
-            template: template
+            template: _cloneDeep(template)
         });
         return this.createWidget(innerConfig, options ?? {});
     }
