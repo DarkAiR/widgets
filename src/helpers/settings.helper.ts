@@ -449,7 +449,7 @@ export class SettingsHelper {
     /**
      * Отформатировать singleValue
      */
-    static formatSingleValue(settings: ISettings): Function {
+    static formatSingleValue(settings: ISettings): (params: {value: string | number} | []) => string {
         const delimiter: string = settings.delimiter || '.';
         const precision: number = settings.precision || 0;
         const measure: string = settings.showMeasure
