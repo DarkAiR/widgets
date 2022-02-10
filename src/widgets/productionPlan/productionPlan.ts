@@ -62,6 +62,9 @@ export class ProductionPlan extends Chart {
         if (TypeGuardsHelper.everyIsDataSetTemplate(data.dataSets)) {
             const title: string = SettingsHelper.getWidgetSetting(this.widgetSettings.settings, this.chartData.settings, 'title.name');
 
+            const formatValueFunc: Function = SettingsHelper.formatSingleValue(this.getDataSetSettings(0, 'value'));
+            const formatPlanFunc: Function = SettingsHelper.formatSingleValue(this.getDataSetSettings(1, 'value'));
+
             let colorFact: string = this.getDataSetSettings(0, 'color');
             if (!colorFact) {
                 colorFact = ColorHelper.getCssColor('--color-primary-light');
@@ -78,8 +81,8 @@ export class ProductionPlan extends Chart {
                 title,
                 backgroundStyle: SettingsHelper.getBackgroundStyle(this.getWidgetSetting('background.color')),
                 paddingStyle: SettingsHelper.getPaddingStyle(this.getWidgetSetting('paddings')),
-                volume,
-                plan
+                volume: formatValueFunc({value: volume}),
+                plan: formatPlanFunc({value: plan})
             });
 
             const options = {
