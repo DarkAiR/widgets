@@ -48,7 +48,7 @@ export class OrgUnitsHelper {
         return needReload;
     }
 
-    static setOrgUnitsForTable(dataSets: DataSet[], event: IEventOrgUnits): boolean {
+    static setOrgUnitsForTable(dataSets: DataSet[], event: IEventOrgUnits, allowGrouping: boolean = false): boolean {
         let needReload = false;
         if (TypeGuardsHelper.everyIsJoinDataSetTemplate(dataSets)) {
             dataSets.forEach((joinDataSet: JoinDataSetTemplate) => {
@@ -79,7 +79,7 @@ export class OrgUnitsHelper {
                                         name: dimName,
                                         values: event.orgUnits[dimName],
                                         expression: '',
-                                        groupBy: true
+                                        groupBy: allowGrouping ? event.orgUnitsGroupBy.includes(dimName) : true        // Учитываем группировку, иначе она будет появляться там где не надо
                                     };
                                     joinDataSet.dimensions.push(newFilter);
                                 }
