@@ -319,7 +319,7 @@ export class InventiveTable extends Chart {
         // Типизированный обязательный switch
         const switchArr: Record<VarNames, Function> = {
             'org units': () => {
-                needReload = OrgUnitsHelper.setOrgUnitsForTable(this.config.template.dataSets, value as IEventOrgUnits);
+                needReload = OrgUnitsHelper.setOrgUnitsForTable(this.config.template.dataSets, value as IEventOrgUnits, true);
             },
         };
         switchArr[varName]();
