@@ -68,7 +68,9 @@ export class OrgUnitsHelper {
                                     joinDataSet.dimensions.splice(dimIndex, 1);
                                 } else {
                                     joinDataSet.dimensions[dimIndex].values = event.orgUnits[dimName];
-                                    joinDataSet.dimensions[dimIndex].groupBy = event.orgUnits[dimName].length > 0;
+                                    joinDataSet.dimensions[dimIndex].groupBy =  allowGrouping
+                                        ? event.orgUnitsGroupBy.includes(dimName) && event.orgUnits[dimName].length > 0
+                                        : event.orgUnits[dimName].length > 0;
                                 }
                             } else {
                                 // Пустые данные не приходят в виджет, поэтому dimension может и не быть

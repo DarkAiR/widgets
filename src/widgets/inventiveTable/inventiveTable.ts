@@ -2,9 +2,10 @@ import widgetStyles from "./inventiveTable.less";
 import {settings as widgetSettings} from "./settings";
 
 import {
+    DataSetTemplate,
     DimensionFilter, DimensionUnit,
     IChartData, IEventOrgUnits, INameValue, ISettings,
-    IWidgetVariables, JoinDataSetTemplate, MetricUnit, TableRow, TimeSeriesDataSetShort
+    IWidgetVariables, JoinDataSetTemplate, MetricUnit, SingleDataSource, TableRow, TimeSeriesDataSetShort
 } from "../../interfaces";
 import {map as _map, filter as _filter, keyBy as _keyBy, isEmpty as _isEmpty} from "lodash";
 import {AddVarFunc, Chart} from "../../models/Chart";
@@ -16,7 +17,7 @@ import dayjs, {Dayjs} from "dayjs";
 import {Frequency, MinWidth} from "../../types";
 
 // NOTE: <VarNames | string> только для таблиц выставляем общие dimensions наружу
-type VarNames = 'org units' | string;
+type VarNames = 'org units' | 'start date' | 'finish date' | string;
 
 interface TemplateRow {
     dimensions: string[];
@@ -52,6 +53,9 @@ export class InventiveTable extends Chart {
             dimensions.forEach((dimName: string) => {
                 addVar(0, dimName, dimName, '');
             });
+
+            addVar(0, 'start date', 'Начало выборки', `YYYY-mm-dd`);
+            addVar(0, 'finish date', 'Окончание выборки', `YYYY-mm-dd`);
         }
 
         return res;
@@ -314,6 +318,7 @@ export class InventiveTable extends Chart {
         }
         // NOTE: Делаем через switch, т.к. в общем случае каждая обработка может содержать дополнительную логику
 
+        const dataSet: DataSetTemplate = this.config.template.dataSets[dataSourceId] as DataSetTemplate;
         let needReload = false;
 
         // Типизированный обязательный switch
@@ -321,6 +326,8 @@ export class InventiveTable extends Chart {
             'org units': () => {
                 needReload = OrgUnitsHelper.setOrgUnitsForTable(this.config.template.dataSets, value as IEventOrgUnits, true);
             },
+            'start date':       () => { dataSet.from = value; needReload = true; },
+            'finish date':      () => { dataSet.to = value; needReload = true; },
         };
         switchArr[varName]();
 
