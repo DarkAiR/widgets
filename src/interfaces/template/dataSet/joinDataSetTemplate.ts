@@ -12,5 +12,6 @@ export interface JoinDataSetTemplate {
     frequency: Frequency;                   // частота конечной аггрегации
     dimensions: DimensionFilter[];          // набор фильтров по полям (применим только для SINGLE)
     dataSetTemplates: TimeSeriesDataSetShort[]; // Список dataSet
+    limit?: number;                         // Количество возвращаемых данных (default = 100)
     settings?: ISettings;                   // Настройки конкретных источников данных
 }
