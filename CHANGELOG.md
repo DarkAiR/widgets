@@ -1,5 +1,8 @@
 ### ChangeLog
 
+##### 1.11.7 / 2022-04-11
+- Исправлена отправка limit в JoinDataSet
+
 ##### 1.11.6 / 2022-03-23
 - Добавлен limit в JoinDataSet
 

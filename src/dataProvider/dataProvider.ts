@@ -349,6 +349,7 @@ export class DataProvider implements IDataProvider {
                     dataSet: {
                         ${this.getPeriod(dataSet)}
                         frequency: ${dataSet.frequency}
+                        limit: ${dataSet.limit ?? 0}
                         dimensions: ${dimensionsJson}
                         dataSetTemplates: ${dataSetTemplates}
                     }
