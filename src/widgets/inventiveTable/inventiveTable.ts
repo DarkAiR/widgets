@@ -19,11 +19,19 @@ import {Frequency, MinWidth} from "../../types";
 // NOTE: <VarNames | string> только для таблиц выставляем общие dimensions наружу
 type VarNames = 'org units' | 'start date' | 'finish date' | string;
 
+interface ColValue {
+    value: string;      // NOTE: Отдельной переменной, чтобы в шаблонизаторе заработал if-else
+}
+
+interface TemplateRowCol {
+    col: ColValue[];
+    isEmpty: boolean;
+}
+
 interface TemplateRow {
     dimensions: string[];
-    cols: Array<{
-        value: string;      // NOTE: Отдельной переменной, чтобы в шаблонизаторе заработал if-else
-    }>;
+    // Массив значений, распиленный по метрикам
+    cols: TemplateRowCol[];
 }
 
 interface EmployeesDataItem {
@@ -32,6 +40,14 @@ interface EmployeesDataItem {
 }
 interface EmployeesData {
     [uniqDimKey: string]: EmployeesDataItem;
+}
+
+// Колонка с индексом
+interface IndexedColumn {
+    index: number;
+    first: boolean;
+    last: boolean;
+    value: string;
 }
 
 export class InventiveTable extends Chart {
@@ -96,7 +112,7 @@ export class InventiveTable extends Chart {
                 ['Date'],
                 columnNames
             );
-            const headersSecondColumns: string[] = localDateTimeArr.map((v: number) => this.getDateStr(dataSet.frequency, v));
+            let headersSecondColumns: string[] = localDateTimeArr.map((v: number) => this.getDateStr(dataSet.frequency, v));
 
             /*
              Вторая строка - дополнительные колонки
@@ -119,9 +135,11 @@ export class InventiveTable extends Chart {
                     return '';
                 }
             );
-            const metricsName: INameValue<string>[] = this.mapToNames(
-                metrics,
-                columnNames
+            const metricsName: INameValue<IndexedColumn>[] = this.putIndexes(
+                this.mapToNames(
+                    metrics,
+                    columnNames
+                )
             );
 
             /*
@@ -132,13 +150,13 @@ export class InventiveTable extends Chart {
             // Заполняем строки
             const rows: TemplateRow[] = _map(employeesData, (emplItem: EmployeesDataItem) => {
                 // Dimensions
-                const row: Array<{value: string}> = [];
+                const row: ColValue[] = [];
                 // Metrics
                 emplItem.data.forEach((r: TableRow) => {
                     if (r === null) {
                         metricsName.forEach(() => row.push({value: ''}));
                     } else {
-                        metricsName.forEach((v: INameValue<string>) => {
+                        metricsName.forEach((v: INameValue<IndexedColumn>) => {
                             const metric: MetricUnit = r.metrics.find((m: MetricUnit) => m.name === v.name);
                             if (metric) {
                                 row.push({value: '' + (metric.value || '')});
@@ -150,9 +168,26 @@ export class InventiveTable extends Chart {
                 });
                 return {
                     dimensions: [...emplItem.dimensions],
-                    cols: row
+                    cols: this.splitRow(row, metrics.length)
                 };
             });
+
+            // Находим непустые колонки
+            const fillColsIdxSet: Set<number> = new Set();
+            rows.forEach((row: TemplateRow) => {
+                row.cols.forEach((col: TemplateRowCol, idx: number) => {
+                    if (!col.isEmpty) {
+                        fillColsIdxSet.add(idx);
+                    }
+                });
+            });
+            const fillColsIdx: number[] = Array.from(fillColsIdxSet);
+
+            rows.forEach((row: TemplateRow) => {
+                row.cols = row.cols.filter((col: TemplateRowCol, idx: number) => fillColsIdx.includes(idx));
+            });
+
+            headersSecondColumns = headersSecondColumns.filter((value: string, idx: number) => fillColsIdx.includes(idx));
 
             this.config.element.innerHTML = this.renderTemplate({
                 title: this.getWidgetSetting('title'),
@@ -229,6 +264,35 @@ export class InventiveTable extends Chart {
                 res[idx].value = v.value;
             }
         });
+        return res;
+    }
+
+    private putIndexes(arr: INameValue<string>[]): INameValue<IndexedColumn>[] {
+        return arr.map((v: INameValue<string>, idx: number) => ({
+            name: v.name,
+            value: {
+                index: idx,
+                first: idx === 0,
+                last: idx === arr.length - 1,
+                value: v.value
+            }
+        }));
+    }
+
+    private splitRow<T>(row: ColValue[], chunkSize: number): TemplateRowCol[] {
+        if (!chunkSize) {
+            return row.map((v: ColValue) => {
+                return {col: [v], isEmpty: !v.value};
+            });
+        }
+        const res: TemplateRowCol[] = [];
+        for (let i = 0; i < row.length; i += chunkSize) {
+            const chunk = row.slice(i, i + chunkSize);
+            res.push({
+                col: chunk,
+                isEmpty: chunk.every((v: ColValue) => !v.value)
+            });
+        }
         return res;
     }
 
@@ -349,10 +413,12 @@ export class InventiveTable extends Chart {
                             <div class="nobr">{{value}}</div>
                         </td>
                         {{/headersMainColumns}}
+                        <td class="separate-col"></td>
                         {{#headersSecondColumns}}
                         <td class="table-w-auto" colspan="{{metricsName.length}}">
                             <div class="nobr text-center">{{.}}</div>
                         </td>
+                        <td class="separate-col"></td>
                         {{/headersSecondColumns}}
                     </tr>
 
@@ -363,12 +429,16 @@ export class InventiveTable extends Chart {
                             <div class="nobr">{{value}}</div>
                         </td>
                         {{/dimensionsName}}
+                        <td class="separate-col"></td>
                         {{#headersSecondColumns}}
                             {{#metricsName}}
-                            <td>
-                                <div class="nobr text-center">{{value}}</div>
-                            </td>
+                                {{#value}}
+                                <td>
+                                    <div class="nobr text-center">{{value}}</div>
+                                </td>
+                                {{/value}}
                             {{/metricsName}}
+                            <td class="separate-col"></td>
                         {{/headersSecondColumns}}
                     </tr>
 
@@ -378,21 +448,25 @@ export class InventiveTable extends Chart {
                         {{#dimensions}}
                             <td style="{{columnStyle}}">{{.}}</td>
                         {{/dimensions}}
+                        <td class="separate-col"></td>
                         {{#cols}}
-                            {{#value}}
-                                <td style="{{cellSelectedStyle}}">
-                                    <div class="text-center">
-                                        {{value}}
-                                    </div>
-                                </td>
-                            {{/value}}
-                            {{^value}}
-                                <td style="{{cellStyle}}">
-                                    <div class="text-center">
-                                        {{value}}
-                                    </div>
-                                </td>
-                            {{/value}}
+                            {{#col}}
+                                {{#value}}
+                                    <td style="{{cellSelectedStyle}}">
+                                        <div class="text-center">
+                                            {{value}}
+                                        </div>
+                                    </td>
+                                {{/value}}
+                                {{^value}}
+                                    <td style="{{cellStyle}}">
+                                        <div class="text-center">
+                                            {{value}}
+                                        </div>
+                                    </td>
+                                {{/value}}
+                            {{/col}}
+                            <td class="separate-col"></td>
                         {{/cols}}
                     </tr>
                     {{/rows}}
