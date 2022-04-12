@@ -1176,6 +1176,7 @@ export interface IInventiveTableLess {
   'responsive': string;
   'dashed': string;
   'dotted': string;
+  'separate-col': string;
 }
 
 export const locals: IInventiveTableLess;
