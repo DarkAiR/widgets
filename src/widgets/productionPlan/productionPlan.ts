@@ -4,7 +4,7 @@ import {settings as widgetSettings} from "./settings";
 import {
     IChartData,
     IWidgetVariables,
-    IEventOrgUnits, DataSetTemplate, ISettings, DataSet, SingleDataSource
+    IEventOrgUnits, DataSetTemplate, ISettings, DataSet, SingleDataSource, IEventKpi
 } from "../../interfaces";
 import {
     forEach as _forEach
@@ -15,8 +15,9 @@ import {IWidgetSettings} from "../../widgetSettings";
 import {WidgetConfigInner} from "../..";
 import {WidgetOptions} from "../../models/widgetOptions";
 import * as echarts from "echarts";
+import {KpiHelper} from "../../helpers/kpi.helper";
 
-type VarNames = 'org units' | 'start date' | 'finish date' | 'selected';
+type VarNames = 'org units' | 'kpi' | 'start date' | 'finish date' | 'selected' | 'title';
 
 /**
  * События hover обрабатываются в самом виджете (при вкл enableEvents)
@@ -37,10 +38,13 @@ export class ProductionPlan extends Chart {
         const res: IWidgetVariables = {};
         const addVar: AddVarFunc<VarNames> = this.addVar(res);
 
+        addVar(0, 'title', 'Заголовок', '');
+
         _forEach(this.config.template.dataSets, (v: DataSet, idx: number) => {
             if (TypeGuardsHelper.isDataSetTemplate(v)) {
                 const nameStr: string = v.dataSource1.type === 'SINGLE' ? '(' + (<SingleDataSource>v.dataSource1).name + ')' : '';
                 addVar(idx, 'org units', 'OrgUnits', 'Выбирается в отдельном виджете');
+                addVar(idx, 'kpi', 'KPIs', 'Массив KPI');
                 addVar(idx, 'start date', 'Начало выборки', `${nameStr}: YYYY-mm-dd`);
                 addVar(idx, 'finish date', 'Окончание выборки', `${nameStr}: YYYY-mm-dd`);
             }
@@ -185,6 +189,13 @@ export class ProductionPlan extends Chart {
         this.setClasses();
     }
 
+    private setTitle(title: string): void {
+        const titleElement: HTMLElement = this.config.element.getElementsByClassName(widgetStyles['js-title'])[0] as HTMLElement;
+        if (titleElement) {
+            titleElement.innerText = title;
+        }
+    }
+
     private setClasses(): void {
         if (!this.isEnableEvents) {
             return;
@@ -253,9 +264,20 @@ export class ProductionPlan extends Chart {
                     });
                 }
             },
+            'kpi': () => {
+                if (TypeGuardsHelper.everyIsDataSetTemplate(this.config.template.dataSets)) {
+                    this.config.template.dataSets.forEach((v: DataSetTemplate) => {
+                        const event: IEventKpi = value as IEventKpi;
+                        if (KpiHelper.setKpi(v.dataSource1, event)) {
+                            needReload = true;
+                        }
+                    });
+                }
+            },
             'start date': () => { dataSet.from = value; needReload = true; },
             'finish date': () => { dataSet.to = value; needReload = true; },
-            'selected': () => { this.selected = Boolean(value); this.setClasses(); }
+            'selected': () => { this.selected = Boolean(value); this.setClasses(); },
+            'title': () => { this.setTitle(String(value)); }
         };
         await switchArr[varName]();
 

@@ -4,7 +4,7 @@ import {AggregationDataSource, DataSource, SingleDataSource} from "../interfaces
 export class TypeGuardsHelper {
     /**
      * Проверяем, что все элементы dataSets являются DataSetTemplate
-     * После вызова можно использовать все жлементы массива dataSets без преобразования!
+     * После вызова можно использовать все элементы массива dataSets без преобразования!
      */
     static everyIsDataSetTemplate(dataSets: DataSet[]): dataSets is DataSetTemplate[] {
         return dataSets.every((v: DataSet) => v.viewType !== 'TABLE');
