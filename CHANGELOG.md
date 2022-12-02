@@ -1,5 +1,9 @@
 ### ChangeLog
 
+##### 1.11.10 / 2022-12-02
+- В ProductionPlan исправлена установка title и kpi через шину
+- В ProductionPlan добавлен процент fact / plan
+
 ##### 1.11.9 / 2022-12-01
 - В ProductionPlan добавлена установка title и kpi через шину
 

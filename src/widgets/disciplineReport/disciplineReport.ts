@@ -13,7 +13,6 @@ import {IWidgetSettings} from "../../widgetSettings";
 import {WidgetConfigInner} from "../..";
 import {WidgetOptions} from "../../models/widgetOptions";
 import dayjs, {Dayjs} from "dayjs";
-import {Frequency} from "../../types";
 
 type VarNames = 'org units' | 'employees';
 
