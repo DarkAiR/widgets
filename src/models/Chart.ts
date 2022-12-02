@@ -26,6 +26,7 @@ export abstract class Chart implements IChart {
     protected widgetSettings: IWidgetSettings = null;   // Информация о настройках виджета
     protected chartData: IChartData = null;             // Данные, пришедшие из graphQL
     protected loading: boolean = false;                 // Идет загрузка данных
+    protected uniqId: string = '';                      // Уникальный ID для упрощения идентификации при отладке
 
     private resizeObserver: ResizeObserver = null;
 
@@ -56,6 +57,8 @@ export abstract class Chart implements IChart {
     constructor(config: WidgetConfigInner, options: WidgetOptions) {
         this.config = config;
         this.options = options;
+
+        this.uniqId = (this.config.template?.widgetType ?? '') + '_' + ~~(Math.random() * 1000);
 
         if (!this.config.eventBus) {
             this.config.eventBus = new EventBusWrapper(new EventBus());

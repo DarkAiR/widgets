@@ -4,7 +4,7 @@ import {settings as widgetSettings} from "./settings";
 import {
     IChartData,
     IWidgetVariables,
-    IEventOrgUnits, DataSetTemplate, ISettings, DataSet, SingleDataSource, IEventKpi
+    IEventOrgUnits, DataSetTemplate, ISettings, DataSet, SingleDataSource, JoinDataSetTemplate, TimeSeriesDataSetShort, DimensionFilter
 } from "../../interfaces";
 import {
     forEach as _forEach
@@ -15,7 +15,6 @@ import {IWidgetSettings} from "../../widgetSettings";
 import {WidgetConfigInner} from "../..";
 import {WidgetOptions} from "../../models/widgetOptions";
 import * as echarts from "echarts";
-import {KpiHelper} from "../../helpers/kpi.helper";
 
 type VarNames = 'org units' | 'kpi' | 'start date' | 'finish date' | 'selected' | 'title';
 
@@ -27,6 +26,7 @@ type VarNames = 'org units' | 'kpi' | 'start date' | 'finish date' | 'selected' 
 export class ProductionPlan extends Chart {
     private hovered: boolean = false;
     private selected: boolean = false;
+    private title: string = null;               // Храним title переменной, чтобы выставить его в момент рендера
 
     constructor(config: WidgetConfigInner, options: WidgetOptions) {
         super(config, options);
@@ -82,13 +82,14 @@ export class ProductionPlan extends Chart {
             const plan: number = data.data[1]?.[0]?.value ?? 0;
 
             this.config.element.innerHTML = this.renderTemplate({
-                title,
+                title: this.title || title,     // Внешний title или дефолтный
                 backgroundStyle: SettingsHelper.getBackgroundStyle(this.getWidgetSetting('background.color')),
                 paddingStyle: SettingsHelper.getPaddingStyle(this.getWidgetSetting('paddings')),
                 volume: formatValueFunc({value: volume}),
                 plan: formatPlanFunc({value: plan})
             });
 
+            const percent: number =  plan ? Math.min(Math.round(volume / plan * 100), 100) : 0;
             const options = {
                 series: [{
                     type: 'gauge',
@@ -125,14 +126,18 @@ export class ProductionPlan extends Chart {
                         show: false,
                     },
                     data: [{
-                        value: Math.min(Math.round(volume / plan * 100), 100),
+                        value: percent,
                         title: {
                             show: false
                         },
                         detail: {
-                            show: false,
+                            offsetCenter: [0, 1],
+                            fontSize: "1rem",
+                            lineHeight: "1",
+                            formatter: "{value}%",
+                            color: 'auto',
                         }
-                    }],
+                    }]
                 }]
             };
 
@@ -189,13 +194,6 @@ export class ProductionPlan extends Chart {
         this.setClasses();
     }
 
-    private setTitle(title: string): void {
-        const titleElement: HTMLElement = this.config.element.getElementsByClassName(widgetStyles['js-title'])[0] as HTMLElement;
-        if (titleElement) {
-            titleElement.innerText = title;
-        }
-    }
-
     private setClasses(): void {
         if (!this.isEnableEvents) {
             return;
@@ -239,7 +237,7 @@ export class ProductionPlan extends Chart {
     // tslint:disable-next-line:no-any
     private async onEventBusFunc(varName: VarNames, value: any, dataSourceId: number): Promise<boolean> {
         if (this.options?.logs?.eventBus ?? true) {
-            console.groupCollapsed('Report EventBus data');
+            console.groupCollapsed('Report EventBus data', this.uniqId);
             console.log(varName, '=', value);
             console.log('dataSourceId =', dataSourceId);
             console.groupEnd();
@@ -264,23 +262,42 @@ export class ProductionPlan extends Chart {
                     });
                 }
             },
-            'kpi': () => {
-                if (TypeGuardsHelper.everyIsDataSetTemplate(this.config.template.dataSets)) {
-                    this.config.template.dataSets.forEach((v: DataSetTemplate) => {
-                        const event: IEventKpi = value as IEventKpi;
-                        if (KpiHelper.setKpi(v.dataSource1, event)) {
-                            needReload = true;
-                        }
-                    });
-                }
-            },
+            'kpi': () => { needReload = this.processKpi((value as string[]) ?? []); },
             'start date': () => { dataSet.from = value; needReload = true; },
             'finish date': () => { dataSet.to = value; needReload = true; },
             'selected': () => { this.selected = Boolean(value); this.setClasses(); },
-            'title': () => { this.setTitle(String(value)); }
+            'title': () => { this.title = String(value); }
         };
         await switchArr[varName]();
 
+        return needReload;
+    }
+
+    private processKpi(kpi: string[]): boolean {
+        let needReload = false;
+        const dataSets: DataSet[] = this.config.template.dataSets;
+        const dimName: string = 'operation';     // FIXME: здесь требуется конкретный dimension
+
+        if (TypeGuardsHelper.everyIsDataSetTemplate(this.config.template.dataSets)) {
+            dataSets.forEach((v: DataSetTemplate) => {
+                if (TypeGuardsHelper.isSingleDataSource(v.dataSource1)) {
+                    // Ищем нужный фильтр в списке уже установленных
+                    const dimIndex: number = v.dataSource1.dimensions.findIndex((d: DimensionFilter) => d.name === dimName);
+                    if (dimIndex !== -1) {
+                        v.dataSource1.dimensions[dimIndex].values = kpi;
+                    } else {
+                        // Фильтра еще нет
+                        v.dataSource1.dimensions.push({
+                            name: dimName,
+                            values: kpi,
+                            expression: '',
+                            groupBy: false,
+                        });
+                    }
+                    needReload = true;
+                }
+            });
+        }
         return needReload;
     }
 
